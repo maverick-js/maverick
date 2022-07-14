@@ -1,0 +1,242 @@
+import type {
+  JSXAttrNamespace,
+  JSXElementNode,
+  JSXEventNamespace,
+  JSXRootNode,
+} from './jsx/parse-jsx';
+import * as t from 'typescript';
+import { createStringLiteral, escapeHTML } from './utils';
+
+/**
+ * At the moment we're directly referencing JSX nodes parsed by TS in our AST. In the future
+ * we should refactor this out and have an interop layer for nodes.
+ */
+
+const AST = Symbol('AST');
+
+export type AST = {
+  /** @internal */
+  [AST]: true;
+  root: JSXRootNode;
+  tree: ASTTree;
+};
+
+export type ASTTree = ASTNode[];
+
+export const enum ASTNodeKind {
+  Element = 1,
+  Spread = 2,
+  Attribute = 3,
+  Text = 4,
+  Expression = 5,
+  Ref = 7,
+  Event = 8,
+  Directive = 9,
+  Structural = 20,
+}
+
+export type ASTNode =
+  | ElementNode
+  | TextNode
+  | ExpressionNode
+  | AttributeNode
+  | SpreadNode
+  | RefNode
+  | EventNode
+  | DirectiveNode
+  | StructuralNode;
+
+export type ASTUnknownNode = {
+  kind: ASTNodeKind;
+};
+
+export const enum StructuralNodeType {
+  ElementEnd = 1,
+  FragmentStart = 2,
+  FragmentEnd = 3,
+  ChildrenStart = 4,
+  ChildrenEnd = 5,
+  AttributesEnd = 6,
+}
+
+export type StructuralNode = {
+  type: StructuralNodeType;
+  kind: ASTNodeKind.Structural;
+};
+
+export type ElementNode = {
+  kind: ASTNodeKind.Element;
+  ref: JSXElementNode;
+  tagName: string;
+  isVoid: boolean;
+  isSVG: boolean;
+  isCE: boolean;
+  isComponent: boolean;
+  hasChildren: boolean;
+  dynamic(): boolean;
+};
+
+export type TextNode = {
+  kind: ASTNodeKind.Text;
+  ref: t.JsxText;
+};
+
+export type ExpressionNode = {
+  kind: ASTNodeKind.Expression;
+  ref: t.JsxExpression;
+  root?: boolean;
+  observable?: boolean;
+  children?: AST[];
+  /** `string` if static. */
+  value: string | t.Expression;
+};
+
+export type SpreadNode = {
+  kind: ASTNodeKind.Spread;
+  ref: t.JsxSpreadAttribute;
+};
+
+export type AttributeNode = {
+  kind: ASTNodeKind.Attribute;
+  ref: t.JsxAttribute;
+  namespace: JSXAttrNamespace | null;
+  name: string;
+  value: string | t.StringLiteral | t.Expression;
+  observable?: boolean;
+};
+
+export type RefNode = {
+  kind: ASTNodeKind.Ref;
+  ref: t.JsxAttribute;
+  value: t.Expression;
+};
+
+export type EventNode = {
+  kind: ASTNodeKind.Event;
+  ref: t.JsxAttribute;
+  namespace: JSXEventNamespace | null;
+  type: string;
+  delegate: boolean;
+  value: t.Expression;
+};
+
+export type DirectiveNode = {
+  kind: ASTNodeKind.Directive;
+  name: string;
+  ref: t.JsxAttribute;
+  value: t.Expression;
+};
+
+export function createAST(root: JSXRootNode): AST {
+  return { [AST]: true, root, tree: [] };
+}
+
+export function createElementNode(info: Omit<ElementNode, 'kind'>): ElementNode {
+  return { kind: ASTNodeKind.Element, ...info };
+}
+
+export function createTextNode(info: Omit<TextNode, 'kind'>): TextNode {
+  return { kind: ASTNodeKind.Text, ...info };
+}
+
+export function createAttributeNode(info: Omit<AttributeNode, 'kind'>): AttributeNode {
+  return { kind: ASTNodeKind.Attribute, ...info };
+}
+
+export function createRefNode(info: Omit<RefNode, 'kind'>): RefNode {
+  return { kind: ASTNodeKind.Ref, ...info };
+}
+
+export function createEventNode(info: Omit<EventNode, 'kind'>): EventNode {
+  return { kind: ASTNodeKind.Event, ...info };
+}
+
+export function createDirectiveNode(info: Omit<DirectiveNode, 'kind'>): DirectiveNode {
+  return { kind: ASTNodeKind.Directive, ...info };
+}
+
+export function createExpressionNode(info: Omit<ExpressionNode, 'kind'>): ExpressionNode {
+  return { kind: ASTNodeKind.Expression, ...info };
+}
+
+export function createSpreadNode(info: Omit<SpreadNode, 'kind'>): SpreadNode {
+  return { kind: ASTNodeKind.Spread, ...info };
+}
+
+export function createStructuralNode(type: StructuralNodeType): StructuralNode {
+  return { kind: ASTNodeKind.Structural, type };
+}
+
+export function isAST(value: any): value is AST {
+  return !!value[AST];
+}
+
+export function isElementNode(node: ASTUnknownNode): node is ElementNode {
+  return node.kind === ASTNodeKind.Element;
+}
+
+export function isTextNode(node: ASTUnknownNode): node is TextNode {
+  return node.kind === ASTNodeKind.Text;
+}
+
+export function isAttributeNode(node: ASTUnknownNode): node is AttributeNode {
+  return node.kind === ASTNodeKind.Attribute;
+}
+
+export function isSpreadNode(node: ASTUnknownNode): node is SpreadNode {
+  return node.kind === ASTNodeKind.Spread;
+}
+
+export function isExpressionNode(node: ASTUnknownNode): node is ExpressionNode {
+  return node.kind === ASTNodeKind.Expression;
+}
+
+export function isRefNode(node: ASTUnknownNode): node is RefNode {
+  return node.kind === ASTNodeKind.Ref;
+}
+
+export function isEventNode(node: ASTUnknownNode): node is EventNode {
+  return node.kind === ASTNodeKind.Event;
+}
+
+export function isDirectiveNode(node: ASTUnknownNode): node is DirectiveNode {
+  return node.kind === ASTNodeKind.Directive;
+}
+
+export function isStructuralNode(node: ASTUnknownNode): node is StructuralNode {
+  return node.kind === ASTNodeKind.Structural;
+}
+
+export function isElementEnd(node: StructuralNode) {
+  return node.type === StructuralNodeType.ElementEnd;
+}
+
+export function isFragmentStart(node: StructuralNode) {
+  return node.type === StructuralNodeType.FragmentStart;
+}
+
+export function isFragmentEnd(node: StructuralNode) {
+  return node.type === StructuralNodeType.FragmentEnd;
+}
+
+export function isAttributesEnd(node: StructuralNode) {
+  return node.type === StructuralNodeType.AttributesEnd;
+}
+
+export function isChildrenStart(node: StructuralNode) {
+  return node.type === StructuralNodeType.ChildrenStart;
+}
+
+export function isChildrenEnd(node: StructuralNode) {
+  return node.type === StructuralNodeType.ChildrenEnd;
+}
+
+export function getAttrValue(node: AttributeNode) {
+  if (typeof node.value === 'string') {
+    return createStringLiteral(escapeHTML(node.value, true));
+  } else if (t.isStringLiteral(node.value)) {
+    return createStringLiteral(escapeHTML(node.value.getText(), true));
+  } else {
+    return node.observable ? `() => ${node.value.getText()}` : node.value.getText();
+  }
+}

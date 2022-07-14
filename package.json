@@ -1,0 +1,29 @@
+{
+  "name": "workspace-root",
+  "type": "module",
+  "scripts": {},
+  "devDependencies": {
+    "@microsoft/api-extractor": "^7.28.3",
+    "@types/node": "^18.0.3",
+    "esbuild": "^0.14.48",
+    "prettier": "^2.7.1",
+    "rimraf": "^3.0.2",
+    "simple-git-hooks": "^2.8.0",
+    "typescript": "^4.7.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx --no-install lint-staged",
+    "commit-msg": "npx --no -- commitlint --edit $1"
+  },
+  "lint-staged": {
+    "*.{js,ts,jsx,tsx,md,json}": "prettier --write"
+  },
+  "engines": {
+    "node": ">=16",
+    "pnpm": ">=7"
+  },
+  "volta": {
+    "node": "16.15.1"
+  },
+  "packageManager": "pnpm@7.2.1"
+}

@@ -1,14 +1,29 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "alwaysStrict": true,
+    "checkJs": true,
     "declaration": true,
     "declarationMap": false,
     "emitDeclarationOnly": true,
-    "preserveWatchOutput": true,
-    "noEmit": false,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "incremental": true,
+    "lib": ["es2020"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmit": false,
+    "noImplicitAny": false,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true,
+    "skipLibCheck": true,
     "sourceMap": false,
+    "strict": true,
+    "target": "es2020",
     "useDefineForClassFields": false
   }
 }

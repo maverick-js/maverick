@@ -5,7 +5,6 @@ import type {
   JSXRootNode,
 } from './jsx/parse-jsx';
 import * as t from 'typescript';
-import { createStringLiteral, escapeHTML } from './utils';
 
 /**
  * At the moment we're directly referencing JSX nodes parsed by TS in our AST. In the future
@@ -71,6 +70,7 @@ export type ElementNode = {
   isVoid: boolean;
   isSVG: boolean;
   isCE: boolean;
+  children?: AST;
   isComponent: boolean;
   hasChildren: boolean;
   dynamic(): boolean;
@@ -79,6 +79,7 @@ export type ElementNode = {
 export type TextNode = {
   kind: ASTNodeKind.Text;
   ref: t.JsxText;
+  value: string;
 };
 
 export type ExpressionNode = {
@@ -87,44 +88,46 @@ export type ExpressionNode = {
   root?: boolean;
   observable?: boolean;
   children?: AST[];
-  /** `string` if static. */
-  value: string | t.Expression;
+  dynamic: boolean;
+  value: string;
 };
 
 export type SpreadNode = {
   kind: ASTNodeKind.Spread;
   ref: t.JsxSpreadAttribute;
+  value: string;
 };
 
 export type AttributeNode = {
   kind: ASTNodeKind.Attribute;
-  ref: t.JsxAttribute;
+  ref: t.StringLiteral | t.Expression;
   namespace: JSXAttrNamespace | null;
   name: string;
-  value: string | t.StringLiteral | t.Expression;
+  value: string;
+  dynamic?: boolean;
   observable?: boolean;
 };
 
 export type RefNode = {
   kind: ASTNodeKind.Ref;
-  ref: t.JsxAttribute;
-  value: t.Expression;
+  ref: t.Expression;
+  value: string;
 };
 
 export type EventNode = {
   kind: ASTNodeKind.Event;
-  ref: t.JsxAttribute;
+  ref: t.Expression;
   namespace: JSXEventNamespace | null;
   type: string;
   delegate: boolean;
-  value: t.Expression;
+  value: string;
 };
 
 export type DirectiveNode = {
   kind: ASTNodeKind.Directive;
+  ref: t.Expression;
   name: string;
-  ref: t.JsxAttribute;
-  value: t.Expression;
+  value: string;
 };
 
 export function createAST(root: JSXRootNode): AST {
@@ -135,8 +138,8 @@ export function createElementNode(info: Omit<ElementNode, 'kind'>): ElementNode 
   return { kind: ASTNodeKind.Element, ...info };
 }
 
-export function createTextNode(info: Omit<TextNode, 'kind'>): TextNode {
-  return { kind: ASTNodeKind.Text, ...info };
+export function createTextNode(info: Omit<TextNode, 'kind' | 'value'>): TextNode {
+  return { kind: ASTNodeKind.Text, ...info, value: info.ref.getText() };
 }
 
 export function createAttributeNode(info: Omit<AttributeNode, 'kind'>): AttributeNode {
@@ -159,8 +162,13 @@ export function createExpressionNode(info: Omit<ExpressionNode, 'kind'>): Expres
   return { kind: ASTNodeKind.Expression, ...info };
 }
 
-export function createSpreadNode(info: Omit<SpreadNode, 'kind'>): SpreadNode {
-  return { kind: ASTNodeKind.Spread, ...info };
+const spreadTrimRE = /(?:^\{\.{3})(.*)(?:\}$)/;
+export function createSpreadNode(info: Omit<SpreadNode, 'kind' | 'value'>): SpreadNode {
+  return {
+    kind: ASTNodeKind.Spread,
+    ...info,
+    value: info.ref.getText().replace(spreadTrimRE, '$1'),
+  };
 }
 
 export function createStructuralNode(type: StructuralNodeType): StructuralNode {
@@ -229,14 +237,4 @@ export function isChildrenStart(node: StructuralNode) {
 
 export function isChildrenEnd(node: StructuralNode) {
   return node.type === StructuralNodeType.ChildrenEnd;
-}
-
-export function getAttrValue(node: AttributeNode) {
-  if (typeof node.value === 'string') {
-    return createStringLiteral(escapeHTML(node.value, true));
-  } else if (t.isStringLiteral(node.value)) {
-    return createStringLiteral(escapeHTML(node.value.getText(), true));
-  } else {
-    return node.observable ? `() => ${node.value.getText()}` : node.value.getText();
-  }
 }

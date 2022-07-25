@@ -1,6 +1,5 @@
 import { decode } from 'html-entities';
 import MagicString from 'magic-string';
-import * as t from 'typescript';
 import {
   type AttributeNode,
   type ElementNode,
@@ -15,32 +14,32 @@ import {
   isSpreadNode,
   isStructuralNode,
   isTextNode,
-  getAttrValue,
 } from '../ast';
 import { INNER_CONTENT_PROP } from '../jsx/constants';
 import { type ASTSerializer } from '../transform';
+import { escapeHTML } from '../../utils/html';
 import {
   createFunctionCall,
   createScopedDeclarations,
   createStringLiteral,
+  trimQuotes,
   trimWhitespace,
-} from '../utils';
-
-const spreadTrimRE = /(?:^\{\.{3})(.*)(?:\}$)/;
+} from '../../utils/print';
 
 const ID = {
   template: '$$_templ',
   element: '$$_el',
   component: '$$_comp',
-  markers: '$$_markers',
+  markers: '$$_mks',
   expression: '$$_expr',
 };
 
 const RUNTIME = {
-  createComponent: '$$_create_component',
-  createTemplate: '$$_create_template',
-  directive: '$$_directive',
+  template: '$$_template',
+  element: '$$_element',
+  component: '$$_component',
   markers: '$$_markers',
+  directive: '$$_directive',
   insert: '$$_insert',
   listen: '$$_listen',
   ref: '$$_ref',
@@ -53,6 +52,7 @@ const RUNTIME = {
   innerHTML: '$$_inner_html',
   innerText: '$$_inner_text',
   textContent: '$$_text_content',
+  mergeProps: '$$_merge_props',
   runHydrationEvents: '$$_run_hydration_events',
 };
 
@@ -62,12 +62,13 @@ const MARKERS = {
   expression: '<!X>',
 };
 
-function createTemplate(template: string | string[], isSVG?: boolean) {
+function createTemplate(template: string | string[], isSVG?: boolean, create = false) {
   return createFunctionCall(
-    RUNTIME.createTemplate,
-    [typeof template === 'string' ? template : template.join(''), isSVG && '1 /* SVG */'].filter(
-      Boolean,
-    ) as string[],
+    create ? RUNTIME.element : RUNTIME.template,
+    [
+      typeof template === 'string' ? template : `\`${template.join('')}\``,
+      isSVG && '1 /* SVG */',
+    ].filter(Boolean) as string[],
   );
 }
 
@@ -77,17 +78,16 @@ export const dom: ASTSerializer = {
       currentId: string = '',
       markersId: string = '',
       delegate = false,
+      component = false,
       templateId: string | undefined,
+      spreads: string[] = [],
+      props: string[] = [],
       expressions: string[] = [],
       template: string[] = [],
       element!: ElementNode,
       elements: ElementNode[] = [],
       globals = ctx.declarations,
       locals = createScopedDeclarations();
-
-    // TODO: if component -> group props in an array (except ref/directive/events) + group all children?
-    // map props to $$__create_props({ a:10, ..., get children() { return ...; } });
-    // only children --> () => props.children
 
     const newMarkerId = () => {
       if (!markersId) {
@@ -102,27 +102,63 @@ export const dom: ASTSerializer = {
         createFunctionCall(runtimeId, [
           currentId,
           createStringLiteral(node.name),
-          getAttrValue(node),
+          node.observable ? `() => ${node.value}` : node.value,
         ]),
       );
       ctx.runtimeImports.add(runtimeId);
     };
 
-    const addInnerContentExpression = (node: AttributeNode, runtimeId: string) => {
-      expressions.push(createFunctionCall(runtimeId, [currentId, getAttrValue(node)]));
-      ctx.runtimeImports.add(runtimeId);
-    };
-
     for (const node of ast.tree) {
+      if (component) {
+        if (isAttributeNode(node) && !node.namespace) {
+          if (!node.observable) {
+            props.push(`${node.name}: ${node.value}`);
+          } else {
+            props.push(`get ${node.name}() { return ${node.value}; }`);
+          }
+        } else if (isSpreadNode(node)) {
+          spreads.push(node.value);
+        } else if (isStructuralNode(node) && isElementEnd(node)) {
+          if (element.children) {
+            props.push(`get children() { return ${dom.serialize(element.children, ctx)}; }`);
+          }
+
+          const hasProps = props.length > 0;
+          const hasSpreads = spreads.length > 0;
+          const propsExpr = hasProps ? `{ ${props.join(', ')} }` : '';
+
+          expressions.push(
+            createFunctionCall(RUNTIME.insert, [
+              locals.create(ID.component, newMarkerId()),
+              createFunctionCall(RUNTIME.component, [
+                element.tagName,
+                hasSpreads
+                  ? !hasProps && spreads.length === 1
+                    ? spreads[0]
+                    : createFunctionCall(RUNTIME.mergeProps, [...spreads, propsExpr])
+                  : propsExpr,
+              ]),
+            ]),
+          );
+
+          props = [];
+          spreads = [];
+          component = false;
+          elements.pop();
+
+          if (hasSpreads) ctx.runtimeImports.add(RUNTIME.mergeProps);
+        }
+
+        continue;
+      }
+
       if (isStructuralNode(node)) {
         if (isAttributesEnd(node)) {
           template.push('>');
         } else if (isElementEnd(node)) {
           element = elements.pop()!;
-          if (!element?.isComponent) {
-            template.push(element.isVoid ? `/>` : `</${element.tagName}>`);
-            if (element.isSVG) template.push('</svg>');
-          }
+          template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
+          // if (element.isSVG) template.push('</svg>');
         }
       } else if (isElementNode(node)) {
         const dynamic = node.dynamic();
@@ -132,13 +168,13 @@ export const dom: ASTSerializer = {
             currentId = locals.create(
               ID.element,
               createFunctionCall(
-                RUNTIME.createTemplate,
+                RUNTIME.element,
                 [(templateId = globals.create(ID.template)), node.isSVG && '1 /* SVG */'].filter(
                   Boolean,
                 ) as string[],
               ),
             );
-            ctx.runtimeImports.add(RUNTIME.createTemplate);
+            ctx.runtimeImports.add(RUNTIME.element);
           } else {
             currentId = locals.create(node.isComponent ? ID.component : ID.element, newMarkerId());
           }
@@ -146,16 +182,11 @@ export const dom: ASTSerializer = {
 
         if (node.isComponent) {
           template.push(MARKERS.component);
-          expressions.push(
-            createFunctionCall(RUNTIME.insert, [
-              currentId,
-              createFunctionCall(RUNTIME.createComponent, [node.tagName]),
-            ]),
-          );
           ctx.runtimeImports.add(RUNTIME.insert);
-          ctx.runtimeImports.add(RUNTIME.createComponent);
+          ctx.runtimeImports.add(RUNTIME.component);
+          component = true;
         } else {
-          if (node.isSVG) template.push('<svg>');
+          // if (node.isSVG) template.push('<svg>');
           if (dynamic && dynamicElCount > 0) template.push(MARKERS.element);
           template.push(`<${node.tagName}`);
         }
@@ -177,21 +208,21 @@ export const dom: ASTSerializer = {
           }
         } else if (INNER_CONTENT_PROP.has(node.name)) {
           if (node.name === '$innerHTML') {
-            addInnerContentExpression(node, RUNTIME.innerHTML);
+            addAttrExpression(node, RUNTIME.innerHTML);
           } else if (node.name === '$innerText') {
-            addInnerContentExpression(node, RUNTIME.innerText);
+            addAttrExpression(node, RUNTIME.innerText);
           } else if (node.name === '$textContent') {
-            addInnerContentExpression(node, RUNTIME.textContent);
+            addAttrExpression(node, RUNTIME.textContent);
           }
-        } else if (typeof node.value === 'string' || t.isStringLiteral(node.value)) {
-          template.push(`${node.name}="${getAttrValue(node)}"`);
+        } else if (!node.dynamic) {
+          template.push(` ${node.name}="${escapeHTML(trimQuotes(node.value), true)}"`);
         } else if (node.name === 'value' || node.name === 'checked') {
           addAttrExpression(node, RUNTIME.prop);
         } else {
           addAttrExpression(node, RUNTIME.attr);
         }
       } else if (isRefNode(node)) {
-        expressions.push(createFunctionCall(RUNTIME.ref, [currentId, node.value.getText()]));
+        expressions.push(createFunctionCall(RUNTIME.ref, [currentId, node.value]));
         ctx.runtimeImports.add(RUNTIME.ref);
       } else if (isEventNode(node)) {
         const capture = node.namespace === '$oncapture';
@@ -201,7 +232,7 @@ export const dom: ASTSerializer = {
             [
               currentId,
               createStringLiteral(node.type),
-              node.value.getText(),
+              node.value,
               (capture || node.delegate) && `${node.delegate ? 1 : 0} /* DELEGATE */`,
               capture && `1 /* CAPTURE */`,
             ].filter(Boolean) as string[],
@@ -215,23 +246,21 @@ export const dom: ASTSerializer = {
 
         ctx.runtimeImports.add(RUNTIME.listen);
       } else if (isDirectiveNode(node)) {
-        expressions.push(
-          createFunctionCall(RUNTIME.directive, [currentId, node.name, node.value.getText()]),
-        );
+        expressions.push(createFunctionCall(RUNTIME.directive, [currentId, node.name, node.value]));
         ctx.runtimeImports.add(RUNTIME.directive);
       } else if (isTextNode(node)) {
-        const text = decode(trimWhitespace(node.ref.getText()));
+        const text = decode(trimWhitespace(node.value));
         if (text.length) template.push(text);
       } else if (isExpressionNode(node)) {
-        if (typeof node.value === 'string') {
-          template.push(node.value);
+        if (!node.dynamic) {
+          template.push(trimQuotes(node.value));
         } else {
           template.push(MARKERS.expression);
 
           const id = locals.create(ID.expression, newMarkerId());
 
           if (node.children) {
-            let text = new MagicString(node.value.getText()),
+            let text = new MagicString(node.value),
               start = node.ref.getStart() + 1;
 
             for (const ast of node.children) {
@@ -252,7 +281,7 @@ export const dom: ASTSerializer = {
             expressions.push(
               createFunctionCall(RUNTIME.insert, [
                 id,
-                node.observable ? `() => ${node.value.getText()}` : node.value.getText(),
+                node.observable ? `() => ${node.value}` : node.value,
               ]),
             );
           }
@@ -263,7 +292,7 @@ export const dom: ASTSerializer = {
             RUNTIME.spread,
             [
               currentId,
-              node.ref.getText().replace(spreadTrimRE, '$1'),
+              node.value,
               (element.isSVG || element.hasChildren) && `${element.isSVG ? 1 : 0} /* SVG */`,
               element.hasChildren && '1 /* HAS_CHILDREN */',
             ].filter(Boolean) as string[],
@@ -284,7 +313,7 @@ export const dom: ASTSerializer = {
         templateId = globals.create(ID.template, expression);
       }
 
-      ctx.runtimeImports.add(RUNTIME.createTemplate);
+      ctx.runtimeImports.add(RUNTIME.template);
     }
 
     if (locals.all.size) {
@@ -298,11 +327,13 @@ export const dom: ASTSerializer = {
         ` return ${ID.element}; `,
         '})()',
       ].join('');
-    } else {
+    } else if (templateId) {
       const firstNode = ast.tree[0];
       const isSVG = isElementNode(firstNode) && firstNode.isSVG;
-      ctx.runtimeImports.add(RUNTIME.createTemplate);
-      return createTemplate(templateId!, isSVG);
+      ctx.runtimeImports.add(RUNTIME.element);
+      return createTemplate(templateId, isSVG, true);
     }
+
+    return '';
   },
 };

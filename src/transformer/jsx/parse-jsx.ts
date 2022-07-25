@@ -1,16 +1,19 @@
 import * as t from 'typescript';
 import { buildAST } from './parse';
 import type { AST } from '../ast';
-import Stats from '../stats';
+import { Stats } from '../../utils/stats';
 
 export type ParseJSXOptions = {
   filename: string;
-  stats: Stats;
+  stats: Stats | null;
 };
 
 const tsxRE = /\.tsx/;
 
-export function parseJSX(source: string, options: Partial<ParseJSXOptions> = {}): AST[] {
+export function parseJSX(
+  source: string,
+  options: Partial<ParseJSXOptions> = {},
+): [start: number, ast: AST[]] {
   const { filename = '', stats } = options;
 
   stats?.start('ts_parse');
@@ -41,7 +44,7 @@ export function parseJSX(source: string, options: Partial<ParseJSXOptions> = {})
   t.forEachChild(sourceFile, parse);
   stats?.stop('parse');
 
-  return ast;
+  return [lastImportNode?.getEnd() ?? 0, ast];
 }
 
 export function isJSXElementNode(node: t.Node): node is JSXElementNode {

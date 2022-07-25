@@ -1,6 +1,6 @@
 import MagicString from 'magic-string';
 import * as t from 'typescript';
-import { trimQuotes } from '../utils';
+import { trimQuotes } from '../../utils/print';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
 import type { JSXAttrNamespace, JSXEventNamespace, JSXNamespace } from './parse-jsx';
 
@@ -44,7 +44,9 @@ export function isStaticExpression(node: t.Expression) {
     t.isLiteralExpression(node) ||
     t.isNoSubstitutionTemplateLiteral(node) ||
     t.isStringLiteral(node) ||
-    t.isNumericLiteral(node)
+    t.isNumericLiteral(node) ||
+    node.kind === t.SyntaxKind.TrueKeyword ||
+    node.kind === t.SyntaxKind.FalseKeyword
   );
 }
 

@@ -1,23 +1,11 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "allowUnreachableCode": false,
-    "alwaysStrict": true,
-    "checkJs": true,
-    "experimentalDecorators": true,
-    "forceConsistentCasingInFileNames": true,
-    "incremental": true,
+    "declarationDir": "types",
+    "jsx": "preserve",
     "lib": ["dom", "dom.iterable", "es2020"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "noImplicitAny": false,
-    "noImplicitReturns": true,
-    "noUnusedParameters": false,
-    "noImplicitOverride": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "es2020"
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "types": ["@types/node", "vitest/globals"]
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.cjs", "**/*.mjs"],
-  "exclude": ["node_modules", "dist", "packages/*/types"]
+  "include": ["src", "tests"]
 }

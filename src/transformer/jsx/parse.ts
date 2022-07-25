@@ -8,7 +8,6 @@ import {
   isValidEventNamespace,
   isValidNamespace,
 } from './utils';
-import { containsCallExpression, onceFn, trimQuotes } from '../utils';
 import * as t from 'typescript';
 import {
   type AST,
@@ -37,16 +36,28 @@ import {
   SVG_ELEMENT_TAGNAME,
   VOID_ELEMENT_TAGNAME,
 } from './constants';
+import { onceFn } from '../../utils/fn';
+import { containsCallExpression } from '../../utils/ts';
 
-export function buildAST(node: JSXRootNode, meta: Omit<JSXNodeMeta, 'parent'> = {}) {
-  const ast = createAST(node);
-  parseNode(node, ast, { ...meta, parent: undefined });
+export function buildAST(
+  root: JSXRootNode,
+  meta: Omit<JSXNodeMeta, 'parent'> = {},
+  skipRoot = false,
+) {
+  const ast = createAST(root);
+
+  if (!skipRoot) {
+    parseNode(root, ast, { ...meta, parent: undefined });
+  } else if (!t.isJsxSelfClosingElement(root)) {
+    parseChildren(root, ast, meta);
+  }
+
   return ast;
 }
 
 function parseNode(node: t.Node, ast: AST, meta: JSXNodeMeta) {
   if (isJSXElementNode(node)) {
-    parseElementNode(node, ast, meta);
+    parseElement(node, ast, meta);
   } else if (t.isJsxFragment(node)) {
     parseFragment(node, ast, meta);
   } else if (t.isJsxText(node) && !isEmptyNode(node)) {
@@ -56,12 +67,13 @@ function parseNode(node: t.Node, ast: AST, meta: JSXNodeMeta) {
   }
 }
 
-function parseElementNode(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
+function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   const tagName = getTagName(node);
   const isComponent = isComponentTagName(tagName);
   const isVoid = !isComponent && VOID_ELEMENT_TAGNAME.has(tagName);
   const isSVGChild =
     !isComponent && !meta.parent && tagName != 'svg' && SVG_ELEMENT_TAGNAME.has(tagName);
+  const isSVG = tagName === 'svg' || isSVGChild;
   const isSelfClosing = t.isJsxSelfClosingElement(node);
   const supportsChildren = isSelfClosing || isVoid;
 
@@ -71,25 +83,24 @@ function parseElementNode(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
 
   const hasChildren = filteredChildren.length > 0;
 
-  // Whether this element contains any dynamic expressions which would require the
-  // template to be split.
+  // Whether this element contains any dynamic expressions which would require a new marker.
   let isDynamic = isComponent;
   const dynamic = onceFn(() => {
     isDynamic = true;
   });
 
-  ast.tree.push(
-    createElementNode({
-      ref: node,
-      tagName,
-      isVoid,
-      isSVG: !!isSVGChild,
-      isCE: tagName.includes('-'),
-      hasChildren,
-      isComponent: isComponent,
-      dynamic: () => isDynamic,
-    }),
-  );
+  const element = createElementNode({
+    ref: node,
+    tagName,
+    isVoid,
+    isSVG,
+    isCE: tagName.includes('-'),
+    hasChildren,
+    isComponent,
+    dynamic: () => isDynamic,
+  });
+
+  ast.tree.push(element);
 
   const attributes = isSelfClosing ? node.attributes : node.openingElement.attributes;
   parseElementAttrs(attributes, ast, { parent: meta, dynamic });
@@ -97,12 +108,12 @@ function parseElementNode(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
 
   if (hasChildren) {
     ast.tree.push(createStructuralNode(StructuralNodeType.ChildrenStart));
-    for (const child of filteredChildren) {
-      parseNode(child, ast, {
-        parent: meta,
-        isSVGChild,
-        dynamic,
-      });
+    if (isComponent) {
+      element.children = buildAST(node, { isSVGChild, dynamic }, true);
+    } else {
+      for (const child of filteredChildren) {
+        parseNode(child, ast, { parent: meta, isSVGChild, dynamic });
+      }
     }
     ast.tree.push(createStructuralNode(StructuralNodeType.ChildrenEnd));
   }
@@ -130,6 +141,8 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
       continue;
     }
 
+    const value: t.StringLiteral | t.Expression = (literal || expression)!;
+
     const rawName = attr.name.escapedText as string;
     const rawNameParts = rawName.split(':');
 
@@ -137,11 +150,8 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
     const namespace = hasValidNamespace ? (rawNameParts[0] as JSXNamespace) : null;
     const name = hasValidNamespace ? rawNameParts[1] : rawName;
 
-    const valueNode: t.StringLiteral | t.Expression = (literal ?? expression)!;
-
-    const isStaticExpr = !literal && expression && isStaticExpression(expression);
-    const isStatic = literal || isStaticExpr;
-    const staticValue = isStatic ? trimQuotes(valueNode.getText()) : undefined;
+    const isStaticExpr = expression && isStaticExpression(expression);
+    const isStatic = !!literal || isStaticExpr;
 
     const isRef = name === '$ref';
     const isEvent = namespace?.startsWith('$on');
@@ -149,20 +159,20 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
 
     if (expression && !isStaticExpr) {
       if (isRef) {
-        ast.tree.push(createRefNode({ ref: attr, value: expression }));
+        ast.tree.push(createRefNode({ ref: expression, value: expression.getText() }));
         meta.dynamic?.();
       } else if (namespace === '$use') {
-        ast.tree.push(createDirectiveNode({ ref: attr, name, value: expression }));
+        ast.tree.push(createDirectiveNode({ ref: expression, name, value: expression.getText() }));
         meta.dynamic?.();
       } else if (isEvent) {
         const eventNamespace = namespace && isValidEventNamespace(namespace) ? namespace : null;
         const shouldDelegate = DELEGATED_EVENT_TYPE.has(name);
         ast.tree.push(
           createEventNode({
-            ref: attr,
+            ref: expression,
             namespace: eventNamespace,
             type: name,
-            value: expression,
+            value: expression.getText(),
             delegate: shouldDelegate,
           }),
         );
@@ -170,10 +180,11 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
       } else if (!namespace || isValidAttrNamespace(namespace)) {
         ast.tree.push(
           createAttributeNode({
-            ref: attr,
+            ref: expression,
             namespace,
             name,
-            value: expression,
+            value: value.getText(),
+            dynamic: !isStatic,
             observable: containsCallExpression(expression),
           }),
         );
@@ -183,22 +194,23 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
       if (CHILD_PROP.has(name) || hasValidNamespace || onlySupportsExpression) {
         ast.tree.push(
           createAttributeNode({
-            ref: attr,
+            ref: (literal || expression)!,
             namespace: isValidAttrNamespace(namespace) ? namespace : null,
             name,
-            value: (staticValue || expression)!,
-            observable: !staticValue && expression && containsCallExpression(expression),
+            value: value!.getText(),
+            dynamic: !isStatic,
+            observable: !isStatic && expression && containsCallExpression(expression),
           }),
         );
 
         meta.dynamic?.();
-      } else if (staticValue) {
+      } else {
         ast.tree.push(
           createAttributeNode({
-            ref: attr,
+            ref: (literal || expression)!,
             namespace: null,
             name: !meta.isSVGChild ? name.toLowerCase() : name,
-            value: staticValue,
+            value: value.getText(),
           }),
         );
       }
@@ -207,8 +219,11 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
 }
 
 function parseFragment(fragment: t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
-  const filteredChildren = filterEmptyJSXChildNodes(Array.from(fragment.children));
+  parseChildren(fragment, ast, meta);
+}
 
+function parseChildren(root: t.JsxElement | t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
+  const filteredChildren = filterEmptyJSXChildNodes(Array.from(root.children));
   ast.tree.push(createStructuralNode(StructuralNodeType.FragmentStart));
   for (const child of filteredChildren) parseNode(child, ast, { parent: meta });
   ast.tree.push(createStructuralNode(StructuralNodeType.FragmentEnd));
@@ -242,7 +257,8 @@ function parseExpression(node: t.JsxExpression, ast: AST, meta: JSXNodeMeta) {
       children,
       observable,
       root: !meta.parent,
-      value: isStatic ? trimQuotes(expression.getText()) : expression,
+      dynamic: !isStatic,
+      value: expression.getText(),
     }),
   );
 

@@ -1,15 +1,57 @@
 {
-  "name": "workspace-root",
+  "name": "@maverick-js/elements",
+  "description": "",
+  "license": "MIT",
+  "version": "0.0.0",
   "type": "module",
-  "scripts": {},
+  "module": "dist/prod/index.js",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "development": "./dist/dev/index.js",
+      "test": "./dist/dev/index.js",
+      "default": "./dist/prod/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "bundle": "rimraf dist && node .scripts/bundle.js",
+    "types": "tsc -p tsconfig.build.json && api-extractor run -c types.json && rimraf dist/*.d.ts",
+    "test": "vitest --run",
+    "format": "prettier src --write --loglevel warn",
+    "test:watch": "vitest --watch",
+    "validate": "pnpm test && pnpm bundle && pnpm types",
+    "release": "pnpm validate && standard-version && git push --follow-tags origin main && npm publish",
+    "size": "pnpm bundle && export-size ."
+  },
+  "dependencies": {
+    "@maverick-js/observables": "^3.0.0",
+    "@maverick-js/scheduler": "^1.0.0",
+    "html-entities": "^2.3.3",
+    "magic-string": "^0.26.2",
+    "normalize-path": "^3.0.0"
+  },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.28.3",
     "@types/node": "^18.0.3",
     "esbuild": "^0.14.48",
+    "export-size": "^0.5.2",
+    "jsdom": "^20.0.0",
+    "kleur": "^4.1.5",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "simple-git-hooks": "^2.8.0",
-    "typescript": "^4.7.4"
+    "standard-version": "^9.5.0",
+    "typescript": "^4.7.4",
+    "vite": "^3.0.0",
+    "vitest": "^0.15.2"
   },
   "simple-git-hooks": {
     "pre-commit": "npx --no-install lint-staged",
@@ -17,6 +59,19 @@
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx,md,json}": "prettier --write"
+  },
+  "contributors": [
+    "Rahim Alwer <rahim.alwer@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maverick-js/elements.git"
+  },
+  "bugs": {
+    "url": "https://github.com/maverick-js/elements/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "engines": {
     "node": ">=16",

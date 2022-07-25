@@ -28,6 +28,10 @@
 
       "ae-missing-release-tag": {
         "logLevel": "none"
+      },
+
+      "ae-internal-missing-underscore": {
+        "logLevel": "none"
       }
     },
 

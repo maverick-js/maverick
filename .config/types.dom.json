@@ -1,0 +1,12 @@
+{
+  "extends": "./types.base.json",
+
+  "projectFolder": "..",
+
+  "mainEntryPointFilePath": "../types/runtime/dom/index.d.ts",
+
+  "dtsRollup": {
+    "enabled": true,
+    "publicTrimmedFilePath": "../dom.d.ts"
+  }
+}

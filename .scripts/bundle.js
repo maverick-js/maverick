@@ -19,7 +19,7 @@ async function main() {
         __DEV__: dev ? 'true' : 'false',
       },
       external: ['typescript', 'vite', ...deps],
-      tsconfig: 'config/tsconfig.build.json',
+      tsconfig: '.config/tsconfig.build.json',
     };
   }
 

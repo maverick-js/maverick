@@ -12,17 +12,16 @@
       "test": "./dist/runtime/dev/index.js",
       "default": "./dist/runtime/prod/index.js"
     },
-    "./runtime/dom": {
+    "./dom": {
       "development": "./dist/runtime/dev/dom.js",
       "test": "./dist/runtime/dev/dom.js",
       "default": "./dist/runtime/prod/dom.js"
     },
-    "./runtime/ssr": {
+    "./ssr": {
       "development": "./dist/runtime/dev/ssr.js",
       "test": "./dist/runtime/dev/ssr.js",
       "default": "./dist/runtime/prod/ssr.js"
     },
-    "./transformer": "./dist/transformer/index.js",
     "./esbuild": "./dist/plugins/esbuild.js",
     "./rollup": "./dist/plugins/rollup.js",
     "./vite": "./dist/plugins/vite.js",
@@ -31,20 +30,28 @@
   },
   "files": [
     "dist/",
-    "index.d.ts"
+    "jsx-runtime/",
+    "*.d.ts"
   ],
   "scripts": {
     "dev": "vite dev sandbox",
     "build": "vite build sandbox",
     "preview": "vite preview sandbox",
     "bundle": "rimraf dist && node .scripts/bundle.js",
-    "types": "tsc -p tsconfig.build.json && api-extractor run -c types.json && rimraf dist/*.d.ts",
     "test": "vitest --run",
     "format": "prettier src --write --loglevel warn",
     "test:watch": "vitest --watch",
     "validate": "pnpm test && pnpm bundle && pnpm types",
     "release": "pnpm validate && standard-version && git push --follow-tags origin main && npm publish",
-    "size": "pnpm bundle && export-size ."
+    "size": "pnpm bundle && export-size .",
+    "types": "tsc -p .config/tsconfig.build.json && run-s types:* && rimraf dist/*.d.ts",
+    "types:index": "api-extractor run -c .config/types.index.json",
+    "types:dom": "api-extractor run -c .config/types.dom.json",
+    "types:ssr": "api-extractor run -c .config/types.ssr.json",
+    "types:esbuild": "api-extractor run -c .config/types.esbuild.json",
+    "types:rollup": "api-extractor run -c .config/types.rollup.json",
+    "types:vite": "api-extractor run -c .config/types.vite.json",
+    "types:webpack": "api-extractor run -c .config/types.webpack.json"
   },
   "dependencies": {
     "@maverick-js/observables": "^3.0.0",
@@ -56,20 +63,22 @@
   },
   "devDependencies": {
     "@maverick-js/elements": "link:./",
-    "@microsoft/api-extractor": "^7.28.3",
+    "@microsoft/api-extractor": "^7.28.6",
     "@types/node": "^18.0.3",
     "esbuild": "^0.14.48",
     "export-size": "^0.5.2",
     "globby": "^13.1.2",
     "jsdom": "^20.0.0",
     "kleur": "^4.1.5",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "simple-git-hooks": "^2.8.0",
     "standard-version": "^9.5.0",
     "typescript": "^4.7.4",
     "vite": "^3.0.0",
-    "vitest": "^0.19.0"
+    "vitest": "^0.19.0",
+    "webpack": "^5.74.0"
   },
   "simple-git-hooks": {
     "pre-commit": "npx --no-install lint-staged",

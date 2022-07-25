@@ -1,0 +1,12 @@
+{
+  "extends": "./types.base.json",
+
+  "projectFolder": "..",
+
+  "mainEntryPointFilePath": "../types/plugins/rollup.d.ts",
+
+  "dtsRollup": {
+    "enabled": true,
+    "publicTrimmedFilePath": "../rollup.d.ts"
+  }
+}

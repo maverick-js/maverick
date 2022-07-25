@@ -1,0 +1,12 @@
+{
+  "extends": "./types.base.json",
+
+  "projectFolder": "..",
+
+  "mainEntryPointFilePath": "../types/plugins/webpack.d.ts",
+
+  "dtsRollup": {
+    "enabled": true,
+    "publicTrimmedFilePath": "../webpack.d.ts"
+  }
+}

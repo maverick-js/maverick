@@ -1,0 +1,12 @@
+{
+  "extends": "./types.base.json",
+
+  "projectFolder": "..",
+
+  "mainEntryPointFilePath": "../types/plugins/esbuild.d.ts",
+
+  "dtsRollup": {
+    "enabled": true,
+    "publicTrimmedFilePath": "../esbuild.d.ts"
+  }
+}

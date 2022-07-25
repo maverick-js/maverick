@@ -1,0 +1,12 @@
+{
+  "extends": "./types.base.json",
+
+  "projectFolder": "..",
+
+  "mainEntryPointFilePath": "../types/runtime/ssr/index.d.ts",
+
+  "dtsRollup": {
+    "enabled": true,
+    "publicTrimmedFilePath": "../ssr.d.ts"
+  }
+}

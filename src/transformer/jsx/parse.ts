@@ -8,7 +8,7 @@ import {
   isValidEventNamespace,
   isValidNamespace,
 } from './utils';
-import * as t from 'typescript';
+import t from 'typescript';
 import {
   type AST,
   createAST,

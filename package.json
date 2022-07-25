@@ -4,14 +4,29 @@
   "license": "MIT",
   "version": "0.0.0",
   "type": "module",
-  "module": "dist/prod/index.js",
+  "module": "dist/runtime/prod/index.js",
   "sideEffects": false,
   "exports": {
     ".": {
-      "development": "./dist/dev/index.js",
-      "test": "./dist/dev/index.js",
-      "default": "./dist/prod/index.js"
+      "development": "./dist/runtime/dev/index.js",
+      "test": "./dist/runtime/dev/index.js",
+      "default": "./dist/runtime/prod/index.js"
     },
+    "./runtime/dom": {
+      "development": "./dist/runtime/dev/dom.js",
+      "test": "./dist/runtime/dev/dom.js",
+      "default": "./dist/runtime/prod/dom.js"
+    },
+    "./runtime/ssr": {
+      "development": "./dist/runtime/dev/ssr.js",
+      "test": "./dist/runtime/dev/ssr.js",
+      "default": "./dist/runtime/prod/ssr.js"
+    },
+    "./transformer": "./dist/transformer/index.js",
+    "./esbuild": "./dist/plugins/esbuild.js",
+    "./rollup": "./dist/plugins/rollup.js",
+    "./vite": "./dist/plugins/vite.js",
+    "./webpack": "./dist/plugins/webpack.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -19,9 +34,9 @@
     "index.d.ts"
   ],
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "vite dev sandbox",
+    "build": "vite build sandbox",
+    "preview": "vite preview sandbox",
     "bundle": "rimraf dist && node .scripts/bundle.js",
     "types": "tsc -p tsconfig.build.json && api-extractor run -c types.json && rimraf dist/*.d.ts",
     "test": "vitest --run",
@@ -36,13 +51,16 @@
     "@maverick-js/scheduler": "^1.0.0",
     "html-entities": "^2.3.3",
     "magic-string": "^0.26.2",
-    "normalize-path": "^3.0.0"
+    "normalize-path": "^3.0.0",
+    "unplugin": "^0.7.2"
   },
   "devDependencies": {
+    "@maverick-js/elements": "link:./",
     "@microsoft/api-extractor": "^7.28.3",
     "@types/node": "^18.0.3",
     "esbuild": "^0.14.48",
     "export-size": "^0.5.2",
+    "globby": "^13.1.2",
     "jsdom": "^20.0.0",
     "kleur": "^4.1.5",
     "prettier": "^2.7.1",
@@ -51,7 +69,7 @@
     "standard-version": "^9.5.0",
     "typescript": "^4.7.4",
     "vite": "^3.0.0",
-    "vitest": "^0.15.2"
+    "vitest": "^0.19.0"
   },
   "simple-git-hooks": {
     "pre-commit": "npx --no-install lint-staged",

@@ -24,7 +24,9 @@ export const LogLevelColor = Object.freeze({
 
 let currentLogLevel = LogLevel.Info;
 
-export function mapLogLevelStringToNumber(level: string): LogLevel {
+export type LogLevelName = 'silent' | 'error' | 'warn' | 'info' | 'verbose';
+
+export function mapLogLevelStringToNumber(level: LogLevelName): LogLevel {
   switch (level) {
     case 'silent':
       return LogLevel.Silent;

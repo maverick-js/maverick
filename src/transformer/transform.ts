@@ -11,23 +11,26 @@ import {
   createStringArray,
   type ScopedDeclarations,
 } from '../utils/print';
-import { log, LogLevel, logStats, setGlobalLogLevel } from '../utils/logger';
+import {
+  log,
+  LogLevel,
+  type LogLevelName,
+  logStats,
+  setGlobalLogLevel,
+  mapLogLevelStringToNumber,
+} from '../utils/logger';
 
 const DELEGATE_EVENTS_ID = '$$_delegate_events';
 
 export type TransformOptions = {
-  stats: boolean;
+  logLevel: LogLevelName;
   filename: string;
-  logLevel: LogLevel;
-  dev: boolean;
-  hydratable: boolean;
+  stats: boolean;
   sourcemap: boolean | SourceMapOptions;
   generate: 'dom' | 'ssr' | false;
 };
 
 export type TransformContext = {
-  dev: boolean;
-  hydratable: boolean;
   declarations: ScopedDeclarations;
   delegateEvents: Set<string>;
   runtimeImports: Set<string>;
@@ -39,11 +42,11 @@ export type ASTSerializer = {
 };
 
 export function transform(source: string, options: Partial<TransformOptions> = {}) {
-  const { filename, sourcemap, generate, stats: collectStats, logLevel = LogLevel.Warn } = options;
+  const { filename, sourcemap, generate, stats: collectStats, logLevel = 'warn' } = options;
   const SSR = generate === 'ssr';
   const stats = collectStats ? new Stats() : null;
 
-  setGlobalLogLevel(logLevel);
+  if (logLevel) setGlobalLogLevel(mapLogLevelStringToNumber(logLevel));
 
   stats?.start('ast');
   const [startPos, ast] = parseJSX(source, { ...options, stats });
@@ -52,8 +55,6 @@ export function transform(source: string, options: Partial<TransformOptions> = {
   const code = new MagicString(source);
 
   const ctx: TransformContext = {
-    dev: options.dev ?? false,
-    hydratable: options.hydratable ?? false,
     declarations: createScopedDeclarations(),
     delegateEvents: new Set(),
     runtimeImports: new Set(),
@@ -77,7 +78,7 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     log(`Runtime Imports: ${ctx.runtimeImports}`, LogLevel.Verbose);
     const runtimeImports = `import { ${Array.from(ctx.runtimeImports).join(
       ', ',
-    )} } from "@maverick-js/elements/runtime";`;
+    )} } from "@maverick-js/elements/runtime/${generate ?? 'dom'}";`;
     code.prepend(runtimeImports);
   }
 
@@ -99,7 +100,7 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     map: sourcemap
       ? code.generateMap(
           typeof sourcemap === 'boolean'
-            ? { source: filename }
+            ? { source: filename, file: filename }
             : { source: filename, ...sourcemap },
         )
       : null,

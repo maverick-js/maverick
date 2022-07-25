@@ -1,4 +1,4 @@
-import * as t from 'typescript';
+import t from 'typescript';
 
 export function containsCallExpression(node: t.Node) {
   if (t.isCallExpression(node)) return true;

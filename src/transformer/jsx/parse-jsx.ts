@@ -1,4 +1,4 @@
-import * as t from 'typescript';
+import t from 'typescript';
 import { buildAST } from './parse';
 import type { AST } from '../ast';
 import { Stats } from '../../utils/stats';
@@ -17,13 +17,7 @@ export function parseJSX(
   const { filename = '', stats } = options;
 
   stats?.start('ts_parse');
-  const sourceFile = t.createSourceFile(
-    filename,
-    source,
-    t.ScriptTarget.ESNext,
-    true,
-    tsxRE.test(filename) ? t.ScriptKind.TSX : t.ScriptKind.JSX,
-  );
+  const sourceFile = t.createSourceFile(filename, source, 99, true, tsxRE.test(filename) ? 4 : 2);
   stats?.stop('ts_parse');
 
   const ast: AST[] = [];

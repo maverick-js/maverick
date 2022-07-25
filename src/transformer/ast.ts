@@ -4,12 +4,7 @@ import type {
   JSXEventNamespace,
   JSXRootNode,
 } from './jsx/parse-jsx';
-import * as t from 'typescript';
-
-/**
- * At the moment we're directly referencing JSX nodes parsed by TS in our AST. In the future
- * we should refactor this out and have an interop layer for nodes.
- */
+import t from 'typescript';
 
 const AST = Symbol('AST');
 

@@ -49,6 +49,7 @@ async function main() {
         'src/transformer/index.ts',
         ...['esbuild', 'rollup', 'vite', 'webpack'].map((name) => `src/plugins/${name}.ts`),
       ],
+      platform: 'node',
       splitting: true,
       outdir: 'dist',
     }),

@@ -2,7 +2,7 @@
   "name": "@maverick-js/elements",
   "description": "",
   "license": "MIT",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "module": "dist/runtime/prod/index.js",
   "sideEffects": false,
@@ -22,6 +22,7 @@
       "test": "./dist/runtime/dev/ssr.js",
       "default": "./dist/runtime/prod/ssr.js"
     },
+    "./jsx-runtime": "./jsx-runtime.d.ts",
     "./esbuild": "./dist/plugins/esbuild.js",
     "./rollup": "./dist/plugins/rollup.js",
     "./vite": "./dist/plugins/vite.js",
@@ -30,7 +31,6 @@
   },
   "files": [
     "dist/",
-    "jsx-runtime/",
     "*.d.ts"
   ],
   "scripts": {
@@ -44,7 +44,7 @@
     "validate": "pnpm test && pnpm bundle && pnpm types",
     "release": "pnpm validate && standard-version && git push --follow-tags origin main && npm publish",
     "size": "pnpm bundle && export-size .",
-    "types": "tsc -p .config/tsconfig.build.json && run-s types:* && rimraf dist/*.d.ts",
+    "types": "rimraf [^j]*.d.ts && tsc -p .config/tsconfig.build.json && run-s types:* && rimraf dist/*.d.ts",
     "types:index": "api-extractor run -c .config/types.index.json",
     "types:dom": "api-extractor run -c .config/types.dom.json",
     "types:ssr": "api-extractor run -c .config/types.ssr.json",
@@ -54,18 +54,18 @@
     "types:webpack": "api-extractor run -c .config/types.webpack.json"
   },
   "dependencies": {
-    "@maverick-js/observables": "^3.0.0",
-    "@maverick-js/scheduler": "^1.0.0",
     "html-entities": "^2.3.3",
     "magic-string": "^0.26.2",
     "normalize-path": "^3.0.0",
     "unplugin": "^0.7.2"
   },
   "devDependencies": {
-    "@maverick-js/elements": "link:./",
+    "@maverick-js/observables": "^3.0.0",
+    "@maverick-js/scheduler": "^1.0.0",
     "@microsoft/api-extractor": "^7.28.6",
+    "@rollup/pluginutils": "^4.2.1",
     "@types/node": "^18.0.3",
-    "esbuild": "^0.14.48",
+    "esbuild": "^0.14.49",
     "export-size": "^0.5.2",
     "globby": "^13.1.2",
     "jsdom": "^20.0.0",
@@ -75,8 +75,9 @@
     "rimraf": "^3.0.2",
     "simple-git-hooks": "^2.8.0",
     "standard-version": "^9.5.0",
+    "type-fest": "^2.17.0",
     "typescript": "^4.7.4",
-    "vite": "^3.0.0",
+    "vite": "^3.0.3",
     "vitest": "^0.19.0",
     "webpack": "^5.74.0"
   },

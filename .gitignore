@@ -2,6 +2,7 @@ dist/
 
 types/
 /*.d.ts
+!/jsx-runtime.d.ts
 .tsbuildinfo
 
 sandbox/

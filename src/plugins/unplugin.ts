@@ -1,4 +1,4 @@
-import { createFilter, type FilterPattern } from 'vite';
+import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import { createUnplugin } from 'unplugin';
 import { type LogLevelName } from '../utils/logger';
 import { transform, type TransformOptions } from '../transformer';

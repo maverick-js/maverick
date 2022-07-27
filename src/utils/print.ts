@@ -71,39 +71,40 @@ export function trimWhitespace(text: string) {
   return text.replace(/\s+/g, ' ');
 }
 
-export type ScopedDeclarations = {
-  all: ReadonlyMap<string, string>;
-  create(id: string, value?: string): string;
-  update(id: string, value: string): void;
-  has(id: string): boolean;
-  serialize(pure?: boolean): string;
-};
+export class Declarations {
+  protected _all = new Map<string, string>();
+  protected _count: Record<string, number> = {};
 
-export function createScopedDeclarations(): ScopedDeclarations {
-  const all = new Map<string, string>();
-  const count: Record<string, number> = {};
-  return {
-    all,
-    create: (id: string, value = '') => {
-      const newId = count[id] ? `${id}_${(count[id] = count[id] + 1)}` : id;
-      if (!count[id]) count[id] = 1;
-      all.set(newId, value);
-      return newId;
-    },
-    update: (id: string, value: string) => {
-      if (all.has(id)) all.set(id, value);
-    },
-    has: (id) => {
-      return !!count[id];
-    },
-    serialize: (pure) => {
-      if (all.size === 0) return '';
+  get size() {
+    return this._all.size;
+  }
 
-      let values: string[] = [];
-      for (const [id, value] of all) {
-        values.push(`${id} = ${pure ? '/* #__PURE__ */ ' : ''}${value}`);
-      }
-      return `const ${values.join(', ')};`;
-    },
-  };
+  create(id: string, value = '') {
+    const newId = this._count[id] ? `${id}_${(this._count[id] = this._count[id] + 1)}` : id;
+    if (!this._count[id]) this._count[id] = 1;
+    this._all.set(newId, value);
+    return newId;
+  }
+
+  update(id: string, value: string) {
+    if (this._all.has(id)) {
+      this._all.set(id, value);
+    }
+  }
+
+  has(id: string) {
+    return !!this._count[id];
+  }
+
+  serialize(pure = false) {
+    if (this._all.size === 0) return '';
+
+    let values: string[] = [];
+
+    for (const [id, value] of this._all) {
+      values.push(`${id} = ${pure ? '/* #__PURE__ */ ' : ''}${value}`);
+    }
+
+    return `const ${values.join(',')};`;
+  }
 }

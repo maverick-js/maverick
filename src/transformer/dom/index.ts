@@ -20,8 +20,8 @@ import { type ASTSerializer } from '../transform';
 import { escapeHTML } from '../../utils/html';
 import {
   createFunctionCall,
-  createScopedDeclarations,
   createStringLiteral,
+  Declarations,
   trimQuotes,
   trimWhitespace,
 } from '../../utils/print';
@@ -77,7 +77,6 @@ export const dom: ASTSerializer = {
     let dynamicElCount = 0,
       currentId: string = '',
       markersId: string = '',
-      delegate = false,
       component = false,
       templateId: string | undefined,
       spreads: string[] = [],
@@ -86,14 +85,16 @@ export const dom: ASTSerializer = {
       template: string[] = [],
       element!: ElementNode,
       elements: ElementNode[] = [],
-      globals = ctx.declarations,
-      locals = createScopedDeclarations();
+      globals = ctx.globals,
+      runtime = ctx.runtime,
+      locals = new Declarations();
 
     const newMarkerId = () => {
       if (!markersId) {
         markersId = locals.create(ID.markers, createFunctionCall(RUNTIME.markers, [currentId]));
-        ctx.runtimeImports.add(RUNTIME.markers);
+        runtime.add(RUNTIME.markers);
       }
+
       return `${markersId}[${dynamicElCount++}]`;
     };
 
@@ -105,7 +106,8 @@ export const dom: ASTSerializer = {
           node.observable ? `() => ${node.value}` : node.value,
         ]),
       );
-      ctx.runtimeImports.add(runtimeId);
+
+      runtime.add(runtimeId);
     };
 
     for (const node of ast.tree) {
@@ -146,7 +148,7 @@ export const dom: ASTSerializer = {
           component = false;
           elements.pop();
 
-          if (hasSpreads) ctx.runtimeImports.add(RUNTIME.mergeProps);
+          if (hasSpreads) runtime.add(RUNTIME.mergeProps);
         }
 
         continue;
@@ -174,7 +176,7 @@ export const dom: ASTSerializer = {
                 ) as string[],
               ),
             );
-            ctx.runtimeImports.add(RUNTIME.element);
+            runtime.add(RUNTIME.element);
           } else {
             currentId = locals.create(node.isComponent ? ID.component : ID.element, newMarkerId());
           }
@@ -182,8 +184,8 @@ export const dom: ASTSerializer = {
 
         if (node.isComponent) {
           template.push(MARKERS.component);
-          ctx.runtimeImports.add(RUNTIME.insert);
-          ctx.runtimeImports.add(RUNTIME.component);
+          runtime.add(RUNTIME.insert);
+          runtime.add(RUNTIME.component);
           component = true;
         } else {
           // if (node.isSVG) template.push('<svg>');
@@ -223,7 +225,7 @@ export const dom: ASTSerializer = {
         }
       } else if (isRefNode(node)) {
         expressions.push(createFunctionCall(RUNTIME.ref, [currentId, node.value]));
-        ctx.runtimeImports.add(RUNTIME.ref);
+        runtime.add(RUNTIME.ref);
       } else if (isEventNode(node)) {
         const capture = node.namespace === '$oncapture';
         expressions.push(
@@ -240,14 +242,13 @@ export const dom: ASTSerializer = {
         );
 
         if (node.delegate) {
-          delegate = true;
-          ctx.delegateEvents.add(node.type);
+          ctx.delegates.add(node.type);
         }
 
-        ctx.runtimeImports.add(RUNTIME.listen);
+        runtime.add(RUNTIME.listen);
       } else if (isDirectiveNode(node)) {
         expressions.push(createFunctionCall(RUNTIME.directive, [currentId, node.name, node.value]));
-        ctx.runtimeImports.add(RUNTIME.directive);
+        runtime.add(RUNTIME.directive);
       } else if (isTextNode(node)) {
         const text = decode(trimWhitespace(node.value));
         if (text.length) template.push(text);
@@ -298,7 +299,7 @@ export const dom: ASTSerializer = {
             ].filter(Boolean) as string[],
           ),
         );
-        ctx.runtimeImports.add(RUNTIME.spread);
+        runtime.add(RUNTIME.spread);
       }
     }
 
@@ -313,24 +314,26 @@ export const dom: ASTSerializer = {
         templateId = globals.create(ID.template, expression);
       }
 
-      ctx.runtimeImports.add(RUNTIME.template);
+      runtime.add(RUNTIME.template);
     }
 
-    if (locals.all.size) {
-      if (delegate) ctx.runtimeImports.add(RUNTIME.runHydrationEvents);
+    if (locals.size) {
+      const hasDelegate = ctx.delegates.size > 0;
+      if (hasDelegate) runtime.add(RUNTIME.runHydrationEvents);
+
       return [
         `(() => { `,
-        `${locals.serialize()}`,
+        locals.serialize(),
         ...expressions.join(';'),
         ';',
-        delegate ? ` ${RUNTIME.runHydrationEvents}();` : '',
-        ` return ${ID.element}; `,
+        hasDelegate ? `${RUNTIME.runHydrationEvents}();` : '',
+        `return ${ID.element}; `,
         '})()',
       ].join('');
     } else if (templateId) {
       const firstNode = ast.tree[0];
       const isSVG = isElementNode(firstNode) && firstNode.isSVG;
-      ctx.runtimeImports.add(RUNTIME.element);
+      runtime.add(RUNTIME.element);
       return createTemplate(templateId, isSVG, true);
     }
 

@@ -11,7 +11,7 @@ it('should compile empty file', () => {
 it('should compile single JSX node', () => {
   const result = transform(`<div></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import { $$_template, $$_element } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_template, $$_element } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     $$_element($$_templ);
@@ -22,7 +22,7 @@ it('should compile single JSX node', () => {
 it('should compile single self-closing JSX node', () => {
   const result = transform(`<div />`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import { $$_template, $$_element } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_template, $$_element } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     $$_element($$_templ);
@@ -33,7 +33,7 @@ it('should compile single self-closing JSX node', () => {
 it('should compile multiple JSX nodes', () => {
   const result = transform(`<div><span id="a"></span><span id="b"></span></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import { $$_template, $$_element } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_template, $$_element } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(
       \`<div><span id=\\"a\\"></span><span id=\\"b\\"></span></div>\`
@@ -46,7 +46,7 @@ it('should compile multiple JSX nodes', () => {
 it('should compile fragment', () => {
   const result = transform(`<><div id="a"></div><div id="b"></div></>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import { $$_template, $$_element } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_template, $$_element } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(
       \`<div id=\\"a\\"></div><div id=\\"b\\"></div>\`
@@ -59,7 +59,7 @@ it('should compile fragment', () => {
 it('should compile nested fragment', () => {
   const result = transform(`<div id="root"><><div id="a"></div><div id="b"></div></></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import { $$_template, $$_element } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_template, $$_element } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(
       \`<div id=\\"root\\"><div id=\\"a\\"></div><div id=\\"b\\"></div></div>\`
@@ -72,7 +72,7 @@ it('should compile nested fragment', () => {
 it('should compile static attributes', () => {
   const result = transform(`<div class="foo bar" style="baz daz"></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import { $$_template, $$_element } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_template, $$_element } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(
       \`<div class=\\"foo bar\\" style=\\"baz daz\\"></div>\`
@@ -85,7 +85,7 @@ it('should compile static attributes', () => {
 it('should compile static attribute (number)', () => {
   const result = transform(`<div foo={10}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import { $$_template, $$_element } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_template, $$_element } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div foo=\\"10\\"></div>\`);
     $$_element($$_templ);
@@ -96,7 +96,7 @@ it('should compile static attribute (number)', () => {
 it('should compile static attribute (boolean)', () => {
   const result = transform(`<div foo={true} bar={false}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import { $$_template, $$_element } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_template, $$_element } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(
       \`<div foo=\\"true\\" bar=\\"false\\"></div>\`
@@ -109,7 +109,7 @@ it('should compile static attribute (boolean)', () => {
 it('should compile static attribute (template string)', () => {
   const result = transform(`<div foo={\`bar-baz\`} ></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import { $$_template, $$_element } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_template, $$_element } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div foo=\\"bar-baz\\"></div>\`);
     $$_element($$_templ);
@@ -120,11 +120,7 @@ it('should compile static attribute (template string)', () => {
 it('should compile spread', () => {
   const result = transform(`<div {...props} ></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_spread,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_spread, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -139,11 +135,7 @@ it('should compile spread', () => {
 it('should compile SVG spread', () => {
   const result = transform(`<svg {...props}></svg>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_spread,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_spread, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<svg></svg>\`, 1 /* SVG */);
     (() => {
@@ -158,11 +150,7 @@ it('should compile SVG spread', () => {
 it('should compile dynamic attribute', () => {
   const result = transform(`<div foo={id}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_attr,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_attr, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -177,11 +165,7 @@ it('should compile dynamic attribute', () => {
 it('should compile observable attribute', () => {
   const result = transform(`<div foo={id()}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_attr,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_attr, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -196,11 +180,7 @@ it('should compile observable attribute', () => {
 it('should compile $attr expression', () => {
   const result = transform(`<div $attr:foo="bar"></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_attr,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_attr, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -215,11 +195,7 @@ it('should compile $attr expression', () => {
 it('should compile $attr expression with observable', () => {
   const result = transform(`<div $attr:foo={id()}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_attr,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_attr, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -234,11 +210,7 @@ it('should compile $attr expression with observable', () => {
 it('should compile $prop expression', () => {
   const result = transform(`<div $prop:foo="bar"></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_prop,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_prop, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -253,11 +225,7 @@ it('should compile $prop expression', () => {
 it('should compile $prop expression with observable', () => {
   const result = transform(`<div $prop:foo={id()}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_prop,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_prop, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -272,11 +240,7 @@ it('should compile $prop expression with observable', () => {
 it('should compile $class expression', () => {
   const result = transform(`<div $class:foo="bar"></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_class,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_class, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -291,11 +255,7 @@ it('should compile $class expression', () => {
 it('should compile $class expression with observable', () => {
   const result = transform(`<div $class:foo={id()}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_class,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_class, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -310,11 +270,7 @@ it('should compile $class expression with observable', () => {
 it('should compile $style expression', () => {
   const result = transform(`<div $style:foo="bar"></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_style,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_style, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -329,11 +285,7 @@ it('should compile $style expression', () => {
 it('should compile $style expression with observable', () => {
   const result = transform(`<div $style:foo={id()}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_style,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_style, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -348,11 +300,7 @@ it('should compile $style expression with observable', () => {
 it('should compile $cssvar expression', () => {
   const result = transform(`<div $cssvar:foo-var={10}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_cssvar,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_cssvar, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -367,11 +315,7 @@ it('should compile $cssvar expression', () => {
 it('should compile $cssvar expression with observable', () => {
   const result = transform(`<div $cssvar:foo-var={id()}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_cssvar,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_cssvar, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -390,7 +334,7 @@ it('should compile $use expression', () => {
       $$_element,
       $$_directive,
       $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -405,11 +349,7 @@ it('should compile $use expression', () => {
 it('should compile $ref expression', () => {
   const result = transform(`<div $ref={(el) => {}}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_ref,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_ref, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -424,11 +364,7 @@ it('should compile $ref expression', () => {
 it('should compile $ref expression that uses array', () => {
   const result = transform(`<div $ref={[(el) => {}, (el) => {}]}></div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_ref,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_ref, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -443,11 +379,7 @@ it('should compile $ref expression that uses array', () => {
 it('should compile $on expression', () => {
   const result = transform(`<div $on:foo={(e) => {}} />`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_listen,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_listen, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -462,11 +394,7 @@ it('should compile $on expression', () => {
 it('should compile multiple $on expression', () => {
   const result = transform(`<div $on:foo={(e) => {}} $on:foo={(e) =>{}} />`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_listen,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_listen, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -482,11 +410,7 @@ it('should compile multiple $on expression', () => {
 it('should compile $oncapture expression', () => {
   const result = transform(`<div $oncapture:foo={(e) => {}} />`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_listen,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_listen, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -507,7 +431,7 @@ it('should delegate event listener', () => {
       $$_template,
       $$_run_hydration_events,
       $$_delegate_events,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -531,7 +455,7 @@ it('should delegate event listener (capture)', () => {
       $$_template,
       $$_run_hydration_events,
       $$_delegate_events,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
@@ -549,11 +473,7 @@ it('should delegate event listener (capture)', () => {
 it('should compile child expression', () => {
   const result = transform(`<div>{id}</div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_markers,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_markers, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!X></div>\`);
     (() => {
@@ -570,11 +490,7 @@ it('should compile child expression', () => {
 it('should compile observable child expression', () => {
   const result = transform(`<div>{id()}</div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_markers,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_markers, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!X></div>\`);
     (() => {
@@ -591,11 +507,7 @@ it('should compile observable child expression', () => {
 it('should compile conditional element expression ', () => {
   const result = transform(`<div id="a">{id > 10 && <div id="b"></div>}</div>`);
   expect(pretty(result)).toMatchInlineSnapshot(`
-    "import {
-      $$_element,
-      $$_markers,
-      $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    "import { $$_element, $$_markers, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div id=\\"a\\"><!X></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_template(\`<div id=\\"b\\"></div>\`);
@@ -619,7 +531,7 @@ it('should compile child component', () => {
       $$_component,
       $$_markers,
       $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!C></div>\`);
     (() => {
@@ -642,7 +554,7 @@ it('should compile child component with props', () => {
       $$_component,
       $$_markers,
       $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!C></div>\`);
     (() => {
@@ -674,7 +586,7 @@ it('should compile child component with spread', () => {
       $$_markers,
       $$_merge_props,
       $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!C></div>\`);
     (() => {
@@ -698,7 +610,7 @@ it('should compile child component with multiple spreads', () => {
       $$_markers,
       $$_merge_props,
       $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!C></div>\`);
     (() => {
@@ -725,7 +637,7 @@ it('should compile child component with props and spread', () => {
       $$_markers,
       $$_merge_props,
       $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!C></div>\`);
     (() => {
@@ -759,7 +671,7 @@ it('should compile child component with children', () => {
       $$_component,
       $$_template,
       $$_markers,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!C></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_template(\`<div></div>\`);
@@ -790,7 +702,7 @@ it('should compile child component with props and children', () => {
       $$_component,
       $$_template,
       $$_markers,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!C></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_template(\`<div></div>\`);
@@ -822,7 +734,7 @@ it('should compile child component containing expression', () => {
       $$_component,
       $$_markers,
       $$_template,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!C></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_template(\`<!X>\`);
@@ -860,7 +772,7 @@ it('should compile child component with fragment children', () => {
       $$_component,
       $$_template,
       $$_markers,
-    } from \\"@maverick-js/elements/runtime/dom\\";
+    } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div><!C></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_template(

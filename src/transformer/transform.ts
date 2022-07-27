@@ -6,12 +6,6 @@ import { parseJSX } from './jsx/parse-jsx';
 import { type AST } from './ast';
 import { overwrite } from './jsx/utils';
 import {
-  createFunctionCall,
-  createScopedDeclarations,
-  createStringArray,
-  type ScopedDeclarations,
-} from '../utils/print';
-import {
   log,
   LogLevel,
   type LogLevelName,
@@ -19,6 +13,12 @@ import {
   setGlobalLogLevel,
   mapLogLevelStringToNumber,
 } from '../utils/logger';
+import {
+  createFunctionCall,
+  createImportDeclaration,
+  createStringArray,
+  Declarations,
+} from '../utils/print';
 
 const DELEGATE_EVENTS_ID = '$$_delegate_events';
 
@@ -31,10 +31,9 @@ export type TransformOptions = {
 };
 
 export type TransformContext = {
-  declarations: ScopedDeclarations;
-  delegateEvents: Set<string>;
-  runtimeImports: Set<string>;
-  meta: Record<string, any>;
+  globals: Declarations;
+  runtime: Set<string>;
+  delegates: Set<string>;
 };
 
 export type ASTSerializer = {
@@ -55,40 +54,43 @@ export function transform(source: string, options: Partial<TransformOptions> = {
   const code = new MagicString(source);
 
   const ctx: TransformContext = {
-    declarations: createScopedDeclarations(),
-    delegateEvents: new Set(),
-    runtimeImports: new Set(),
-    meta: {},
+    globals: new Declarations(),
+    runtime: new Set(),
+    delegates: new Set(),
   };
 
   const serialize = (SSR ? ssr : dom).serialize;
 
   stats?.start('serialize');
-  for (const _ast of ast) overwrite(code, _ast.root, serialize(_ast, ctx));
+  for (const _ast of ast) {
+    overwrite(code, _ast.root, serialize(_ast, ctx));
+  }
   stats?.stop('serialize');
 
-  const hasDelegateEvents = ctx.delegateEvents.size > 0;
+  const hasDelegateEvents = ctx.delegates.size > 0;
 
   if (hasDelegateEvents) {
-    log(`Delegate Events: ${ctx.delegateEvents}`, LogLevel.Verbose);
-    ctx.runtimeImports.add(DELEGATE_EVENTS_ID);
+    log(`Delegate Events: ${ctx.delegates}`, LogLevel.Verbose);
+    ctx.runtime.add(DELEGATE_EVENTS_ID);
   }
 
-  if (ctx.runtimeImports.size > 0) {
-    log(`Runtime Imports: ${ctx.runtimeImports}`, LogLevel.Verbose);
-    const runtimeImports = `import { ${Array.from(ctx.runtimeImports).join(
-      ', ',
-    )} } from "@maverick-js/elements/runtime/${generate ?? 'dom'}";`;
-    code.prepend(runtimeImports);
+  if (ctx.runtime.size > 0) {
+    log(`Runtime Imports: ${ctx.runtime}`, LogLevel.Verbose);
+    code.prepend(
+      createImportDeclaration(
+        null,
+        Array.from(ctx.runtime),
+        `@maverick-js/elements/${generate ?? 'dom'}`,
+      ),
+    );
   }
 
-  if (ctx.declarations.all.size > 0) {
-    const declarations = ctx.declarations.serialize(true);
-    code.appendRight(startPos, `\n\n${declarations}`);
+  if (ctx.globals.size > 0) {
+    code.appendRight(startPos, `\n\n${ctx.globals.serialize(true)}`);
   }
 
   if (hasDelegateEvents) {
-    const events = Array.from(ctx.delegateEvents);
+    const events = Array.from(ctx.delegates);
     code.append(`\n\n${createFunctionCall(DELEGATE_EVENTS_ID, [createStringArray(events)])}`);
   }
 

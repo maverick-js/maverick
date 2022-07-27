@@ -1,3 +1,12 @@
+import { createFromBuffer } from '@dprint/formatter';
+import { getBuffer } from '@dprint/typescript';
+
+const formatter = createFromBuffer(getBuffer());
+
+export function format(filename: string, contents: string) {
+  return formatter.formatText(filename, contents);
+}
+
 export function createImportDeclaration(
   defaultSpecifier: string | null,
   namedSpecifiers: string[],
@@ -105,6 +114,6 @@ export class Declarations {
       values.push(`${id} = ${pure ? '/* #__PURE__ */ ' : ''}${value}`);
     }
 
-    return `const ${values.join(',')};`;
+    return `const ${values.join(`,\n  `)};\n`;
   }
 }

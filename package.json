@@ -54,6 +54,8 @@
     "types:webpack": "api-extractor run -c .config/types.webpack.json"
   },
   "dependencies": {
+    "@dprint/formatter": "^0.2.0",
+    "@dprint/typescript": "^0.71.1",
     "html-entities": "^2.3.3",
     "magic-string": "^0.26.2",
     "normalize-path": "^3.0.0",

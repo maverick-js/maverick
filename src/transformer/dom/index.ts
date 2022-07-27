@@ -324,9 +324,12 @@ export const dom: ASTSerializer = {
       return [
         `(() => { `,
         locals.serialize(),
+        '\n',
         ...expressions.join(';'),
         ';',
+        '\n',
         hasDelegate ? `${RUNTIME.runHydrationEvents}();` : '',
+        '\n',
         `return ${ID.element}; `,
         '})()',
       ].join('');

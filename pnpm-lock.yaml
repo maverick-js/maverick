@@ -1,6 +1,8 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@dprint/formatter': ^0.2.0
+  '@dprint/typescript': ^0.71.1
   '@maverick-js/observables': ^3.0.0
   '@maverick-js/scheduler': ^1.0.0
   '@microsoft/api-extractor': ^7.28.6
@@ -27,6 +29,8 @@ specifiers:
   webpack: ^5.74.0
 
 dependencies:
+  '@dprint/formatter': 0.2.0
+  '@dprint/typescript': 0.71.1
   html-entities: 2.3.3
   magic-string: 0.26.2
   normalize-path: 3.0.0
@@ -162,6 +166,14 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@dprint/formatter/0.2.0:
+    resolution: {integrity: sha512-E1q1JaOPeEUBhG//IUayqJQvNpqprZ0OCF8B/bIhUqSsMIp0Y74PgF8JPvDCrOdq43qiGUYAavVO8iCBHOoU/A==}
+    dev: false
+
+  /@dprint/typescript/0.71.1:
+    resolution: {integrity: sha512-MvpTR0HvKxL7Tstyn/bwITnTlU3sCoCZTe5f1pgDA63arwb+MapDLbtdTxv8XYwfIyAji5X8UNvV3Bwha86ldw==}
+    dev: false
 
   /@hutson/parse-repository-url/3.0.2:
     resolution: {integrity: sha512-H9XAx3hc0BQHY6l+IFSWHDySypcXsvsuLhgYLUGywmJ5pswRVQJUHpOsobnLYp2ZUaUlKiKDrgWWhosOwAEM8Q==}
@@ -588,6 +600,7 @@ packages:
     dependencies:
       normalize-path: 3.0.0
       picomatch: 2.3.1
+    dev: false
 
   /argparse/1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
@@ -619,6 +632,7 @@ packages:
   /binary-extensions/2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
+    dev: false
 
   /brace-expansion/1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
@@ -2046,6 +2060,7 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       binary-extensions: 2.2.0
+    dev: false
 
   /is-boolean-object/1.1.2:
     resolution: {integrity: sha512-gDYaKHJmnj4aWxyj6YHyXVpdQawtVLHU5cb+eztPGczf6cjuTdwve5ZIEfgXqH4e57An1D1AKf8CZ3kYrQRqYA==}
@@ -2825,6 +2840,7 @@ packages:
     engines: {node: '>=8.10.0'}
     dependencies:
       picomatch: 2.3.1
+    dev: false
 
   /redent/3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}

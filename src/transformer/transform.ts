@@ -18,6 +18,7 @@ import {
   createImportDeclaration,
   createStringArray,
   Declarations,
+  format,
 } from '../utils/print';
 
 const DELEGATE_EVENTS_ID = '$$_delegate_events';
@@ -41,7 +42,7 @@ export type ASTSerializer = {
 };
 
 export function transform(source: string, options: Partial<TransformOptions> = {}) {
-  const { filename, sourcemap, generate, stats: collectStats, logLevel = 'warn' } = options;
+  const { filename = '', sourcemap, generate, stats: collectStats, logLevel = 'warn' } = options;
   const SSR = generate === 'ssr';
   const stats = collectStats ? new Stats() : null;
 
@@ -63,7 +64,8 @@ export function transform(source: string, options: Partial<TransformOptions> = {
 
   stats?.start('serialize');
   for (const _ast of ast) {
-    overwrite(code, _ast.root, serialize(_ast, ctx));
+    // Slice of ;\n from end
+    overwrite(code, _ast.root, format(filename, serialize(_ast, ctx)).slice(0, -2));
   }
   stats?.stop('serialize');
 

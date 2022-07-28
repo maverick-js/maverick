@@ -191,7 +191,7 @@ it('should compile dynamic $prop expression', () => {
   `);
 });
 
-it('should compile $prop expression with observable', () => {
+it('should compile observable $prop expression', () => {
   const result = transform(`<div $prop:foo={id()}></div>`);
   expect(result.code).toMatchInlineSnapshot(`
     "import { $$_element, $$_prop, $$_template } from \\"@maverick-js/elements/dom\\";
@@ -208,7 +208,7 @@ it('should compile $prop expression with observable', () => {
 });
 
 it('should compile $class expression', () => {
-  const result = transform(`<div $class:foo="bar"></div>`);
+  const result = transform(`<div $class:foo={true}></div>`);
   expect(result.code).toMatchInlineSnapshot(`
     "import { $$_element, $$_class, $$_template } from \\"@maverick-js/elements/dom\\";
 
@@ -216,14 +216,14 @@ it('should compile $class expression', () => {
     (() => {
       const $$_el = $$_element($$_templ);
 
-      $$_class($$_el, \\"foo\\", \\"bar\\");
+      $$_class($$_el, \\"foo\\", true);
 
       return $$_el;
     })()"
   `);
 });
 
-it('should compile $class expression with observable', () => {
+it('should compile observable $class expression', () => {
   const result = transform(`<div $class:foo={id()}></div>`);
   expect(result.code).toMatchInlineSnapshot(`
     "import { $$_element, $$_class, $$_template } from \\"@maverick-js/elements/dom\\";
@@ -242,20 +242,48 @@ it('should compile $class expression with observable', () => {
 it('should compile $style expression', () => {
   const result = transform(`<div $style:foo="bar"></div>`);
   expect(result.code).toMatchInlineSnapshot(`
+    "import { $$_element, $$_template } from \\"@maverick-js/elements/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_template(\`<div style=\\"foo: bar\\"></div>\`);
+    $$_element($$_templ)"
+  `);
+});
+
+it('should compile dynamic $style expression', () => {
+  const result = transform(`<div $style:foo={id}></div>`);
+  expect(result.code).toMatchInlineSnapshot(`
     "import { $$_element, $$_style, $$_template } from \\"@maverick-js/elements/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
     (() => {
       const $$_el = $$_element($$_templ);
 
-      $$_style($$_el, \\"foo\\", \\"bar\\");
+      $$_style($$_el, \\"foo\\", id);
 
       return $$_el;
     })()"
   `);
 });
 
-it('should compile $style expression with observable', () => {
+it('should group multiple static $style expressions', () => {
+  const result = transform(
+    `<div style="foo: a; " $style:foo={"b"} $style:bar={true} $style:baz={id}></div>`,
+  );
+  expect(result.code).toMatchInlineSnapshot(`
+    "import { $$_element, $$_style, $$_template } from \\"@maverick-js/elements/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_template(\`<div style=\\"foo: a;foo: b;bar: true\\"></div>\`);
+    (() => {
+      const $$_el = $$_element($$_templ);
+
+      $$_style($$_el, \\"baz\\", id);
+
+      return $$_el;
+    })()"
+  `);
+});
+
+it('should compile observable $style expression', () => {
   const result = transform(`<div $style:foo={id()}></div>`);
   expect(result.code).toMatchInlineSnapshot(`
     "import { $$_element, $$_style, $$_template } from \\"@maverick-js/elements/dom\\";
@@ -272,23 +300,47 @@ it('should compile $style expression with observable', () => {
 });
 
 it('should compile $cssvar expression', () => {
-  const result = transform(`<div $cssvar:foo-var={10}></div>`);
+  const result = transform(`<div $cssvar:foo={10}></div>`);
+  expect(result.code).toMatchInlineSnapshot(`
+    "import { $$_element, $$_template } from \\"@maverick-js/elements/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_template(\`<div style=\\"--foo: 10\\"></div>\`);
+    $$_element($$_templ)"
+  `);
+});
+
+it('should group multiple static $cssvar expressions', () => {
+  const result = transform(
+    `<div style="pre: 10" $cssvar:foo={10} $cssvar:bar={'align-content'} $cssvar:baz={id}></div>`,
+  );
   expect(result.code).toMatchInlineSnapshot(`
     "import { $$_element, $$_cssvar, $$_template } from \\"@maverick-js/elements/dom\\";
 
-    const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
+    const $$_templ = /* #__PURE__ */ $$_template(\`<div style=\\"pre: 10;--foo: 10;--bar: align-content\\"></div>\`);
     (() => {
       const $$_el = $$_element($$_templ);
 
-      $$_cssvar($$_el, \\"foo-var\\", 10);
+      $$_cssvar($$_el, \\"baz\\", id);
 
       return $$_el;
     })()"
   `);
 });
 
-it('should compile $cssvar expression with observable', () => {
-  const result = transform(`<div $cssvar:foo-var={id()}></div>`);
+it('should group multiple static $style and $cssvar expressions', () => {
+  const result = transform(
+    `<div style="pre: 10" $style:baz={\`content\`} $style:boo={20} $cssvar:foo={10} $cssvar:bar={'align-content'}></div>`,
+  );
+  expect(result.code).toMatchInlineSnapshot(`
+    "import { $$_element, $$_template } from \\"@maverick-js/elements/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_template(\`<div style=\\"pre: 10;baz: content;boo: 20;--foo: 10;--bar: align-content\\"></div>\`);
+    $$_element($$_templ)"
+  `);
+});
+
+it('should compile dynamic $cssvar expression', () => {
+  const result = transform(`<div $cssvar:foo={id}></div>`);
   expect(result.code).toMatchInlineSnapshot(`
     "import { $$_element, $$_cssvar, $$_template } from \\"@maverick-js/elements/dom\\";
 
@@ -296,7 +348,23 @@ it('should compile $cssvar expression with observable', () => {
     (() => {
       const $$_el = $$_element($$_templ);
 
-      $$_cssvar($$_el, \\"foo-var\\", () => id());
+      $$_cssvar($$_el, \\"foo\\", id);
+
+      return $$_el;
+    })()"
+  `);
+});
+
+it('should compile observable $cssvar expression', () => {
+  const result = transform(`<div $cssvar:foo-bar={id()}></div>`);
+  expect(result.code).toMatchInlineSnapshot(`
+    "import { $$_element, $$_cssvar, $$_template } from \\"@maverick-js/elements/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
+    (() => {
+      const $$_el = $$_element($$_templ);
+
+      $$_cssvar($$_el, \\"foo-bar\\", () => id());
 
       return $$_el;
     })()"

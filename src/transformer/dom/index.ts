@@ -22,6 +22,7 @@ import {
   createStringLiteral,
   Declarations,
   trimQuotes,
+  trimTrailingSemicolon,
   trimWhitespace,
 } from '../../utils/print';
 
@@ -75,6 +76,7 @@ export const dom: ASTSerializer = {
       markersId: string = '',
       component = false,
       templateId: string | undefined,
+      styles: string[] = [],
       spreads: string[] = [],
       props: string[] = [],
       expressions: string[] = [],
@@ -153,6 +155,11 @@ export const dom: ASTSerializer = {
 
       if (isStructuralNode(node)) {
         if (isAttributesEnd(node)) {
+          if (styles.length > 0) {
+            template.push(` style="${styles.join(';')}"`);
+            styles = [];
+          }
+
           template.push('>');
         } else if (isElementEnd(node)) {
           element = elements.pop()!;
@@ -197,12 +204,24 @@ export const dom: ASTSerializer = {
           } else if (node.namespace === '$class') {
             addAttrExpression(node, RUNTIME.class);
           } else if (node.namespace === '$style') {
-            addAttrExpression(node, RUNTIME.style);
+            if (!node.dynamic) {
+              styles.push(`${node.name}: ${trimQuotes(node.value)}`);
+            } else {
+              addAttrExpression(node, RUNTIME.style);
+            }
           } else if (node.namespace === '$cssvar') {
-            addAttrExpression(node, RUNTIME.cssvar);
+            if (!node.dynamic) {
+              styles.push(`--${node.name}: ${trimQuotes(node.value)}`);
+            } else {
+              addAttrExpression(node, RUNTIME.cssvar);
+            }
           }
         } else if (!node.dynamic) {
-          template.push(` ${node.name}="${escapeHTML(trimQuotes(node.value), true)}"`);
+          if (node.name === 'style') {
+            styles.push(trimTrailingSemicolon(trimQuotes(node.value).trim()));
+          } else {
+            template.push(` ${node.name}="${escapeHTML(trimQuotes(node.value), true)}"`);
+          }
         } else {
           addAttrExpression(node, RUNTIME.attr);
         }
@@ -297,7 +316,7 @@ export const dom: ASTSerializer = {
       runtime.add(RUNTIME.template);
     }
 
-    if (locals.size) {
+    if (locals.size > 1 || expressions.length) {
       const hasDelegate = ctx.delegates.size > 0;
       if (hasDelegate) runtime.add(RUNTIME.runHydrationEvents);
 

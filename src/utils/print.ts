@@ -66,6 +66,11 @@ export function trimBraces(text: string) {
   return text.replace(/^\{/, '').replace(/\}$/, '');
 }
 
+const trailingSemicolon = /;$/;
+export function trimTrailingSemicolon(text: string) {
+  return text.replace(trailingSemicolon, '');
+}
+
 export function trimWhitespace(text: string) {
   text = text.replace(/\r/g, '');
 

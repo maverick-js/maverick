@@ -291,12 +291,9 @@ export const dom: ASTSerializer = {
         expressions.push(
           createFunctionCall(
             RUNTIME.spread,
-            [
-              currentId,
-              node.value,
-              (element.isSVG || element.hasChildren) && `${element.isSVG ? 1 : 0} /* SVG */`,
-              element.hasChildren && '1 /* HAS_CHILDREN */',
-            ].filter(Boolean) as string[],
+            [currentId, node.value, element.hasChildren && '1 /* HAS_CHILDREN */'].filter(
+              Boolean,
+            ) as string[],
           ),
         );
         runtime.add(RUNTIME.spread);
@@ -328,7 +325,7 @@ export const dom: ASTSerializer = {
         ...expressions.join(';'),
         ';',
         '\n',
-        hasDelegate ? `${RUNTIME.runHydrationEvents}();` : '',
+        hasDelegate ? `\n${RUNTIME.runHydrationEvents}();\n` : '',
         '\n',
         `return ${ID.element}; `,
         '})()',

@@ -39,14 +39,25 @@ export function toPropertyName(name: string) {
   return name.toLowerCase().replace(/-([a-z])/g, (_, w) => w.toUpperCase());
 }
 
+export function isTrueBoolExpression(node: t.Expression) {
+  return node.kind === t.SyntaxKind.TrueKeyword;
+}
+
+export function isFalseBoolExpression(node: t.Expression) {
+  return node.kind === t.SyntaxKind.FalseKeyword;
+}
+
+export function isBoolExpression(node: t.Expression) {
+  return isTrueBoolExpression(node) || isFalseBoolExpression(node);
+}
+
 export function isStaticExpression(node: t.Expression) {
   return (
     t.isLiteralExpression(node) ||
     t.isNoSubstitutionTemplateLiteral(node) ||
     t.isStringLiteral(node) ||
     t.isNumericLiteral(node) ||
-    node.kind === t.SyntaxKind.TrueKeyword ||
-    node.kind === t.SyntaxKind.FalseKeyword
+    isBoolExpression(node)
   );
 }
 

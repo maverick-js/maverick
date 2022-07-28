@@ -120,7 +120,7 @@ it('should compile SVG spread', () => {
     (() => {
       const $$_el = $$_element($$_templ, 1 /* SVG */);
 
-      $$_spread($$_el, props, 1 /* SVG */);
+      $$_spread($$_el, props);
 
       return $$_el;
     })()"
@@ -426,7 +426,9 @@ it('should delegate event listener', () => {
       const $$_el = $$_element($$_templ);
 
       $$_listen($$_el, \\"click\\", (e) => {}, 1 /* DELEGATE */);
+
       $$_run_hydration_events();
+
       return $$_el;
     })()
 
@@ -444,7 +446,9 @@ it('should delegate event listener (capture)', () => {
       const $$_el = $$_element($$_templ);
 
       $$_listen($$_el, \\"click\\", (e) => {}, 1, /* DELEGATE */ 1 /* CAPTURE */);
+
       $$_run_hydration_events();
+
       return $$_el;
     })()
 

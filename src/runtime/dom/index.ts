@@ -41,8 +41,8 @@ export function $$_listen(
   node: Node,
   type: string,
   handler: unknown,
-  isDelegate = false,
-  isSVG = false,
+  delegate = false,
+  capture = false,
 ) {
   //
 }

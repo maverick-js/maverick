@@ -159,40 +159,8 @@ it('should compile observable attribute', () => {
   `);
 });
 
-it('should compile $attr expression', () => {
-  const result = transform(`<div $attr:foo="bar"></div>`);
-  expect(result.code).toMatchInlineSnapshot(`
-    "import { $$_element, $$_attr, $$_template } from \\"@maverick-js/elements/dom\\";
-
-    const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
-    (() => {
-      const $$_el = $$_element($$_templ);
-
-      $$_attr($$_el, \\"foo\\", \\"bar\\");
-
-      return $$_el;
-    })()"
-  `);
-});
-
-it('should compile $attr expression with observable', () => {
-  const result = transform(`<div $attr:foo={id()}></div>`);
-  expect(result.code).toMatchInlineSnapshot(`
-    "import { $$_element, $$_attr, $$_template } from \\"@maverick-js/elements/dom\\";
-
-    const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
-    (() => {
-      const $$_el = $$_element($$_templ);
-
-      $$_attr($$_el, \\"foo\\", () => id());
-
-      return $$_el;
-    })()"
-  `);
-});
-
 it('should compile $prop expression', () => {
-  const result = transform(`<div $prop:foo="bar"></div>`);
+  const result = transform(`<div $prop:fooBar="baz"></div>`);
   expect(result.code).toMatchInlineSnapshot(`
     "import { $$_element, $$_prop, $$_template } from \\"@maverick-js/elements/dom\\";
 
@@ -200,7 +168,23 @@ it('should compile $prop expression', () => {
     (() => {
       const $$_el = $$_element($$_templ);
 
-      $$_prop($$_el, \\"foo\\", \\"bar\\");
+      $$_prop($$_el, \\"fooBar\\", \\"baz\\");
+
+      return $$_el;
+    })()"
+  `);
+});
+
+it('should compile dynamic $prop expression', () => {
+  const result = transform(`<div $prop:foo={id}></div>`);
+  expect(result.code).toMatchInlineSnapshot(`
+    "import { $$_element, $$_prop, $$_template } from \\"@maverick-js/elements/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_template(\`<div></div>\`);
+    (() => {
+      const $$_el = $$_element($$_templ);
+
+      $$_prop($$_el, \\"foo\\", id);
 
       return $$_el;
     })()"

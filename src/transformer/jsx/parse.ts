@@ -30,12 +30,7 @@ import {
   type JSXNamespace,
   type JSXElementNode,
 } from './parse-jsx';
-import {
-  CHILD_PROP,
-  DELEGATED_EVENT_TYPE,
-  SVG_ELEMENT_TAGNAME,
-  VOID_ELEMENT_TAGNAME,
-} from './constants';
+import { DELEGATED_EVENT_TYPE, SVG_ELEMENT_TAGNAME, VOID_ELEMENT_TAGNAME } from './constants';
 import { onceFn } from '../../utils/fn';
 import { containsCallExpression } from '../../utils/ts';
 
@@ -191,7 +186,7 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
         meta.dynamic?.();
       }
     } else {
-      if (CHILD_PROP.has(name) || hasValidNamespace || onlySupportsExpression) {
+      if (hasValidNamespace || onlySupportsExpression) {
         ast.tree.push(
           createAttributeNode({
             ref: (literal || expression)!,

@@ -1,14 +1,13 @@
 import type { JSXAttrNamespace, JSXNamespace } from './parse-jsx';
 
-export const RESERVED_ATTR_NAMESPACE = /*#__PURE__*/ new Set<JSXAttrNamespace>([
-  '$attr',
+export const RESERVED_ATTR_NAMESPACE = new Set<JSXAttrNamespace>([
   '$class',
   '$cssvar',
   '$prop',
   '$style',
 ]);
 
-export const RESERVED_NAMESPACE = /*#__PURE__*/ new Set<JSXNamespace>([
+export const RESERVED_NAMESPACE = new Set<JSXNamespace>([
   ...RESERVED_ATTR_NAMESPACE,
   '$on',
   '$oncapture',
@@ -42,9 +41,9 @@ const BOOLEAN_NAMES = [
   'selected',
 ];
 
-export const BOOL_ATTR = /*#__PURE__*/ new Set(BOOLEAN_NAMES);
+export const BOOL_ATTR = new Set(BOOLEAN_NAMES);
 
-export const PROP_NAME = /*#__PURE__*/ new Set([
+export const PROP_NAME = new Set([
   'className',
   'value',
   'readOnly',
@@ -55,13 +54,7 @@ export const PROP_NAME = /*#__PURE__*/ new Set([
   ...BOOLEAN_NAMES,
 ]);
 
-export const INNER_CONTENT_PROP = /*#__PURE__*/ new Set<string>([
-  '$innerHTML',
-  '$innerText',
-  '$textContent',
-]);
-
-export const CHILD_PROP = /*#__PURE__*/ INNER_CONTENT_PROP;
+export const INNER_CONTENT_PROP = new Set<string>(['innerHTML', 'innerText', 'textContent']);
 
 export const PROP_ALIAS = {
   class: 'className',
@@ -73,7 +66,7 @@ export const PROP_ALIAS = {
 };
 
 // List of Element events that can be delegated.
-export const DELEGATED_EVENT_TYPE = /*#__PURE__*/ new Set([
+export const DELEGATED_EVENT_TYPE = new Set([
   'beforeinput',
   'click',
   'dblclick',
@@ -98,7 +91,7 @@ export const DELEGATED_EVENT_TYPE = /*#__PURE__*/ new Set([
   'touchstart',
 ]);
 
-export const SVG_ELEMENT_TAGNAME = /*#__PURE__*/ new Set([
+export const SVG_ELEMENT_TAGNAME = new Set([
   // "a",
   'altGlyph',
   'altGlyphDef',
@@ -186,7 +179,7 @@ export const SVG_NS = {
   xml: 'http://www.w3.org/XML/1998/namespace',
 };
 
-export const DOM_ELEMENT_TAGNAME = /*#__PURE__*/ new Set([
+export const DOM_ELEMENT_TAGNAME = new Set([
   'html',
   'base',
   'head',

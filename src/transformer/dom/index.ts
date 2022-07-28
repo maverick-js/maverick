@@ -15,7 +15,6 @@ import {
   isStructuralNode,
   isTextNode,
 } from '../ast';
-import { INNER_CONTENT_PROP } from '../jsx/constants';
 import { type ASTSerializer } from '../transform';
 import { escapeHTML } from '../../utils/html';
 import {
@@ -49,9 +48,6 @@ const RUNTIME = {
   style: '$$_style',
   cssvar: '$$_cssvar',
   spread: '$$_spread',
-  innerHTML: '$$_inner_html',
-  innerText: '$$_inner_text',
-  textContent: '$$_text_content',
   mergeProps: '$$_merge_props',
   runHydrationEvents: '$$_run_hydration_events',
 };
@@ -98,13 +94,14 @@ export const dom: ASTSerializer = {
       return `${markersId}[${dynamicElCount++}]`;
     };
 
-    const addAttrExpression = (node: AttributeNode, runtimeId: string) => {
+    const addAttrExpression = (node: AttributeNode, runtimeId: string, named = true) => {
+      const value = node.observable ? `() => ${node.value}` : node.value;
+
       expressions.push(
-        createFunctionCall(runtimeId, [
-          currentId,
-          createStringLiteral(node.name),
-          node.observable ? `() => ${node.value}` : node.value,
-        ]),
+        createFunctionCall(
+          runtimeId,
+          named ? [currentId, createStringLiteral(node.name), value] : [currentId, value],
+        ),
       );
 
       runtime.add(runtimeId);
@@ -160,7 +157,6 @@ export const dom: ASTSerializer = {
         } else if (isElementEnd(node)) {
           element = elements.pop()!;
           template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
-          // if (element.isSVG) template.push('</svg>');
         }
       } else if (isElementNode(node)) {
         const dynamic = node.dynamic();
@@ -188,7 +184,6 @@ export const dom: ASTSerializer = {
           runtime.add(RUNTIME.component);
           component = true;
         } else {
-          // if (node.isSVG) template.push('<svg>');
           if (dynamic && dynamicElCount > 0) template.push(MARKERS.element);
           template.push(`<${node.tagName}`);
         }
@@ -197,29 +192,17 @@ export const dom: ASTSerializer = {
         elements.push(node);
       } else if (isAttributeNode(node)) {
         if (node.namespace) {
-          if (node.namespace === '$attr') {
-            addAttrExpression(node, RUNTIME.attr);
+          if (node.namespace === '$prop') {
+            addAttrExpression(node, RUNTIME.prop);
           } else if (node.namespace === '$class') {
             addAttrExpression(node, RUNTIME.class);
           } else if (node.namespace === '$style') {
             addAttrExpression(node, RUNTIME.style);
           } else if (node.namespace === '$cssvar') {
             addAttrExpression(node, RUNTIME.cssvar);
-          } else {
-            addAttrExpression(node, RUNTIME.prop);
-          }
-        } else if (INNER_CONTENT_PROP.has(node.name)) {
-          if (node.name === '$innerHTML') {
-            addAttrExpression(node, RUNTIME.innerHTML);
-          } else if (node.name === '$innerText') {
-            addAttrExpression(node, RUNTIME.innerText);
-          } else if (node.name === '$textContent') {
-            addAttrExpression(node, RUNTIME.textContent);
           }
         } else if (!node.dynamic) {
           template.push(` ${node.name}="${escapeHTML(trimQuotes(node.value), true)}"`);
-        } else if (node.name === 'value' || node.name === 'checked') {
-          addAttrExpression(node, RUNTIME.prop);
         } else {
           addAttrExpression(node, RUNTIME.attr);
         }

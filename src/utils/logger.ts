@@ -274,7 +274,7 @@ function buildCodeFrame(
 
     const newLines: string[] = [];
 
-    for (let i = start; i < end; i += 1) {
+    for (let i = start; i < end; i++) {
       if (lines[i] != null) {
         newLines.push(lines[i]);
         lineCounter += 1;

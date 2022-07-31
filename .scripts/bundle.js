@@ -17,6 +17,7 @@ async function main() {
       watch: hasArg('-w'),
       define: {
         __DEV__: dev ? 'true' : 'false',
+        __TEST__: 'false',
       },
       external: ['typescript', 'vite', ...deps],
       tsconfig: '.config/tsconfig.build.json',
@@ -34,6 +35,7 @@ async function main() {
       build({
         ...shared({ dev: false }),
         entryPoints,
+        minify: true,
         outfile: `dist/runtime/prod/${path}.js`,
       }),
     ]);

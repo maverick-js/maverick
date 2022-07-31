@@ -4,6 +4,7 @@ import type { ConditionalPick, KebabCase } from 'type-fest';
 import type { Observable } from '@maverick-js/observables';
 
 export type DOMElement = Element;
+export type DOMEvent = Event;
 
 export namespace JSX {
   /**
@@ -43,26 +44,25 @@ export namespace JSX {
     key?: any;
   }
 
-  export type Element =
-    | Node
-    | ElementArray
-    | ElementFactory
+  export type Node =
+    | DOMElement
+    | DocumentFragment
     | (string & {})
     | number
     | boolean
     | null
     | undefined;
 
-  export type ElementArray = Array<Element>;
+  export type Element = Node | ElementFactory;
 
   export type ElementFactory = {
-    (): Element;
+    (): Node;
   };
 
   export interface ElementAttributesProperty {}
 
   export interface ElementChildrenAttribute {
-    children: {};
+    children: Element;
   }
 
   /**
@@ -103,7 +103,7 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
-  export type Ref<Element extends DOMElement> = (ref: Element) => void;
+  export type Ref<Element extends DOMElement = DOMElement> = (ref: Element) => void;
 
   export type RefArray<Element extends DOMElement> = ReadonlyArray<Ref<Element>>;
 
@@ -126,16 +126,16 @@ export namespace JSX {
     readonly currentTarget: Target;
   };
 
-  export type EventHandler<Event extends TargetedEvent = TargetedEvent> = {
+  export type EventHandler<Event = DOMEvent> = {
     (this: never, event: Event): void;
   };
 
   /**
-   * Creates `$on:{type}` and `$oncapture:{type}` type definitions given an event record.
+   * Creates `$on:{type}` and `$on_capture:{type}` type definitions given an event record.
    *
    * @example
    * ```ts
-   * // { '$on:foo': (event: CustomEvent<string>) => void; '$oncapture:foo', ... }
+   * // { '$on:foo': (event: CustomEvent<string>) => void; '$on_capture:foo', ... }
    * type Events = OnAttributes<{
    *   'foo': CustomEvent<string>;
    *   'baz-he': CustomEvent<number>;
@@ -150,7 +150,7 @@ export namespace JSX {
     Record extends EventRecord,
     Target extends EventTarget = EventTarget,
   > = {
-    [P in keyof Record as `$oncapture:${Stringify<P>}`]?: EventHandler<
+    [P in keyof Record as `$on_capture:${Stringify<P>}`]?: EventHandler<
       TargetedEvent<Target, Record[P]>
     >;
   };

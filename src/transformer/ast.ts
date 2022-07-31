@@ -65,9 +65,11 @@ export type ElementNode = {
   isVoid: boolean;
   isSVG: boolean;
   isCE: boolean;
-  children?: AST;
+  children?: AST | TextNode | ExpressionNode;
   isComponent: boolean;
   hasChildren: boolean;
+  childCount: number;
+  childElementCount: number;
   dynamic(): boolean;
 };
 
@@ -85,6 +87,7 @@ export type ExpressionNode = {
   children?: AST[];
   dynamic: boolean;
   value: string;
+  fnId?: string;
 };
 
 export type SpreadNode = {
@@ -101,6 +104,7 @@ export type AttributeNode = {
   value: string;
   dynamic?: boolean;
   observable?: boolean;
+  fnId?: string;
 };
 
 export type RefNode = {
@@ -114,7 +118,6 @@ export type EventNode = {
   ref: t.Expression;
   namespace: JSXEventNamespace | null;
   type: string;
-  delegate: boolean;
   value: string;
 };
 

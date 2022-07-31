@@ -32,8 +32,8 @@ export function splitLineBreaks(str: string): string[] {
   return normalizeLineBreaks(str).split('\n');
 }
 
-export function createFunctionCall(id: string, params: string[] = []) {
-  return `${id}(${params.join(', ')})`;
+export function createFunctionCall(id: string, params: (string | number | null)[] = []) {
+  return `${id}(${params.length > 0 ? params.filter((v) => v !== null).join(', ') : ''})`;
 }
 
 export function createStringArray(values: string[]) {

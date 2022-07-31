@@ -13,19 +13,13 @@ import {
   setGlobalLogLevel,
   mapLogLevelStringToNumber,
 } from '../utils/logger';
-import {
-  createFunctionCall,
-  createImportDeclaration,
-  createStringArray,
-  Declarations,
-  format,
-} from '../utils/print';
-
-const DELEGATE_EVENTS_ID = '$$_delegate_events';
+import { createImportDeclaration, Declarations, format } from '../utils/print';
 
 export type TransformOptions = {
   logLevel: LogLevelName;
   filename: string;
+  dev: boolean;
+  hydratable: boolean;
   stats: boolean;
   sourcemap: boolean | SourceMapOptions;
   generate: 'dom' | 'ssr' | false;
@@ -34,7 +28,8 @@ export type TransformOptions = {
 export type TransformContext = {
   globals: Declarations;
   runtime: Set<string>;
-  delegates: Set<string>;
+  dev: boolean;
+  hydratable: boolean;
 };
 
 export type ASTSerializer = {
@@ -42,7 +37,16 @@ export type ASTSerializer = {
 };
 
 export function transform(source: string, options: Partial<TransformOptions> = {}) {
-  const { filename = '', sourcemap, generate, stats: collectStats, logLevel = 'warn' } = options;
+  const {
+    filename = '',
+    sourcemap,
+    generate,
+    dev = false,
+    hydratable = false,
+    stats: collectStats,
+    logLevel = 'warn',
+  } = options;
+
   const SSR = generate === 'ssr';
   const stats = collectStats ? new Stats() : null;
 
@@ -57,24 +61,22 @@ export function transform(source: string, options: Partial<TransformOptions> = {
   const ctx: TransformContext = {
     globals: new Declarations(),
     runtime: new Set(),
-    delegates: new Set(),
+    dev,
+    hydratable,
   };
 
   const serialize = (SSR ? ssr : dom).serialize;
 
   stats?.start('serialize');
   for (const _ast of ast) {
-    // Slice of ;\n from end
-    overwrite(code, _ast.root, format(filename, serialize(_ast, ctx)).slice(0, -2));
+    overwrite(
+      code,
+      _ast.root,
+      // slice of ;\n from end
+      dev ? format(filename, serialize(_ast, ctx)).slice(0, -2) : serialize(_ast, ctx),
+    );
   }
   stats?.stop('serialize');
-
-  const hasDelegateEvents = ctx.delegates.size > 0;
-
-  if (hasDelegateEvents) {
-    log(`Delegate Events: ${ctx.delegates}`, LogLevel.Verbose);
-    ctx.runtime.add(DELEGATE_EVENTS_ID);
-  }
 
   if (ctx.runtime.size > 0) {
     log(`Runtime Imports: ${ctx.runtime}`, LogLevel.Verbose);
@@ -89,11 +91,6 @@ export function transform(source: string, options: Partial<TransformOptions> = {
 
   if (ctx.globals.size > 0) {
     code.appendRight(startPos, `\n\n${ctx.globals.serialize(true)}`);
-  }
-
-  if (hasDelegateEvents) {
-    const events = Array.from(ctx.delegates);
-    code.append(`\n\n${createFunctionCall(DELEGATE_EVENTS_ID, [createStringArray(events)])}`);
   }
 
   if (stats) logStats(stats, LogLevel.Verbose);

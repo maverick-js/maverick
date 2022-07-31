@@ -2,7 +2,7 @@ import MagicString from 'magic-string';
 import t from 'typescript';
 import { trimQuotes } from '../../utils/print';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
-import type { JSXAttrNamespace, JSXEventNamespace, JSXNamespace } from './parse-jsx';
+import { JSXAttrNamespace, JSXEventNamespace, JSXNamespace } from './parse-jsx';
 
 export function isComponentTagName(tagName: string) {
   return (

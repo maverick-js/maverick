@@ -14,7 +14,7 @@ export function createImportDeclaration(
 ) {
   let _default = defaultSpecifier ? `${defaultSpecifier}, ` : '';
   let _named = namedSpecifiers.length > 0 ? `{ ${namedSpecifiers.join(', ')} }` : '';
-  return `import ${_default}${_named} from "${moduleId}";`;
+  return `import ${_default}${_named} from "${moduleId}";\n`;
 }
 
 export function escapeBackticks(value: string) {

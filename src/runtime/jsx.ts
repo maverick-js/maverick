@@ -26,7 +26,7 @@ export namespace JSX {
 
   export type Stringify<P> = P extends string ? P : never;
   export type AttrValue = string | number | boolean | null | undefined;
-  export type ObservableValue<T> = Observable<T> | T;
+  export type ObservableValue<T> = T | Observable<T>;
 
   export type ObservableAttributes<T> = {
     [P in keyof T]: ObservableValue<T[P] | null>;
@@ -47,22 +47,23 @@ export namespace JSX {
   export type Node =
     | DOMElement
     | DocumentFragment
-    | (string & {})
+    | string
     | number
     | boolean
     | null
-    | undefined;
+    | undefined
+    | Nodes
+    | NodeFactory;
 
-  export type Element = Node | ElementFactory;
+  export type Nodes = Node[];
+  export type NodeFactory = () => Node;
 
-  export type ElementFactory = {
-    (): Node;
-  };
+  export type Element = Node | Observable<Node>;
 
   export interface ElementAttributesProperty {}
 
   export interface ElementChildrenAttribute {
-    children: Element;
+    children?: Element;
   }
 
   /**
@@ -105,7 +106,7 @@ export namespace JSX {
 
   export type Ref<Element extends DOMElement = DOMElement> = (ref: Element) => void;
 
-  export type RefArray<Element extends DOMElement> = ReadonlyArray<Ref<Element>>;
+  export type RefArray<Element extends DOMElement = DOMElement> = ReadonlyArray<Ref<Element>>;
 
   export type RefAttributes<Element extends DOMElement> = {
     $ref?: Ref<Element> | RefArray<Element>;
@@ -245,7 +246,9 @@ export namespace JSX {
     [P in keyof Record as `$prop:${Stringify<P>}`]?: ObservableValue<Record[P] | null>;
   } & LowercasedObservableAttributes<ConditionalPick<Record, AttrValue>>;
 
-  export type HTMLAttributes = HTMLPropAttributes<HTMLProperties>;
+  export type HTMLAttributes = HTMLPropAttributes<HTMLProperties> & {
+    children?: Element;
+  };
 
   export type HTMLCSSProperties = {
     [P in keyof Omit<

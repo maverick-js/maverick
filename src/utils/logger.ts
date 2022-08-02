@@ -3,7 +3,6 @@ import normalizePath from 'normalize-path';
 import type { Node, SourceFile } from 'typescript';
 import { ms } from './ms';
 import { splitLineBreaks } from './print';
-import type { Stats } from './stats';
 import { isFunction, isObject } from './unit';
 
 export const enum LogLevel {
@@ -101,27 +100,9 @@ export const logTime: TimedLogger = (
   level = LogLevel.Info,
 ) => {
   const totalTime = process.hrtime(startTime);
-  const totalTimeText = kleur.green(
-    `${(totalTime[0] * 1000 + totalTime[1] / 1000000).toFixed(2)}ms`,
-  );
+  const totalTimeText = kleur.green(ms(totalTime[0] * 1000 + totalTime[1] / 1000000));
   log(() => `${message} in ${totalTimeText}.`, level);
 };
-
-export function logStats(stats: Stats, level = LogLevel.Verbose) {
-  if (currentLogLevel < level) return;
-
-  const { timings } = stats.render();
-  const message = ['\n\n', kleur.bold('STATS'), ` (${kleur.dim(ms(timings.total))})`];
-
-  for (const label of Object.keys(timings)) {
-    if (label !== 'total') {
-      message.push(`\n - ${kleur.magenta(label)} (${ms(timings[label].total)})`);
-    }
-  }
-
-  message.push('\n\n');
-  log(message.join(''), level);
-}
 
 export function formatPluginName(name: string) {
   return `[${name.startsWith('maverick') ? kleur.dim(name) : kleur.yellow(name)}]`;

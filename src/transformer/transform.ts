@@ -1,7 +1,6 @@
 import MagicString, { type SourceMapOptions } from 'magic-string';
 import { dom } from './dom';
 import { ssr } from './ssr';
-import { Stats } from '../utils/stats';
 import { parseJSX } from './jsx/parse-jsx';
 import { type AST } from './ast';
 import { overwrite } from './jsx/utils';
@@ -9,18 +8,18 @@ import {
   log,
   LogLevel,
   type LogLevelName,
-  logStats,
   setGlobalLogLevel,
   mapLogLevelStringToNumber,
+  logTime,
 } from '../utils/logger';
 import { createImportDeclaration, Declarations, format } from '../utils/print';
+import path from 'path';
 
 export type TransformOptions = {
   logLevel: LogLevelName;
   filename: string;
-  dev: boolean;
   hydratable: boolean;
-  stats: boolean;
+  pretty: boolean;
   sourcemap: boolean | SourceMapOptions;
   generate: 'dom' | 'ssr' | false;
 };
@@ -28,7 +27,6 @@ export type TransformOptions = {
 export type TransformContext = {
   globals: Declarations;
   runtime: Set<string>;
-  dev: boolean;
   hydratable: boolean;
 };
 
@@ -41,45 +39,44 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     filename = '',
     sourcemap,
     generate,
-    dev = false,
+    pretty = true,
     hydratable = false,
-    stats: collectStats,
     logLevel = 'warn',
   } = options;
 
   const SSR = generate === 'ssr';
-  const stats = collectStats ? new Stats() : null;
 
   if (logLevel) setGlobalLogLevel(mapLogLevelStringToNumber(logLevel));
 
-  stats?.start('ast');
-  const [startPos, ast] = parseJSX(source, { ...options, stats });
-  stats?.stop('ast');
+  log(() => `Transforming ${path.relative(process.cwd(), filename)}`, LogLevel.Info);
+  log(options, LogLevel.Verbose);
+
+  const astStartTime = process.hrtime();
+  const [startPos, ast] = parseJSX(source, options);
+  logTime('Built AST', astStartTime, LogLevel.Info);
 
   const code = new MagicString(source);
 
   const ctx: TransformContext = {
     globals: new Declarations(),
     runtime: new Set(),
-    dev,
     hydratable,
   };
 
   const serialize = (SSR ? ssr : dom).serialize;
 
-  stats?.start('serialize');
+  const serializeStartTime = process.hrtime();
   for (const _ast of ast) {
     overwrite(
       code,
       _ast.root,
       // slice of ;\n from end
-      dev ? format(filename, serialize(_ast, ctx)).slice(0, -2) : serialize(_ast, ctx),
+      pretty ? format(filename, serialize(_ast, ctx)).slice(0, -2) : serialize(_ast, ctx),
     );
   }
-  stats?.stop('serialize');
+  logTime('Serialized AST', serializeStartTime, LogLevel.Info);
 
   if (ctx.runtime.size > 0) {
-    log(`Runtime Imports: ${ctx.runtime}`, LogLevel.Verbose);
     code.prepend(
       createImportDeclaration(
         null,
@@ -90,13 +87,12 @@ export function transform(source: string, options: Partial<TransformOptions> = {
   }
 
   if (ctx.globals.size > 0) {
-    code.appendRight(startPos, `\n\n${ctx.globals.serialize(true)}`);
+    code.appendRight(startPos, `${startPos === 0 ? '\n' : '\n\n'}${ctx.globals.serialize(true)}`);
   }
 
-  if (stats) logStats(stats, LogLevel.Verbose);
+  log(() => `Result:\n\n${code}`, LogLevel.Verbose);
 
   return {
-    stats: options.stats,
     code: code.toString(),
     map: sourcemap
       ? code.generateMap(

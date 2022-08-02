@@ -1,25 +1,15 @@
 import { onDispose } from '@maverick-js/observables';
 import type { JSX } from '../jsx';
+import { insertNodeAtMarker } from './markers';
 
-export function isNode(node: any): node is Node {
+export function isDOMNode(node: any): node is Node {
   return node instanceof Node;
 }
 
-export function isCommentNode(node: unknown): node is Comment {
-  return isNode(node) && node.nodeType === 8;
-}
-
-export function isElementNode(node: unknown): node is Element {
-  return isNode(node) && node.nodeType === 1;
-}
-
-export function isFragmentNode(node: unknown): node is DocumentFragment {
-  return isNode(node) && node.nodeType === 11;
-}
-
-export function insert(parent: Element, value: JSX.Element, before?: Element) {
-  // if no before just append -> parent.appendChild()
-  // if it has before -> parent.insertBefore(before, value)
+export function insert(parent: Element, value: JSX.Element, before: Element | null = null) {
+  const marker = document.createComment('$$');
+  parent.insertBefore(marker, before);
+  insertNodeAtMarker(marker, value);
 }
 
 export function listen<Target extends EventTarget, EventType extends string>(

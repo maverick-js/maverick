@@ -88,17 +88,20 @@ export const dom: ASTSerializer = {
         if (!rootId) {
           if (!templateId) templateId = ctx.globals.create(ID.template);
           rootId = locals.create(ID.root, createFunctionCall(RUNTIME.clone, [templateId]));
+          ctx.runtime.add(RUNTIME.clone);
           elementIds[0] = ID.root;
           hierarchy.push(0);
         }
       },
       getParentElementId = () => getElementId(hierarchy, elementIds, locals),
-      getCurrentElementId = () =>
-        getElementId(
+      getCurrentElementId = () => {
+        if (!rootId) newRootId();
+        return getElementId(
           elementIndex > -1 ? [...hierarchy, elementIndex] : hierarchy,
           elementIds,
           locals,
-        ),
+        );
+      },
       getNextElementId = () => {
         const element = elements.at(-1);
         const nextSibling = elementIndex + 1;
@@ -133,6 +136,10 @@ export const dom: ASTSerializer = {
         ctx.runtime.add(runtimeId);
       };
 
+    const firstNode = ast.tree[0];
+    const isFirstNodeElement = isElementNode(firstNode);
+    const isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
+
     for (let i = 0; i < ast.tree.length; i++) {
       const node = ast.tree[i];
 
@@ -165,26 +172,40 @@ export const dom: ASTSerializer = {
           const hasProps = props.length > 0;
           const hasSpreads = spreads.length > 0;
           const propsExpr = hasProps ? `{ ${props.join(', ')} }` : '';
-          const beforeId = ctx.hydratable ? null : getNextElementId();
+          const createComponent = createFunctionCall(RUNTIME.createComponent, [
+            component.tagName,
+            hasSpreads
+              ? !hasProps && spreads.length === 1
+                ? spreads[0]
+                : createFunctionCall(RUNTIME.mergeProps, [...spreads, propsExpr])
+              : propsExpr,
+          ]);
 
-          expressions.push(
-            createFunctionCall(ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert, [
-              ctx.hydratable ? currentId : beforeId ? getParentElementId() : currentId,
-              createFunctionCall(RUNTIME.createComponent, [
-                component.tagName,
-                hasSpreads
-                  ? !hasProps && spreads.length === 1
-                    ? spreads[0]
-                    : createFunctionCall(RUNTIME.mergeProps, [...spreads, propsExpr])
-                  : propsExpr,
+          if (isFirstNodeComponent) {
+            expressions.push(createComponent);
+          } else {
+            const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;
+            const beforeId = ctx.hydratable ? null : getNextElementId();
+
+            expressions.push(
+              createFunctionCall(insertId, [
+                ctx.hydratable
+                  ? currentId
+                  : beforeId
+                  ? getParentElementId()
+                  : (currentId ??= getCurrentElementId()),
+                createComponent,
+                beforeId,
               ]),
-              beforeId,
-            ]),
-          );
+            );
+
+            ctx.runtime.add(insertId);
+          }
 
           props = [];
           spreads = [];
           component = undefined;
+          ctx.runtime.add(RUNTIME.createComponent);
           if (hasSpreads) ctx.runtime.add(RUNTIME.mergeProps);
         }
       } else if (isStructuralNode(node)) {
@@ -194,18 +215,24 @@ export const dom: ASTSerializer = {
             styles = [];
           }
 
-          template.push('>');
+          const element = elements.at(-1);
+          if (element && !element.isVoid) template.push('>');
         } else if (isChildrenStart(node)) {
           hierarchy.push(elementIndex);
           elementIndex = -1;
         } else if (isChildrenEnd(node)) {
           elementIndex = hierarchy.pop()!;
         } else if (isElementEnd(node)) {
-          const element = elements.pop()!;
-          template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
+          const element = elements.pop();
+          if (element) template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
         }
       } else if (isElementNode(node)) {
         if (!node.isComponent) elementIndex++;
+
+        if (isFirstNodeComponent && node == firstNode) {
+          component = node;
+          continue;
+        }
 
         const dynamic = node.dynamic();
         if (ctx.hydratable && dynamic) {
@@ -227,8 +254,6 @@ export const dom: ASTSerializer = {
 
         if (node.isComponent) {
           if (ctx.hydratable) template.push(MARKERS.component);
-          ctx.runtime.add(RUNTIME.insertAtMarker);
-          ctx.runtime.add(RUNTIME.createComponent);
           component = node;
         } else {
           if (ctx.hydratable && dynamic) template.push(MARKERS.element);
@@ -292,7 +317,7 @@ export const dom: ASTSerializer = {
             ? locals.create(ID.expression, newMarkerId())
             : beforeId
             ? getParentElementId()
-            : currentId;
+            : (currentId ??= getCurrentElementId());
           const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;
           const code = !node.children ? node.value : transformParentExpression(node, ctx);
           expressions.push(
@@ -302,6 +327,7 @@ export const dom: ASTSerializer = {
               beforeId,
             ]),
           );
+          ctx.runtime.add(insertId);
         }
       } else if (isSpreadNode(node)) {
         expressions.push(createFunctionCall(RUNTIME.spread, [currentId, node.value]));
@@ -322,30 +348,32 @@ export const dom: ASTSerializer = {
     }
 
     if (locals.size > 1 || expressions.length) {
-      const firstNode = ast.tree[0];
-      return [
-        `(() => { `,
-        locals.serialize(),
-        '\n',
-        ...expressions.join(';'),
-        ';',
-        '\n',
-        '\n',
-        `return ${
-          isElementNode(firstNode) && !firstNode.isComponent
-            ? !ctx.hydratable || firstNode.dynamic()
-              ? ID.element
-              : `${rootId}.firstElementChild`
-            : rootId
-        }; `,
-        '})()',
-      ].join('');
+      return isFirstNodeComponent
+        ? expressions.join(';')
+        : [
+            `(() => { `,
+            locals.serialize(),
+            '\n',
+            ...expressions.join(';'),
+            ';',
+            '\n',
+            '\n',
+            `return ${
+              isFirstNodeElement
+                ? !ctx.hydratable
+                  ? ID.element
+                  : !firstNode.dynamic()
+                  ? `${rootId}.firstChild`
+                  : rootId
+                : rootId
+            }; `,
+            '})()',
+          ].join('');
     } else if (templateId) {
-      const firstNode = ast.tree[0];
       ctx.runtime.add(RUNTIME.clone);
       return createFunctionCall(
         RUNTIME.clone,
-        isElementNode(firstNode) && !firstNode.isComponent
+        isFirstNodeElement && !isFirstNodeComponent
           ? [templateId, '1 /* ELEMENT */']
           : [templateId],
       );

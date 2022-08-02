@@ -1,11 +1,10 @@
 import t from 'typescript';
 import { buildAST } from './parse';
 import type { AST } from '../ast';
-import { Stats } from '../../utils/stats';
+import { logTime } from '../../utils/logger';
 
 export type ParseJSXOptions = {
   filename: string;
-  stats: Stats | null;
 };
 
 const tsxRE = /\.tsx/;
@@ -14,11 +13,11 @@ export function parseJSX(
   source: string,
   options: Partial<ParseJSXOptions> = {},
 ): [start: number, ast: AST[]] {
-  const { filename = '', stats } = options;
+  const { filename = '' } = options;
 
-  stats?.start('ts_parse');
+  const parseStartTime = process.hrtime();
   const sourceFile = t.createSourceFile(filename, source, 99, true, tsxRE.test(filename) ? 4 : 2);
-  stats?.stop('ts_parse');
+  logTime('Parsed Source File (TS)', parseStartTime);
 
   const ast: AST[] = [];
 
@@ -34,10 +33,7 @@ export function parseJSX(
     t.forEachChild(node, parse);
   };
 
-  stats?.start('parse');
   t.forEachChild(sourceFile, parse);
-  stats?.stop('parse');
-
   return [lastImportNode?.getEnd() ?? 0, ast];
 }
 

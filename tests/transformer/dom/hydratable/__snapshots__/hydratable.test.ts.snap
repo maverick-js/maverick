@@ -1,0 +1,534 @@
+// Vitest Snapshot v1
+
+exports[`should compile $class expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_class, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_class($$_el, \\"foo\\", true);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile $cssvar expression 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div style=\\"--foo: 10\\"></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should compile $on expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_listen, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_listen($$_el, \\"foo\\", (e) => {});
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile $on_capture expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_listen, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_listen($$_el, \\"foo\\", (e) => {}, 1 /* CAPTURE */);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile $prop expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_prop, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_prop($$_el, \\"fooBar\\", \\"baz\\");
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile $ref expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_ref, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_ref($$_el, (el) => {});
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile $ref expression that uses array 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_ref, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_ref($$_el, [(el) => {}, (el) => {}]);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile $style expression 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div style=\\"foo: bar\\"></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should compile $use expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_directive, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_directive($$_el, directive, [1, 2, 3]);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile SVG spread 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_spread, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><svg></svg>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_spread($$_el, props);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile child expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_insert_at_marker, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><!$></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_expr = $$_walker.nextNode();
+
+  $$_insert_at_marker($$_expr, id);
+
+  return $$_root.firstChild;
+})()"
+`;
+
+exports[`should compile conditional element expression  1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_create_template, $$_insert_at_marker } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"a\\"><!$></div>\`),
+  $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<div id=\\"b\\"></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_expr = $$_walker.nextNode();
+
+  $$_insert_at_marker($$_expr, id > 10 && $$_clone($$_templ_2, 1 /* ELEMENT */));
+
+  return $$_root.firstChild;
+})()"
+`;
+
+exports[`should compile dynamic $cssvar expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_cssvar, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_cssvar($$_el, \\"foo\\", id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile dynamic $prop expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_prop, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_prop($$_el, \\"foo\\", id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile dynamic $style expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_style, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_style($$_el, \\"foo\\", id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile dynamic attribute 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_attr, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_attr($$_el, \\"foo\\", id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile fragment 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"a\\"></div><div id=\\"b\\"></div>\`);
+$$_clone($$_templ)"
+`;
+
+exports[`should compile innerHTML expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_inner_html, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_inner_html($$_el, \\"baz\\");
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile multiple $on expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_listen, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_listen($$_el, \\"foo\\", (e) => {});
+  $$_listen($$_el, \\"foo\\", (e) => {});
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile multiple JSX nodes 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><span id=\\"a\\"></span><span id=\\"b\\"></span></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should compile native $on expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_listen, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_listen($$_el, \\"click\\", (e) => {});
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile nested fragment 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"root\\"><div id=\\"a\\"></div><div id=\\"b\\"></div></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should compile observable $class expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_class, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_class($$_el, \\"foo\\", id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile observable $cssvar expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_cssvar, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_cssvar($$_el, \\"foo-bar\\", id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile observable $prop expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_prop, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_prop($$_el, \\"foo\\", id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile observable $style expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_style, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_style($$_el, \\"foo\\", id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile observable attribute 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_attr, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_attr($$_el, \\"foo\\", () => id() + 10);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile observable child expression 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_insert_at_marker, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><!$></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_expr = $$_walker.nextNode();
+
+  $$_insert_at_marker($$_expr, id);
+
+  return $$_root.firstChild;
+})()"
+`;
+
+exports[`should compile observable conditional element expression  1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_listen, $$_create_template, $$_insert_at_marker } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"a\\"><!$></div>\`),
+  $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<!$><div id=\\"b\\"></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_expr = $$_walker.nextNode();
+
+  $$_insert_at_marker($$_expr, () =>
+    id() > 10 && (() => {
+      const $$_root = $$_clone($$_templ_2),
+        $$_walker = $$_create_markers_walker($$_root),
+        $$_el = $$_next_element($$_walker);
+
+      $$_listen($$_el, \\"click\\", id());
+
+      return $$_root;
+    })());
+
+  return $$_root.firstChild;
+})()"
+`;
+
+exports[`should compile single JSX node 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should compile single self-closing JSX node 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should compile spread 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_spread, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_spread($$_el, props);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should compile static attribute (boolean) 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div foo=\\"true\\" bar=\\"false\\"></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should compile static attribute (number) 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div foo=\\"10\\"></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should compile static attribute (template string) 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div foo=\\"bar-baz\\"></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should compile static attributes 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div class=\\"foo bar\\" style=\\"baz daz\\"></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should group multiple static $cssvar expressions 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_cssvar, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div style=\\"pre: 10;--foo: 10;--bar: align-content\\"></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_cssvar($$_el, \\"baz\\", id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should group multiple static $style and $cssvar expressions 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div style=\\"pre: 10;baz: content;boo: 20;--foo: 10;--bar: align-content\\"></div>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
+exports[`should group multiple static $style expressions 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_style, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div style=\\"foo: a;foo: b;bar: true\\"></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker);
+
+  $$_style($$_el, \\"baz\\", id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should return \`$root\` if first node is dynamic 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_next_element, $$_listen, $$_insert_at_marker, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><!$></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_el = $$_next_element($$_walker),
+    $$_expr = $$_walker.nextNode();
+
+  $$_listen($$_el, \\"click\\", id);
+  $$_insert_at_marker($$_expr, id);
+
+  return $$_root;
+})()"
+`;
+
+exports[`should return \`firstElementChild\` if first node is not dynamic 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_insert_at_marker, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><div><!$></div></div>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_walker = $$_create_markers_walker($$_root),
+    $$_expr = $$_walker.nextNode();
+
+  $$_insert_at_marker($$_expr, id);
+
+  return $$_root.firstChild;
+})()"
+`;

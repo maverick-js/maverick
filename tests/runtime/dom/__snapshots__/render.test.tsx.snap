@@ -1,0 +1,71 @@
+// Vitest Snapshot v1
+
+exports[`should be reactive 1`] = `
+<root>
+  <!--$$-->
+  <div>
+    <span>
+      Count is 
+      <!--$-->
+      1
+      <!--/$-->
+    </span>
+    <!--$-->
+    <input
+      type="number"
+    />
+  </div>
+</root>
+`;
+
+exports[`should be reactive 2`] = `
+<root>
+  <!--$$-->
+  <div>
+    <span>
+      Count is 
+      <!--$-->
+      2
+      <!--/$-->
+    </span>
+    <!--$-->
+    <input
+      type="number"
+    />
+  </div>
+</root>
+`;
+
+exports[`should be reactive 3`] = `
+<root>
+  <!--$$-->
+  <div>
+    <span>
+      Count is 
+      <!--$-->
+      3
+      <!--/$-->
+    </span>
+    <!--$-->
+    <input
+      type="number"
+    />
+  </div>
+</root>
+`;
+
+exports[`should render element 1`] = `
+<root>
+  <!--$$-->
+  <div />
+</root>
+`;
+
+exports[`should render fragment 1`] = `
+<root>
+  <!--$$-->
+  <div />
+  <div />
+  <div />
+</root>
+`;

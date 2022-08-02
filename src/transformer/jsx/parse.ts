@@ -272,7 +272,6 @@ function buildExpressionNode(node: t.JsxExpression, meta: JSXNodeMeta): Expressi
   t.forEachChild(node, parse);
 
   const isStatic = !isObservable && !children && isStaticExpression(expression);
-  if (!isStatic) meta.dynamic?.();
 
   return createExpressionNode({
     ref: node,

@@ -51,7 +51,7 @@ export function $$_create_component<T = any>(
 }
 
 /** @internal */
-export function $$_ref(element: Element, ref: JSX.Ref) {
+export function $$_ref(element: Element, ref: JSX.Ref | JSX.RefArray) {
   if (isArray(ref)) {
     ref.filter(isFunction).forEach((ref) => ref(element));
   } else if (isFunction(ref)) {
@@ -68,37 +68,37 @@ export function $$_directive(element: Element, directive: JSX.Directive, args: u
 
 /** @internal */
 export function $$_attr(element: Element, name: string, value: unknown) {
-  observe_or_run(value, (value) => setAttribute(element, name, value));
+  observeOrRun(value, (value) => setAttribute(element, name, value));
 }
 
 /** @internal */
 export function $$_prop(element: Element, name: string, value: unknown) {
-  observe_or_run(value, (value) => {
+  observeOrRun(value, (value) => {
     element[name] = value;
   });
 }
 
 /** @internal */
 export function $$_inner_html(element: Element, value: unknown) {
-  observe_or_run(value, (value) => {
+  observeOrRun(value, (value) => {
     if (!hydration) element.innerHTML = value as string;
   });
 }
 
 /** @internal */
 export function $$_class(element: Element, name: string, value: unknown) {
-  observe_or_run(value, (value) => toggleClass(element, name, value));
+  observeOrRun(value, (value) => toggleClass(element, name, value));
 }
 
 /** @internal */
 export function $$_style(element: HTMLElement, name: string, value: unknown) {
-  observe_or_run(value, (value) => setStyle(element, name, value));
+  observeOrRun(value, (value) => setStyle(element, name, value));
 }
 
 /** @internal */
 export function $$_cssvar(element: HTMLElement, name: string, value: unknown) {
   const prop = `--${name}`;
-  observe_or_run(value, (value) => setStyle(element, prop, value));
+  observeOrRun(value, (value) => setStyle(element, prop, value));
 }
 
 /** @internal */
@@ -133,7 +133,7 @@ export function $$_listen(target: EventTarget, type: string, handler: unknown, c
   }
 }
 
-function observe_or_run<T>(value: T, callback: (value: T) => void) {
+function observeOrRun<T>(value: T, callback: (value: T) => void) {
   if (isFunction(value)) {
     $effect(() => callback(value()));
   } else {

@@ -87,6 +87,18 @@ export function transform(source: string, options: Partial<TransformOptions> = {
   }
 
   if (ctx.globals.size > 0) {
+    const seen = new Set();
+    for (const [id, value] of ctx.globals.all) {
+      if (!seen.has(id)) {
+        for (const [idTwo, valueTwo] of ctx.globals.all) {
+          if (id !== idTwo && value === valueTwo) {
+            ctx.globals.update(idTwo, id);
+            seen.add(idTwo);
+          }
+        }
+      }
+    }
+
     code.appendRight(startPos, `${startPos === 0 ? '\n' : '\n\n'}${ctx.globals.serialize(true)}`);
   }
 

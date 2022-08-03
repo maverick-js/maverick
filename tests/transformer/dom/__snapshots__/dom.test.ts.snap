@@ -1,5 +1,32 @@
 // Vitest Snapshot v1
 
+exports[`shoud merge duplicate templates 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`),
+  $$_templ_2 = /* #__PURE__ */ $$_templ,
+  $$_templ_3 = /* #__PURE__ */ $$_create_template(\`<div>Foo</div>\`),
+  $$_templ_4 = /* #__PURE__ */ $$_templ_3,
+  $$_templ_5 = /* #__PURE__ */ $$_create_template(\`<div>Bar</div>\`),
+  $$_templ_6 = /* #__PURE__ */ $$_create_template(\`<span></span>\`),
+  $$_templ_7 = /* #__PURE__ */ $$_create_template(\`<span>Foo</span>\`),
+  $$_templ_8 = /* #__PURE__ */ $$_templ_7,
+  $$_templ_9 = /* #__PURE__ */ $$_templ_7,
+  $$_templ_10 = /* #__PURE__ */ $$_create_template(\`<span>Bar</span>\`);
+
+$$_clone($$_templ, 1 /* ELEMENT */)
+$$_clone($$_templ_2, 1 /* ELEMENT */)
+$$_clone($$_templ_3, 1 /* ELEMENT */)
+$$_clone($$_templ_4, 1 /* ELEMENT */)
+$$_clone($$_templ_5, 1 /* ELEMENT */)
+$$_clone($$_templ_6, 1 /* ELEMENT */)
+$$_clone($$_templ_7, 1 /* ELEMENT */)
+$$_clone($$_templ_8, 1 /* ELEMENT */)
+$$_clone($$_templ_9, 1 /* ELEMENT */)
+$$_clone($$_templ_10, 1 /* ELEMENT */)
+"
+`;
+
 exports[`should compile $class expression 1`] = `
 "import { $$_clone, $$_class, $$_create_template } from \\"@maverick-js/elements/dom\\";
 

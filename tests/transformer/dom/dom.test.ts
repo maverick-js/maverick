@@ -208,3 +208,19 @@ it('should compile observable conditional element expression ', () => {
   const result = t(`<div id="a">{id() > 10 && <div id="b" $on:click={id()}></div>}</div>`);
   expect(result).toMatchSnapshot();
 });
+
+it('shoud merge duplicate templates', () => {
+  const result = t(`
+<div></div>
+<div></div>
+<div>Foo</div>
+<div>Foo</div>
+<div>Bar</div>
+<span></span>
+<span>Foo</span>
+<span>Foo</span>
+<span>Foo</span>
+<span>Bar</span>
+`);
+  expect(result).toMatchSnapshot();
+});

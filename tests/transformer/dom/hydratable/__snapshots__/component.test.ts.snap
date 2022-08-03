@@ -19,7 +19,7 @@ exports[`should compile child component containing expression 1`] = `
 "import { $$_clone, $$_create_markers_walker, $$_insert_at_marker, $$_create_template, $$_create_component } from \\"@maverick-js/elements/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><!$></div>\`),
-  $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<div><!$></div>\`);
+  $$_templ_2 = /* #__PURE__ */ $$_templ;
 (() => {
   const $$_root = $$_clone($$_templ),
     $$_walker = $$_create_markers_walker($$_root),

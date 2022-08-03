@@ -86,23 +86,24 @@ export function trimWhitespace(text: string) {
 }
 
 export class Declarations {
-  protected _all = new Map<string, string>();
+  all = new Map<string, string>();
+
   protected _count: Record<string, number> = {};
 
   get size() {
-    return this._all.size;
+    return this.all.size;
   }
 
   create(id: string, value = '') {
     const newId = this._count[id] ? `${id}_${(this._count[id] = this._count[id] + 1)}` : id;
     if (!this._count[id]) this._count[id] = 1;
-    this._all.set(newId, value);
+    this.all.set(newId, value);
     return newId;
   }
 
   update(id: string, value: string) {
-    if (this._all.has(id)) {
-      this._all.set(id, value);
+    if (this.all.has(id)) {
+      this.all.set(id, value);
     }
   }
 
@@ -111,11 +112,11 @@ export class Declarations {
   }
 
   serialize(pure = false) {
-    if (this._all.size === 0) return '';
+    if (this.all.size === 0) return '';
 
     let values: string[] = [];
 
-    for (const [id, value] of this._all) {
+    for (const [id, value] of this.all) {
       values.push(`${id} = ${pure ? '/* #__PURE__ */ ' : ''}${value}`);
     }
 

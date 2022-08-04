@@ -20,13 +20,11 @@ exports[`should compile component with element children 1`] = `
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo</div>\`);
 $$_create_component(Component, {
   get children() {
-    return (() => {
-      const $$_el = $$_root.firstChild;
+    const $$_el = $$_root.firstChild;
 
-      $$_insert($$_el, id, null);
+    $$_insert($$_el, id, null);
 
-      return $$_el;
-    })();
+    return $$_el;
   },
 })"
 `;
@@ -38,15 +36,13 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"foo\\"></div><d
 
 $$_create_component(Component, {
   get children() {
-    return (() => {
-      const $$_root = $$_clone($$_templ),
-        $$_el = $$_root.firstChild;
+    const $$_root = $$_clone($$_templ),
+      $$_el = $$_root.firstChild;
 
-      $$_insert($$_el, id);
-      $$_insert($$_el, id);
+    $$_insert($$_el, id);
+    $$_insert($$_el, id);
 
-      return $$_root;
-    })();
+    return $$_root;
   },
 })
 "

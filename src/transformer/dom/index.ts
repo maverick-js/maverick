@@ -69,6 +69,7 @@ const MARKERS = {
   expression: '<!$>',
 };
 
+let scoped = true;
 export const dom: ASTSerializer = {
   serialize(ast, ctx) {
     let rootId!: string,
@@ -159,6 +160,9 @@ export const dom: ASTSerializer = {
         } else if (isStructuralNode(node) && isElementEnd(node)) {
           const children = component.children;
           if (children) {
+            const prevScoped = scoped;
+            if (children.length === 1 && isAST(children[0])) scoped = false;
+
             const serialized = children.map((child) => {
               if (isAST(child)) {
                 return dom.serialize(child, ctx);
@@ -169,11 +173,14 @@ export const dom: ASTSerializer = {
               }
             });
 
+            const hasReturn = scoped || serialized[0].startsWith(RUNTIME.clone);
             props.push(
-              `get children() { return ${
+              `get children() { ${hasReturn ? 'return ' : ''}${
                 serialized.length === 1 ? serialized[0] : `[${serialized.join(', ')}]`
               } }`,
             );
+
+            scoped = prevScoped;
           }
 
           const hasProps = props.length > 0;
@@ -360,7 +367,7 @@ export const dom: ASTSerializer = {
       return isFirstNodeComponent
         ? expressions.join(';')
         : [
-            `(() => { `,
+            scoped && `(() => { `,
             locals.serialize(),
             '\n',
             ...expressions.join(';'),
@@ -376,8 +383,10 @@ export const dom: ASTSerializer = {
                   : rootId
                 : rootId
             }; `,
-            '})()',
-          ].join('');
+            scoped && '})()',
+          ]
+            .filter(Boolean)
+            .join('');
     } else if (templateId) {
       ctx.runtime.add(RUNTIME.clone);
       return createFunctionCall(

@@ -19,6 +19,7 @@ import {
   isTextNode,
   isChildrenStart,
   isChildrenEnd,
+  isFragmentNode,
 } from '../ast';
 import { type ASTSerializer, type TransformContext } from '../transform';
 import { escapeHTML } from '../../utils/html';
@@ -99,7 +100,10 @@ export const dom: ASTSerializer = {
 
         return rootId;
       },
-      getParentElementId = () => getElementId(hierarchy, elementIds, locals),
+      getParentElementId = () => {
+        if (!rootId) getRootId();
+        return getElementId(hierarchy, elementIds, locals);
+      },
       getCurrentElementId = () => {
         if (!rootId) getRootId();
         return getElementId(
@@ -144,6 +148,7 @@ export const dom: ASTSerializer = {
     const firstNode = ast.tree[0];
     const isFirstNodeElement = isElementNode(firstNode);
     const isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
+    if (isFragmentNode(firstNode)) elements.push(firstNode as ElementNode);
 
     for (let i = 0; i < ast.tree.length; i++) {
       const node = ast.tree[i];
@@ -205,7 +210,7 @@ export const dom: ASTSerializer = {
               createFunctionCall(insertId, [
                 ctx.hydratable
                   ? currentId
-                  : beforeId
+                  : beforeId || elementChildIndex === -1
                   ? getParentElementId()
                   : (currentId ??= getCurrentElementId()),
                 createComponent,
@@ -328,7 +333,7 @@ export const dom: ASTSerializer = {
           const beforeId = ctx.hydratable ? null : getNextElementId();
           const id = ctx.hydratable
             ? locals.create(ID.expression, newMarkerId())
-            : beforeId
+            : beforeId || elementChildIndex === -1
             ? getParentElementId()
             : (currentId ??= getCurrentElementId());
           const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;

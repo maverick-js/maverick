@@ -84,7 +84,7 @@ it('should forward multiple call expressions', () => {
   expect(result).toMatchSnapshot();
 });
 
-it('should compile component with fragment', () => {
+it('should compile component child fragment', () => {
   const result = t(
     `
 <Component>
@@ -109,7 +109,7 @@ it('should insert multiple child components', () => {
   expect(result).toMatchSnapshot();
 });
 
-it('should insert multiple fragmented child components', () => {
+it('should insert fragmented child components', () => {
   const result = t(`
 <div>
   <>

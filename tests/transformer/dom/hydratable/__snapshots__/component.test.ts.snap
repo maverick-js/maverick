@@ -15,24 +15,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><!$></div>\`);
 })()"
 `;
 
-exports[`should compile component with element children 1`] = `
-"import { $$_clone, $$_create_markers_walker, $$_insert_at_marker, $$_create_template, $$_create_component } from \\"@maverick-js/elements/dom\\";
-
-const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo<!$></div>\`);
-$$_create_component(Component, {
-  get children() {
-    const $$_root = $$_clone($$_templ),
-      $$_walker = $$_create_markers_walker($$_root),
-      $$_expr = $$_walker.nextNode();
-
-    $$_insert_at_marker($$_expr, id);
-
-    return $$_root.firstChild;
-  },
-})"
-`;
-
-exports[`should compile component with fragment 1`] = `
+exports[`should compile component child fragment 1`] = `
 "import { $$_clone, $$_create_markers_walker, $$_insert_at_marker, $$_create_template, $$_create_component } from \\"@maverick-js/elements/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"foo\\"><!$></div><div id=\\"bar\\"><!$></div>\`);
@@ -51,6 +34,23 @@ $$_create_component(Component, {
   },
 })
 "
+`;
+
+exports[`should compile component with element children 1`] = `
+"import { $$_clone, $$_create_markers_walker, $$_insert_at_marker, $$_create_template, $$_create_component } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo<!$></div>\`);
+$$_create_component(Component, {
+  get children() {
+    const $$_root = $$_clone($$_templ),
+      $$_walker = $$_create_markers_walker($$_root),
+      $$_expr = $$_walker.nextNode();
+
+    $$_insert_at_marker($$_expr, id);
+
+    return $$_root.firstChild;
+  },
+})"
 `;
 
 exports[`should compile component with multiple spreads 1`] = `
@@ -205,7 +205,7 @@ $$_create_component(Component, {
 })"
 `;
 
-exports[`should insert multiple child components 1`] = `
+exports[`should insert fragmented child components 1`] = `
 "import { $$_clone, $$_create_markers_walker, $$_insert_at_marker, $$_create_component, $$_create_template } from \\"@maverick-js/elements/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><!$><!$><div>Foo</div><!$></div>\`);
@@ -225,7 +225,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><!$><!$><div>Foo</div
 })()"
 `;
 
-exports[`should insert multiple fragmented child components 1`] = `
+exports[`should insert multiple child components 1`] = `
 "import { $$_clone, $$_create_markers_walker, $$_insert_at_marker, $$_create_component, $$_create_template } from \\"@maverick-js/elements/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><!$><!$><div>Foo</div><!$></div>\`);

@@ -2,7 +2,13 @@ import MagicString from 'magic-string';
 import t from 'typescript';
 import { trimQuotes } from '../../utils/print';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
-import { JSXAttrNamespace, JSXEventNamespace, JSXNamespace } from './parse-jsx';
+import {
+  isJSXElementNode,
+  JSXAttrNamespace,
+  type JSXElementNode,
+  type JSXEventNamespace,
+  type JSXNamespace,
+} from './parse-jsx';
 
 export function isComponentTagName(tagName: string) {
   return (
@@ -87,4 +93,10 @@ export function isEmptyTextNode(node: t.Node) {
 
 export function filterEmptyJSXChildNodes(children: t.JsxChild[]) {
   return children.filter((child) => !isEmptyExpressionNode(child) && !isEmptyTextNode(child));
+}
+
+export function filterNonJSXElements(children: t.JsxChild[]) {
+  return children.filter(
+    (node) => isJSXElementNode(node) && !isComponentTagName(getTagName(node)),
+  ) as JSXElementNode[];
 }

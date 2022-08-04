@@ -1,4 +1,5 @@
 import {
+  filterNonJSXElements,
   filterEmptyJSXChildNodes,
   getTagName,
   isComponentTagName,
@@ -11,6 +12,7 @@ import t from 'typescript';
 import {
   type AST,
   type ExpressionNode,
+  type ComponentChildren,
   createAST,
   createTextNode,
   createExpressionNode,
@@ -22,6 +24,7 @@ import {
   createAttributeNode,
   createStructuralNode,
   StructuralNodeType,
+  createFragmentNode,
 } from '../ast';
 import {
   type JSXRootNode,
@@ -66,28 +69,23 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   const tagName = getTagName(node);
   const isComponent = isComponentTagName(tagName);
   const isVoid = !isComponent && VOID_ELEMENT_TAGNAME.has(tagName);
-  const isSVGChild =
-    !isComponent && !meta.parent && tagName != 'svg' && SVG_ELEMENT_TAGNAME.has(tagName);
-  const isSVG = tagName === 'svg' || isSVGChild;
+  const isSVG = !isComponent && (tagName === 'svg' || SVG_ELEMENT_TAGNAME.has(tagName));
   const isSelfClosing = t.isJsxSelfClosingElement(node);
   const supportsChildren = isSelfClosing || isVoid;
 
-  let filteredChildren = !supportsChildren
-    ? filterEmptyJSXChildNodes(Array.from(node.children))
-    : [];
+  let children = !supportsChildren ? filterEmptyJSXChildNodes(Array.from(node.children)) : [];
 
-  const firstChild = filteredChildren[0];
+  const firstChild = children[0];
   if (!isComponent && firstChild && t.isJsxFragment(firstChild)) {
-    filteredChildren = filterEmptyJSXChildNodes(Array.from(firstChild.children));
+    children = filterEmptyJSXChildNodes(Array.from(firstChild.children));
   }
 
-  const childCount = filteredChildren.length;
-  const childElementCount = filteredChildren.filter(
-    (node) => isJSXElementNode(node) && !isComponentTagName(getTagName(node)),
-  ).length;
+  const childCount = children.length;
+  const childElementCount = filterNonJSXElements(children).length;
   const hasChildren = childCount > 0;
 
-  // Whether this element contains any dynamic expressions which would require a new marker.
+  // Whether this element contains any dynamic top-level expressions which would require a new marker.
+  // For example, a property set or attaching an event listener.
   let isDynamic = isComponent;
   const dynamic = onceFn(() => {
     isDynamic = true;
@@ -115,16 +113,22 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   if (hasChildren) {
     ast.tree.push(createStructuralNode(StructuralNodeType.ChildrenStart));
     if (isComponent) {
-      if (filteredChildren.length === 1 && t.isJsxText(filteredChildren[0])) {
-        element.children = createTextNode({ ref: filteredChildren[0] });
-      } else if (filteredChildren.length === 1 && t.isJsxExpression(filteredChildren[0])) {
-        element.children = buildExpressionNode(filteredChildren[0], { parent: meta, dynamic });
-      } else if (filteredChildren.length > 0) {
-        element.children = buildAST(node, { isSVGChild, dynamic }, true);
+      const childNodes: ComponentChildren[] = [];
+
+      for (const child of children) {
+        if (t.isJsxText(child)) {
+          childNodes.push(createTextNode({ ref: child }));
+        } else if (t.isJsxExpression(child)) {
+          childNodes.push(buildExpressionNode(child, { parent: node }));
+        } else {
+          childNodes.push(buildAST(child));
+        }
       }
+
+      element.children = childNodes;
     } else {
-      for (const child of filteredChildren) {
-        parseNode(child, ast, { parent: meta, isSVGChild, dynamic });
+      for (const child of children) {
+        parseNode(child, ast, { parent: meta, dynamic });
       }
     }
     ast.tree.push(createStructuralNode(StructuralNodeType.ChildrenEnd));
@@ -224,7 +228,7 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
           createAttributeNode({
             ref: value,
             namespace: null,
-            name: !meta.isSVGChild ? name.toLowerCase() : name,
+            name,
             value: value.getText(),
             fnId,
           }),
@@ -234,15 +238,22 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
   }
 }
 
-function parseFragment(fragment: t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
-  ast.tree.push(createStructuralNode(StructuralNodeType.FragmentStart));
-  parseChildren(fragment, ast, meta);
+function parseFragment(node: t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
+  const children = filterEmptyJSXChildNodes(Array.from(node.children));
+  ast.tree.push(
+    createFragmentNode({
+      ref: node,
+      childCount: children.length,
+      childElementCount: filterNonJSXElements(children).length,
+    }),
+  );
+  for (const child of children) parseNode(child, ast, { parent: meta });
   ast.tree.push(createStructuralNode(StructuralNodeType.FragmentEnd));
 }
 
 function parseChildren(root: t.JsxElement | t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
-  const filteredChildren = filterEmptyJSXChildNodes(Array.from(root.children));
-  for (const child of filteredChildren) parseNode(child, ast, { parent: meta });
+  const children = filterEmptyJSXChildNodes(Array.from(root.children));
+  for (const child of children) parseNode(child, ast, { parent: meta });
 }
 
 function parseExpression(node: t.JsxExpression, ast: AST, meta: JSXNodeMeta) {

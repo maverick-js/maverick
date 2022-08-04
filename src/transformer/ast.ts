@@ -19,10 +19,11 @@ export type ASTTree = ASTNode[];
 
 export const enum ASTNodeKind {
   Element = 1,
-  Spread = 2,
-  Attribute = 3,
-  Text = 4,
-  Expression = 5,
+  Fragment = 2,
+  Spread = 3,
+  Attribute = 4,
+  Text = 5,
+  Expression = 6,
   Ref = 7,
   Event = 8,
   Directive = 9,
@@ -31,6 +32,7 @@ export const enum ASTNodeKind {
 
 export type ASTNode =
   | ElementNode
+  | FragmentNode
   | TextNode
   | ExpressionNode
   | AttributeNode
@@ -46,7 +48,6 @@ export type ASTUnknownNode = {
 
 export const enum StructuralNodeType {
   ElementEnd = 1,
-  FragmentStart = 2,
   FragmentEnd = 3,
   ChildrenStart = 4,
   ChildrenEnd = 5,
@@ -65,12 +66,21 @@ export type ElementNode = {
   isVoid: boolean;
   isSVG: boolean;
   isCE: boolean;
-  children?: AST | TextNode | ExpressionNode;
+  children?: ComponentChildren[];
   isComponent: boolean;
   hasChildren: boolean;
   childCount: number;
   childElementCount: number;
   dynamic(): boolean;
+};
+
+export type ComponentChildren = AST | TextNode | ExpressionNode;
+
+export type FragmentNode = {
+  kind: ASTNodeKind.Fragment;
+  ref: t.JsxFragment;
+  childCount: number;
+  childElementCount: number;
 };
 
 export type TextNode = {
@@ -136,6 +146,10 @@ export function createElementNode(info: Omit<ElementNode, 'kind'>): ElementNode 
   return { kind: ASTNodeKind.Element, ...info };
 }
 
+export function createFragmentNode(info: Omit<FragmentNode, 'kind'>): FragmentNode {
+  return { kind: ASTNodeKind.Fragment, ...info };
+}
+
 export function createTextNode(info: Omit<TextNode, 'kind' | 'value'>): TextNode {
   return { kind: ASTNodeKind.Text, ...info, value: info.ref.getText() };
 }
@@ -181,6 +195,10 @@ export function isElementNode(node: ASTUnknownNode): node is ElementNode {
   return node.kind === ASTNodeKind.Element;
 }
 
+export function isFragmentNode(node: ASTUnknownNode) {
+  return node.kind === ASTNodeKind.Fragment;
+}
+
 export function isTextNode(node: ASTUnknownNode): node is TextNode {
   return node.kind === ASTNodeKind.Text;
 }
@@ -215,10 +233,6 @@ export function isStructuralNode(node: ASTUnknownNode): node is StructuralNode {
 
 export function isElementEnd(node: StructuralNode) {
   return node.type === StructuralNodeType.ElementEnd;
-}
-
-export function isFragmentStart(node: StructuralNode) {
-  return node.type === StructuralNodeType.FragmentStart;
 }
 
 export function isFragmentEnd(node: StructuralNode) {

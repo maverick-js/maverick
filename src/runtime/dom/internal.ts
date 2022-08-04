@@ -17,6 +17,10 @@ export function $$_create_template(html: string) {
   return template.content;
 }
 
+export function $$_create_fragment() {
+  return document.createDocumentFragment();
+}
+
 /** @internal */
 export function $$_clone(fragment: DocumentFragment, type = 0) {
   const clone = fragment.cloneNode(true) as DocumentFragment;

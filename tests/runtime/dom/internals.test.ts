@@ -85,11 +85,10 @@ it('should insert string', () => {
   insert(root, 'apples');
   expect(root).toMatchInlineSnapshot(`
     <div>
-      <!--$$-->
       apples
     </div>
   `);
-  expect(root.firstChild?.nextSibling).toBeInstanceOf(Text);
+  expect(root.firstChild).toBeInstanceOf(Text);
 });
 
 it('should insert number', () => {
@@ -97,11 +96,10 @@ it('should insert number', () => {
   insert(root, 100);
   expect(root).toMatchInlineSnapshot(`
     <div>
-      <!--$$-->
       100
     </div>
   `);
-  expect(root.firstChild?.nextSibling).toBeInstanceOf(Text);
+  expect(root.firstChild).toBeInstanceOf(Text);
 });
 
 it('should _not_ insert falsy values', () => {
@@ -109,13 +107,7 @@ it('should _not_ insert falsy values', () => {
   insert(root, false);
   insert(root, null);
   insert(root, undefined);
-  expect(root).toMatchInlineSnapshot(`
-    <div>
-      <!--$$-->
-      <!--$$-->
-      <!--$$-->
-    </div>
-  `);
+  expect(root).toMatchInlineSnapshot('<div />');
 });
 
 it('should insert dom node', () => {
@@ -123,7 +115,6 @@ it('should insert dom node', () => {
   insert(root, element('span'));
   expect(root).toMatchInlineSnapshot(`
     <div>
-      <!--$$-->
       <span />
     </div>
   `);
@@ -140,7 +131,6 @@ it('should insert dom fragment', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <div>
-      <!--$$-->
       <div />
       <div />
     </div>
@@ -168,7 +158,6 @@ it('should insert before given element', () => {
   expect(root).toMatchInlineSnapshot(`
     <div>
       <div />
-      <!--$$-->
       <span />
       <div />
     </div>

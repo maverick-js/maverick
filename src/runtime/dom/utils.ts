@@ -1,4 +1,5 @@
 import { onDispose } from '@maverick-js/observables';
+import { isFunction } from 'src/utils/unit';
 import type { JSX } from '../jsx';
 import { insertNodeAtMarker } from './markers';
 
@@ -6,10 +7,27 @@ export function isDOMNode(node: any): node is Node {
   return node instanceof Node;
 }
 
-export function insert(parent: Element, value: JSX.Element, before: Element | null = null) {
+export function isDOMElement(node: any): node is Element {
+  return isDOMNode(node) && node.nodeType === 1;
+}
+
+export function isDOMFragment(node: any): node is DocumentFragment {
+  return isDOMNode(node) && node.nodeType === 11;
+}
+
+export function createFragment() {
+  return document.createDocumentFragment();
+}
+
+export function insert(
+  parent: Element | DocumentFragment,
+  value: JSX.Element,
+  before: Element | null = null,
+) {
   const marker = document.createComment('$$');
   parent.insertBefore(marker, before);
   insertNodeAtMarker(marker, value);
+  if (!isFunction(value)) marker.remove();
 }
 
 export function listen<Target extends EventTarget, EventType extends string>(
@@ -36,7 +54,7 @@ export function setAttribute(element: Element, name: string, value: unknown) {
   if (!value && value !== '' && value !== 0) {
     element.removeAttribute(name);
   } else {
-    const attrValue = `${value}`;
+    const attrValue = value + '';
     if (element.getAttribute(name) !== attrValue) {
       element.setAttribute(name, attrValue);
     }
@@ -53,7 +71,7 @@ export function setStyle(element: HTMLElement, property: string, value: unknown)
   if (!value && value !== '' && value !== 0) {
     element.style.removeProperty(property);
   } else {
-    element.style.setProperty(property, `${value}`);
+    element.style.setProperty(property, value + '');
   }
 }
 

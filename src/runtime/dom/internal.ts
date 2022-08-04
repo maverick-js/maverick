@@ -8,7 +8,7 @@ import {
   type StartMarker,
 } from './markers';
 import { hydration } from './render';
-import { insert, listen, setAttribute, setStyle, toggleClass } from './utils';
+import { createFragment, insert, listen, setAttribute, setStyle, toggleClass } from './utils';
 
 /** @internal */
 export function $$_create_template(html: string) {
@@ -18,7 +18,7 @@ export function $$_create_template(html: string) {
 }
 
 export function $$_create_fragment() {
-  return document.createDocumentFragment();
+  return createFragment();
 }
 
 /** @internal */
@@ -48,8 +48,8 @@ export function $$_insert_at_marker(marker: StartMarker, value: JSX.Element) {
 
 /** @internal */
 export function $$_create_component<T = any>(
-  component: (props?: T) => Node | null | undefined,
-  props?: T,
+  component: (props: T) => Node | null | undefined,
+  props: T = {} as any,
 ) {
   return $peek(() => component(props));
 }

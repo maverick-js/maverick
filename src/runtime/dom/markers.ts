@@ -1,7 +1,7 @@
 import type { JSX } from '../jsx';
 import { $effect } from '@maverick-js/observables';
-import { isDOMNode } from './utils';
-import { isFunction, isNumber, isString } from '../../utils/unit';
+import { createFragment, insert, isDOMNode } from './utils';
+import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import { hydration } from './render';
 
 const END_MARKER = Symbol();
@@ -27,7 +27,28 @@ export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, obser
   let lastChild: Node = start,
     end = start[END_MARKER];
 
-  if (isDOMNode(value)) {
+  if (isArray(value)) {
+    // This won't exist yet when hydrating so nodes will stay intact.
+    if (end) removeNodesBetweenMarkers(start, end);
+
+    const flattened = value.flat();
+
+    if (hydration) {
+      lastChild = getLastNode(start, flattened.length);
+    } else {
+      const fragment = createFragment();
+      for (let i = 0; i < flattened.length; i++) {
+        const child = flattened[i];
+        if (isFunction(child) || isArray(child)) {
+          insert(fragment, child);
+        } else if (child) {
+          fragment.append(child as string);
+        }
+      }
+      lastChild = fragment.lastChild || lastChild;
+      start.after(fragment);
+    }
+  } else if (isDOMNode(value)) {
     // This won't exist yet when hydrating so nodes will stay intact.
     if (end) removeNodesBetweenMarkers(start, end);
 
@@ -35,7 +56,7 @@ export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, obser
     if (value.nodeType === 11) {
       lastChild = !hydration
         ? value.lastChild || lastChild
-        : start.parentElement!.childNodes[getNodeIndex(start) + value.childElementCount];
+        : getLastNode(start, value.childNodes.length);
     } else {
       lastChild = !hydration ? value : start.nextSibling!;
     }
@@ -45,9 +66,9 @@ export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, obser
     if (!hydration) {
       const current = start.nextSibling;
       if (current && current.nodeType === 3) {
-        (current as Text).data = `${value}`;
+        (current as Text).data = value + '';
       } else {
-        lastChild = document.createTextNode(`${value}`);
+        lastChild = document.createTextNode(value + '');
         start.after(lastChild);
       }
     } else {
@@ -77,6 +98,10 @@ function removeNodesBetweenMarkers(start: Node, end: Node) {
     next.remove();
     next = sibling;
   }
+}
+
+function getLastNode(start: StartMarker, nodesCount: number) {
+  return start.parentElement!.childNodes[getNodeIndex(start) + nodesCount];
 }
 
 export type MarkerWalker = TreeWalker;

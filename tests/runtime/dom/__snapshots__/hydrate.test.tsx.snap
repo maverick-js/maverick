@@ -14,6 +14,11 @@ exports[`should hydrate 1`] = `
       1
       <!--/$-->
     </span>
+    <span>
+      <!--$-->
+      1
+      <!--/$-->
+    </span>
   </div>
 </root>
 `;
@@ -27,6 +32,11 @@ exports[`should hydrate 2`] = `
     2
     <!--/$-->
     <!--$-->
+    <span>
+      <!--$-->
+      2
+      <!--/$-->
+    </span>
     <span>
       <!--$-->
       2

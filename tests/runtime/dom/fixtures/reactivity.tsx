@@ -1,11 +1,11 @@
-import { $observable } from '@maverick-js/elements';
+import { observable } from '@maverick-js/elements';
 
 type InputFieldProps = {
   next(trigger: () => void): void;
 };
 
 export function InputField(props: InputFieldProps) {
-  const $value = $observable(1);
+  const $value = observable(1);
 
   const next = () => {
     $value.next((n) => n + 1);

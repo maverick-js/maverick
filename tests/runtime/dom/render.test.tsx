@@ -1,5 +1,5 @@
 import { render } from '@maverick-js/elements/dom';
-import { $observable, $tick } from '@maverick-js/observables';
+import { observable, tick } from '@maverick-js/observables';
 import { Element, Fragment } from './fixtures/primitives';
 import { InputField } from './fixtures/reactivity';
 import { element } from './utils';
@@ -55,7 +55,7 @@ it('should be reactive', async () => {
 
   render(() => input, { target: root });
 
-  await $tick();
+  await tick();
   expect(root).toMatchSnapshot();
 
   const getValueTextNode = () => root.querySelector('span')!.childNodes[2];
@@ -66,14 +66,14 @@ it('should be reactive', async () => {
   expect(inputElement).toBeInstanceOf(HTMLInputElement);
 
   next();
-  await $tick();
+  await tick();
   expect(root).toMatchSnapshot();
 
   // it should re-use existing node.
   expect(getValueTextNode()).toBe(valueText);
 
   inputElement!.dispatchEvent(new CustomEvent('next'));
-  await $tick();
+  await tick();
   expect(root).toMatchSnapshot();
 });
 
@@ -82,8 +82,8 @@ it('should render observable component', async () => {
     return props.children;
   }
 
-  const $count = $observable(1);
-  const $component = $observable(
+  const $count = observable(1);
+  const $component = observable(
     <Component>
       <span>{$count()}</span>
       <span>{$count()}</span>
@@ -102,6 +102,6 @@ it('should render observable component', async () => {
     </Component>,
   );
 
-  await $tick();
+  await tick();
   expect(root).toMatchSnapshot();
 });

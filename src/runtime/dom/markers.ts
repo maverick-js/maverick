@@ -1,5 +1,5 @@
 import type { JSX } from '../jsx';
-import { $effect } from '@maverick-js/observables';
+import { effect } from '@maverick-js/observables';
 import { createFragment, insert, isDOMNode } from './utils';
 import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import { hydration } from './render';
@@ -20,7 +20,7 @@ export const createMarker = () => document.createComment('/$');
 
 export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, observable = false) {
   if (isFunction(value)) {
-    $effect(() => insertNodeAtMarker(start, value(), true));
+    effect(() => insertNodeAtMarker(start, value(), true));
     return;
   }
 

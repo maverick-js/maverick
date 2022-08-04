@@ -17,7 +17,7 @@ import {
   $$_style,
   insert,
 } from '@maverick-js/elements/dom';
-import { $observable, $root, $tick } from '@maverick-js/observables';
+import { observable, root, tick } from '@maverick-js/observables';
 import { element, endMarker, startMarker } from './utils';
 
 it('should create template', () => {
@@ -166,7 +166,7 @@ it('should insert before given element', () => {
 
 it('should remove old nodes on update', async () => {
   const root = element('div');
-  const $element = $observable<any>(element('div'));
+  const $element = observable<any>(element('div'));
 
   insert(root, $element);
   expect(root).toMatchInlineSnapshot(`
@@ -181,7 +181,7 @@ it('should remove old nodes on update', async () => {
   newFragment.append(element('span'), element('span'), element('span'));
 
   $element.set(newFragment);
-  await $tick();
+  await tick();
   expect(root).toMatchInlineSnapshot(`
     <div>
       <!--$$-->
@@ -193,7 +193,7 @@ it('should remove old nodes on update', async () => {
   `);
 
   $element.set(null);
-  await $tick();
+  await tick();
   expect(root).toMatchInlineSnapshot(`
     <div>
       <!--$$-->
@@ -252,17 +252,17 @@ it('should remove falsy attribute', () => {
 
 it('should observe attribute', async () => {
   const el = element('div');
-  const $attr = $observable<string | undefined>('foo');
+  const $attr = observable<string | undefined>('foo');
 
   $$_attr(el, 'foo', $attr);
   expect(el.getAttribute('foo')).toBe('foo');
 
   $attr.set(undefined);
-  await $tick();
+  await tick();
   expect(el.getAttribute('foo')).toBe(null);
 
   $attr.set('bar');
-  await $tick();
+  await tick();
   expect(el.getAttribute('foo')).toBe('bar');
 });
 
@@ -274,13 +274,13 @@ it('should set property', () => {
 
 it('should observe property', async () => {
   const el = element('div');
-  const $prop = $observable(10);
+  const $prop = observable(10);
 
   $$_prop(el, 'tabIndex', $prop);
   expect(el.tabIndex).toBe(10);
 
   $prop.set(20);
-  await $tick();
+  await tick();
   expect(el.tabIndex).toBe(20);
 });
 
@@ -365,7 +365,7 @@ it('should set listener', () => {
   const handler = vi.fn();
   const event = new MouseEvent('click');
 
-  const dispose = $root((dispose) => {
+  const dispose = root((dispose) => {
     $$_listen(el, 'click', handler);
     return dispose;
   });

@@ -1,4 +1,4 @@
-import { $effect, $peek } from '@maverick-js/observables';
+import { effect, peek } from '@maverick-js/observables';
 import { isArray, isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
 import {
@@ -51,7 +51,7 @@ export function $$_create_component<T = any>(
   component: (props: T) => Node | null | undefined,
   props: T = {} as any,
 ) {
-  return $peek(() => component(props));
+  return peek(() => component(props));
 }
 
 /** @internal */
@@ -139,7 +139,7 @@ export function $$_listen(target: EventTarget, type: string, handler: unknown, c
 
 function observeOrRun<T>(value: T, callback: (value: T) => void) {
   if (isFunction(value)) {
-    $effect(() => callback(value()));
+    effect(() => callback(value()));
   } else {
     callback(value);
   }

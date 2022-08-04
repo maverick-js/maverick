@@ -1,4 +1,4 @@
-import { $root, type Dispose } from '@maverick-js/observables';
+import { root as $root, type Dispose } from '@maverick-js/observables';
 import type { JSX } from '../jsx';
 import { createMarkerWalker, type MarkerWalker } from './markers';
 import { insert } from './utils';

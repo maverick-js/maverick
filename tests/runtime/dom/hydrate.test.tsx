@@ -1,6 +1,6 @@
 import type { ParentComponent } from '@maverick-js/elements';
 import { hydrate } from '@maverick-js/elements/dom';
-import { $observable, $tick } from '@maverick-js/observables';
+import { observable, tick } from '@maverick-js/observables';
 import { element, startMarker, text } from './utils';
 
 it('should hydrate', async () => {
@@ -20,7 +20,7 @@ it('should hydrate', async () => {
   div.append(countIsText, startMarker(), countText, startMarker(), spanOne, spanTwo);
   root.append(startMarker(), div);
 
-  const $count = $observable(1);
+  const $count = observable(1);
   const clickHandler = vi.fn();
 
   const ChildComponent: ParentComponent = (props) => {
@@ -65,7 +65,7 @@ it('should hydrate', async () => {
   expect(clickHandler).toHaveBeenCalledWith(clickEvent);
 
   $count.set(2);
-  await $tick();
+  await tick();
 
   expect(countText.textContent).toBe('2');
   expect(countTextTwo.textContent).toBe('2');

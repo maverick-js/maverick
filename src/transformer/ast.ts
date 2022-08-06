@@ -110,7 +110,8 @@ export type SpreadNode = {
 
 export type AttributeNode = {
   kind: ASTNodeKind.Attribute;
-  ref: t.StringLiteral | t.Expression;
+  /* Points at attribute when shorthand property (no initializer). */
+  ref: t.JsxAttribute | t.StringLiteral | t.Expression;
   namespace: JSXAttrNamespace | null;
   name: string;
   value: string;

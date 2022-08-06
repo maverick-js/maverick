@@ -409,6 +409,27 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"a\\"></div>\`),
 })()"
 `;
 
+exports[`should compile shorthand $prop boolean 1`] = `
+"import { $$_clone, $$_prop, $$_create_template } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<button></button>\`);
+(() => {
+  const $$_root = $$_clone($$_templ),
+    $$_el = $$_root.firstChild;
+
+  $$_prop($$_el, \\"disabled\\", true);
+
+  return $$_el;
+})()"
+`;
+
+exports[`should compile shorthand boolean attribute 1`] = `
+"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+
+const $$_templ = /* #__PURE__ */ $$_create_template(\`<button disabled=\\"\\"></button>\`);
+$$_clone($$_templ, 1 /* ELEMENT */)"
+`;
+
 exports[`should compile single JSX node 1`] = `
 "import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
 

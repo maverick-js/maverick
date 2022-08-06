@@ -33,6 +33,11 @@ it('should compile nested fragment', () => {
   expect(result).toMatchSnapshot();
 });
 
+it('should compile shorthand boolean attribute', () => {
+  const result = t(`<button disabled />`);
+  expect(result).toMatchSnapshot();
+});
+
 it('should compile static attributes', () => {
   const result = t(`<div class="foo bar" style="baz daz"></div>`);
   expect(result).toMatchSnapshot();
@@ -80,6 +85,11 @@ it('should compile innerHTML expression', () => {
 
 it('should compile $prop expression', () => {
   const result = t(`<div $prop:fooBar="baz"></div>`);
+  expect(result).toMatchSnapshot();
+});
+
+it('should compile shorthand $prop boolean', () => {
+  const result = t(`<button $prop:disabled />`);
   expect(result).toMatchSnapshot();
 });
 

@@ -107,7 +107,7 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   ast.tree.push(element);
 
   const attributes = isSelfClosing ? node.attributes : node.openingElement.attributes;
-  parseElementAttrs(attributes, ast, { parent: meta, dynamic });
+  parseElementAttrs(attributes, ast, { parent: meta, component: isComponent, dynamic });
   ast.tree.push(createStructuralNode(StructuralNodeType.AttributesEnd));
 
   if (hasChildren) {
@@ -147,17 +147,13 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
       continue;
     }
 
-    let initNode = attr.initializer;
-    if (!initNode) continue;
+    const initializer = attr.initializer;
+    const node = initializer || attr;
+    const literal = initializer && t.isStringLiteral(initializer) ? initializer : undefined;
+    const expression =
+      initializer && t.isJsxExpression(initializer) ? initializer.expression : undefined;
 
-    const literal = t.isStringLiteral(initNode) ? initNode : undefined;
-    const expression = t.isJsxExpression(initNode) ? initNode.expression : undefined;
-
-    if ((!literal && !expression) || isEmptyNode((literal || expression)!)) {
-      continue;
-    }
-
-    const node: t.StringLiteral | t.Expression = (literal || expression)!;
+    if (initializer && isEmptyNode((literal || expression)!)) continue;
 
     const rawName = attr.name.escapedText as string;
     const rawNameParts = rawName.split(':');
@@ -167,7 +163,7 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
     const name = hasValidNamespace ? rawNameParts[1] : rawName;
 
     const isStaticExpr = expression && isStaticExpression(expression);
-    const isStaticValue = !!literal || isStaticExpr;
+    const isStaticValue = !initializer || !!literal || isStaticExpr;
     const isDynamic =
       !isStaticValue || (namespace && !STATICABLE_NAMESPACE.has(namespace)) || name === 'innerHTML';
     const isObservable = !isStaticValue && expression && containsCallExpression(expression);
@@ -177,7 +173,11 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
         ? expression.expression.getText()
         : undefined;
 
-    const value = node.getText();
+    const value = !initializer
+      ? meta.component || namespace === '$prop'
+        ? 'true'
+        : ''
+      : (literal || expression)!.getText();
 
     if (expression && !isStaticExpr) {
       if (name === '$ref') {

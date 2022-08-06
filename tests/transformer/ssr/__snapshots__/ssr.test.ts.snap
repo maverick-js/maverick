@@ -211,6 +211,13 @@ const $$_templ = /* #__PURE__ */ [\\"<!$><div id=\\\\\\"b\\\\\\"></div>\\"],
 $$_ssr($$_templ_2, () => id() > 10 && $$_ssr($$_templ))"
 `;
 
+exports[`should compile shorthand boolean attribute 1`] = `
+"import { $$_ssr } from \\"@maverick-js/elements/ssr\\";
+
+const $$_templ = /* #__PURE__ */ [\\"<button disabled=\\\\\\"\\\\\\"></button>\\"];
+$$_ssr($$_templ)"
+`;
+
 exports[`should compile single JSX node 1`] = `
 "import { $$_ssr } from \\"@maverick-js/elements/ssr\\";
 

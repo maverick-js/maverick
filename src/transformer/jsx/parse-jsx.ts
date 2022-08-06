@@ -46,6 +46,7 @@ export type JSXRootNode = JSXElementNode | t.JsxFragment;
 
 export type JSXNodeMeta = {
   parent?: JSXNodeMeta;
+  component?: boolean;
   dynamic?: () => void;
 };
 

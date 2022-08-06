@@ -39,7 +39,7 @@ function Component() {
 });
 
 it('should compile component with props', () => {
-  const result = t(`<Component foo="a" bar={10} boo={true} baz={id()} />`);
+  const result = t(`<Component foo="a" bar={10} boo={true} baz={id()} qux />`);
   expect(result).toMatchSnapshot();
 });
 

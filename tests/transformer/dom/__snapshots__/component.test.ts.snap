@@ -60,7 +60,7 @@ $$_create_component(Component, $$_merge_props(props, propsTwo, propsThree))"
 
 exports[`should compile component with props 1`] = `
 "import { $$_create_component } from \\"@maverick-js/elements/dom\\";
-$$_create_component(Component, { foo: \\"a\\", bar: id })"
+$$_create_component(Component, { foo: \\"a\\", bar: 10, boo: true, baz: id })"
 `;
 
 exports[`should compile component with props and children 1`] = `

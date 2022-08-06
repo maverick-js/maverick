@@ -2,6 +2,7 @@
 
 import { defineConfig } from 'vite';
 import { maverick } from './src/plugins/vite';
+import { transform } from './src/transformer';
 
 export default defineConfig({
   define: {
@@ -15,7 +16,22 @@ export default defineConfig({
       '@maverick-js/elements/ssr': '/src/runtime/ssr',
     },
   },
-  plugins: [maverick()],
+  plugins: [
+    {
+      name: 'maverick-ssr',
+      enforce: 'pre',
+      transform(code, id) {
+        if (id.includes('tests/runtime/ssr')) {
+          return transform(code, {
+            filename: id,
+            generate: 'ssr',
+            sourcemap: true,
+          });
+        }
+      },
+    },
+    maverick(),
+  ],
   // https://vitest.dev/config
   test: {
     include: ['tests/**/*.test.{ts,tsx}'],

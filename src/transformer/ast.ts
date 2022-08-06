@@ -5,6 +5,8 @@ import type {
   JSXRootNode,
 } from './jsx/parse-jsx';
 import t from 'typescript';
+import { trimWhitespace } from '../utils/print';
+import { encode } from 'html-entities';
 
 const AST = Symbol('AST');
 
@@ -97,7 +99,7 @@ export type ExpressionNode = {
   children?: AST[];
   dynamic: boolean;
   value: string;
-  fnId?: string;
+  callId?: string;
 };
 
 export type SpreadNode = {
@@ -114,7 +116,7 @@ export type AttributeNode = {
   value: string;
   dynamic?: boolean;
   observable?: boolean;
-  fnId?: string;
+  callId?: string;
 };
 
 export type RefNode = {
@@ -151,7 +153,7 @@ export function createFragmentNode(info: Omit<FragmentNode, 'kind'>): FragmentNo
 }
 
 export function createTextNode(info: Omit<TextNode, 'kind' | 'value'>): TextNode {
-  return { kind: ASTNodeKind.Text, ...info, value: info.ref.getText() };
+  return { kind: ASTNodeKind.Text, ...info, value: encode(trimWhitespace(info.ref.getText())) };
 }
 
 export function createAttributeNode(info: Omit<AttributeNode, 'kind'>): AttributeNode {

@@ -1,10 +1,8 @@
-import { decode } from 'html-entities';
 import MagicString from 'magic-string';
 import {
   type AttributeNode,
   type ElementNode,
   type ExpressionNode,
-  type TextNode,
   isAST,
   isAttributeNode,
   isAttributesEnd,
@@ -22,15 +20,16 @@ import {
   isFragmentNode,
 } from '../ast';
 import { type ASTSerializer, type TransformContext } from '../transform';
-import { escapeHTML } from '../../utils/html';
 import {
   createFunctionCall,
   createStringLiteral,
   Declarations,
+  escapeDoubleQuotes,
   trimQuotes,
   trimTrailingSemicolon,
-  trimWhitespace,
 } from '../../utils/print';
+import { escapeHTML } from '../../utils/html';
+import { decode, encode } from 'html-entities';
 
 const ID = {
   template: '$$_templ',
@@ -139,15 +138,15 @@ export const dom: ASTSerializer = {
           createFunctionCall(runtimeId, [
             currentId,
             createStringLiteral(node.name),
-            node.fnId ?? (node.observable ? `() => ${node.value}` : node.value),
+            node.callId ?? (node.observable ? `() => ${node.value}` : node.value),
           ]),
         );
         ctx.runtime.add(runtimeId);
       };
 
-    const firstNode = ast.tree[0];
-    const isFirstNodeElement = isElementNode(firstNode);
-    const isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
+    const firstNode = ast.tree[0],
+      isFirstNodeElement = isElementNode(firstNode),
+      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
     if (isFragmentNode(firstNode)) elements.push(firstNode as ElementNode);
 
     for (let i = 0; i < ast.tree.length; i++) {
@@ -155,8 +154,8 @@ export const dom: ASTSerializer = {
 
       if (component) {
         if (isAttributeNode(node) && !node.namespace) {
-          if (!node.observable || node.fnId) {
-            props.push(`${node.name}: ${node.fnId ?? node.value}`);
+          if (!node.observable || node.callId) {
+            props.push(`${node.name}: ${node.callId ?? node.value}`);
           } else {
             props.push(`get ${node.name}() { return ${node.value}; }`);
           }
@@ -172,7 +171,7 @@ export const dom: ASTSerializer = {
               if (isAST(child)) {
                 return dom.serialize(child, ctx);
               } else if (isTextNode(child)) {
-                return createStringLiteral(transformTextNode(child));
+                return createStringLiteral(escapeDoubleQuotes(decode(child.value)));
               } else {
                 return child.children ? transformParentExpression(child, ctx) : child.value;
               }
@@ -304,7 +303,7 @@ export const dom: ASTSerializer = {
           }
         } else if (!node.dynamic) {
           if (node.name === 'style') {
-            styles.push(trimTrailingSemicolon(trimQuotes(node.value).trim()));
+            styles.push(trimTrailingSemicolon(trimQuotes(node.value)));
           } else {
             template.push(` ${node.name}="${escapeHTML(trimQuotes(node.value), true)}"`);
           }
@@ -323,11 +322,10 @@ export const dom: ASTSerializer = {
         expressions.push(createFunctionCall(RUNTIME.directive, [currentId, node.name, node.value]));
         ctx.runtime.add(RUNTIME.directive);
       } else if (isTextNode(node)) {
-        const text = transformTextNode(node);
-        if (text.length) template.push(text);
+        template.push(node.value);
       } else if (isExpressionNode(node)) {
         if (!node.dynamic) {
-          template.push(trimQuotes(node.value));
+          template.push(encode(trimQuotes(node.value)));
         } else {
           if (ctx.hydratable) template.push(MARKERS.expression);
           const beforeId = ctx.hydratable ? null : getNextElementId();
@@ -341,7 +339,7 @@ export const dom: ASTSerializer = {
           expressions.push(
             createFunctionCall(insertId, [
               id,
-              node.fnId ?? (node.observable ? `() => ${code}` : code),
+              node.callId ?? (node.observable ? `() => ${code}` : code),
               beforeId,
             ]),
           );
@@ -405,10 +403,6 @@ export const dom: ASTSerializer = {
     return '';
   },
 };
-
-function transformTextNode(node: TextNode) {
-  return decode(trimWhitespace(node.value));
-}
 
 function transformParentExpression(node: ExpressionNode, ctx: TransformContext) {
   let code = new MagicString(node.value),

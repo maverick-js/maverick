@@ -57,12 +57,15 @@ export function isBoolExpression(node: t.Expression) {
   return isTrueBoolExpression(node) || isFalseBoolExpression(node);
 }
 
+export function isStringExpression(node: t.Expression) {
+  return t.isNoSubstitutionTemplateLiteral(node) || t.isStringLiteral(node);
+}
+
 export function isStaticExpression(node: t.Expression) {
   return (
     t.isLiteralExpression(node) ||
-    t.isNoSubstitutionTemplateLiteral(node) ||
-    t.isStringLiteral(node) ||
     t.isNumericLiteral(node) ||
+    isStringExpression(node) ||
     isBoolExpression(node)
   );
 }

@@ -1,6 +1,6 @@
 import { transform } from 'src/transformer';
 
-const t = (code: string) => transform(code).code;
+const t = (code: string) => transform(code, { generate: 'ssr' }).code;
 
 it('should compile root component', () => {
   const result = t(`<Component />`);
@@ -26,7 +26,28 @@ it('should compile nested components', () => {
   </Bar>
 </Component>
 `);
-  expect(result).toMatchSnapshot();
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_ssr, $$_create_component } from \\"@maverick-js/elements/ssr\\";
+
+    const $$_templ = /* #__PURE__ */ [\\"<div><span>Text</span></div>\\"],
+      $$_templ_2 = /* #__PURE__ */ [\\"<div></div>\\"];
+
+    $$_create_component(Component, {
+      get children() {
+        return [
+          \\"Text\\",
+          $$_ssr($$_templ),
+          $$_create_component(Foo),
+          $$_create_component(Bar, {
+            get children() {
+              return [$$_ssr($$_templ_2), $$_create_component(Baz)];
+            },
+          }),
+        ];
+      },
+    })
+    "
+  `);
 });
 
 it('should compile root expression ', () => {

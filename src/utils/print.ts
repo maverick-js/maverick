@@ -17,6 +17,10 @@ export function createImportDeclaration(
   return `import ${_default}${_named} from "${moduleId}";\n`;
 }
 
+export function escapeDoubleQuotes(value: string) {
+  return value.replace(/"/g, '\\"');
+}
+
 export function escapeBackticks(value: string) {
   return value.replace(/`/g, '\\`');
 }
@@ -66,7 +70,7 @@ export function trimBraces(text: string) {
   return text.replace(/^\{/, '').replace(/\}$/, '');
 }
 
-const trailingSemicolon = /;$/;
+const trailingSemicolon = /;\s*$/;
 export function trimTrailingSemicolon(text: string) {
   return text.replace(trailingSemicolon, '');
 }

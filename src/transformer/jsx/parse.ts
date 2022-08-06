@@ -23,15 +23,15 @@ import {
   createSpreadNode,
   createAttributeNode,
   createStructuralNode,
-  StructuralNodeType,
   createFragmentNode,
+  StructuralNodeType,
 } from '../ast';
 import {
   type JSXRootNode,
-  isJSXElementNode,
   type JSXNodeMeta,
   type JSXNamespace,
   type JSXElementNode,
+  isJSXElementNode,
 } from './parse-jsx';
 import { STATICABLE_NAMESPACE, SVG_ELEMENT_TAGNAME, VOID_ELEMENT_TAGNAME } from './constants';
 import { onceFn } from '../../utils/fn';
@@ -157,7 +157,7 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
       continue;
     }
 
-    const value: t.StringLiteral | t.Expression = (literal || expression)!;
+    const node: t.StringLiteral | t.Expression = (literal || expression)!;
 
     const rawName = attr.name.escapedText as string;
     const rawNameParts = rawName.split(':');
@@ -172,17 +172,19 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
       !isStaticValue || (namespace && !STATICABLE_NAMESPACE.has(namespace)) || name === 'innerHTML';
     const isObservable = !isStaticValue && expression && containsCallExpression(expression);
 
-    const fnId =
+    const callId =
       expression && t.isCallExpression(expression) && expression.arguments.length === 0
         ? expression.expression.getText()
         : undefined;
 
+    const value = node.getText();
+
     if (expression && !isStaticExpr) {
       if (name === '$ref') {
-        ast.tree.push(createRefNode({ ref: expression, value: value.getText() }));
+        ast.tree.push(createRefNode({ ref: expression, value }));
         meta.dynamic?.();
       } else if (namespace === '$use') {
-        ast.tree.push(createDirectiveNode({ ref: expression, name, value: value.getText() }));
+        ast.tree.push(createDirectiveNode({ ref: expression, name, value }));
         meta.dynamic?.();
       } else if (namespace === '$on' || namespace === '$on_capture') {
         ast.tree.push(
@@ -190,7 +192,7 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
             ref: expression,
             namespace,
             type: name,
-            value: value.getText(),
+            value,
           }),
         );
         meta.dynamic?.();
@@ -200,10 +202,10 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
             ref: expression,
             namespace,
             name,
-            value: value.getText(),
+            value,
             dynamic: !isStaticValue,
             observable: isObservable,
-            fnId,
+            callId,
           }),
         );
         if (isDynamic) meta.dynamic?.();
@@ -212,13 +214,13 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
       if (hasValidNamespace) {
         ast.tree.push(
           createAttributeNode({
-            ref: value,
+            ref: node,
             namespace: isValidAttrNamespace(namespace) ? namespace : null,
             name,
-            value: value.getText(),
+            value,
             dynamic: !isStaticValue,
             observable: isObservable,
-            fnId,
+            callId,
           }),
         );
 
@@ -226,11 +228,11 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
       } else {
         ast.tree.push(
           createAttributeNode({
-            ref: value,
+            ref: node,
             namespace: null,
             name,
-            value: value.getText(),
-            fnId,
+            value,
+            callId,
           }),
         );
       }
@@ -291,6 +293,6 @@ function buildExpressionNode(node: t.JsxExpression, meta: JSXNodeMeta): Expressi
     root: !meta.parent,
     dynamic: !isStatic,
     value: expression.getText(),
-    fnId: isCallable ? expression.expression.getText() : undefined,
+    callId: isCallable ? expression.expression.getText() : undefined,
   });
 }

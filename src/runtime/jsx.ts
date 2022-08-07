@@ -24,20 +24,20 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
+  export type Value<T> = T | Observable<T>;
   export type Stringify<P> = P extends string ? P : never;
   export type AttrValue = string | number | boolean | null | undefined;
-  export type ObservableValue<T> = T | Observable<T>;
 
   export type ObservableAttributes<T> = {
-    [P in keyof T]: ObservableValue<T[P] | null>;
+    [P in keyof T]: Value<T[P] | null>;
   };
 
   export type LowercasedObservableAttributes<T> = {
-    [P in keyof T as Lowercase<Stringify<P>>]?: ObservableValue<T[P] | null>;
+    [P in keyof T as Lowercase<Stringify<P>>]?: Value<T[P] | null>;
   };
 
   export type KebabCasedObservableAttributes<T> = {
-    [P in keyof T as KebabCase<P>]: ObservableValue<T[P] | null>;
+    [P in keyof T as KebabCase<P>]: Value<T[P] | null>;
   };
 
   export interface IntrinsicAttributes {
@@ -89,13 +89,13 @@ export namespace JSX {
    * ```
    */
   export type PropAttributes<Record extends PropRecord> = {
-    [P in keyof Record as `$prop:${Stringify<P>}`]?: ObservableValue<Record[P] | null>;
+    [P in keyof Record as `$prop:${Stringify<P>}`]?: Value<Record[P] | null>;
   } & KebabCasedObservableAttributes<ConditionalPick<Record, AttrValue>>;
 
   export type InnerContentAttributes = {
-    '$prop:innerHTML'?: ObservableValue<AttrValue>;
-    '$prop:innerText'?: ObservableValue<AttrValue>;
-    '$prop:textContent'?: ObservableValue<AttrValue>;
+    '$prop:innerHTML'?: Value<AttrValue>;
+    '$prop:innerText'?: Value<AttrValue>;
+    '$prop:textContent'?: Value<AttrValue>;
   };
 
   /**
@@ -202,13 +202,11 @@ export namespace JSX {
   export type CSSRecord = Record<string, CSSValue>;
 
   export type AnyCSSVarAttribute = {
-    [id: `$cssvar:${string}`]: ObservableValue<CSSValue>;
+    [id: `$cssvar:${string}`]: Value<CSSValue>;
   };
 
   export type StyleAttributes = {
-    [P in keyof CSSProperties as `$style:${KebabCase<Stringify<P>>}`]: ObservableValue<
-      CSSProperties[P]
-    >;
+    [P in keyof CSSProperties as `$style:${KebabCase<Stringify<P>>}`]: Value<CSSProperties[P]>;
   };
 
   export type AnyCSSProperty = {
@@ -233,7 +231,7 @@ export namespace JSX {
    * ```
    */
   export type CSSVarAttributes<Record extends CSSRecord> = {
-    [P in keyof Record as `$cssvar:${Stringify<P>}`]: ObservableValue<Record[P] | null | undefined>;
+    [P in keyof Record as `$cssvar:${Stringify<P>}`]: Value<Record[P] | null | undefined>;
   } & AnyCSSVarAttribute;
 
   /**
@@ -243,7 +241,7 @@ export namespace JSX {
    */
 
   export type HTMLPropAttributes<Record extends PropRecord> = {
-    [P in keyof Record as `$prop:${Stringify<P>}`]?: ObservableValue<Record[P] | null>;
+    [P in keyof Record as `$prop:${Stringify<P>}`]?: Value<Record[P] | null>;
   } & LowercasedObservableAttributes<ConditionalPick<Record, AttrValue>>;
 
   export type HTMLAttributes = HTMLPropAttributes<HTMLProperties> & {

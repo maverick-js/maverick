@@ -315,7 +315,7 @@ export const dom: ASTSerializer = {
         ctx.runtime.add(RUNTIME.ref);
       } else if (isEventNode(node)) {
         const args = [currentId, createStringLiteral(node.type), node.value];
-        if (node.namespace === '$on_capture') args.push(`1 /* CAPTURE */`);
+        if (node.namespace === '$oncapture') args.push(`1 /* CAPTURE */`);
         expressions.push(createFunctionCall(RUNTIME.listen, args));
         ctx.runtime.add(RUNTIME.listen);
       } else if (isDirectiveNode(node)) {

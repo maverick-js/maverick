@@ -189,8 +189,8 @@ it('should compile multiple $on expression', () => {
   expect(result).toMatchSnapshot();
 });
 
-it('should compile $on_capture expression', () => {
-  const result = t(`<div $on_capture:foo={(e) => {}} />`);
+it('should compile $oncapture expression', () => {
+  const result = t(`<div $oncapture:foo={(e) => {}} />`);
   expect(result).toMatchSnapshot();
 });
 

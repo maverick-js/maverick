@@ -51,7 +51,7 @@ export type JSXNodeMeta = {
 };
 
 export type JSXAttrNamespace = '$class' | '$cssvar' | '$prop' | '$style';
-export type JSXEventNamespace = '$on' | '$on_capture';
+export type JSXEventNamespace = '$on' | '$oncapture';
 export type JSXDirectiveNamespace = '$use';
 export type JSXNamespace = JSXAttrNamespace | JSXEventNamespace | JSXDirectiveNamespace;
 export type JSXChildContentAttrName = '$innerHTML' | '$textContent' | '$innerText';

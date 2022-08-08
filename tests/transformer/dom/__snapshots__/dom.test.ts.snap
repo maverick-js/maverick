@@ -62,7 +62,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 })()"
 `;
 
-exports[`should compile $on_capture expression 1`] = `
+exports[`should compile $oncapture expression 1`] = `
 "import { $$_clone, $$_listen, $$_create_template } from \\"@maverick-js/elements/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);

@@ -186,7 +186,7 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
       } else if (namespace === '$use') {
         ast.tree.push(createDirectiveNode({ ref: expression, name, value }));
         meta.dynamic?.();
-      } else if (namespace === '$on' || namespace === '$on_capture') {
+      } else if (namespace === '$on' || namespace === '$oncapture') {
         ast.tree.push(
           createEventNode({
             ref: expression,

@@ -10,7 +10,7 @@ export const RESERVED_ATTR_NAMESPACE = new Set<JSXAttrNamespace>([
 export const RESERVED_NAMESPACE = new Set<JSXNamespace>([
   ...RESERVED_ATTR_NAMESPACE,
   '$on',
-  '$on_capture',
+  '$oncapture',
   '$use',
 ]);
 

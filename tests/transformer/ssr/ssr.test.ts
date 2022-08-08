@@ -186,8 +186,8 @@ it('should _not_ compile $on expression', () => {
   expect(result).toMatchSnapshot();
 });
 
-it('should _not_ compile $on_capture expression', () => {
-  const result = t(`<div $on_capture:foo={(e) => {}} />`);
+it('should _not_ compile $oncapture expression', () => {
+  const result = t(`<div $oncapture:foo={(e) => {}} />`);
   expect(result).toMatchSnapshot();
 });
 

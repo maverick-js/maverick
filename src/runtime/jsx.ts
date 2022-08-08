@@ -132,11 +132,11 @@ export namespace JSX {
   };
 
   /**
-   * Creates `$on:{type}` and `$on_capture:{type}` type definitions given an event record.
+   * Creates `$on:{type}` and `$oncapture:{type}` type definitions given an event record.
    *
    * @example
    * ```ts
-   * // { '$on:foo': (event: CustomEvent<string>) => void; '$on_capture:foo', ... }
+   * // { '$on:foo': (event: CustomEvent<string>) => void; '$oncapture:foo', ... }
    * type Events = OnAttributes<{
    *   'foo': CustomEvent<string>;
    *   'baz-he': CustomEvent<number>;
@@ -151,7 +151,7 @@ export namespace JSX {
     Record extends EventRecord,
     Target extends EventTarget = EventTarget,
   > = {
-    [P in keyof Record as `$on_capture:${Stringify<P>}`]?: EventHandler<
+    [P in keyof Record as `$oncapture:${Stringify<P>}`]?: EventHandler<
       TargetedEvent<Target, Record[P]>
     >;
   };

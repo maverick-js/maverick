@@ -34,7 +34,7 @@ const $$_templ = /* #__PURE__ */ [\\"<!$><div></div>\\"];
 $$_ssr($$_templ)"
 `;
 
-exports[`should _not_ compile $on_capture expression 1`] = `
+exports[`should _not_ compile $oncapture expression 1`] = `
 "import { $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div></div>\\"];

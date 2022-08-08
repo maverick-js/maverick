@@ -24,8 +24,9 @@ export function resolve(node: unknown): string {
     return resolve(node());
   } else if (isArray(node)) {
     let result = '';
-    for (let i = 0; i < node.length; i++) {
-      result += resolve(escape(node[i]));
+    const flattened = node.flat(10);
+    for (let i = 0; i < flattened.length; i++) {
+      result += resolve(escape(flattened[i]));
     }
     return result;
   } else if (isString(node) || isNumber(node)) {

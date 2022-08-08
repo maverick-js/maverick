@@ -33,7 +33,7 @@ export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, obser
     // This won't exist yet when hydrating so nodes will stay intact.
     if (end) removeNodesBetweenMarkers(start, end);
 
-    const flattened = value.flat();
+    const flattened = value.flat(10);
 
     if (hydration) {
       lastChild = getLastNode(start, flattened.length);

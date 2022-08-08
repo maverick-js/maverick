@@ -31,7 +31,12 @@ it('should add dynamic attributes', () => {
 });
 
 it('should merge classes', () => {
-  const result = $$_classes('foo bar', ['baz', false], ['boo', () => true], ['hux', () => false]);
+  const result = $$_classes(
+    'foo baz bar hux',
+    ['baz', false],
+    ['boo', () => true],
+    ['hux', () => false],
+  );
   expect(result).toMatchInlineSnapshot('" class=\\"foo bar boo\\""');
 });
 

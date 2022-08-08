@@ -29,14 +29,26 @@ function resolveAtrr(value: unknown) {
   }
 }
 
+const classSplitRE = /\s+/;
+
 /** @internal */
 export function $$_classes(base: unknown, ...classes: [string, unknown][]) {
   let baseValue = resolveClass(base),
     result = baseValue ? baseValue + '' : '';
 
-  for (let i = 0; i < classes.length; i++) {
-    const [name, value] = classes[i];
-    if (resolveClass(value)) result += ` ${name}`;
+  if (classes.length > 0) {
+    const classList = new Set<string>(result.trim().split(classSplitRE));
+
+    for (let i = 0; i < classes.length; i++) {
+      const [name, value] = classes[i];
+      if (resolveClass(value)) {
+        classList.add(name);
+      } else {
+        classList.delete(name);
+      }
+    }
+
+    result = Array.from(classList).join(' ');
   }
 
   return ` class="${escape(result, true)}"`;

@@ -42,7 +42,7 @@ it('should merge classes', () => {
 
 it('should merge styles', () => {
   const result = $$_styles(
-    'foo: 10;',
+    ' foo: 10;  hux: center;qux:left;',
     ['bar', 'items-center'],
     ['boo', () => null],
     ['hux', false],

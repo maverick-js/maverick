@@ -48,6 +48,7 @@ export function $$_classes(base: unknown, ...classes: [string, unknown][]) {
       }
     }
 
+    classList.delete('');
     result = Array.from(classList).join(' ');
   }
 
@@ -59,15 +60,38 @@ function resolveClass(value: unknown) {
   return value;
 }
 
+const styleSplitRE = /\s*:\s*/;
+const stylesSplitRE = /\s*;\s*/;
+
 /** @internal */
 export function $$_styles(base: unknown, ...styles: [string, unknown][]) {
   let baseValue = resolveStyle(base),
-    result = baseValue ? trimTrailingSemicolon(baseValue + '') + ';' : '';
+    result = baseValue ? trimTrailingSemicolon(baseValue + '') : '';
 
-  for (let i = 0; i < styles.length; i++) {
-    const [name, value] = styles[i];
-    const attrValue = resolveStyle(value);
-    if (attrValue) result += `${name}: ${attrValue};`;
+  if (styles.length > 0) {
+    const styleMap = new Map<string, string>();
+
+    const base = result.split(stylesSplitRE);
+    for (let i = 0; i < base.length; i++) {
+      if (base[i] === '') continue;
+      const [name, value] = base[i].trim().split(styleSplitRE);
+      styleMap.set(name, value);
+    }
+
+    for (let i = 0; i < styles.length; i++) {
+      const [name, value] = styles[i];
+      const attrValue = resolveStyle(value);
+      if (attrValue) {
+        styleMap.set(name, attrValue);
+      } else {
+        styleMap.delete(name);
+      }
+    }
+
+    result = '';
+    for (const [name, value] of styleMap) {
+      result += `${name}: ${value};`;
+    }
   }
 
   return ` style="${escape(result, true)}"`;
@@ -82,7 +106,7 @@ function resolveStyle(value: unknown) {
   }
 }
 
-const uppercaseRE = /[A-Z]/;
+const propNameRE = /[A-Z]/;
 /** @internal */
 export function $$_spread(props: Record<string, unknown>) {
   let result = '';
@@ -90,7 +114,7 @@ export function $$_spread(props: Record<string, unknown>) {
   const keys = Object.keys(props);
   for (let i = 0; i < keys.length; i++) {
     const name = keys[i];
-    if (!uppercaseRE.test(name)) {
+    if (!propNameRE.test(name)) {
       const value = resolveAtrr(props[name]);
       if (isString(value)) result += ` ${name}="${escape(value, true)}"`;
     }

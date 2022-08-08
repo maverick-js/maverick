@@ -4,10 +4,12 @@ import { createFragment, insert, isDOMNode } from './utils';
 import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import { hydration } from './render';
 
+const TEXT = Symbol();
 const END_MARKER = Symbol();
 
 // <!--$-->
 export type StartMarker = Comment & {
+  [TEXT]?: Text | null;
   /** Matching end marker. */
   [END_MARKER]?: EndMarker;
 };
@@ -63,16 +65,16 @@ export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, obser
 
     if (!hydration) start.after(value);
   } else if (isString(value) || isNumber(value)) {
-    if (!hydration) {
-      const current = start.nextSibling;
-      if (current && current.nodeType === 3) {
-        (current as Text).data = value + '';
-      } else {
+    if (start[TEXT]) {
+      start[TEXT].data = value + '';
+    } else {
+      if (!hydration) {
         lastChild = document.createTextNode(value + '');
         start.after(lastChild);
+      } else {
+        lastChild = start.nextSibling!;
       }
-    } else {
-      lastChild = start.nextSibling!;
+      start[TEXT] = lastChild as Text;
     }
   } else if (end) {
     removeNodesBetweenMarkers(start, end);
@@ -93,11 +95,14 @@ function getNodeIndex(node: Node) {
 function removeNodesBetweenMarkers(start: Node, end: Node) {
   let next = start.nextSibling,
     sibling;
+
   while (next && next !== end) {
     sibling = next.nextSibling;
     next.remove();
     next = sibling;
   }
+
+  start[TEXT] = null;
 }
 
 function getLastNode(start: StartMarker, nodesCount: number) {

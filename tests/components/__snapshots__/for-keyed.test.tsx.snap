@@ -1,0 +1,163 @@
+// Vitest Snapshot v1
+
+exports[`should render keyed loop 1`] = `
+<root>
+  <!--$$-->
+  <span>
+    <!--$-->
+    a
+    - 
+    <!--$-->
+    0
+    <!--/$-->
+  </span>
+  <span>
+    <!--$-->
+    b
+    - 
+    <!--$-->
+    1
+    <!--/$-->
+  </span>
+  <span>
+    <!--$-->
+    c
+    - 
+    <!--$-->
+    2
+    <!--/$-->
+  </span>
+  <!--/$-->
+</root>
+`;
+
+exports[`should render keyed loop 2`] = `
+<root>
+  <!--$$-->
+  <span>
+    <!--$-->
+    b
+    - 
+    <!--$-->
+    0
+    <!--/$-->
+  </span>
+  <span>
+    <!--$-->
+    a
+    - 
+    <!--$-->
+    1
+    <!--/$-->
+  </span>
+  <span>
+    <!--$-->
+    c
+    - 
+    <!--$-->
+    2
+    <!--/$-->
+  </span>
+  <!--/$-->
+</root>
+`;
+
+exports[`should render keyed loop 3`] = `
+<root>
+  <!--$$-->
+  <span>
+    <!--$-->
+    b
+    - 
+    <!--$-->
+    0
+    <!--/$-->
+  </span>
+  <span>
+    <!--$-->
+    a
+    - 
+    <!--$-->
+    1
+    <!--/$-->
+  </span>
+  <!--/$-->
+</root>
+`;
+
+exports[`should render keyed loop 4`] = `
+<root>
+  <!--$$-->
+  <span>
+    <!--$-->
+    b
+    - 
+    <!--$-->
+    0
+    <!--/$-->
+  </span>
+  <span>
+    <!--$-->
+    a
+    - 
+    <!--$-->
+    1
+    <!--/$-->
+  </span>
+  <span>
+    <!--$-->
+    d
+    - 
+    <!--$-->
+    2
+    <!--/$-->
+  </span>
+  <span>
+    <!--$-->
+    e
+    - 
+    <!--$-->
+    3
+    <!--/$-->
+  </span>
+  <!--/$-->
+</root>
+`;
+
+exports[`should render keyed loop 5`] = `
+<root>
+  <!--$$-->
+  <span>
+    <!--$-->
+    a
+    - 
+    <!--$-->
+    0
+    <!--/$-->
+  </span>
+  <span>
+    <!--$-->
+    d
+    - 
+    <!--$-->
+    1
+    <!--/$-->
+  </span>
+  <span>
+    <!--$-->
+    e
+    - 
+    <!--$-->
+    2
+    <!--/$-->
+  </span>
+  <!--/$-->
+</root>
+`;
+
+exports[`should render keyed loop 6`] = `
+<root>
+  <!--$$-->
+  <!--/$-->
+</root>
+`;

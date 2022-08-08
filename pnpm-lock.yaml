@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@dprint/formatter': ^0.2.0
   '@dprint/typescript': ^0.71.1
-  '@maverick-js/observables': ^4.0.2
+  '@maverick-js/observables': ^4.1.1
   '@maverick-js/scheduler': ^1.0.0
   '@microsoft/api-extractor': ^7.28.6
   '@rollup/pluginutils': ^4.2.1
@@ -39,7 +39,7 @@ dependencies:
   unplugin: 0.7.2_d4teqse4ozxbojgepk6bsz27cq
 
 devDependencies:
-  '@maverick-js/observables': 4.0.2
+  '@maverick-js/observables': 4.1.1
   '@maverick-js/scheduler': 1.0.1
   '@microsoft/api-extractor': 7.28.7
   '@rollup/pluginutils': 4.2.1
@@ -219,8 +219,8 @@ packages:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
 
-  /@maverick-js/observables/4.0.2:
-    resolution: {integrity: sha512-HjG+yPPN8nr4N33PJNKvkIQReF2r6WkrkP+CvHxYsVcOOSf/FTM6+SKjoD2KPHyNt6Hei2pG98MaWEHpW0wT0w==}
+  /@maverick-js/observables/4.1.1:
+    resolution: {integrity: sha512-BW4j/6r7J/nX7oFNwuNRaA+5UxPfOUQ4djdB9ML1rM3aDDMfj8MnVuPMd98G0EzUfFPu/4e/ghwvZwfj8D/3vw==}
     dependencies:
       '@maverick-js/scheduler': 1.0.1
     dev: true

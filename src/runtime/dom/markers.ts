@@ -24,7 +24,7 @@ export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, obser
   if (isFunction(value)) {
     effect(() => insertNodeAtMarker(start, value(), true));
     return;
-  }
+  } else if (hydration && !observable) return;
 
   let lastChild: Node = start,
     end = start[END_MARKER];

@@ -1,5 +1,5 @@
 import type { JSX } from '../jsx';
-import { effect } from '@maverick-js/observables';
+import { effect } from '../reactivity';
 import { createFragment, insert, isDOMNode } from './utils';
 import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import { hydration } from './render';

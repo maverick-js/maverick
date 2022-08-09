@@ -10,17 +10,20 @@
     ".": {
       "development": "./dist/runtime/dev/index.js",
       "test": "./dist/runtime/dev/index.js",
+      "node": "./dist/runtime/node/index.js",
       "default": "./dist/runtime/prod/index.js"
     },
     "./dom": {
-      "development": "./dist/runtime/dev/dom.js",
-      "test": "./dist/runtime/dev/dom.js",
-      "default": "./dist/runtime/prod/dom.js"
+      "development": "./dist/runtime/dev/dom/index.js",
+      "test": "./dist/runtime/dev/dom/index.js",
+      "node": "./dist/runtime/node/dom/index.js",
+      "default": "./dist/runtime/prod/dom/index.js"
     },
     "./ssr": {
-      "development": "./dist/runtime/dev/ssr.js",
-      "test": "./dist/runtime/dev/ssr.js",
-      "default": "./dist/runtime/prod/ssr.js"
+      "development": "./dist/runtime/dev/ssr/index.js",
+      "test": "./dist/runtime/dev/ssr/index.js",
+      "node": "./dist/runtime/node/ssr/index.js",
+      "default": "./dist/runtime/prod/ssr/index.js"
     },
     "./jsx-runtime": "./jsx-runtime.d.ts",
     "./esbuild": "./dist/plugins/esbuild.js",
@@ -46,8 +49,6 @@
     "size": "pnpm bundle && export-size .",
     "types": "rimraf [^j]*.d.ts && tsc -p .config/tsconfig.build.json && run-s types:* && rimraf dist/*.d.ts",
     "types:index": "api-extractor run -c .config/types.index.json",
-    "types:dom": "api-extractor run -c .config/types.dom.json",
-    "types:ssr": "api-extractor run -c .config/types.ssr.json",
     "types:esbuild": "api-extractor run -c .config/types.esbuild.json",
     "types:rollup": "api-extractor run -c .config/types.rollup.json",
     "types:vite": "api-extractor run -c .config/types.vite.json",
@@ -60,10 +61,11 @@
     "html-entities": "^2.3.3",
     "magic-string": "^0.26.2",
     "normalize-path": "^3.0.0",
+    "type-fest": "^2.17.0",
     "unplugin": "^0.7.2"
   },
   "devDependencies": {
-    "@maverick-js/observables": "^4.1.1",
+    "@maverick-js/observables": "^4.1.2",
     "@maverick-js/scheduler": "^1.0.0",
     "@microsoft/api-extractor": "^7.28.6",
     "@rollup/pluginutils": "^4.2.1",
@@ -78,7 +80,6 @@
     "rimraf": "^3.0.2",
     "simple-git-hooks": "^2.8.0",
     "standard-version": "^9.5.0",
-    "type-fest": "^2.17.0",
     "typescript": "^4.7.4",
     "vite": "^3.0.3",
     "vitest": "^0.19.0",

@@ -1,10 +1,8 @@
 /// <reference lib="dom" />
 
 import type { ConditionalPick, KebabCase } from 'type-fest';
-import type { Observable } from '@maverick-js/observables';
-
-export type DOMElement = Element;
-export type DOMEvent = Event;
+import type { Observable } from './reactivity';
+import type { DOMElement, DOMEvent } from './types';
 
 export namespace JSX {
   /**

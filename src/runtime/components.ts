@@ -1,17 +1,12 @@
 import type { JSX } from '../runtime/jsx';
-import {
-  computedMap,
-  computedKeyedMap,
-  type Maybe,
-  type Observable,
-} from '@maverick-js/observables';
+import { computedMap, computedKeyedMap, type Maybe, type Observable } from './reactivity';
 import { unwrap } from '../utils/obs';
 
 /**
  * Non-keyed list iteration where rendered nodes are keyed to an array index. This is useful when
  * there is no conceptual key (i.e., primitives).
  *
- * Prefer `ForKeyed` when referential checks are required (e.g., [{}, {}]) - the value is fixed
+ * Prefer `ForKeyed` when referential checks are required (e.g., `[{}, {}]`) - the value is fixed
  * but index changes.
  *
  * @example

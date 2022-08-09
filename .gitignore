@@ -1,6 +1,7 @@
 dist/
 
 types/
+/plugins/
 /*.d.ts
 !/jsx-runtime.d.ts
 .tsbuildinfo

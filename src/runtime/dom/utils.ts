@@ -1,6 +1,6 @@
-import { onDispose } from '@maverick-js/observables';
-import { isFunction } from 'src/utils/unit';
 import type { JSX } from '../jsx';
+import { onDispose } from '../reactivity';
+import { isFunction } from '../../utils/unit';
 import { insertNodeAtMarker } from './markers';
 
 export function isDOMNode(node: any): node is Node {

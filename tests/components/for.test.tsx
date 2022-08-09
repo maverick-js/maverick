@@ -1,6 +1,5 @@
-import { For } from '@maverick-js/elements';
+import { For, observable, tick } from '@maverick-js/elements';
 import { render } from '@maverick-js/elements/dom';
-import { observable, tick } from '@maverick-js/observables';
 
 it('should render non-keyed loop', async () => {
   const source = observable([1, 2, 3]);

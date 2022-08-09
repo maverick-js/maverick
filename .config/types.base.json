@@ -1,6 +1,10 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
 
+  "compiler": {
+    "tsconfigFilePath": "./tsconfig.build.json"
+  },
+
   "apiReport": {
     "enabled": false
   },
@@ -24,6 +28,10 @@
       "default": {
         "logLevel": "warning",
         "addToApiReportFile": true
+      },
+
+      "ae-wrong-input-file-type": {
+        "logLevel": "none"
       },
 
       "ae-missing-release-tag": {

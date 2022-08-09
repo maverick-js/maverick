@@ -8,6 +8,7 @@ export default defineConfig({
   define: {
     __DEV__: 'true',
     __TEST__: 'true',
+    __NODE__: 'false',
   },
   resolve: {
     alias: {

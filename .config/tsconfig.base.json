@@ -9,7 +9,6 @@
     "emitDeclarationOnly": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "importHelpers": true,
     "incremental": true,
     "lib": ["es2020"],
     "module": "esnext",

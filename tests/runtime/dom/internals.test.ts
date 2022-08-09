@@ -1,3 +1,4 @@
+import { observable, root, tick } from '@maverick-js/elements';
 import {
   $$_attr,
   $$_class,
@@ -17,7 +18,6 @@ import {
   $$_style,
   insert,
 } from '@maverick-js/elements/dom';
-import { observable, root, tick } from '@maverick-js/observables';
 import { element, endMarker, startMarker } from './utils';
 
 it('should create template', () => {

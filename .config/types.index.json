@@ -3,6 +3,8 @@
 
   "projectFolder": "..",
 
+  "bundledPackages": ["@maverick-js/observables", "@maverick-js/scheduler"],
+
   "mainEntryPointFilePath": "../types/runtime/index.d.ts",
 
   "dtsRollup": {

@@ -1,4 +1,4 @@
-import { effect, peek } from '@maverick-js/observables';
+import { effect, peek } from '../reactivity';
 import { isArray, isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
 import {
@@ -17,6 +17,7 @@ export function $$_create_template(html: string) {
   return template.content;
 }
 
+/** @internal */
 export function $$_create_fragment() {
   return createFragment();
 }
@@ -33,10 +34,12 @@ export function $$_create_markers_walker(root: Node) {
   return hydration?.m ?? createMarkerWalker(root);
 }
 
+/** @internal */
 export function $$_next_element(walker: MarkerWalker) {
   return walker.nextNode()!.nextSibling;
 }
 
+/** @internal */
 export function $$_insert(parent: Element, value: JSX.Element, before?: Element) {
   insert(parent, value, before);
 }

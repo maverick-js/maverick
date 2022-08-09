@@ -1,4 +1,4 @@
-import { root as $root, type Dispose } from '@maverick-js/observables';
+import { root as $root, type Dispose } from '../reactivity';
 import type { JSX } from '../jsx';
 import { createMarkerWalker, type MarkerWalker } from './markers';
 import { insert } from './utils';
@@ -8,6 +8,8 @@ export let hydration: HydrationContext | null = null;
 export type HydrationContext = {
   m: MarkerWalker;
 };
+
+export { type MarkerWalker };
 
 export type HydrateOptions = RenderOptions;
 

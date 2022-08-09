@@ -1,5 +1,8 @@
 import type { JSX } from './jsx';
 
+export type DOMElement = Element;
+export type DOMEvent = Event;
+
 export type ComponentChildren = JSX.Element;
 
 export type ComponentProps<Props = {}, Children = never> = Props & {

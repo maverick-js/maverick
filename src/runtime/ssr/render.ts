@@ -1,19 +1,14 @@
 import { isArray, isFunction, isNumber, isObject, isString } from '../../utils/unit';
-
-export let context: SSRContext | null = null;
-
-export type SSRContext = {};
-
-function createSSRContext(): SSRContext {
-  return {};
-}
+import { root as $root } from '../reactivity';
 
 export function renderToString<T>(root: () => T) {
-  const _context = createSSRContext();
-  context = _context;
-  const result = resolve(escape(root()));
-  context = null;
-  return { code: result, context: _context };
+  const result = $root((dispose) => {
+    const value = root();
+    dispose();
+    return value;
+  });
+
+  return { code: resolve(escape(result)) };
 }
 
 /** @internal */

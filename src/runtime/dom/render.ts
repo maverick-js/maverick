@@ -33,7 +33,6 @@ export function render(root: () => JSX.Element, options: RenderOptions): Dispose
     } else {
       root();
     }
-
     return dispose;
   });
 }

@@ -80,6 +80,14 @@ async function main() {
       splitting: true,
       outdir: 'dist',
     }),
+    // Use this sometimes to check bundle size.
+    // build({
+    //   ...shared(),
+    //   entryPoints: ['src/runtime/index.ts'],
+    //   bundle: true,
+    //   minify: true,
+    //   outfile: 'dist/test.js',
+    // }),
   ]);
 }
 

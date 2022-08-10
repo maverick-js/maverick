@@ -91,6 +91,11 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
     isDynamic = true;
   });
 
+  let hasSpread = false;
+  const spread = onceFn(() => {
+    hasSpread = true;
+  });
+
   const element = createElementNode({
     ref: node,
     tagName,
@@ -102,12 +107,13 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
     hasChildren,
     isComponent,
     dynamic: () => isDynamic,
+    spread: () => hasSpread,
   });
 
   ast.tree.push(element);
 
   const attributes = isSelfClosing ? node.attributes : node.openingElement.attributes;
-  parseElementAttrs(attributes, ast, { parent: meta, component: isComponent, dynamic });
+  parseElementAttrs(attributes, ast, { parent: meta, component: isComponent, dynamic, spread });
   ast.tree.push(createStructuralNode(StructuralNodeType.AttributesEnd));
 
   if (hasChildren) {
@@ -143,7 +149,8 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
   for (const attr of attrs) {
     if (t.isJsxSpreadAttribute(attr)) {
       ast.tree.push(createSpreadNode({ ref: attr }));
-      meta.dynamic?.();
+      meta.dynamic!();
+      meta.spread!();
       continue;
     }
 

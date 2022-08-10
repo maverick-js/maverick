@@ -1,8 +1,9 @@
 import { decode, encode } from 'html-entities';
 import MagicString from 'magic-string';
-import { escapeHTML } from '../../utils/html';
+import { escape } from '../../utils/html';
 import {
   createFunctionCall,
+  createObjectLiteral,
   createStringLiteral,
   escapeDoubleQuotes,
   trimQuotes,
@@ -12,6 +13,7 @@ import {
   type ElementNode,
   type ExpressionNode,
   type AttributeNode,
+  type SpreadNode,
   isElementNode,
   isAttributeNode,
   isSpreadNode,
@@ -43,11 +45,13 @@ const RUNTIME = {
 export const ssr: ASTSerializer = {
   serialize(ast, ctx) {
     let template = '',
+      spread = false,
       templates: string[] = [],
       parts: string[] = [],
       classes: AttributeNode[] = [],
       styles: AttributeNode[] = [],
       props: string[] = [],
+      merge: (AttributeNode | SpreadNode)[] = [],
       spreads: string[] = [],
       elements: ElementNode[] = [],
       component!: ElementNode | undefined,
@@ -122,53 +126,110 @@ export const ssr: ASTSerializer = {
         if (isAttributesEnd(node)) {
           const element = elements.at(-1);
 
-          if (classes.length) {
-            const firstClass = classes[0];
+          if (spread) {
+            let props: string[] = [],
+              classes: Record<string, string> = {},
+              styles: Record<string, string> = {},
+              currentAttrs: Record<string, string> = {};
 
-            if (classes.length === 1 && !firstClass.dynamic && firstClass.name === 'class') {
-              template += ` class="${escapeHTML(trimQuotes(firstClass.value), true)}"`;
-            } else {
-              const hasBase = firstClass.name === 'class';
-              commit(
-                createFunctionCall(RUNTIME.classes, [
-                  hasBase ? firstClass.callId ?? firstClass.value : '""',
-                  ...(hasBase ? classes.slice(1) : classes).map(
-                    (c) => `["${c.name}", ${c.callId ?? c.value}]`,
-                  ),
-                ]),
-              );
-              ctx.runtime.add(RUNTIME.classes);
+            for (let i = 0; i < merge.length; i++) {
+              const prop = merge[i];
+              if (isAttributeNode(prop)) {
+                let group = prop.namespace
+                  ? prop.namespace === '$class'
+                    ? classes
+                    : prop.namespace === '$style' || prop.namespace === '$cssvar'
+                    ? styles
+                    : currentAttrs
+                  : currentAttrs;
+
+                group[`${prop.namespace === '$cssvar' ? '--' : ''}${prop.name}`] =
+                  prop.callId ?? prop.value;
+              } else {
+                if (Object.keys(classes).length) {
+                  currentAttrs.$$classes = createObjectLiteral(classes);
+                  classes = {};
+                }
+
+                if (Object.keys(styles).length) {
+                  currentAttrs.$$styles = createObjectLiteral(styles);
+                  styles = {};
+                }
+
+                if (Object.keys(currentAttrs).length) {
+                  props.push(createObjectLiteral(currentAttrs));
+                  currentAttrs = {};
+                }
+
+                props.push(prop.value);
+              }
             }
 
-            classes = [];
-          }
-
-          if (styles.length) {
-            const firstStyle = styles[0];
-            if (styles.length === 1 && !firstStyle.dynamic && firstStyle.name === 'style') {
-              template += ` style="${escapeHTML(
-                trimTrailingSemicolon(trimQuotes(firstStyle.value)),
-                true,
-              )}"`;
-            } else {
-              const hasBase = firstStyle.name === 'style';
-              commit(
-                createFunctionCall(RUNTIME.styles, [
-                  hasBase ? firstStyle.callId ?? firstStyle.value : '""',
-                  ...(hasBase ? styles.slice(1) : styles).map(
-                    (c) =>
-                      `["${c.namespace === '$cssvar' ? '--' : ''}${c.name}", ${
-                        c.callId ?? c.value
-                      }]`,
-                  ),
-                ]),
-              );
-              ctx.runtime.add(RUNTIME.styles);
+            if (props.length) {
+              commit(createFunctionCall(RUNTIME.spread, [`[${props.join(', ')}]`]));
+              ctx.runtime.add(RUNTIME.spread);
             }
 
-            styles = [];
+            merge = [];
+          } else {
+            if (classes.length) {
+              const baseClassIdx = classes.findIndex((c) => c.name === 'class'),
+                baseClass = classes[baseClassIdx];
+
+              if (
+                baseClass &&
+                classes.length === 1 &&
+                !baseClass.dynamic &&
+                baseClass.name === 'class'
+              ) {
+                template += ` class="${escape(trimQuotes(baseClass.value), true)}"`;
+              } else {
+                if (baseClass) classes.splice(baseClassIdx, 1);
+
+                commit(
+                  createFunctionCall(RUNTIME.classes, [
+                    baseClass ? baseClass.callId ?? baseClass.value : '""',
+                    classes.length > 0 ? createClassesObjectLiteral(classes) : null,
+                  ]),
+                );
+                ctx.runtime.add(RUNTIME.classes);
+              }
+
+              classes = [];
+            }
+
+            if (styles.length) {
+              const baseStyleIdx = styles.findIndex((style) => style.name === 'style'),
+                baseStyle = styles[baseStyleIdx];
+
+              if (
+                baseStyle &&
+                styles.length === 1 &&
+                !baseStyle.dynamic &&
+                baseStyle.name === 'style'
+              ) {
+                template += ` style="${escape(
+                  trimTrailingSemicolon(trimQuotes(baseStyle.value)),
+                  true,
+                )}"`;
+              } else {
+                if (baseStyle) styles.splice(baseStyleIdx, 1);
+
+                commit(
+                  createFunctionCall(RUNTIME.styles, [
+                    baseStyle ? baseStyle.callId ?? baseStyle.value : '""',
+                    styles.length > 0 ? createStylesObjectLiteral(styles) : null,
+                  ]),
+                );
+
+                ctx.runtime.add(RUNTIME.styles);
+              }
+
+              styles = [];
+            }
           }
 
+          spread = false;
           if (element && !element.isVoid) template += '>';
         } else if (isElementEnd(node)) {
           const element = elements.pop();
@@ -180,23 +241,42 @@ export const ssr: ASTSerializer = {
           component = node;
         } else {
           if (node.dynamic()) marker();
+          spread = node.spread();
           elements.push(node);
           template += `<${node.tagName}`;
         }
       } else if (isAttributeNode(node)) {
         if (node.namespace) {
           if (node.namespace === '$class') {
-            classes.push(node);
+            if (spread) {
+              merge.push(node);
+            } else {
+              classes.push(node);
+            }
           } else if (node.namespace === '$style' || node.namespace === '$cssvar') {
-            styles.push(node);
+            if (spread) {
+              merge.push(node);
+            } else {
+              styles.push(node);
+            }
           }
         } else {
           if (node.name === 'class') {
-            classes.push(node);
+            if (spread) {
+              merge.push(node);
+            } else {
+              classes.push(node);
+            }
           } else if (node.name === 'style') {
-            styles.push(node);
+            if (spread) {
+              merge.push(node);
+            } else {
+              styles.push(node);
+            }
+          } else if (spread) {
+            merge.push(node);
           } else if (!node.dynamic) {
-            template += ` ${node.name}="${escapeHTML(trimQuotes(node.value), true)}"`;
+            template += ` ${node.name}="${escape(trimQuotes(node.value), true)}"`;
           } else {
             commit(createFunctionCall(RUNTIME.attr, [`"${node.name}"`, node.callId ?? node.value]));
             ctx.runtime.add(RUNTIME.attr);
@@ -213,8 +293,7 @@ export const ssr: ASTSerializer = {
           commit(node.callId ?? (node.observable ? `() => ${code}` : code));
         }
       } else if (isSpreadNode(node)) {
-        commit(createFunctionCall(RUNTIME.spread, [node.value]));
-        ctx.runtime.add(RUNTIME.spread);
+        merge.push(node);
       }
     }
 
@@ -247,4 +326,26 @@ function transformParentExpression(node: ExpressionNode, ctx: TransformContext) 
   }
 
   return code.toString();
+}
+
+function createClassesObjectLiteral(classes: AttributeNode[]) {
+  const props = {};
+
+  for (let i = 0; i < classes.length; i++) {
+    const attr = classes[i];
+    props[attr.name] = attr.callId ?? attr.value;
+  }
+
+  return createObjectLiteral(props);
+}
+
+function createStylesObjectLiteral(classes: AttributeNode[]) {
+  const props = {};
+
+  for (let i = 0; i < classes.length; i++) {
+    const attr = classes[i];
+    props[`${attr.namespace === '$cssvar' ? '--' : ''}${attr.name}`] = attr.callId ?? attr.value;
+  }
+
+  return createObjectLiteral(props);
 }

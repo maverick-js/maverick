@@ -60,6 +60,35 @@ it('should compile static attribute (template string)', () => {
 
 it('should compile spread', () => {
   const result = t(`<div {...props} ></div>`);
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_spread, $$_ssr } from \\"@maverick-js/elements/ssr\\";
+
+    const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
+    $$_ssr($$_templ, $$_spread([props]))"
+  `);
+});
+
+it('should compile spread with attributes', () => {
+  const result = t(`<div a="0" b="1" c={id} {...props} d={true} e={10} {...propsTwo}></div>`);
+  expect(result).toMatchSnapshot();
+});
+
+it('should merge classes on spread', () => {
+  const result = t(
+    `<div $class:a={id} $class:b={false} class="foo bar" {...props} $class:c={0} {...propsTwo}></div>`,
+  );
+  expect(result).toMatchSnapshot();
+});
+
+it('should merge styles on spread', () => {
+  const result = t(
+    `<div $style:a={id} $style:b={false} style="foo bar" {...props} $style:c={0} {...propsTwo}></div>`,
+  );
+  expect(result).toMatchSnapshot();
+});
+
+it('should merge spreads', () => {
+  const result = t(`<div {...props} {...propsTwo} {...propsThree} ></div>`);
   expect(result).toMatchSnapshot();
 });
 

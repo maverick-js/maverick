@@ -127,3 +127,9 @@ export class Declarations {
     return `const ${values.join(`,\n  `)};\n`;
   }
 }
+
+export function createObjectLiteral(props: Record<string, string>) {
+  return `{ ${Object.keys(props)
+    .map((prop) => `'${prop}': ${props[prop]}`)
+    .join(', ')} }`;
+}

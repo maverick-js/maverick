@@ -48,6 +48,7 @@ export type JSXNodeMeta = {
   parent?: JSXNodeMeta;
   component?: boolean;
   dynamic?: () => void;
+  spread?: () => void;
 };
 
 export type JSXAttrNamespace = '$class' | '$cssvar' | '$prop' | '$style';

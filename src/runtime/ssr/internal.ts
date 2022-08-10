@@ -1,6 +1,8 @@
 import { trimTrailingSemicolon } from '../../utils/print';
 import { isFunction, isString } from '../../utils/unit';
-import { escape, resolve, SSR_TEMPLATE } from './render';
+import { escape } from '../../utils/html';
+import { unwrapDeep } from '../../utils/obs';
+import { resolve, SSR_TEMPLATE } from './render';
 
 /** @internal */
 export function $$_ssr(template: string[], ...parts: unknown[]) {
@@ -29,98 +31,139 @@ function resolveAtrr(value: unknown) {
   }
 }
 
-const classSplitRE = /\s+/;
-
 /** @internal */
-export function $$_classes(base: unknown, ...classes: [string, unknown][]) {
-  let baseValue = resolveClass(base),
-    result = baseValue ? baseValue + '' : '';
+export function $$_classes(base: unknown, classes: Record<string, unknown>) {
+  let baseValue = unwrapDeep(base),
+    result = isString(baseValue) ? baseValue : '';
 
-  if (classes.length > 0) {
-    const classList = new Set<string>(result.trim().split(classSplitRE));
-
-    for (let i = 0; i < classes.length; i++) {
-      const [name, value] = classes[i];
-      if (resolveClass(value)) {
-        classList.add(name);
-      } else {
-        classList.delete(name);
-      }
-    }
-
-    classList.delete('');
+  if (Object.keys(classes).length > 0) {
+    const classList = new Set<string>(parseClassAttr(result));
+    resolveClasses(classList, classes);
     result = Array.from(classList).join(' ');
   }
 
-  return ` class="${escape(result, true)}"`;
+  result = result.trim();
+  return result.length ? ` class="${escape(result, true)}"` : '';
 }
 
-function resolveClass(value: unknown) {
-  if (isFunction(value)) return resolveClass(value());
-  return value;
+const classSplitRE = /\s+/;
+function parseClassAttr(value: string): string[] {
+  return value.trim().split(classSplitRE);
+}
+
+function resolveClasses(classList: Set<string>, classes: Record<string, unknown>) {
+  for (const name of Object.keys(classes)) {
+    if (unwrapDeep(classes[name])) {
+      classList.add(name);
+    } else {
+      classList.delete(name);
+    }
+  }
+}
+
+/** @internal */
+export function $$_styles(base: unknown, styles: Record<string, unknown>) {
+  let baseValue = unwrapDeep(base),
+    result = isString(baseValue) ? trimTrailingSemicolon(baseValue) : '';
+
+  if (Object.keys(styles).length > 0) {
+    const styleMap = new Map<string, string>();
+    parseStyleAttr(styleMap, result);
+    resolveStyles(styleMap, styles);
+    result = '';
+    for (const [name, value] of styleMap) result += `${name}: ${value};`;
+  }
+
+  result = result.trim();
+  return result.length ? ` style="${escape(result, true)}"` : result;
 }
 
 const styleSplitRE = /\s*:\s*/;
-const stylesSplitRE = /\s*;\s*/;
-
-/** @internal */
-export function $$_styles(base: unknown, ...styles: [string, unknown][]) {
-  let baseValue = resolveStyle(base),
-    result = baseValue ? trimTrailingSemicolon(baseValue + '') : '';
-
-  if (styles.length > 0) {
-    const styleMap = new Map<string, string>();
-
-    const base = result.split(stylesSplitRE);
-    for (let i = 0; i < base.length; i++) {
-      if (base[i] === '') continue;
-      const [name, value] = base[i].trim().split(styleSplitRE);
-      styleMap.set(name, value);
-    }
-
-    for (let i = 0; i < styles.length; i++) {
-      const [name, value] = styles[i];
-      const attrValue = resolveStyle(value);
-      if (attrValue) {
-        styleMap.set(name, attrValue);
-      } else {
-        styleMap.delete(name);
-      }
-    }
-
-    result = '';
-    for (const [name, value] of styleMap) {
-      result += `${name}: ${value};`;
-    }
+const stylesDelimeterRE = /\s*;\s*/;
+function parseStyleAttr(styleMap: Map<string, string>, value: string) {
+  const styles = value.trim().split(stylesDelimeterRE);
+  for (let i = 0; i < styles.length; i++) {
+    if (styles[i] === '') continue;
+    const [name, value] = styles[i].split(styleSplitRE);
+    styleMap.set(name, value);
   }
-
-  return ` style="${escape(result, true)}"`;
 }
 
-function resolveStyle(value: unknown) {
-  if (isFunction(value)) return resolveStyle(value());
-  if (!value && value !== '' && value !== 0) {
-    return null;
-  } else {
-    return value + '';
+function resolveStyles(styleMap: Map<string, string>, styles: Record<string, unknown>) {
+  for (const name of Object.keys(styles)) {
+    const value = unwrapDeep(styles[name]);
+    if (!value && value !== 0) {
+      styleMap.delete(name);
+    } else {
+      styleMap.set(name, value + '');
+    }
   }
 }
 
 const propNameRE = /[A-Z]/;
 /** @internal */
-export function $$_spread(props: Record<string, unknown>) {
-  let result = '';
+export function $$_spread(props: Record<string, unknown>[]) {
+  let attrsMap = new Map<string, string>(),
+    classList = new Set<string>(),
+    stylesMap = new Map<string, string>(),
+    result = '';
 
-  const keys = Object.keys(props);
-  for (let i = 0; i < keys.length; i++) {
-    const name = keys[i];
-    if (!propNameRE.test(name)) {
-      const value = resolveAtrr(props[name]);
-      if (isString(value)) result += ` ${name}="${escape(value, true)}"`;
+  for (let i = 0; i < props.length; i++) {
+    // $$classes and $$styles are dynamics
+    const { $$classes, $$styles, class: $classBase, style: $styleBase, ...attributes } = props[i];
+
+    const attrNames = Object.keys(attributes);
+    for (let j = 0; j < attrNames.length; j++) {
+      const attrName = attrNames[j];
+      if (!propNameRE.test(attrName)) {
+        const attrValue = resolveAtrr(attributes[attrName]);
+        if (isString(attrValue)) {
+          attrsMap.set(attrName, attrValue);
+        } else {
+          attrsMap.delete(attrName);
+        }
+      }
     }
+
+    if ($classBase || 'class' in props[i]) {
+      const base = unwrapDeep($classBase);
+      if (!isString(base)) {
+        classList.clear();
+      } else if (base.length) {
+        for (const name of parseClassAttr(base + '')) classList.add(name);
+      }
+    }
+
+    if ($$classes) resolveClasses(classList, $$classes as Record<string, unknown>);
+
+    if ($styleBase || 'style' in props[i]) {
+      const base = unwrapDeep($styleBase);
+      if (!isString(base)) {
+        stylesMap.clear();
+      } else if (base.length) {
+        parseStyleAttr(stylesMap, base);
+      }
+    }
+
+    if ($$styles) resolveStyles(stylesMap, $$styles as Record<string, unknown>);
   }
 
-  return result;
+  if (classList.size > 0) {
+    let classes = Array.from(classList).join(' ');
+    result += `class="${escape(classes.trim(), true)}"`;
+  }
+
+  for (const [name, value] of attrsMap) {
+    result += ` ${name}="${escape(value, true)}"`;
+  }
+
+  if (stylesMap.size > 0) {
+    let styles = '';
+    for (const [name, value] of stylesMap) styles += `${name}: ${value};`;
+    result += ` style="${escape(styles.trim(), true)}"`;
+  }
+
+  return result.trim();
 }
 
 export { $$_merge_props, $$_create_component } from '../dom';

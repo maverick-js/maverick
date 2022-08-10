@@ -73,21 +73,21 @@ exports[`should compile $class expression 1`] = `
 "import { $$_classes, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_classes(\\"\\", [\\"foo\\", true]))"
+$$_ssr($$_templ, $$_classes(\\"\\", { \\"foo\\": true }))"
 `;
 
 exports[`should compile $cssvar expression 1`] = `
 "import { $$_styles, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_styles(\\"\\", [\\"--foo\\", 10]))"
+$$_ssr($$_templ, $$_styles(\\"\\", { \\"--foo\\": 10 }))"
 `;
 
 exports[`should compile $style expression 1`] = `
 "import { $$_styles, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_styles(\\"\\", [\\"foo\\", \\"bar\\"]))"
+$$_ssr($$_templ, $$_styles(\\"\\", { \\"foo\\": \\"bar\\" }))"
 `;
 
 exports[`should compile child expression 1`] = `
@@ -109,14 +109,14 @@ exports[`should compile dynamic $cssvar expression 1`] = `
 "import { $$_styles, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_styles(\\"\\", [\\"--foo\\", id]))"
+$$_ssr($$_templ, $$_styles(\\"\\", { \\"--foo\\": id }))"
 `;
 
 exports[`should compile dynamic $style expression 1`] = `
 "import { $$_styles, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_styles(\\"\\", [\\"foo\\", id]))"
+$$_ssr($$_templ, $$_styles(\\"\\", { \\"foo\\": id }))"
 `;
 
 exports[`should compile dynamic attribute 1`] = `
@@ -151,7 +151,7 @@ exports[`should compile multiple $class expressions 1`] = `
 "import { $$_classes, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_classes(\\"foo bar\\", [\\"foo\\", true], [\\"bar\\", false], [\\"baz\\", true]))"
+$$_ssr($$_templ, $$_classes(\\"foo bar\\", { \\"foo\\": true, \\"bar\\": false, \\"baz\\": true }))"
 `;
 
 exports[`should compile multiple JSX nodes 1`] = `
@@ -172,21 +172,21 @@ exports[`should compile observable $class expression 1`] = `
 "import { $$_classes, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_classes(\\"\\", [\\"foo\\", id]))"
+$$_ssr($$_templ, $$_classes(\\"\\", { \\"foo\\": id }))"
 `;
 
 exports[`should compile observable $cssvar expression 1`] = `
 "import { $$_styles, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_styles(\\"\\", [\\"--foo-bar\\", id]))"
+$$_ssr($$_templ, $$_styles(\\"\\", { \\"--foo-bar\\": id }))"
 `;
 
 exports[`should compile observable $style expression 1`] = `
 "import { $$_styles, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_styles(id, [\\"foo\\", id]))"
+$$_ssr($$_templ, $$_styles(id, { \\"foo\\": id }))"
 `;
 
 exports[`should compile observable attribute 1`] = `
@@ -232,11 +232,11 @@ const $$_templ = /* #__PURE__ */ [\\"<div></div>\\"];
 $$_ssr($$_templ)"
 `;
 
-exports[`should compile spread 1`] = `
+exports[`should compile spread with attributes 1`] = `
 "import { $$_spread, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_spread(props))"
+$$_ssr($$_templ, $$_spread([{ \\"a\\": \\"0\\", \\"b\\": \\"1\\", \\"c\\": id }, props, { \\"d\\": true, \\"e\\": 10 }, propsTwo]))"
 `;
 
 exports[`should compile static attribute (boolean) 1`] = `
@@ -285,19 +285,51 @@ exports[`should group multiple static $cssvar expressions 1`] = `
 "import { $$_styles, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_styles(\\"pre: 10\\", [\\"--foo\\", 10], [\\"--bar\\", \\"align-content\\"], [\\"--baz\\", id]))"
+$$_ssr($$_templ, $$_styles(\\"pre: 10\\", { \\"--foo\\": 10, \\"--bar\\": \\"align-content\\", \\"--baz\\": id }))"
 `;
 
 exports[`should group multiple static $style and $cssvar expressions 1`] = `
 "import { $$_styles, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_styles(\\"pre: 10\\", [\\"baz\\", \`content\`], [\\"boo\\", 20], [\\"--foo\\", 10], [\\"--bar\\", \\"align-content\\"]))"
+$$_ssr($$_templ, $$_styles(\\"pre: 10\\", { \\"baz\\": \`content\`, \\"boo\\": 20, \\"--foo\\": 10, \\"--bar\\": \\"align-content\\" }))"
 `;
 
 exports[`should group multiple static $style expressions 1`] = `
 "import { $$_styles, $$_ssr } from \\"@maverick-js/elements/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
-$$_ssr($$_templ, $$_styles(\\"foo: a;\\", [\\"foo\\", \\"b\\"], [\\"bar\\", true], [\\"baz\\", id]))"
+$$_ssr($$_templ, $$_styles(\\"foo: a;\\", { \\"foo\\": \\"b\\", \\"bar\\": true, \\"baz\\": id }))"
+`;
+
+exports[`should merge classes on spread 1`] = `
+"import { $$_spread, $$_ssr } from \\"@maverick-js/elements/ssr\\";
+
+const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
+$$_ssr(
+  $$_templ,
+  $$_spread([
+    { \\"class\\": \\"foo bar\\", \\"$$classes\\": { \\"a\\": id, \\"b\\": false } },
+    props,
+    { \\"$$classes\\": { \\"c\\": 0 } },
+    propsTwo,
+  ]),
+)"
+`;
+
+exports[`should merge spreads 1`] = `
+"import { $$_spread, $$_ssr } from \\"@maverick-js/elements/ssr\\";
+
+const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
+$$_ssr($$_templ, $$_spread([props, propsTwo, propsThree]))"
+`;
+
+exports[`should merge styles on spread 1`] = `
+"import { $$_spread, $$_ssr } from \\"@maverick-js/elements/ssr\\";
+
+const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
+$$_ssr(
+  $$_templ,
+  $$_spread([{ \\"style\\": \\"foo bar\\", \\"$$styles\\": { \\"a\\": id, \\"b\\": false } }, props, { \\"$$styles\\": { \\"c\\": 0 } }, propsTwo]),
+)"
 `;

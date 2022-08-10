@@ -73,6 +73,7 @@ export type ElementNode = {
   hasChildren: boolean;
   childCount: number;
   childElementCount: number;
+  spread(): boolean;
   dynamic(): boolean;
 };
 

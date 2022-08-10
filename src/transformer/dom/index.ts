@@ -28,7 +28,7 @@ import {
   trimQuotes,
   trimTrailingSemicolon,
 } from '../../utils/print';
-import { escapeHTML } from '../../utils/html';
+import { escape } from '../../utils/html';
 import { decode, encode } from 'html-entities';
 
 const ID = {
@@ -305,7 +305,7 @@ export const dom: ASTSerializer = {
           if (node.name === 'style') {
             styles.push(trimTrailingSemicolon(trimQuotes(node.value)));
           } else {
-            template.push(` ${node.name}="${escapeHTML(trimQuotes(node.value), true)}"`);
+            template.push(` ${node.name}="${escape(trimQuotes(node.value), true)}"`);
           }
         } else {
           addAttrExpression(node, RUNTIME.attr);

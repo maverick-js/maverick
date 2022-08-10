@@ -62,13 +62,12 @@ export function setAttribute(element: Element, name: string, value: unknown) {
 }
 
 /**
- * Sets or removes the given style `value`. Falsy values except `''` and `0` will remove
- * the style.
+ * Sets or removes the given style `value`. Falsy values will remove the style.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
 export function setStyle(element: HTMLElement, property: string, value: unknown) {
-  if (!value && value !== '' && value !== 0) {
+  if (!value && value !== 0) {
     element.style.removeProperty(property);
   } else {
     element.style.setProperty(property, value + '');

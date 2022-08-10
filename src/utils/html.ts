@@ -1,46 +1,51 @@
-export function escapeHTML(value: string, isAttribute = false) {
-  if (typeof value !== 'string') return value;
+export function escape(value: any, isAttr = false) {
+  const type = typeof value;
 
-  const delimeter = isAttribute ? '"' : '<';
-  const escDelimeter = isAttribute ? '&quot;' : '&lt;';
+  if (type !== 'string') {
+    if (!isAttr && type === 'function') return escape(value());
+    if (isAttr && type === 'boolean') return value + '';
+    return value;
+  }
 
-  let delimeterIndex = value.indexOf(delimeter);
-  let ampersandIndex = value.indexOf('&');
+  const delimeter = isAttr ? '"' : '<',
+    escapeDelimeter = isAttr ? '&quot;' : '&lt;';
 
-  if (delimeterIndex < 0 && ampersandIndex < 0) return value;
+  let iDelimeter = value.indexOf(delimeter),
+    isAmpersand = value.indexOf('&');
+
+  if (iDelimeter < 0 && isAmpersand < 0) return value;
 
   let left = 0,
     out = '';
 
-  while (delimeterIndex >= 0 && ampersandIndex >= 0) {
-    if (delimeterIndex < ampersandIndex) {
-      if (left < delimeterIndex) out += value.substring(left, delimeterIndex);
-      out += escDelimeter;
-      left = delimeterIndex + 1;
-      delimeterIndex = value.indexOf(delimeter, left);
+  while (iDelimeter >= 0 && isAmpersand >= 0) {
+    if (iDelimeter < isAmpersand) {
+      if (left < iDelimeter) out += value.substring(left, iDelimeter);
+      out += escapeDelimeter;
+      left = iDelimeter + 1;
+      iDelimeter = value.indexOf(delimeter, left);
     } else {
-      if (left < ampersandIndex) out += value.substring(left, ampersandIndex);
+      if (left < isAmpersand) out += value.substring(left, isAmpersand);
       out += '&amp;';
-      left = ampersandIndex + 1;
-      ampersandIndex = value.indexOf('&', left);
+      left = isAmpersand + 1;
+      isAmpersand = value.indexOf('&', left);
     }
   }
 
-  if (delimeterIndex >= 0) {
+  if (iDelimeter >= 0) {
     do {
-      if (left < delimeterIndex) out += value.substring(left, delimeterIndex);
-      out += escDelimeter;
-      left = delimeterIndex + 1;
-      delimeterIndex = value.indexOf(delimeter, left);
-    } while (delimeterIndex >= 0);
-  } else {
-    while (ampersandIndex >= 0) {
-      if (left < ampersandIndex) out += value.substring(left, ampersandIndex);
+      if (left < iDelimeter) out += value.substring(left, iDelimeter);
+      out += escapeDelimeter;
+      left = iDelimeter + 1;
+      iDelimeter = value.indexOf(delimeter, left);
+    } while (iDelimeter >= 0);
+  } else
+    while (isAmpersand >= 0) {
+      if (left < isAmpersand) out += value.substring(left, isAmpersand);
       out += '&amp;';
-      left = ampersandIndex + 1;
-      ampersandIndex = value.indexOf('&', left);
+      left = isAmpersand + 1;
+      isAmpersand = value.indexOf('&', left);
     }
-  }
 
   return left < value.length ? out + value.substring(left) : out;
 }

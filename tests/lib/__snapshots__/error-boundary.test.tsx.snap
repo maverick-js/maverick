@@ -1,0 +1,86 @@
+// Vitest Snapshot v1
+
+exports[`should handle error 1`] = `
+<root>
+  <!--$$-->
+  <!--$-->
+  <div>
+    <!--$-->
+    Good
+    <!--/$-->
+  </div>
+  <!--/$-->
+</root>
+`;
+
+exports[`should handle error 2`] = `
+<root>
+  <!--$$-->
+  <!--$-->
+  <div>
+    <!--$-->
+    Bad
+    <!--/$-->
+  </div>
+  <!--/$-->
+</root>
+`;
+
+exports[`should handle error 3`] = `
+<root>
+  <!--$$-->
+  <!--$-->
+  <div>
+    <!--$-->
+    Good
+    <!--/$-->
+  </div>
+  <!--/$-->
+</root>
+`;
+
+exports[`should invoke \`onError\` property 1`] = `
+<root>
+  <!--$$-->
+  <div>
+    <!--$-->
+    Good
+    <!--/$-->
+  </div>
+  <!--/$-->
+</root>
+`;
+
+exports[`should invoke \`onError\` property 2`] = `
+<root>
+  <!--$$-->
+  <div>
+    <!--$-->
+    Bad
+    <!--/$-->
+  </div>
+  <!--/$-->
+</root>
+`;
+
+exports[`should invoke \`onError\` property 3`] = `
+<root>
+  <!--$$-->
+  <div>
+    <!--$-->
+    Good
+    <!--/$-->
+  </div>
+  <!--/$-->
+</root>
+`;
+
+exports[`should return children 1`] = `
+<root>
+  <!--$$-->
+  <div>
+    Child
+  </div>
+  <!--/$-->
+</root>
+`;

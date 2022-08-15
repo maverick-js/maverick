@@ -25,7 +25,8 @@ export function insert(
   before: Element | null = null,
 ) {
   const marker = document.createComment('$$');
-  parent.insertBefore(marker, before);
+  if (before === null) parent.append(marker);
+  else parent.insertBefore(marker, before);
   insertNodeAtMarker(marker, value);
   if (!isFunction(value)) marker.remove();
 }

@@ -96,10 +96,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/maverick-js/elements.git"
+    "url": "https://github.com/maverick-js/maverick.git"
   },
   "bugs": {
-    "url": "https://github.com/maverick-js/elements/issues"
+    "url": "https://github.com/maverick-js/maverick/issues"
   },
   "publishConfig": {
     "access": "public"

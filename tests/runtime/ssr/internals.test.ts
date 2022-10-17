@@ -70,7 +70,9 @@ it('should spread attributes', () => {
     },
   ]);
 
-  expect(result).toMatchInlineSnapshot('"foo=\\"0\\" bar=\\"apples\\" wha=\\"ano\\" hux=\\"true\\""');
+  expect(result).toMatchInlineSnapshot(
+    '"foo=\\"0\\" bar=\\"apples\\" wha=\\"ano\\" hux=\\"true\\""',
+  );
 });
 
 it('should merge classes on spread', () => {

@@ -1,5 +1,5 @@
 {
-  "name": "@maverick-js/elements",
+  "name": "maverick-js",
   "description": "",
   "license": "MIT",
   "version": "0.0.1",
@@ -8,28 +8,30 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "development": "./dist/runtime/dev/index.js",
-      "test": "./dist/runtime/dev/index.js",
-      "node": "./dist/runtime/node/index.js",
-      "default": "./dist/runtime/prod/index.js"
+      "types": "./index.d.ts",
+      "development": "./dist/dev/runtime.js",
+      "test": "./dist/dev/runtime.js",
+      "node": "./dist/node/runtime.js",
+      "default": "./dist/prod/runtime.js"
     },
     "./dom": {
-      "development": "./dist/runtime/dev/dom/index.js",
-      "test": "./dist/runtime/dev/dom/index.js",
-      "node": "./dist/runtime/node/dom/index.js",
-      "default": "./dist/runtime/prod/dom/index.js"
+      "types": "./dom.d.ts",
+      "development": "./dist/dev/dom.js",
+      "test": "./dist/dev/dom.js",
+      "node": "./dist/node/dom.js",
+      "default": "./dist/prod/dom.js"
     },
     "./ssr": {
-      "development": "./dist/runtime/dev/ssr/index.js",
-      "test": "./dist/runtime/dev/ssr/index.js",
-      "node": "./dist/runtime/node/ssr/index.js",
-      "default": "./dist/runtime/prod/ssr/index.js"
+      "types": "./ssr.d.ts",
+      "development": "./dist/dev/ssr.js",
+      "test": "./dist/dev/ssr.js",
+      "node": "./dist/node/ssr.js",
+      "default": "./dist/prod/ssr.js"
     },
-    "./jsx-runtime": "./jsx-runtime.d.ts",
-    "./esbuild": "./dist/plugins/esbuild.js",
-    "./rollup": "./dist/plugins/rollup.js",
-    "./vite": "./dist/plugins/vite.js",
-    "./webpack": "./dist/plugins/webpack.js",
+    "./plugins": {
+      "types": "./plugins.d.ts",
+      "default": "./dist/node/plugins.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -37,22 +39,16 @@
     "*.d.ts"
   ],
   "scripts": {
-    "dev": "vite dev sandbox",
-    "build": "vite build sandbox",
-    "preview": "vite preview sandbox",
-    "bundle": "rimraf dist && node .scripts/bundle.js",
-    "test": "vitest --run",
+    "dev": "pnpm run build --watch",
+    "build": "rimraf dist && tsup",
     "format": "prettier src --write --loglevel warn",
+    "test": "vitest --run",
     "test:watch": "vitest --watch",
-    "validate": "pnpm test && pnpm bundle && pnpm types",
-    "release": "pnpm validate && standard-version && git push --follow-tags origin main && npm publish",
+    "sandbox:dev": "vite dev sandbox",
+    "sandbox:build": "vite build sandbox",
+    "sandbox:preview": "vite preview sandbox",
     "size": "pnpm bundle && export-size .",
-    "types": "rimraf [^j]*.d.ts && tsc -p .config/tsconfig.build.json && run-s types:* && rimraf dist/*.d.ts",
-    "types:index": "api-extractor run -c .config/types.index.json",
-    "types:esbuild": "api-extractor run -c .config/types.esbuild.json",
-    "types:rollup": "api-extractor run -c .config/types.rollup.json",
-    "types:vite": "api-extractor run -c .config/types.vite.json",
-    "types:webpack": "api-extractor run -c .config/types.webpack.json"
+    "release": "pnpm test && pnpm build && standard-version && git push --follow-tags origin main && npm publish"
   },
   "dependencies": {
     "@dprint/formatter": "^0.2.0",
@@ -82,7 +78,8 @@
     "rimraf": "^3.0.2",
     "simple-git-hooks": "^2.8.0",
     "standard-version": "^9.5.0",
-    "typescript": "^4.7.4",
+    "tsup": "^6.2.3",
+    "typescript": "^4.8.0",
     "vite": "^3.0.3",
     "vitest": "^0.19.0",
     "webpack": "^5.74.0"

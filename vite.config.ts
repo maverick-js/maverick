@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
 
 import { defineConfig } from 'vite';
-import { maverick } from './src/plugins/vite';
+import { vite as maverick } from './src/plugins';
 import { transform } from './src/transformer';
 
 export default defineConfig({

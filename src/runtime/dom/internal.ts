@@ -136,7 +136,7 @@ export function $$_merge_props(...sources: Record<string, unknown>[]) {
 /** @internal */
 export function $$_listen(target: EventTarget, type: string, handler: unknown, capture = false) {
   if (isFunction(handler)) {
-    listen(target, type, handler as JSX.EventHandler, { capture });
+    listen(target, type, handler as any, { capture });
   }
 }
 

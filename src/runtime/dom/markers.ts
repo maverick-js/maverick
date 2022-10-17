@@ -22,7 +22,7 @@ export const createMarker = () => document.createComment('/$');
 
 export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, observable = false) {
   if (isFunction(value)) {
-    effect(() => insertNodeAtMarker(start, value(), true));
+    effect(() => insertNodeAtMarker(start, (value as Function)(), true));
     return;
   } else if (hydration && !observable) return;
 

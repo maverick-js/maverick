@@ -9,7 +9,6 @@ specifiers:
   '@rollup/pluginutils': ^4.2.1
   '@types/node': ^18.0.3
   benchmark: ^2.1.4
-  devalue: ^2.0.1
   esbuild: ^0.14.49
   export-size: ^0.5.2
   globby: ^13.1.2
@@ -35,7 +34,6 @@ specifiers:
 dependencies:
   '@dprint/formatter': 0.2.0
   '@dprint/typescript': 0.71.2
-  devalue: 2.0.1
   html-entities: 2.3.3
   magic-string: 0.26.7
   normalize-path: 3.0.0
@@ -1205,10 +1203,6 @@ packages:
     resolution: {integrity: sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==}
     engines: {node: '>=8'}
     dev: true
-
-  /devalue/2.0.1:
-    resolution: {integrity: sha512-I2TiqT5iWBEyB8GRfTDP0hiLZ0YeDJZ+upDxjBfOC2lebO5LezQMv7QvIUTzdb64jQyAKLf1AHADtGN+jw6v8Q==}
-    dev: false
 
   /dir-glob/3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}

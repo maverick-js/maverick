@@ -1,3 +1,4 @@
+import type { Observable } from '@maverick-js/observables';
 import type { JSX } from './jsx';
 
 export type DOMElement = Element;
@@ -24,5 +25,13 @@ export type ParentComponent<Props = {}, Children = ComponentChildren> = (
 export type VoidComponentProps<Props = {}> = ComponentProps<Props>;
 
 export type VoidComponent<Props = {}> = Component<VoidComponentProps<Props>>;
+
+export type ObservableRecord = {
+  [key: string]: Observable<any>;
+};
+
+export type ObservableValueRecord<T> = {
+  [P in keyof T]: T[P] extends Observable<infer R> ? R : never;
+};
 
 export {};

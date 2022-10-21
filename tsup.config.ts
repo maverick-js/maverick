@@ -16,6 +16,10 @@ function base({ dev = false, node = false } = {}): Options {
       __TEST__: 'false',
     },
     esbuildOptions(opts) {
+      if (!dev && !node) {
+        opts.mangleProps = /^_/;
+      }
+
       opts.chunkNames = 'chunks/[name]-[hash]';
     },
   };
@@ -25,6 +29,7 @@ const runtimeEntry = {
   runtime: './src/runtime/index.ts',
   dom: './src/runtime/dom/index.ts',
   ssr: './src/runtime/ssr/index.ts',
+  element: './src/element/index.ts',
 };
 
 export default defineConfig([

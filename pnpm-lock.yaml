@@ -4,7 +4,7 @@ specifiers:
   '@dprint/formatter': ^0.2.0
   '@dprint/typescript': ^0.71.1
   '@maverick-js/observables': ^4.3.2
-  '@maverick-js/scheduler': ^1.0.0
+  '@maverick-js/scheduler': ^2.1.0
   '@microsoft/api-extractor': ^7.28.6
   '@rollup/pluginutils': ^4.2.1
   '@types/node': ^18.0.3
@@ -42,7 +42,7 @@ dependencies:
 
 devDependencies:
   '@maverick-js/observables': 4.5.0
-  '@maverick-js/scheduler': 1.0.2
+  '@maverick-js/scheduler': 2.1.0
   '@microsoft/api-extractor': 7.33.2
   '@rollup/pluginutils': 4.2.1
   '@types/node': 18.11.0
@@ -250,15 +250,11 @@ packages:
   /@maverick-js/observables/4.5.0:
     resolution: {integrity: sha512-aS5NHxkm4w5CDAUuIfzkiqC2GUM5cgVUVaREkg7vb0KgAvw+4IIBRyj400QJ/zAPb/+/7uSR6dO+S+xcU6wA0Q==}
     dependencies:
-      '@maverick-js/scheduler': 2.0.0
+      '@maverick-js/scheduler': 2.1.0
     dev: true
 
-  /@maverick-js/scheduler/1.0.2:
-    resolution: {integrity: sha512-xx86C6bEbMDSJf0eKpitPTH1PjMH4BBB/zhveQqnArEjiuvhLOe4nqxDsy8IXcoah4zAgTjIqcPTdre+esQXzA==}
-    dev: true
-
-  /@maverick-js/scheduler/2.0.0:
-    resolution: {integrity: sha512-SDrWbTeRhLVs4vR4CDm0RIkoX/OJ9umjMtYfFbiZJHWu9CpewCNRq2I3MVFFH58/qDWkfF0wFrIGpetJZfbKEg==}
+  /@maverick-js/scheduler/2.1.0:
+    resolution: {integrity: sha512-pNV+P9kwnVxhtsWSaQWw7NMdX0t2jHNb6mlzR6IBN82o4bYCIJn6lwKivh5RZIKf8fc4CLhZgaWXJC88/bQLdg==}
     dev: true
 
   /@microsoft/api-extractor-model/7.25.1:

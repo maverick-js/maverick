@@ -20,12 +20,12 @@ export function createFragment() {
 }
 
 export function insert(
-  parent: Element | DocumentFragment,
+  parent: Node | DocumentFragment,
   value: JSX.Element,
   before: Element | null = null,
 ) {
   const marker = document.createComment('$$');
-  if (before === null) parent.append(marker);
+  if (before === null) parent.appendChild(marker);
   else parent.insertBefore(marker, before);
   insertNodeAtMarker(marker, value);
   if (!isFunction(value)) marker.remove();
@@ -39,6 +39,7 @@ export function listen<Target extends EventTarget, EventType extends string>(
     : JSX.EventHandler,
   options?: AddEventListenerOptions | boolean,
 ) {
+  if (__NODE__) return;
   target.addEventListener(type as string, handler as JSX.EventHandler, options);
   onDispose(() => {
     target.removeEventListener(type as string, handler as JSX.EventHandler, options);

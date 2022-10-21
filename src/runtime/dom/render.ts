@@ -21,7 +21,7 @@ export function hydrate(root: () => JSX.Element, options: HydrateOptions): Dispo
 }
 
 export type RenderOptions = {
-  target: Element;
+  target: Node;
 };
 
 export function render(root: () => JSX.Element, options: RenderOptions): Dispose {

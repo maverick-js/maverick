@@ -13,7 +13,7 @@ export namespace JSX {
 
   // Globals that can be extended in user-land.
   export interface GlobalCSSVarAttributes extends CSSRecord {}
-  export interface GlobalOnAttributes extends EventRecord, GlobalEventHandlersEventMap {}
+  export interface GlobalOnAttributes extends GlobalEventHandlersEventMap {}
   export interface GlobalUseAttributes extends DirectiveRecord {}
 
   /**
@@ -275,7 +275,7 @@ export namespace JSX {
       CSSVarAttributes<CSSVars> &
       // Globals
       CSSVarAttributes<GlobalCSSVarAttributes> &
-      OnAttributes<GlobalOnAttributes, Element> &
+      OnAttributes<GlobalOnAttributes & EventRecord, Element> &
       UseAttributes<GlobalUseAttributes>;
 
   export type HTMLMarqueeElement = HTMLElement & HTMLMarqueeElementProperties;

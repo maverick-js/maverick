@@ -28,6 +28,13 @@
       "node": "./dist/node/ssr.js",
       "default": "./dist/prod/ssr.js"
     },
+    "./element": {
+      "types": "./element.d.ts",
+      "development": "./dist/dev/element.js",
+      "test": "./dist/dev/element.js",
+      "node": "./dist/node/element.js",
+      "default": "./dist/prod/element.js"
+    },
     "./plugins": {
       "types": "./plugins.d.ts",
       "default": "./dist/node/plugins.js"
@@ -61,7 +68,7 @@
   },
   "devDependencies": {
     "@maverick-js/observables": "^4.3.2",
-    "@maverick-js/scheduler": "^1.0.0",
+    "@maverick-js/scheduler": "^2.1.0",
     "@microsoft/api-extractor": "^7.28.6",
     "@rollup/pluginutils": "^4.2.1",
     "@types/node": "^18.0.3",

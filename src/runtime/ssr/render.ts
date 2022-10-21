@@ -33,3 +33,7 @@ export function resolve(node: unknown): string {
 
   return '';
 }
+
+export function unsafeHTMLString(html: string) {
+  return { [SSR_TEMPLATE]: html };
+}

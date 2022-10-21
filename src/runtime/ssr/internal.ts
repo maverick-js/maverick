@@ -32,13 +32,13 @@ function resolveAtrr(value: unknown) {
 }
 
 /** @internal */
-export function $$_classes(base: unknown, classes: Record<string, unknown>) {
+export function $$_classes(base: unknown, tokens: Record<string, unknown>) {
   let baseValue = unwrapDeep(base),
     result = isString(baseValue) ? baseValue : '';
 
-  if (Object.keys(classes).length > 0) {
+  if (Object.keys(tokens).length > 0) {
     const classList = new Set<string>(parseClassAttr(result));
-    resolveClasses(classList, classes);
+    resolveClasses(classList, tokens);
     result = Array.from(classList).join(' ');
   }
 
@@ -47,13 +47,13 @@ export function $$_classes(base: unknown, classes: Record<string, unknown>) {
 }
 
 const classSplitRE = /\s+/;
-function parseClassAttr(value: string): string[] {
+export function parseClassAttr(value: string): string[] {
   return value.trim().split(classSplitRE);
 }
 
-function resolveClasses(classList: Set<string>, classes: Record<string, unknown>) {
-  for (const name of Object.keys(classes)) {
-    if (unwrapDeep(classes[name])) {
+function resolveClasses(classList: Set<string>, tokens: Record<string, unknown>) {
+  for (const name of Object.keys(tokens)) {
+    if (unwrapDeep(tokens[name])) {
       classList.add(name);
     } else {
       classList.delete(name);
@@ -62,14 +62,14 @@ function resolveClasses(classList: Set<string>, classes: Record<string, unknown>
 }
 
 /** @internal */
-export function $$_styles(base: unknown, styles: Record<string, unknown>) {
+export function $$_styles(base: unknown, tokens: Record<string, unknown>) {
   let baseValue = unwrapDeep(base),
     result = isString(baseValue) ? trimTrailingSemicolon(baseValue) : '';
 
-  if (Object.keys(styles).length > 0) {
+  if (Object.keys(tokens).length > 0) {
     const styleMap = new Map<string, string>();
     parseStyleAttr(styleMap, result);
-    resolveStyles(styleMap, styles);
+    resolveStyles(styleMap, tokens);
     result = '';
     for (const [name, value] of styleMap) result += `${name}: ${value};`;
   }
@@ -80,22 +80,22 @@ export function $$_styles(base: unknown, styles: Record<string, unknown>) {
 
 const styleSplitRE = /\s*:\s*/;
 const stylesDelimeterRE = /\s*;\s*/;
-function parseStyleAttr(styleMap: Map<string, string>, value: string) {
+export function parseStyleAttr(tokens: Map<string, string>, value: string) {
   const styles = value.trim().split(stylesDelimeterRE);
   for (let i = 0; i < styles.length; i++) {
     if (styles[i] === '') continue;
     const [name, value] = styles[i].split(styleSplitRE);
-    styleMap.set(name, value);
+    tokens.set(name, value);
   }
 }
 
-function resolveStyles(styleMap: Map<string, string>, styles: Record<string, unknown>) {
+function resolveStyles(tokens: Map<string, string>, styles: Record<string, unknown>) {
   for (const name of Object.keys(styles)) {
     const value = unwrapDeep(styles[name]);
     if (!value && value !== 0) {
-      styleMap.delete(name);
+      tokens.delete(name);
     } else {
-      styleMap.set(name, value + '');
+      tokens.set(name, value + '');
     }
   }
 }

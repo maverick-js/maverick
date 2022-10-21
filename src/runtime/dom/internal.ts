@@ -141,6 +141,11 @@ export function $$_listen(target: EventTarget, type: string, handler: unknown, c
 }
 
 function observeOrRun<T>(value: T, callback: (value: T) => void) {
+  if (__NODE__) {
+    callback(value);
+    return;
+  }
+
   if (isFunction(value)) {
     effect(() => callback(value()));
   } else {

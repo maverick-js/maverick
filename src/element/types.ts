@@ -58,6 +58,8 @@ export type ElementSetup<
 
 export type ElementSetupContext<Props extends ElementProps = ElementProps> = {
   props?: ObservableElementProps<Props>;
+  class?: string;
+  style?: string;
   context?: ElementContextMap;
   children?: ObservableSubject<boolean>;
   onEventDispatch?: (eventType: string) => void;
@@ -147,3 +149,34 @@ export type MaverickElementConstructor<
   /** @internal */
   readonly $definition: ElementDeclaration<Props, Events, Members>;
 };
+
+export type MaverickSSRHost = MaverickHost &
+  Pick<
+    HTMLElement,
+    | 'getAttribute'
+    | 'setAttribute'
+    | 'hasAttribute'
+    | 'removeAttribute'
+    | 'dispatchEvent'
+    | 'addEventListener'
+    | 'removeEventListener'
+  > & {
+    readonly classList: {
+      readonly length: number;
+      readonly tokens: Set<string>;
+      add(...tokens: string[]): void;
+      contains(token: string): boolean;
+      remove(...tokens: string[]): void;
+      replace(token: string, newToken: string): boolean;
+      toggle(token: string, force?: boolean): boolean;
+      toString(): string;
+    };
+    readonly style: {
+      readonly length: number;
+      readonly tokens: Map<string, string>;
+      getPropertyValue(property: string): string;
+      removeProperty(property: string): string;
+      setProperty(property: string, value: string | null): void;
+      toString(): string;
+    };
+  };

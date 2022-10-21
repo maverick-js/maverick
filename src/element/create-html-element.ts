@@ -52,7 +52,6 @@ export function createHTMLElement<
     );
   }
 
-  const tagName = definition.tagName.toLowerCase();
   const propDefs: ElementPropDefinitions<Props> = definition.props ?? ({} as any);
 
   class MaverickElement
@@ -67,6 +66,10 @@ export function createHTMLElement<
     private static _events = new Set<string>();
     /** prop names that should reflect changes to respective attr */
     private static _reflectedProps = new Set<string>();
+
+    static get $definition() {
+      return definition;
+    }
 
     /** @internal */
     [CONNECT]: ElementLifecycleHandler[] = [];
@@ -96,12 +99,8 @@ export function createHTMLElement<
 
     $keepAlive = false;
 
-    static get $definition() {
-      return definition;
-    }
-
     get $tagName() {
-      return tagName;
+      return definition.tagName;
     }
 
     get $children() {

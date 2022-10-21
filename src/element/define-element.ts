@@ -11,6 +11,12 @@ import type {
   ObservableElementProps,
 } from './types';
 
+const registry = new Map<string, ElementDefinition>();
+
+export function getElementDefinition(tagName: string) {
+  return registry.get(tagName);
+}
+
 export function defineElement<
   Props extends ElementProps,
   Events = JSX.GlobalOnAttributes,
@@ -18,7 +24,7 @@ export function defineElement<
 >(
   declaration: ElementDeclaration<Props, Events, Members>,
 ): ElementDefinition<Props, Events, Members> {
-  return {
+  const definition = {
     ...declaration,
     id: Symbol(declaration.tagName),
     setup(context) {
@@ -41,6 +47,9 @@ export function defineElement<
       };
     },
   };
+
+  registry.set(definition.tagName, definition);
+  return definition;
 }
 
 export function createSetupProps<Props extends ElementProps>(

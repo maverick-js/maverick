@@ -12,15 +12,21 @@ type SSR = (context: ElementSetupContext) => {
   code: string;
 };
 
+const cache = new WeakMap<ElementDefinition, SSR>();
+
 export function createSSRElement(definition: ElementDefinition): SSR {
   if (definition.shadow) {
     throw Error('[maverick] shadow DOM SSR is not supported yet');
   }
 
+  if (cache.has(definition)) {
+    return cache.get(definition)!;
+  }
+
   const tagName = definition.tagName;
   const propDefs = definition.props ?? {};
 
-  return (context) => {
+  const renderer: SSR = (context) => {
     const host = new SSRHost({
       tagName,
       children: !!context.children?.(),
@@ -77,6 +83,9 @@ export function createSSRElement(definition: ElementDefinition): SSR {
       code: `<${tagName}${attributes}>${innerHTML}</${tagName}>`,
     };
   };
+
+  cache.set(definition, renderer);
+  return renderer;
 }
 
 class SSRHost implements MaverickSSRHost {

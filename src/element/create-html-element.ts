@@ -34,7 +34,8 @@ import type {
 } from './types';
 
 export function defineCustomElement(definition: ElementDefinition) {
-  if (!__NODE__ && !window.customElements.get(definition.tagName)) {
+  if (__NODE__) return;
+  if (!window.customElements.get(definition.tagName)) {
     window.customElements.define(definition.tagName, createHTMLElement(definition));
   }
 }

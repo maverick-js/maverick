@@ -1,5 +1,5 @@
-import { ForKeyed, observable, tick } from '@maverick-js/elements';
-import { render } from '@maverick-js/elements/dom';
+import { ForKeyed, observable, tick } from 'maverick.js';
+import { render } from 'maverick.js/dom';
 
 it('should render keyed loop', async () => {
   const source = observable([{ id: 'a' }, { id: 'b' }, { id: 'c' }]);

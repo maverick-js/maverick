@@ -1,5 +1,5 @@
-import { $$_attr, $$_classes, $$_spread, $$_ssr, $$_styles } from '@maverick-js/elements/ssr';
-import { SSR_TEMPLATE } from '@maverick-js/elements/ssr/render';
+import { $$_attr, $$_classes, $$_spread, $$_ssr, $$_styles } from 'maverick.js/ssr';
+import { SSR_TEMPLATE } from 'maverick.js/ssr/render';
 
 it('should concat template and parts', () => {
   const template = ['<div><span', '>', '</span>', '</div>'];

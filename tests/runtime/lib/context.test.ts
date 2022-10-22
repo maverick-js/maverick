@@ -1,4 +1,4 @@
-import { root, createContext } from '@maverick-js/elements';
+import { root, createContext } from 'maverick.js';
 import { computed } from '@maverick-js/observables';
 
 it('should create context', () => {

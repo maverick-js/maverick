@@ -1,14 +1,14 @@
 // Vitest Snapshot v1
 
 exports[`should compile child component 1`] = `
-"import { $$_create_component, $$_ssr } from \\"@maverick-js/elements/ssr\\";
+"import { $$_create_component, $$_ssr } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div><!$>\\", \\"</div>\\"];
 $$_ssr($$_templ, $$_create_component(Component))"
 `;
 
 exports[`should compile component child fragment 1`] = `
-"import { $$_ssr, $$_create_component } from \\"@maverick-js/elements/ssr\\";
+"import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div id=\\\\\\"foo\\\\\\"><!$>\\", \\"</div><div id=\\\\\\"bar\\\\\\"><!$>\\", \\"</div><!$>\\", \\"<div></div><!$>\\"];
 
@@ -21,7 +21,7 @@ $$_create_component(Component, {
 `;
 
 exports[`should compile component with element children 1`] = `
-"import { $$_ssr, $$_create_component } from \\"@maverick-js/elements/ssr\\";
+"import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div>Foo<!$>\\", \\"</div>\\"];
 $$_create_component(Component, {
@@ -32,17 +32,17 @@ $$_create_component(Component, {
 `;
 
 exports[`should compile component with multiple spreads 1`] = `
-"import { $$_create_component, $$_merge_props } from \\"@maverick-js/elements/ssr\\";
+"import { $$_create_component, $$_merge_props } from \\"maverick.js/ssr\\";
 $$_create_component(Component, $$_merge_props(props, propsTwo, propsThree))"
 `;
 
 exports[`should compile component with props 1`] = `
-"import { $$_create_component } from \\"@maverick-js/elements/ssr\\";
+"import { $$_create_component } from \\"maverick.js/ssr\\";
 $$_create_component(Component, { foo: \\"a\\", bar: 10, boo: true, baz: id })"
 `;
 
 exports[`should compile component with props and children 1`] = `
-"import { $$_ssr, $$_create_component } from \\"@maverick-js/elements/ssr\\";
+"import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div></div>\\"];
 $$_create_component(Component, {
@@ -54,7 +54,7 @@ $$_create_component(Component, {
 `;
 
 exports[`should compile component with props and spread 1`] = `
-"import { $$_create_component, $$_merge_props } from \\"@maverick-js/elements/ssr\\";
+"import { $$_create_component, $$_merge_props } from \\"maverick.js/ssr\\";
 $$_create_component(
   Component,
   $$_merge_props(props, {
@@ -67,12 +67,12 @@ $$_create_component(
 `;
 
 exports[`should compile component with spread 1`] = `
-"import { $$_create_component, $$_merge_props } from \\"@maverick-js/elements/ssr\\";
+"import { $$_create_component, $$_merge_props } from \\"maverick.js/ssr\\";
 $$_create_component(Component, props)"
 `;
 
 exports[`should compile component with text children 1`] = `
-"import { $$_create_component } from \\"@maverick-js/elements/ssr\\";
+"import { $$_create_component } from \\"maverick.js/ssr\\";
 $$_create_component(Component, {
   get children() {
     return \\"foo 10 bar 20 baz\\";
@@ -81,12 +81,12 @@ $$_create_component(Component, {
 `;
 
 exports[`should compile root component 1`] = `
-"import { $$_create_component } from \\"@maverick-js/elements/ssr\\";
+"import { $$_create_component } from \\"maverick.js/ssr\\";
 $$_create_component(Component)"
 `;
 
 exports[`should compile root expression  1`] = `
-"import { $$_ssr } from \\"@maverick-js/elements/ssr\\";
+"import { $$_ssr } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div><!$>\\", \\"</div>\\"];
 
@@ -97,7 +97,7 @@ function Component() {
 `;
 
 exports[`should forward multiple call expressions 1`] = `
-"import { $$_ssr, $$_create_component } from \\"@maverick-js/elements/ssr\\";
+"import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div><!$>\\", \\"</div>\\"],
   $$_templ_2 = /* #__PURE__ */ $$_templ;
@@ -111,7 +111,7 @@ $$_create_component(Component, {
 `;
 
 exports[`should forward single call expression 1`] = `
-"import { $$_ssr, $$_create_component } from \\"@maverick-js/elements/ssr\\";
+"import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div><!$>\\", \\"</div>\\"];
 $$_create_component(Component, {
@@ -122,7 +122,7 @@ $$_create_component(Component, {
 `;
 
 exports[`should insert fragmented child components 1`] = `
-"import { $$_create_component, $$_ssr } from \\"@maverick-js/elements/ssr\\";
+"import { $$_create_component, $$_ssr } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div><!$>\\", \\"<!$>\\", \\"<div>Foo</div><!$>\\", \\"</div>\\"];
 
@@ -130,7 +130,7 @@ $$_ssr($$_templ, $$_create_component(Component), $$_create_component(Component),
 `;
 
 exports[`should insert multiple child components 1`] = `
-"import { $$_create_component, $$_ssr } from \\"@maverick-js/elements/ssr\\";
+"import { $$_create_component, $$_ssr } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<div><!$>\\", \\"<!$>\\", \\"<div>Foo</div><!$>\\", \\"</div>\\"];
 

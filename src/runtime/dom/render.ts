@@ -22,14 +22,14 @@ export function hydrate(root: () => JSX.Element, options: HydrateOptions): Dispo
 
 export type RenderOptions = {
   target: Node;
+  before?: Node;
 };
 
 export function render(root: () => JSX.Element, options: RenderOptions): Dispose {
-  const { target } = options;
+  const { target, before } = options;
   return $root((dispose) => {
     if (!hydration) {
-      target.textContent = '';
-      insert(target, root());
+      insert(target, root(), before);
     } else {
       root();
     }

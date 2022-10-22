@@ -1,4 +1,4 @@
-import { renderToString } from '@maverick-js/elements/ssr';
+import { renderToString } from 'maverick.js/ssr';
 
 function Component() {
   const fn = () => 0;

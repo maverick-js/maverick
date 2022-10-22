@@ -5,6 +5,7 @@ import { createSetupProps } from './define-element';
 import type { ElementDefinition, ElementSetupContext, MaverickSSRHost } from './types';
 import { camelToKebabCase } from '../utils/str';
 import { setAttribute } from '../runtime/dom';
+import { SubjectRecord } from 'maverick.js';
 
 type SSR = (context: ElementSetupContext) => {
   attributes: string;
@@ -27,21 +28,24 @@ export function createSSRElement(definition: ElementDefinition): SSR {
   const propDefs = definition.props ?? {};
 
   const renderer: SSR = (context) => {
-    const host = new SSRHost({
-      tagName,
-      children: !!context.children?.(),
-    });
-
-    if (context.class) {
-      host.classList.add(...parseClassAttr(context.class));
-    }
-
-    if (context.style) {
-      parseStyleAttr(host.style.tokens, context.style);
-    }
+    let host: SSRHost;
 
     const ssr = renderToString(() => {
-      const { $setupProps } = createSetupProps(propDefs, context.props);
+      const { $props, $setupProps } = createSetupProps(propDefs, context.props);
+
+      host = new SSRHost({
+        tagName,
+        children: !!context.children?.(),
+        props: $props,
+      });
+
+      if (context.class) {
+        host.classList.add(...parseClassAttr(context.class));
+      }
+
+      if (context.style) {
+        parseStyleAttr(host.style.tokens, context.style);
+      }
 
       // prop reflection.
       for (const propName of Object.keys(propDefs)) {
@@ -93,6 +97,7 @@ class SSRHost implements MaverickSSRHost {
 
   readonly $tagName: string;
   readonly $children: boolean;
+  readonly $$props: SubjectRecord;
   readonly $connected = false;
   readonly $mounted = false;
 
@@ -100,9 +105,10 @@ class SSRHost implements MaverickSSRHost {
   readonly style: Style;
   readonly classList: ClassList;
 
-  constructor(init: { tagName: string; children: boolean }) {
+  constructor(init: { tagName: string; children: boolean; props: SubjectRecord }) {
     this.$tagName = init.tagName;
     this.$children = init.children;
+    this.$$props = init.props;
     this.attributes = new Attributes();
     this.style = new Style();
     this.classList = new ClassList();

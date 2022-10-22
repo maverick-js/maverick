@@ -8,15 +8,15 @@ import {
   createLifecycleMethod,
 } from './internal';
 
-export type ElementLifecycleHandler = () => any;
+export type ElementLifecycleCallback = () => any;
 
 export type ElementLifecycleManager = {
-  [CONNECT]: ElementLifecycleHandler[];
-  [MOUNT]: ElementLifecycleHandler[];
-  [BEFORE_UPDATE]: ElementLifecycleHandler[];
-  [AFTER_UPDATE]: ElementLifecycleHandler[];
-  [DISCONNECT]: ElementLifecycleHandler[];
-  [DESTROY]: ElementLifecycleHandler[];
+  [CONNECT]: ElementLifecycleCallback[];
+  [MOUNT]: ElementLifecycleCallback[];
+  [BEFORE_UPDATE]: ElementLifecycleCallback[];
+  [AFTER_UPDATE]: ElementLifecycleCallback[];
+  [DISCONNECT]: ElementLifecycleCallback[];
+  [DESTROY]: ElementLifecycleCallback[];
 };
 
 /**

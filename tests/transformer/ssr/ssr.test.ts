@@ -61,7 +61,7 @@ it('should compile static attribute (template string)', () => {
 it('should compile spread', () => {
   const result = t(`<div {...props} ></div>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_spread, $$_ssr } from \\"@maverick-js/elements/ssr\\";
+    "import { $$_spread, $$_ssr } from \\"maverick.js/ssr\\";
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
     $$_ssr($$_templ, $$_spread([props]))"

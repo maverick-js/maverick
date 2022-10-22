@@ -1,7 +1,7 @@
 // Vitest Snapshot v1
 
 exports[`should compile child component 1`] = `
-"import { $$_clone, $$_insert, $$_create_component, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_insert, $$_create_component, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -15,7 +15,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile component child fragment 1`] = `
-"import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"foo\\"></div><div id=\\"bar\\"></div><div></div>\`);
 
@@ -38,7 +38,7 @@ $$_create_component(Component, {
 `;
 
 exports[`should compile component with element children 1`] = `
-"import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo</div>\`);
 $$_create_component(Component, {
@@ -54,17 +54,17 @@ $$_create_component(Component, {
 `;
 
 exports[`should compile component with multiple spreads 1`] = `
-"import { $$_create_component, $$_merge_props } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_component, $$_merge_props } from \\"maverick.js/dom\\";
 $$_create_component(Component, $$_merge_props(props, propsTwo, propsThree))"
 `;
 
 exports[`should compile component with props 1`] = `
-"import { $$_create_component } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_component } from \\"maverick.js/dom\\";
 $$_create_component(Component, { foo: \\"a\\", bar: 10, boo: true, baz: id, qux: true })"
 `;
 
 exports[`should compile component with props and children 1`] = `
-"import { $$_create_template, $$_clone, $$_create_component } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone, $$_create_component } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 $$_create_component(Component, {
@@ -76,7 +76,7 @@ $$_create_component(Component, {
 `;
 
 exports[`should compile component with props and spread 1`] = `
-"import { $$_create_component, $$_merge_props } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_component, $$_merge_props } from \\"maverick.js/dom\\";
 $$_create_component(
   Component,
   $$_merge_props(props, {
@@ -89,12 +89,12 @@ $$_create_component(
 `;
 
 exports[`should compile component with spread 1`] = `
-"import { $$_create_component, $$_merge_props } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_component, $$_merge_props } from \\"maverick.js/dom\\";
 $$_create_component(Component, props)"
 `;
 
 exports[`should compile component with text children 1`] = `
-"import { $$_create_component } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_component } from \\"maverick.js/dom\\";
 $$_create_component(Component, {
   get children() {
     return \\"foo 10 bar 20 baz\\";
@@ -103,7 +103,7 @@ $$_create_component(Component, {
 `;
 
 exports[`should compile nested components 1`] = `
-"import { $$_create_template, $$_clone, $$_create_component } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone, $$_create_component } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><span>Text</span></div>\`),
   $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
@@ -126,12 +126,12 @@ $$_create_component(Component, {
 `;
 
 exports[`should compile root component 1`] = `
-"import { $$_create_component } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_component } from \\"maverick.js/dom\\";
 $$_create_component(Component)"
 `;
 
 exports[`should compile root expression  1`] = `
-"import { $$_clone, $$_insert, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_insert, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 
@@ -149,7 +149,7 @@ function Component() {
 `;
 
 exports[`should forward multiple call expressions 1`] = `
-"import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`),
   $$_templ_2 = /* #__PURE__ */ $$_templ;
@@ -179,7 +179,7 @@ $$_create_component(Component, {
 `;
 
 exports[`should forward single call expression 1`] = `
-"import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 $$_create_component(Component, {
@@ -198,7 +198,7 @@ $$_create_component(Component, {
 `;
 
 exports[`should insert fragmented child components 1`] = `
-"import { $$_clone, $$_insert, $$_create_component, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_insert, $$_create_component, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><div>Foo</div></div>\`);
 
@@ -216,7 +216,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><div>Foo</div></div>\
 `;
 
 exports[`should insert multiple child components 1`] = `
-"import { $$_clone, $$_insert, $$_create_component, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_insert, $$_create_component, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><div>Foo</div></div>\`);
 

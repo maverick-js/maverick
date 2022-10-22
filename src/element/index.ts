@@ -5,4 +5,4 @@ export * from './lifecycle';
 export * from './define-element';
 export * from './create-html-element';
 export * from './create-ssr-element';
-export { getCurrentHostElement } from './internal';
+export { getHostElement } from './internal';

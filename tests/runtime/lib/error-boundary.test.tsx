@@ -1,4 +1,4 @@
-import { effect, ErrorBoundary, observable, render, tick } from '@maverick-js/elements';
+import { effect, ErrorBoundary, observable, render, tick } from 'maverick.js';
 
 it('should return children', () => {
   function Component() {

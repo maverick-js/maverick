@@ -1,7 +1,7 @@
 import { observable, peek } from '@maverick-js/observables';
 import { type JSX, setContextMap } from '../runtime';
 import { isFunction } from '../utils/unit';
-import { setCurrentHostElement } from './internal';
+import { setHostElement } from './internal';
 import type {
   ElementDeclaration,
   ElementDefinition,
@@ -26,25 +26,26 @@ export function defineElement<
 ): ElementDefinition<Props, Events, Members> {
   const definition = {
     ...declaration,
-    id: Symbol(declaration.tagName),
     setup(context) {
       if (context.context) setContextMap(context.context);
 
-      setCurrentHostElement(context.host);
-      const members = declaration.setup(context);
-      setCurrentHostElement(null);
+      setHostElement(context.host);
+      const setup = declaration.setup(context);
+      setHostElement(null);
 
-      const normalized = (isFunction(members) ? { $render: members } : members) as Members;
+      const members = (isFunction(setup) ? { $render: setup } : setup) as Members;
 
-      return {
-        ...normalized,
-        $render: peek(() => {
-          setCurrentHostElement(context.host);
-          const result = normalized.$render();
-          setCurrentHostElement(null);
+      const render = members.$render;
+      // @ts-expect-error - override readonly
+      members.$render = () =>
+        peek(() => {
+          setHostElement(context.host);
+          const result = render();
+          setHostElement(null);
           return result;
-        }),
-      };
+        });
+
+      return members;
     },
   };
 
@@ -61,12 +62,13 @@ export function createSetupProps<Props extends ElementProps>(
 
   for (const propName of Object.keys(propDefs) as (keyof Props)[]) {
     const def = propDefs![propName];
-    const $prop = init?.[propName] ?? observable(def.initialValue);
+    const $prop = init?.[propName] ?? observable(def.initialValue, def);
 
     // @ts-expect-error - override readonly
     $props[propName] = $prop;
 
     Object.defineProperty($setupProps, propName, {
+      enumerable: true,
       get() {
         return $prop();
       },

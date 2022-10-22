@@ -1,7 +1,7 @@
 // Vitest Snapshot v1
 
 exports[`shoud merge duplicate templates 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`),
   $$_templ_2 = /* #__PURE__ */ $$_templ,
@@ -28,7 +28,7 @@ $$_clone($$_templ_10, 1 /* ELEMENT */)
 `;
 
 exports[`should compile $class expression 1`] = `
-"import { $$_clone, $$_class, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_class, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -42,14 +42,14 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile $cssvar expression 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div style=\\"--foo: 10\\"></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should compile $on expression 1`] = `
-"import { $$_clone, $$_listen, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_listen, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -63,7 +63,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile $oncapture expression 1`] = `
-"import { $$_clone, $$_listen, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_listen, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -77,7 +77,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile $prop expression 1`] = `
-"import { $$_clone, $$_prop, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_prop, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -91,7 +91,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile $ref expression 1`] = `
-"import { $$_clone, $$_ref, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_ref, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -105,7 +105,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile $ref expression that uses array 1`] = `
-"import { $$_clone, $$_ref, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_ref, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -119,14 +119,14 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile $style expression 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div style=\\"foo: bar\\"></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should compile $use expression 1`] = `
-"import { $$_clone, $$_directive, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_directive, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -140,7 +140,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile SVG spread 1`] = `
-"import { $$_clone, $$_spread, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_spread, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<svg></svg>\`);
 (() => {
@@ -154,7 +154,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<svg></svg>\`);
 `;
 
 exports[`should compile child expression 1`] = `
-"import { $$_clone, $$_insert, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_insert, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -168,7 +168,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile conditional element expression  1`] = `
-"import { $$_clone, $$_create_template, $$_insert } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_create_template, $$_insert } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"a\\"></div>\`),
   $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<div id=\\"b\\"></div>\`);
@@ -183,7 +183,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"a\\"></div>\`),
 `;
 
 exports[`should compile dynamic $cssvar expression 1`] = `
-"import { $$_clone, $$_cssvar, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_cssvar, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -197,7 +197,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile dynamic $prop expression 1`] = `
-"import { $$_clone, $$_prop, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_prop, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -211,7 +211,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile dynamic $style expression 1`] = `
-"import { $$_clone, $$_style, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_style, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -225,7 +225,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile dynamic attribute 1`] = `
-"import { $$_clone, $$_attr, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_attr, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -239,14 +239,14 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile fragment 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"a\\"></div><div id=\\"b\\"></div>\`);
 $$_clone($$_templ)"
 `;
 
 exports[`should compile innerHTML expression 1`] = `
-"import { $$_clone, $$_inner_html, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_inner_html, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -260,7 +260,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile multiple $on expression 1`] = `
-"import { $$_clone, $$_listen, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_listen, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -275,14 +275,14 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile multiple JSX nodes 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><span id=\\"a\\"></span><span id=\\"b\\"></span></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should compile native $on expression 1`] = `
-"import { $$_clone, $$_listen, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_listen, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -296,14 +296,14 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile nested fragment 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"root\\"><div id=\\"a\\"></div><div id=\\"b\\"></div></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should compile observable $class expression 1`] = `
-"import { $$_clone, $$_class, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_class, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -317,7 +317,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile observable $cssvar expression 1`] = `
-"import { $$_clone, $$_cssvar, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_cssvar, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -331,7 +331,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile observable $prop expression 1`] = `
-"import { $$_clone, $$_prop, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_prop, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -345,7 +345,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile observable $style expression 1`] = `
-"import { $$_clone, $$_style, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_style, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -359,7 +359,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile observable attribute 1`] = `
-"import { $$_clone, $$_attr, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_attr, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -373,7 +373,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile observable child expression 1`] = `
-"import { $$_clone, $$_insert, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_insert, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -387,7 +387,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile observable conditional element expression  1`] = `
-"import { $$_clone, $$_listen, $$_create_template, $$_insert } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_listen, $$_create_template, $$_insert } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"a\\"></div>\`),
   $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<div id=\\"b\\"></div>\`);
@@ -410,7 +410,7 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"a\\"></div>\`),
 `;
 
 exports[`should compile shorthand $prop boolean 1`] = `
-"import { $$_clone, $$_prop, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_prop, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<button></button>\`);
 (() => {
@@ -424,28 +424,28 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<button></button>\`);
 `;
 
 exports[`should compile shorthand boolean attribute 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<button disabled=\\"\\"></button>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should compile single JSX node 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should compile single self-closing JSX node 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should compile spread 1`] = `
-"import { $$_clone, $$_spread, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_spread, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 (() => {
@@ -459,35 +459,35 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 `;
 
 exports[`should compile static attribute (boolean) 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div foo=\\"true\\" bar=\\"false\\"></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should compile static attribute (number) 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div foo=\\"10\\"></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should compile static attribute (template string) 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div foo=\\"bar-baz\\"></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should compile static attributes 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div class=\\"foo bar\\" style=\\"baz daz\\"></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should group multiple static $cssvar expressions 1`] = `
-"import { $$_clone, $$_cssvar, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_cssvar, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div style=\\"pre: 10;--foo: 10;--bar: align-content\\"></div>\`);
 (() => {
@@ -501,14 +501,14 @@ const $$_templ = /* #__PURE__ */ $$_create_template(\`<div style=\\"pre: 10;--fo
 `;
 
 exports[`should group multiple static $style and $cssvar expressions 1`] = `
-"import { $$_create_template, $$_clone } from \\"@maverick-js/elements/dom\\";
+"import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div style=\\"pre: 10;baz: content;boo: 20;--foo: 10;--bar: align-content\\"></div>\`);
 $$_clone($$_templ, 1 /* ELEMENT */)"
 `;
 
 exports[`should group multiple static $style expressions 1`] = `
-"import { $$_clone, $$_style, $$_create_template } from \\"@maverick-js/elements/dom\\";
+"import { $$_clone, $$_style, $$_create_template } from \\"maverick.js/dom\\";
 
 const $$_templ = /* #__PURE__ */ $$_create_template(\`<div style=\\"foo: a;foo: b;bar: true\\"></div>\`);
 (() => {

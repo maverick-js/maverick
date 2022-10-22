@@ -22,7 +22,7 @@ export function createFragment() {
 export function insert(
   parent: Node | DocumentFragment,
   value: JSX.Element,
-  before: Element | null = null,
+  before: Node | null = null,
 ) {
   const marker = document.createComment('$$');
   if (before === null) parent.appendChild(marker);

@@ -1,11 +1,5 @@
-import {
-  effect,
-  getScheduler,
-  observable,
-  root,
-  type ObservableSubject,
-} from '@maverick-js/observables';
-import { hydrate, type JSX, render, setAttribute } from '../runtime';
+import { effect, getScheduler, observable, root } from '@maverick-js/observables';
+import { hydrate, render, setAttribute, type JSX, type SubjectRecord } from '../runtime';
 import { raf } from '../utils/animation';
 import { run, runAll } from '../utils/fn';
 import { camelToKebabCase } from '../utils/str';
@@ -22,7 +16,7 @@ import {
   DESTROY,
   LIFECYCLES,
 } from './internal';
-import type { ElementLifecycleManager, ElementLifecycleHandler } from './lifecycle';
+import type { ElementLifecycleManager, ElementLifecycleCallback } from './lifecycle';
 import type {
   ElementProps,
   ElementMembers,
@@ -31,6 +25,7 @@ import type {
   ElementDefinition,
   ElementSetupContext,
   MaverickHost,
+  MaverickElement,
 } from './types';
 
 export function defineCustomElement(definition: ElementDefinition) {
@@ -38,6 +33,12 @@ export function defineCustomElement(definition: ElementDefinition) {
   if (!window.customElements.get(definition.tagName)) {
     window.customElements.define(definition.tagName, createHTMLElement(definition));
   }
+}
+
+const MAVERICK_ELEMENT = Symbol('MAVERICK');
+
+export function isMaverickElement(node?: Node): node is MaverickElement {
+  return !!node?.[MAVERICK_ELEMENT];
 }
 
 export function createHTMLElement<
@@ -73,17 +74,19 @@ export function createHTMLElement<
     }
 
     /** @internal */
-    [CONNECT]: ElementLifecycleHandler[] = [];
+    [MAVERICK_ELEMENT] = true;
     /** @internal */
-    [MOUNT]: ElementLifecycleHandler[] = [];
+    [CONNECT]: ElementLifecycleCallback[] = [];
     /** @internal */
-    [BEFORE_UPDATE]: ElementLifecycleHandler[] = [];
+    [MOUNT]: ElementLifecycleCallback[] = [];
     /** @internal */
-    [AFTER_UPDATE]: ElementLifecycleHandler[] = [];
+    [BEFORE_UPDATE]: ElementLifecycleCallback[] = [];
     /** @internal */
-    [DISCONNECT]: ElementLifecycleHandler[] = [];
+    [AFTER_UPDATE]: ElementLifecycleCallback[] = [];
     /** @internal */
-    [DESTROY]: ElementLifecycleHandler[] = [];
+    [DISCONNECT]: ElementLifecycleCallback[] = [];
+    /** @internal */
+    [DESTROY]: ElementLifecycleCallback[] = [];
 
     private _root?: Node;
     private _setup = false;
@@ -91,17 +94,25 @@ export function createHTMLElement<
     private _children = observable(false);
     private _connected = observable(false);
     private _mounted = observable(false);
-    private _props: Record<string, ObservableSubject<any>> = {};
+    private _props: SubjectRecord = {};
     private _onEventDispatch?: (eventType: string) => void;
 
     private get _hydrate() {
       return this.hasAttribute('data-hydrate');
     }
 
+    private get _delegate() {
+      return this.hasAttribute('data-delegate');
+    }
+
     $keepAlive = false;
 
     get $tagName() {
       return definition.tagName;
+    }
+
+    get $$props() {
+      return this._props as any;
     }
 
     get $children() {
@@ -139,15 +150,6 @@ export function createHTMLElement<
       this._resolvedAttrs = true;
     }
 
-    constructor() {
-      super();
-      if (!this.hasAttribute('data-delegate')) {
-        this.$setup();
-      } else {
-        this.$keepAlive = true;
-      }
-    }
-
     attributeChangedCallback(name, _, newValue) {
       if (!this._setup) return;
       const ctor = this.constructor as typeof MaverickElement;
@@ -157,6 +159,8 @@ export function createHTMLElement<
     }
 
     connectedCallback() {
+      if (!this._delegate && !this._setup) this.$setup();
+
       // Could be called once element is no longer connected.
       if (!this._setup || !this.isConnected || this._connected()) return;
 
@@ -171,15 +175,16 @@ export function createHTMLElement<
       this._connected.set(true);
 
       this[DISCONNECT].push(
-        ...(this[CONNECT].map(run).filter(isFunction) as ElementLifecycleHandler[]),
+        ...(this[CONNECT].map(run).filter(isFunction) as ElementLifecycleCallback[]),
       );
 
       if (!this._mounted()) {
         this._mounted.set(true);
 
         this[DESTROY].push(
-          ...(this[MOUNT].map(run).filter(isFunction) as ElementLifecycleHandler[]),
+          ...(this[MOUNT].map(run).filter(isFunction) as ElementLifecycleCallback[]),
         );
+
         this[MOUNT] = [];
 
         const scheduler = getScheduler();
@@ -212,6 +217,7 @@ export function createHTMLElement<
       onEventDispatch,
     }: ElementSetupContext<Props> = {}): () => void {
       if (this._setup || this._destroyed) return noop;
+      if (this._delegate) this.$keepAlive = true;
 
       const ctor = this.constructor as typeof MaverickElement;
 
@@ -232,16 +238,13 @@ export function createHTMLElement<
           }
         }
 
-        if (!this._hydrate) {
-          this.append(document.createComment('#internal'));
-        }
-
         if (children) {
           this._children = children;
         } else {
           const onMutation = () => {
             const noChildren =
-              this.firstChild?.nodeType === 8 && (!this.lastChild || this.lastChild.nodeType === 8);
+              (!this.firstChild || this.firstChild.nodeType === 8) &&
+              (!this.lastChild || this.lastChild.nodeType === 8);
             this._children.set(!noChildren);
           };
 
@@ -262,10 +265,6 @@ export function createHTMLElement<
           ssr: false,
         });
 
-        if (!this._hydrate) {
-          this.append(document.createComment('/#internal'));
-        }
-
         this[DESTROY].push(dispose);
         return members;
       });
@@ -277,16 +276,23 @@ export function createHTMLElement<
         ? this.attachShadow(isBoolean(definition.shadow) ? { mode: 'open' } : definition.shadow)
         : this;
 
+      Object.defineProperties(this, Object.getOwnPropertyDescriptors(members));
       this._reflectProps();
-      Object.assign(this, members);
 
       if (onEventDispatch) {
         for (const eventType of ctor._events) onEventDispatch(eventType);
         this._onEventDispatch = onEventDispatch;
       }
 
+      let before: Node | undefined;
+      if (!this._hydrate) {
+        this.append(document.createComment('#internal'));
+        before = document.createComment('/#internal');
+        this.append(before);
+      }
+
       const renderer = this._hydrate ? hydrate : render;
-      this[DESTROY].push(renderer(members.$render, { target: this._root }));
+      this[DESTROY].push(renderer(members.$render, { target: this._root, before }));
       getScheduler().flushSync();
 
       this._setup = true;
@@ -297,10 +303,9 @@ export function createHTMLElement<
     $destroy() {
       if (this._destroyed) return;
 
-      this._connected.set(false);
       this._mounted.set(false);
 
-      runAll(this[DISCONNECT]);
+      this.remove();
       runAll(this[DESTROY]);
       getScheduler().flushSync();
 
@@ -312,12 +317,12 @@ export function createHTMLElement<
 
     override dispatchEvent(event: Event): boolean {
       const ctor = this.constructor as typeof MaverickElement;
-      if (!ctor._events.has(event.type)) {
+      if (event.type.includes('-') && !ctor._events.has(event.type)) {
         this._onEventDispatch?.(event.type);
         ctor._events.add(event.type);
       }
 
-      return this.dispatchEvent(event);
+      return super.dispatchEvent(event);
     }
 
     private _reflectProps() {

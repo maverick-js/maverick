@@ -12,9 +12,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@maverick-js/elements': '/src/runtime',
-      '@maverick-js/elements/dom': '/src/runtime/dom',
-      '@maverick-js/elements/ssr': '/src/runtime/ssr',
+      'maverick.js/element': '/src/element',
+      'maverick.js/dom': '/src/runtime/dom',
+      'maverick.js/ssr': '/src/runtime/ssr',
+      'maverick.js': '/src/runtime',
     },
   },
   plugins: [

@@ -1,5 +1,5 @@
-import { observable, tick } from '@maverick-js/elements';
-import { render } from '@maverick-js/elements/dom';
+import { observable, tick } from 'maverick.js';
+import { render } from 'maverick.js/dom';
 import { Element, Fragment } from './fixtures/primitives';
 import { InputField } from './fixtures/reactivity';
 import { element } from './utils';

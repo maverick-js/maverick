@@ -13,7 +13,7 @@
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "jsx": "preserve",
-    "jsxImportSource": "@maverick-js/elements",
+    "jsxImportSource": "maverick.js",
     "lib": ["dom", "dom.iterable", "es2020"],
     "module": "esnext",
     "moduleResolution": "node",
@@ -23,10 +23,11 @@
     "noImplicitReturns": true,
     "noUnusedParameters": false,
     "paths": {
-      "@maverick-js/elements": ["src/runtime"],
-      "@maverick-js/elements/*": ["src/runtime/*"],
-      "@maverick-js/elements/dom": ["src/runtime/dom"],
-      "@maverick-js/elements/ssr": ["src/runtime/ssr"]
+      "maverick.js": ["src/runtime"],
+      "maverick.js/*": ["src/runtime/*"],
+      "maverick.js/dom": ["src/runtime/dom"],
+      "maverick.js/ssr": ["src/runtime/ssr"],
+      "maverick.js/element": ["src/element"]
     },
     "preserveWatchOutput": true,
     "skipLibCheck": true,

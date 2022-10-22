@@ -1,4 +1,4 @@
-import { observable } from '@maverick-js/elements';
+import { observable } from 'maverick.js';
 
 type InputFieldProps = {
   next(trigger: () => void): void;

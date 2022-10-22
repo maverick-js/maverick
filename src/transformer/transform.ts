@@ -78,11 +78,7 @@ export function transform(source: string, options: Partial<TransformOptions> = {
 
   if (ctx.runtime.size > 0) {
     code.prepend(
-      createImportDeclaration(
-        null,
-        Array.from(ctx.runtime),
-        `@maverick-js/elements/${generate ?? 'dom'}`,
-      ),
+      createImportDeclaration(null, Array.from(ctx.runtime), `maverick.js/${generate ?? 'dom'}`),
     );
   }
 

@@ -27,7 +27,7 @@ it('should compile nested components', () => {
 </Component>
 `);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_ssr, $$_create_component } from \\"@maverick-js/elements/ssr\\";
+    "import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
 
     const $$_templ = /* #__PURE__ */ [\\"<div><span>Text</span></div>\\"],
       $$_templ_2 = /* #__PURE__ */ [\\"<div></div>\\"];

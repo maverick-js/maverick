@@ -1,4 +1,4 @@
-import type { JSX, ObservableSubject } from '../runtime';
+import type { JSX, observable, ObservableSubject } from '../runtime';
 import type { Constructor } from '../utils/types';
 import type { InferEventInit } from './event';
 import type { ElementLifecycleManager } from './lifecycle';
@@ -10,16 +10,18 @@ export type AttributeTransformer<Value = unknown> = Readonly<{
   to?: (value: Value) => AttributeValue;
 }>;
 
-export type ElementPropDefinition<Value = unknown> = Readonly<{
-  /** The properties initial value. */
-  initialValue: Value;
-  /** Whether the property is associated with an attribute, or a custom name for the associated attribute. */
-  attribute?: string | false;
-  /** Whether the property value should be reflected back to the attribute (default: false). */
-  reflect?: boolean;
-  /** Transform an attribute value to property value. */
-  transform?: AttributeTransformer<Value>;
-}>;
+export type ElementPropDefinition<Value = unknown> = Readonly<
+  Parameters<typeof observable<Value>>[1] & {
+    /** The properties initial value. */
+    initialValue: Value;
+    /** Whether the property is associated with an attribute, or a custom name for the associated attribute. */
+    attribute?: string | false;
+    /** Whether the property value should be reflected back to the attribute (default: false). */
+    reflect?: boolean;
+    /** Transform an attribute value to property value. */
+    transform?: AttributeTransformer<Value>;
+  }
+>;
 
 export type ElementPropDefinitions<Props extends ElementProps = ElementProps> = Readonly<{
   [Prop in keyof Props]: ElementPropDefinition<Props[Prop]>;
@@ -94,7 +96,6 @@ export type ElementDefinition<
   Members extends ElementMembers = ElementMembers,
 > = Omit<ElementDeclaration<Props, Events, Members>, 'setup'> &
   Readonly<{
-    id: symbol;
     setup: DefinedElementSetup<Props, Events, Members>;
   }>;
 
@@ -104,6 +105,8 @@ export type MaverickElement<
 > = Members & HTMLElement & MaverickHost<Props> & ElementLifecycleManager;
 
 export type MaverickHost<Props extends ElementProps = ElementProps> = {
+  /** @internal */
+  readonly $$props: { [Prop in keyof Props]: ObservableSubject<Props[Prop]> };
   /**
    * Whether to keep this component alive until it's manually destroyed by calling the `$destroy`
    * method.
@@ -134,7 +137,7 @@ export type MaverickHost<Props extends ElementProps = ElementProps> = {
    * Manually call the setup function when appropriate. The `data-delegate` attribute must
    * be present for `setup` to not be immediately called in the constructor.
    */
-  $setup(context: ElementSetupContext<Props>): () => void;
+  $setup(context?: ElementSetupContext<Props>): () => void;
   /**
    * Permanently destroys the component.
    */
@@ -146,7 +149,7 @@ export type MaverickElementConstructor<
   Events = JSX.GlobalOnAttributes,
   Members extends ElementMembers = ElementMembers,
 > = Constructor<MaverickElement<Props, Members>> & {
-  /** @internal */
+  readonly observedAttributes: string[];
   readonly $definition: ElementDeclaration<Props, Events, Members>;
 };
 

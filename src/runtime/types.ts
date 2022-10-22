@@ -1,4 +1,4 @@
-import type { Observable } from '@maverick-js/observables';
+import type { Observable, ObservableSubject } from '@maverick-js/observables';
 import type { JSX } from './jsx';
 
 export type DOMElement = Element;
@@ -28,6 +28,10 @@ export type VoidComponent<Props = {}> = Component<VoidComponentProps<Props>>;
 
 export type ObservableRecord = {
   [key: string]: Observable<any>;
+};
+
+export type SubjectRecord = {
+  [key: string]: ObservableSubject<any>;
 };
 
 export type ObservableValueRecord<T> = {

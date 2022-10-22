@@ -1,14 +1,15 @@
+import { peek } from '@maverick-js/observables';
 import { isNull } from '../utils/unit';
-import type { ElementLifecycleHandler, ElementLifecycleManager } from './lifecycle';
+import type { ElementLifecycleCallback, ElementLifecycleManager } from './lifecycle';
 import type { MaverickElement } from './types';
 
 let _elements: (MaverickElement | null)[] = [null];
 
-export function getCurrentHostElement(): MaverickElement | null {
+export function getHostElement(): MaverickElement | null {
   return _elements[_elements.length - 1];
 }
 
-export function setCurrentHostElement(element: MaverickElement | null) {
+export function setHostElement(element: MaverickElement | null) {
   if (isNull(element)) {
     _elements.pop();
     return;
@@ -17,12 +18,12 @@ export function setCurrentHostElement(element: MaverickElement | null) {
   _elements.push(element);
 }
 
-export const CONNECT = Symbol();
-export const MOUNT = Symbol();
-export const BEFORE_UPDATE = Symbol();
-export const AFTER_UPDATE = Symbol();
-export const DISCONNECT = Symbol();
-export const DESTROY = Symbol();
+export const CONNECT = Symbol('CONNECT');
+export const MOUNT = Symbol('MOUNT');
+export const BEFORE_UPDATE = Symbol('BEFORE_UPDATE');
+export const AFTER_UPDATE = Symbol('AFTER_UPDATE');
+export const DISCONNECT = Symbol('DISCONNECT');
+export const DESTROY = Symbol('DESTROY');
 
 export const LIFECYCLES = [
   CONNECT,
@@ -34,16 +35,16 @@ export const LIFECYCLES = [
 ] as const;
 
 export function createLifecycleMethod(name: keyof ElementLifecycleManager) {
-  return (handler: ElementLifecycleHandler) => {
+  return (callback: ElementLifecycleCallback) => {
     if (__NODE__) return;
 
-    const element = getCurrentHostElement();
+    const element = getHostElement();
 
     if (!element) {
       if (__DEV__) throw Error('[maverick] lifecycle hook called outside of element setup');
       return;
     }
 
-    element[name].push(handler);
+    element[name].push(() => peek(callback));
   };
 }

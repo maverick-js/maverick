@@ -1,0 +1,15 @@
+// Vitest Snapshot v1
+
+exports[`should handle basic setup and destroy 1`] = `
+<div>
+  <mk-test-1
+    data-delegate=""
+  >
+    <!--#internal-->
+    Test
+    <!--/#internal-->
+  </mk-test-1>
+</div>
+`;
+
+exports[`should handle basic setup and destroy 2`] = `<div />`;

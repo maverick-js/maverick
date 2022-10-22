@@ -1,6 +1,6 @@
-import type { JSX } from 'runtime';
+import type { JSX } from '../runtime';
 
-const MAVERICK_EVENT = Symbol();
+const MAVERICK_EVENT = Symbol('MAVERICK_EVENT');
 
 export type MaverickEventInit<Detail = unknown> = EventInit & {
   readonly detail?: Detail;
@@ -78,7 +78,7 @@ export function walkTriggerEventChain<T>(
 
   let triggerEvent = event.triggerEvent as MaverickEvent;
 
-  while (triggerEvent && triggerEvent.triggerEvent) {
+  while (triggerEvent) {
     const returnValue = callback(triggerEvent);
     if (returnValue) return [triggerEvent, returnValue];
     triggerEvent = triggerEvent.triggerEvent as MaverickEvent;
@@ -93,13 +93,11 @@ export function walkTriggerEventChain<T>(
  * @param event - The event on which to look for a trigger event.
  * @param type - The type of event to find.
  */
-export function findTriggerEvent<Type extends keyof JSX.GlobalOnAttributes>(
+export function findTriggerEvent<Type extends string>(
   event: Event,
   type: Type,
-): JSX.GlobalOnAttributes[Type] | undefined {
-  return walkTriggerEventChain(event, (e) => e.type === type)?.[0] as
-    | JSX.GlobalOnAttributes[Type]
-    | undefined;
+): (Type extends keyof JSX.GlobalOnAttributes ? JSX.GlobalOnAttributes[Type] : Event) | undefined {
+  return walkTriggerEventChain(event, (e) => e.type === type)?.[0] as any;
 }
 
 /**
@@ -108,10 +106,7 @@ export function findTriggerEvent<Type extends keyof JSX.GlobalOnAttributes>(
  * @param event - The event on which to look for a trigger event.
  * @param type - The type of event to find.
  */
-export function hasTriggerEvent<T extends keyof JSX.GlobalOnAttributes>(
-  event: Event,
-  type: T,
-): boolean {
+export function hasTriggerEvent(event: Event, type: string): boolean {
   return !!findTriggerEvent(event, type);
 }
 

@@ -7,7 +7,7 @@ import { camelToKebabCase } from '../utils/str';
 import { setAttribute } from '../runtime/dom';
 import { SubjectRecord } from 'maverick.js';
 
-type SSR = (context: ElementSetupContext) => {
+type SSR = (context?: ElementSetupContext) => {
   attributes: string;
   innerHTML: string;
   code: string;
@@ -27,16 +27,16 @@ export function createSSRElement(definition: ElementDefinition): SSR {
   const tagName = definition.tagName;
   const propDefs = definition.props ?? {};
 
-  const renderer: SSR = (context) => {
-    let host: SSRHost;
+  const renderer: SSR = (context = {}) => {
+    let host!: SSRHost;
 
     const ssr = renderToString(() => {
       const { $props, $setupProps } = createSetupProps(propDefs, context.props);
 
       host = new SSRHost({
         tagName,
-        children: !!context.children?.(),
         props: $props,
+        children: !!context.children?.(),
       });
 
       if (context.class) {
@@ -52,10 +52,9 @@ export function createSSRElement(definition: ElementDefinition): SSR {
         const def = propDefs[propName];
         if (!def.reflect || def.attribute === false) continue;
         const transform = propDefs[propName]!.transform?.to;
-        if (transform) {
-          const attrName = def.attribute ?? camelToKebabCase(propName);
-          setAttribute(host as any, attrName, transform($setupProps[propName]()));
-        }
+        const attrName = def.attribute ?? camelToKebabCase(propName);
+        const propValue = $setupProps[propName];
+        setAttribute(host as any, attrName, transform ? transform(propValue) : propValue + '');
       }
 
       const members = definition.setup({
@@ -66,9 +65,6 @@ export function createSSRElement(definition: ElementDefinition): SSR {
         ssr: true,
       });
 
-      host.setAttribute('data-hydrate', '');
-      host.setAttribute('data-delegate', '');
-
       return members.$render();
     }).code;
 
@@ -77,6 +73,9 @@ export function createSSRElement(definition: ElementDefinition): SSR {
 
     const styles = host.style.toString();
     if (styles.length > 0) host.setAttribute('style', styles);
+
+    host.setAttribute('data-hydrate', '');
+    host.setAttribute('data-delegate', '');
 
     const attributes = host.attributes.toString();
     const innerHTML = `<!--#internal-->${ssr}<!--/#internal-->`;

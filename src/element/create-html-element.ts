@@ -6,7 +6,7 @@ import { camelToKebabCase } from '../utils/str';
 
 import { isBoolean, isFunction, noop } from '../utils/unit';
 import { createSetupProps } from './define-element';
-import { MaverickEvent } from './event';
+import { DOMEvent } from './event';
 import {
   CONNECT,
   MOUNT,
@@ -255,7 +255,7 @@ export function createHTMLElement<
         }
 
         const dispatch: any = (type, init) =>
-          this.dispatchEvent(type instanceof Event ? type : new MaverickEvent(type, init));
+          this.dispatchEvent(type instanceof Event ? type : new DOMEvent(type, init));
 
         const members = definition.setup({
           host: this as any,

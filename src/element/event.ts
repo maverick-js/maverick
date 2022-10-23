@@ -1,15 +1,15 @@
 import type { JSX } from '../runtime';
 
-const MAVERICK_EVENT = Symbol('MAVERICK_EVENT');
+const DOM_EVENT = Symbol('DOM_EVENT');
 
-export type MaverickEventInit<Detail = unknown> = EventInit & {
+export type DOMEventInit<Detail = unknown> = EventInit & {
   readonly detail?: Detail;
   readonly triggerEvent?: Event;
 };
 
-const DOMEvent: Event = __NODE__ ? (class Event {} as any) : Event;
+const DOMEventBase: Event = __NODE__ ? (class Event {} as any) : Event;
 
-export class MaverickEvent<Detail = unknown> extends DOMEvent {
+export class DOMEvent<Detail = unknown> extends DOMEventBase {
   /**
    * The event detail.
    */
@@ -32,10 +32,12 @@ export class MaverickEvent<Detail = unknown> extends DOMEvent {
    */
   readonly isOriginTrusted!: boolean;
 
-  constructor(type: string, eventInit: MaverickEventInit<Detail> = {}) {
+  constructor(type: string, eventInit: DOMEventInit<Detail> = {}) {
     super(type, eventInit);
 
-    this[MAVERICK_EVENT] = true;
+    Object.defineProperty(this, DOM_EVENT, {
+      get: () => true,
+    });
 
     defineEventProperty(this, 'detail', () => eventInit.detail);
     defineEventProperty(this, 'triggerEvent', () => eventInit.triggerEvent);
@@ -44,27 +46,26 @@ export class MaverickEvent<Detail = unknown> extends DOMEvent {
   }
 }
 
-export function isMaverickEvent(event: Event | undefined): event is MaverickEvent<unknown> {
-  return !!event?.[MAVERICK_EVENT];
+export function isDOMEvent(event: Event | undefined): event is DOMEvent<unknown> {
+  return !!event?.[DOM_EVENT];
 }
 
 /**
- * Walks up the event chain (following each `triggerEvent`) and returns the origin event
- * that started the chain.
+ * Walks up the event chain (following each `triggerEvent`) and returns the origin event that
+ * started the chain.
  */
-export function getOriginEvent(event: MaverickEvent): Event | undefined {
-  let triggerEvent = event.triggerEvent as MaverickEvent;
+export function getOriginEvent(event: DOMEvent): Event | undefined {
+  let triggerEvent = event.triggerEvent as DOMEvent;
 
   while (triggerEvent && triggerEvent.triggerEvent) {
-    triggerEvent = triggerEvent.triggerEvent as MaverickEvent;
+    triggerEvent = triggerEvent.triggerEvent as DOMEvent;
   }
 
   return triggerEvent;
 }
 
 /**
- * Walks an event chain on a given `event`, and invokes the given `callback` for each
- * trigger event.
+ * Walks an event chain on a given `event`, and invokes the given `callback` for each trigger event.
  *
  * @param event - The event on which to follow the chain.
  * @param callback - Invoked for each trigger event in the chain. If a `value` is returned by
@@ -74,14 +75,14 @@ export function walkTriggerEventChain<T>(
   event: Event,
   callback: (event: Event) => NonNullable<T> | void,
 ): [event: Event, value: NonNullable<T>] | undefined {
-  if (!isMaverickEvent(event)) return;
+  if (!isDOMEvent(event)) return;
 
-  let triggerEvent = event.triggerEvent as MaverickEvent;
+  let triggerEvent = event.triggerEvent as DOMEvent;
 
   while (triggerEvent) {
     const returnValue = callback(triggerEvent);
     if (returnValue) return [triggerEvent, returnValue];
-    triggerEvent = triggerEvent.triggerEvent as MaverickEvent;
+    triggerEvent = triggerEvent.triggerEvent as DOMEvent;
   }
 
   return;
@@ -118,15 +119,15 @@ export function hasTriggerEvent(event: Event, type: string): boolean {
  * @param event - The event on which to extend the trigger event chain.
  * @param triggerEvent - The trigger event that will becoming the new origin event.
  */
-export function appendTriggerEvent(event: MaverickEvent, triggerEvent?: Event) {
-  const origin = (getOriginEvent(event) ?? event) as MaverickEvent;
+export function appendTriggerEvent(event: DOMEvent, triggerEvent?: Event) {
+  const origin = (getOriginEvent(event) ?? event) as DOMEvent;
   defineEventProperty(origin, 'triggerEvent', () => triggerEvent);
 }
 
-function defineEventProperty<T extends keyof MaverickEvent>(
-  event: MaverickEvent,
+function defineEventProperty<T extends keyof DOMEvent>(
+  event: DOMEvent,
   prop: T,
-  value: () => MaverickEvent[T],
+  value: () => DOMEvent[T],
 ) {
   Object.defineProperty(event, prop, {
     enumerable: true,
@@ -135,10 +136,10 @@ function defineEventProperty<T extends keyof MaverickEvent>(
   });
 }
 
-export type InferEventDetail<Event> = Event extends MaverickEvent<infer Detail>
+export type InferEventDetail<Event> = Event extends DOMEvent<infer Detail>
   ? Detail
   : Event extends CustomEvent<infer Detail>
   ? Detail
   : never;
 
-export type InferEventInit<Event> = MaverickEventInit<InferEventDetail<Event>>;
+export type InferEventInit<Event> = DOMEventInit<InferEventDetail<Event>>;

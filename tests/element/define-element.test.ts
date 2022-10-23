@@ -8,28 +8,28 @@ import {
 
 it('should register element definition', () => {
   const definition = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-1',
     setup: () => () => null,
   });
 
-  expect(getElementDefinition('mk-foo')).toBe(definition);
+  expect(getElementDefinition('mk-foo-1')).toBe(definition);
 });
 
 it('should create element definition', () => {
   const definition = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-2',
     props: { apples: property(10) },
     setup: () => () => null,
   });
 
-  expect(definition.tagName).toBe('mk-foo');
+  expect(definition.tagName).toBe('mk-foo-2');
   expect(definition.props?.apples.initialValue).toBe(10);
   expect(definition.setup).toBeInstanceOf(Function);
 });
 
 it('should create setup props', () => {
   const definition = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-3',
     props: { foo: property(10), bar: property(20) },
     setup: () => () => null,
   });

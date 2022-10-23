@@ -64,7 +64,7 @@ export function defineElement<
 }
 
 export function createSetupProps<Props extends ElementProps>(
-  propDefs: ElementPropDefinitions<Props>,
+  propDefs: ElementPropDefinitions<Props> = {},
   init?: ObservableElementProps<Props>,
 ) {
   const $props = {} as ObservableElementProps<Props>;

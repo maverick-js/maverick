@@ -4,8 +4,8 @@ import { noop } from '../utils/unit';
 import { createSetupProps } from './define-element';
 import type { ElementDefinition, ElementSetupContext, MaverickSSRHost } from './types';
 import { camelToKebabCase } from '../utils/str';
+import { type SubjectRecord } from '../runtime';
 import { setAttribute } from '../runtime/dom';
-import { SubjectRecord } from 'maverick.js';
 
 type SSR = (context?: ElementSetupContext) => {
   attributes: string;

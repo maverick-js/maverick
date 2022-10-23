@@ -24,6 +24,16 @@ export function defineElement<
 >(
   declaration: ElementDeclaration<Props, Events, Members>,
 ): ElementDefinition<Props, Events, Members> {
+  if (registry.has(declaration.tagName)) {
+    if (__DEV__) {
+      console.warn(
+        `[maverick] attempted to define an element with an existing tag name \`${declaration.tagName}\``,
+      );
+    }
+
+    return registry.get(declaration.tagName) as any;
+  }
+
   const definition = {
     ...declaration,
     setup(context) {

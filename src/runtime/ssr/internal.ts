@@ -1,8 +1,9 @@
 import { trimTrailingSemicolon } from '../../utils/print';
-import { isFunction, isString } from '../../utils/unit';
+import { isFunction, isNull, isString } from '../../utils/unit';
 import { escape } from '../../utils/html';
 import { unwrapDeep } from '../../utils/obs';
 import { resolve, SSR_TEMPLATE } from './render';
+import { createServerElement, type ElementDefinition } from '../../element';
 
 /** @internal */
 export function $$_ssr(template: string[], ...parts: unknown[]) {
@@ -14,6 +15,48 @@ export function $$_ssr(template: string[], ...parts: unknown[]) {
   }
 
   return { [SSR_TEMPLATE]: result };
+}
+
+/** @internal */
+export function $$_custom_element(
+  definition: ElementDefinition,
+  props: Record<string, any>,
+  spreads: Record<string, unknown>[] = [],
+) {
+  const host = new (createServerElement(definition))();
+  const children = resolve(props.children);
+
+  if (spreads.length > 0) {
+    const spread = $$_merge_spreads(spreads);
+
+    for (const [key, value] of spread.attributes) {
+      host.attributes.setAttribute(key, value);
+    }
+
+    for (const token of spread.classList) {
+      host.classList.add(token);
+    }
+
+    for (const [key, value] of spread.styles) {
+      host.style.setProperty(key, value);
+    }
+  }
+
+  host.$setup({
+    props,
+    children: () => children.replace(/<!--\$-->/g, '').length > 0,
+  });
+
+  let ssr = host.$render();
+
+  const innerHTML = props.innerHTML || props.innerText || props.textContent;
+  if (innerHTML) ssr = innerHTML;
+
+  return {
+    [SSR_TEMPLATE]: `<!$><${definition.tagName}${host.attributes}>${
+      children ? (definition.shadow ? ssr + children : children) : ssr
+    }</${definition.tagName}>`,
+  };
 }
 
 /** @internal */
@@ -37,7 +80,8 @@ export function $$_classes(base: unknown, tokens: Record<string, unknown>) {
     result = isString(baseValue) ? baseValue : '';
 
   if (Object.keys(tokens).length > 0) {
-    const classList = new Set<string>(parseClassAttr(result));
+    const classList = new Set<string>();
+    parseClassAttr(classList, result);
     resolveClasses(classList, tokens);
     result = Array.from(classList).join(' ');
   }
@@ -47,8 +91,9 @@ export function $$_classes(base: unknown, tokens: Record<string, unknown>) {
 }
 
 const classSplitRE = /\s+/;
-export function parseClassAttr(value: string): string[] {
-  return value.trim().split(classSplitRE);
+export function parseClassAttr(tokens: Set<string>, attrValue: string) {
+  const classes = attrValue.trim().split(classSplitRE);
+  for (const token of classes) tokens.add(token);
 }
 
 function resolveClasses(classList: Set<string>, tokens: Record<string, unknown>) {
@@ -80,8 +125,8 @@ export function $$_styles(base: unknown, tokens: Record<string, unknown>) {
 
 const styleSplitRE = /\s*:\s*/;
 const stylesDelimeterRE = /\s*;\s*/;
-export function parseStyleAttr(tokens: Map<string, string>, value: string) {
-  const styles = value.trim().split(stylesDelimeterRE);
+export function parseStyleAttr(tokens: Map<string, string>, attrValue: string) {
+  const styles = attrValue.trim().split(stylesDelimeterRE);
   for (let i = 0; i < styles.length; i++) {
     if (styles[i] === '') continue;
     const [name, value] = styles[i].split(styleSplitRE);
@@ -101,66 +146,73 @@ function resolveStyles(tokens: Map<string, string>, styles: Record<string, unkno
 }
 
 const propNameRE = /[A-Z]/;
-/** @internal */
-export function $$_spread(props: Record<string, unknown>[]) {
-  let attrsMap = new Map<string, string>(),
+export function $$_merge_spreads(spreads: Record<string, unknown>[]) {
+  let attributes = new Map<string, string>(),
     classList = new Set<string>(),
-    stylesMap = new Map<string, string>(),
-    result = '';
+    styles = new Map<string, string>();
 
-  for (let i = 0; i < props.length; i++) {
-    // $$classes and $$styles are dynamics
-    const { $$classes, $$styles, class: $classBase, style: $styleBase, ...attributes } = props[i];
+  for (let i = 0; i < spreads.length; i++) {
+    // $$class and $$style are dynamics
+    const { $$class, $$style, class: classBase, style: styleBase, ...attrs } = spreads[i];
 
-    const attrNames = Object.keys(attributes);
+    const attrNames = Object.keys(attrs);
     for (let j = 0; j < attrNames.length; j++) {
       const attrName = attrNames[j];
       if (!propNameRE.test(attrName)) {
-        const attrValue = resolveAtrr(attributes[attrName]);
+        const attrValue = resolveAtrr(attrs[attrName]);
         if (isString(attrValue)) {
-          attrsMap.set(attrName, attrValue);
+          attributes.set(attrName, attrValue);
         } else {
-          attrsMap.delete(attrName);
+          attributes.delete(attrName);
         }
       }
     }
 
-    if ($classBase || 'class' in props[i]) {
-      const base = unwrapDeep($classBase);
-      if (!isString(base)) {
+    if ('class' in spreads[i]) {
+      const base = unwrapDeep(classBase);
+      if (isNull(base) || base === false) {
         classList.clear();
-      } else if (base.length) {
-        for (const name of parseClassAttr(base + '')) classList.add(name);
+      } else if (isString(base) && base.length) {
+        parseClassAttr(classList, base + '');
       }
     }
 
-    if ($$classes) resolveClasses(classList, $$classes as Record<string, unknown>);
+    if ($$class) resolveClasses(classList, $$class as Record<string, unknown>);
 
-    if ($styleBase || 'style' in props[i]) {
-      const base = unwrapDeep($styleBase);
-      if (!isString(base)) {
-        stylesMap.clear();
-      } else if (base.length) {
-        parseStyleAttr(stylesMap, base);
+    if ('style' in spreads[i]) {
+      const base = unwrapDeep(styleBase);
+      if (isNull(base) || base === false) {
+        styles.clear();
+      } else if (isString(base) && base.length) {
+        parseStyleAttr(styles, base);
       }
     }
 
-    if ($$styles) resolveStyles(stylesMap, $$styles as Record<string, unknown>);
+    if ($$style) resolveStyles(styles, $$style as Record<string, unknown>);
   }
+
+  return { attributes, classList, styles };
+}
+
+/** @internal */
+export function $$_spread(spreads: Record<string, unknown>[]) {
+  const { attributes, classList, styles } = $$_merge_spreads(spreads);
+
+  let result = '';
 
   if (classList.size > 0) {
-    let classes = Array.from(classList).join(' ');
-    result += `class="${escape(classes.trim(), true)}"`;
+    let _class = Array.from(classList).join(' ');
+    result += `class="${escape(_class.trim(), true)}"`;
   }
 
-  for (const [name, value] of attrsMap) {
+  for (const [name, value] of attributes) {
     result += ` ${name}="${escape(value, true)}"`;
   }
 
-  if (stylesMap.size > 0) {
-    let styles = '';
-    for (const [name, value] of stylesMap) styles += `${name}: ${value};`;
-    result += ` style="${escape(styles.trim(), true)}"`;
+  if (styles.size > 0) {
+    let _styles = '';
+    for (const [name, value] of styles) _styles += `${name}: ${value};`;
+    result += ` style="${escape(_styles.trim(), true)}"`;
   }
 
   return result.trim();

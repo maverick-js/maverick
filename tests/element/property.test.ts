@@ -1,5 +1,5 @@
 import { property } from 'maverick.js/element';
-import { isFunction } from 'src/utils/unit';
+import { isFunction } from '../../src/utils/unit';
 
 it('should set options', () => {
   const prop = property('foo', { attribute: 'bar', reflect: true });

@@ -1,19 +1,5 @@
 import { isSubject } from '@maverick-js/observables';
-import {
-  createSetupProps,
-  defineElement,
-  getElementDefinition,
-  property,
-} from 'maverick.js/element';
-
-it('should register element definition', () => {
-  const definition = defineElement({
-    tagName: 'mk-foo-1',
-    setup: () => () => null,
-  });
-
-  expect(getElementDefinition('mk-foo-1')).toBe(definition);
-});
+import { setupElementProps, defineElement, property } from 'maverick.js/element';
 
 it('should create element definition', () => {
   const definition = defineElement({
@@ -34,13 +20,13 @@ it('should create setup props', () => {
     setup: () => () => null,
   });
 
-  const { $props, $setupProps } = createSetupProps(definition.props!);
+  const { $$props, $$setupProps } = setupElementProps(definition.props!);
 
-  expect($props.foo()).toBe(10);
-  expect($props.bar()).toBe(20);
-  expect(isSubject($props.foo)).toBeTruthy();
-  expect(isSubject($props.bar)).toBeTruthy();
+  expect($$props.foo()).toBe(10);
+  expect($$props.bar()).toBe(20);
+  expect(isSubject($$props.foo)).toBeTruthy();
+  expect(isSubject($$props.bar)).toBeTruthy();
 
-  expect($setupProps.foo).toBe(10);
-  expect($setupProps.bar).toBe(20);
+  expect($$setupProps.foo).toBe(10);
+  expect($$setupProps.bar).toBe(20);
 });

@@ -1,5 +1,7 @@
 import { decode, encode } from 'html-entities';
+import kleur from 'kleur';
 import MagicString from 'magic-string';
+import { e } from 'vitest/dist/index-40e0cb97';
 import { escape } from '../../utils/html';
 import {
   createFunctionCall,
@@ -14,6 +16,7 @@ import {
   type ExpressionNode,
   type AttributeNode,
   type SpreadNode,
+  type ComponentChildren,
   isElementNode,
   isAttributeNode,
   isSpreadNode,
@@ -34,6 +37,7 @@ const ID = {
 
 const RUNTIME = {
   createComponent: '$$_create_component',
+  customElement: '$$_custom_element',
   ssr: '$$_ssr',
   attr: '$$_attr',
   classes: '$$_classes',
@@ -45,16 +49,17 @@ const RUNTIME = {
 export const ssr: ASTSerializer = {
   serialize(ast, ctx) {
     let template = '',
-      spread = false,
+      merging = false,
       templates: string[] = [],
       parts: string[] = [],
       classes: AttributeNode[] = [],
       styles: AttributeNode[] = [],
       props: string[] = [],
-      merge: (AttributeNode | SpreadNode)[] = [],
+      merger: (AttributeNode | SpreadNode)[] = [],
       spreads: string[] = [],
       elements: ElementNode[] = [],
       component!: ElementNode | undefined,
+      customElement!: ElementNode | undefined,
       commit = (part: string) => {
         parts.push(part);
         templates.push(template);
@@ -73,32 +78,14 @@ export const ssr: ASTSerializer = {
 
       if (component) {
         if (isAttributeNode(node) && !node.namespace) {
-          if (!node.observable || node.callId) {
-            props.push(`${node.name}: ${node.callId ?? node.value}`);
-          } else {
-            props.push(`get ${node.name}() { return ${node.value}; }`);
-          }
+          props.push(createComponentPropEntry(node));
         } else if (isSpreadNode(node)) {
           spreads.push(node.value);
         } else if (isStructuralNode(node) && isElementEnd(node)) {
           const children = component.children;
 
           if (children) {
-            const serialized = children.map((child) => {
-              if (isAST(child)) {
-                return ssr.serialize(child, ctx);
-              } else if (isTextNode(child)) {
-                return createStringLiteral(escapeDoubleQuotes(decode(child.value)));
-              } else {
-                return child.children ? transformParentExpression(child, ctx) : child.value;
-              }
-            });
-
-            props.push(
-              `get children() { return ${
-                serialized.length === 1 ? serialized[0] : `[${serialized.join(', ')}]`
-              } }`,
-            );
+            props.push(createComponentChildrenEntry(children, ctx));
           }
 
           const hasProps = props.length > 0;
@@ -126,51 +113,89 @@ export const ssr: ASTSerializer = {
         if (isAttributesEnd(node)) {
           const element = elements.at(-1);
 
-          if (spread) {
-            let props: string[] = [],
-              classes: Record<string, string> = {},
-              styles: Record<string, string> = {},
-              currentAttrs: Record<string, string> = {};
+          if (merging) {
+            let definition!: string | undefined,
+              $spread: string[] = [],
+              $attrs: Record<string, string> = {},
+              $$class: Record<string, string> = {},
+              $$style: Record<string, string> = {};
 
-            for (let i = 0; i < merge.length; i++) {
-              const prop = merge[i];
+            const commitAttrs = () => {
+              if (Object.keys($$class).length) {
+                $attrs.$$class = createObjectLiteral($$class);
+                $$class = {};
+              }
+
+              if (Object.keys($$style).length) {
+                $attrs.$$style = createObjectLiteral($$style);
+                $$style = {};
+              }
+
+              if (Object.keys($attrs).length) {
+                $spread.push(createObjectLiteral($attrs));
+                $attrs = {};
+              }
+            };
+
+            for (let i = 0; i < merger.length; i++) {
+              const prop = merger[i];
               if (isAttributeNode(prop)) {
-                let group = prop.namespace
-                  ? prop.namespace === '$class'
-                    ? classes
-                    : prop.namespace === '$style' || prop.namespace === '$cssvar'
-                    ? styles
-                    : currentAttrs
-                  : currentAttrs;
+                if (prop.namespace === '$prop') {
+                  props.push(createComponentPropEntry(prop));
+                } else if (prop.name === 'element') {
+                  definition = prop.value;
+                } else {
+                  let group = prop.namespace
+                    ? prop.namespace === '$class'
+                      ? $$class
+                      : prop.namespace === '$style' || prop.namespace === '$cssvar'
+                      ? $$style
+                      : $attrs
+                    : $attrs;
 
-                group[`${prop.namespace === '$cssvar' ? '--' : ''}${prop.name}`] =
-                  prop.callId ?? prop.value;
+                  group[`${prop.namespace === '$cssvar' ? '--' : ''}${prop.name}`] =
+                    prop.callId ?? prop.value;
+                }
               } else {
-                if (Object.keys(classes).length) {
-                  currentAttrs.$$classes = createObjectLiteral(classes);
-                  classes = {};
-                }
-
-                if (Object.keys(styles).length) {
-                  currentAttrs.$$styles = createObjectLiteral(styles);
-                  styles = {};
-                }
-
-                if (Object.keys(currentAttrs).length) {
-                  props.push(createObjectLiteral(currentAttrs));
-                  currentAttrs = {};
-                }
-
-                props.push(prop.value);
+                commitAttrs();
+                $spread.push(prop.value);
               }
             }
 
-            if (props.length) {
-              commit(createFunctionCall(RUNTIME.spread, [`[${props.join(', ')}]`]));
+            commitAttrs();
+
+            if (customElement) {
+              if (!definition) {
+                const ref = customElement.ref;
+                const loc = kleur.bold(
+                  `${ref.getSourceFile().fileName} ${kleur.cyan(
+                    `${ref.getStart()}:${ref.getEnd()}`,
+                  )}`,
+                );
+
+                throw Error(`[maverick] definition was not provided for custom element at ${loc}`);
+              }
+
+              if (customElement.children) {
+                props.push(createComponentChildrenEntry(customElement.children, ctx));
+              }
+
+              commit(
+                createFunctionCall(RUNTIME.customElement, [
+                  definition,
+                  `{ ${props.join(', ')} }`,
+                  `[${$spread.join(', ')}]`,
+                ]),
+              );
+
+              ctx.runtime.add(RUNTIME.customElement);
+              customElement = undefined;
+            } else if ($spread.length) {
+              commit(createFunctionCall(RUNTIME.spread, [`[${$spread.join(', ')}]`]));
               ctx.runtime.add(RUNTIME.spread);
             }
 
-            merge = [];
+            merger = [];
           } else {
             if (classes.length) {
               const baseClassIdx = classes.findIndex((c) => c.name === 'class'),
@@ -229,7 +254,7 @@ export const ssr: ASTSerializer = {
             }
           }
 
-          spread = false;
+          merging = false;
           if (element && !element.isVoid) template += '>';
         } else if (isElementEnd(node)) {
           const element = elements.pop();
@@ -237,44 +262,51 @@ export const ssr: ASTSerializer = {
         }
       } else if (isElementNode(node)) {
         if (node.isComponent) {
-          marker();
-          component = node;
+          if (node.tagName === 'CustomElement') {
+            merging = true;
+            customElement = node;
+          } else {
+            marker();
+            component = node;
+          }
         } else {
           if (node.dynamic()) marker();
-          spread = node.spread();
+          merging = node.spread();
           elements.push(node);
           template += `<${node.tagName}`;
         }
       } else if (isAttributeNode(node)) {
         if (node.namespace) {
           if (node.namespace === '$class') {
-            if (spread) {
-              merge.push(node);
+            if (merging) {
+              merger.push(node);
             } else {
               classes.push(node);
             }
           } else if (node.namespace === '$style' || node.namespace === '$cssvar') {
-            if (spread) {
-              merge.push(node);
+            if (merging) {
+              merger.push(node);
             } else {
               styles.push(node);
             }
+          } else if (customElement && node.namespace === '$prop') {
+            merger.push(node);
           }
         } else {
           if (node.name === 'class') {
-            if (spread) {
-              merge.push(node);
+            if (merging) {
+              merger.push(node);
             } else {
               classes.push(node);
             }
           } else if (node.name === 'style') {
-            if (spread) {
-              merge.push(node);
+            if (merging) {
+              merger.push(node);
             } else {
               styles.push(node);
             }
-          } else if (spread) {
-            merge.push(node);
+          } else if (merging) {
+            merger.push(node);
           } else if (!node.dynamic) {
             template += ` ${node.name}="${escape(trimQuotes(node.value), true)}"`;
           } else {
@@ -293,7 +325,7 @@ export const ssr: ASTSerializer = {
           commit(node.callId ?? (node.observable ? `() => ${code}` : code));
         }
       } else if (isSpreadNode(node)) {
-        merge.push(node);
+        merger.push(node);
       }
     }
 
@@ -326,6 +358,28 @@ function transformParentExpression(node: ExpressionNode, ctx: TransformContext) 
   }
 
   return code.toString();
+}
+
+function createComponentPropEntry(node: AttributeNode) {
+  return !node.observable || node.callId
+    ? `${node.name}: ${node.callId ?? node.value}`
+    : `get ${node.name}() { return ${node.value}; }`;
+}
+
+function createComponentChildrenEntry(children: ComponentChildren[], ctx: TransformContext) {
+  const serialized = children.map((child) => {
+    if (isAST(child)) {
+      return ssr.serialize(child, ctx);
+    } else if (isTextNode(child)) {
+      return createStringLiteral(escapeDoubleQuotes(decode(child.value)));
+    } else {
+      return child.children ? transformParentExpression(child, ctx) : child.value;
+    }
+  });
+
+  return `get children() { return ${
+    serialized.length === 1 ? serialized[0] : `[${serialized.join(', ')}]`
+  } }`;
 }
 
 function createClassesObjectLiteral(classes: AttributeNode[]) {

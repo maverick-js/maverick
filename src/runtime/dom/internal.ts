@@ -1,4 +1,4 @@
-import { effect, peek } from '../reactivity';
+import { computed, effect, onDispose, peek } from '../reactivity';
 import { isArray, isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
 import {
@@ -9,6 +9,8 @@ import {
 } from './markers';
 import { hydration } from './render';
 import { createFragment, insert, listen, setAttribute, setStyle, toggleClass } from './utils';
+import { defineCustomElement, type MaverickElement, type ElementDefinition } from '../../element';
+import { attachDeclarativeShadowDOM, supportsDeclarativeShadowDOM } from '../../utils/dom';
 
 /** @internal */
 export function $$_create_template(html: string) {
@@ -20,6 +22,28 @@ export function $$_create_template(html: string) {
 /** @internal */
 export function $$_create_fragment() {
   return createFragment();
+}
+
+/** @internal */
+export function $$_create_custom_element(definition: ElementDefinition) {
+  defineCustomElement(definition);
+
+  const element = (
+    hydration ? hydration.m.nextNode() : document.createElement(definition.tagName)
+  ) as MaverickElement;
+
+  if (hydration && definition.shadow && !supportsDeclarativeShadowDOM()) {
+    attachDeclarativeShadowDOM(element);
+  }
+
+  return element;
+}
+
+/** @internal */
+export function $$_setup_custom_element(element: MaverickElement, props: Record<string, any>) {
+  const children = computed(() => props.children);
+  onDispose(element.$setup({ props, children }));
+  if (!hydration) $$_insert(element, children);
 }
 
 /** @internal */

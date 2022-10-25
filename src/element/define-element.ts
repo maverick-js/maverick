@@ -1,8 +1,9 @@
 import { observable, peek } from '@maverick-js/observables';
 import { type JSX, setContextMap } from '../runtime';
 import { isFunction } from '../utils/unit';
-import { setHostElement } from './internal';
+import { setHost } from './internal';
 import type {
+  ElementCSSVars,
   ElementDeclaration,
   ElementDefinition,
   ElementMembers,
@@ -11,47 +12,32 @@ import type {
   ObservableElementProps,
 } from './types';
 
-const registry = new Map<string, ElementDefinition>();
-
-export function getElementDefinition(tagName: string) {
-  return registry.get(tagName);
-}
-
 export function defineElement<
-  Props extends ElementProps,
+  Props extends ElementProps = ElementProps,
   Events = JSX.GlobalOnAttributes,
+  CSSVars extends ElementCSSVars = ElementCSSVars,
   Members extends ElementMembers = ElementMembers,
 >(
   declaration: ElementDeclaration<Props, Events, Members>,
-): ElementDefinition<Props, Events, Members> {
-  if (registry.has(declaration.tagName)) {
-    if (__DEV__) {
-      console.warn(
-        `[maverick] attempted to define an element with an existing tag name \`${declaration.tagName}\``,
-      );
-    }
-
-    return registry.get(declaration.tagName) as any;
-  }
-
-  const definition = {
+): ElementDefinition<Props, Events, CSSVars, Members> {
+  const definition: ElementDefinition<Props, Events, CSSVars, Members> = {
     ...declaration,
     setup(context) {
       if (context.context) setContextMap(context.context);
 
-      setHostElement(context.host);
+      setHost(context.host);
       const setup = declaration.setup(context);
-      setHostElement(null);
+      setHost(null);
 
       const members = (isFunction(setup) ? { $render: setup } : setup) as Members;
-
       const render = members.$render;
+
       // @ts-expect-error - override readonly
       members.$render = () =>
         peek(() => {
-          setHostElement(context.host);
+          setHost(context.host);
           const result = render();
-          setHostElement(null);
+          setHost(null);
           return result;
         });
 
@@ -59,31 +45,31 @@ export function defineElement<
     },
   };
 
-  registry.set(definition.tagName, definition);
   return definition;
 }
 
-export function createSetupProps<Props extends ElementProps>(
-  propDefs: ElementPropDefinitions<Props> = {},
-  init?: ObservableElementProps<Props>,
+export function setupElementProps<Props extends ElementProps>(
+  propDefs?: ElementPropDefinitions<Props>,
 ) {
-  const $props = {} as ObservableElementProps<Props>;
-  const $setupProps = {} as Props;
+  const $$props = {} as ObservableElementProps<Props>;
+  const $$setupProps = {} as Props;
 
-  for (const propName of Object.keys(propDefs) as (keyof Props)[]) {
-    const def = propDefs![propName];
-    const $prop = init?.[propName] ?? observable(def.initialValue, def);
+  if (propDefs) {
+    for (const propName of Object.keys(propDefs) as (keyof Props)[]) {
+      const def = propDefs![propName];
+      const $prop = observable(def.initialValue, def);
 
-    // @ts-expect-error - override readonly
-    $props[propName] = $prop;
+      // @ts-expect-error - override readonly
+      $$props[propName] = $prop;
 
-    Object.defineProperty($setupProps, propName, {
-      enumerable: true,
-      get() {
-        return $prop();
-      },
-    });
+      Object.defineProperty($$setupProps, propName, {
+        enumerable: true,
+        get() {
+          return $prop();
+        },
+      });
+    }
   }
 
-  return { $props, $setupProps };
+  return { $$props, $$setupProps };
 }

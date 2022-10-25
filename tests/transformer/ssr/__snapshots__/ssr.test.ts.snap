@@ -302,18 +302,20 @@ const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
 $$_ssr($$_templ, $$_styles(\\"foo: a;\\", { \\"foo\\": \\"b\\", \\"bar\\": true, \\"baz\\": id }))"
 `;
 
-exports[`should merge classes on spread 1`] = `
+exports[`should merge classes after spread 1`] = `
+"import { $$_spread, $$_ssr } from \\"maverick.js/ssr\\";
+
+const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
+$$_ssr($$_templ, $$_spread([props, { \\"class\\": \\"foo bar\\", \\"$$class\\": { \\"a\\": id, \\"b\\": false } }]))"
+`;
+
+exports[`should merge classes between spreads 1`] = `
 "import { $$_spread, $$_ssr } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
 $$_ssr(
   $$_templ,
-  $$_spread([
-    { \\"class\\": \\"foo bar\\", \\"$$classes\\": { \\"a\\": id, \\"b\\": false } },
-    props,
-    { \\"$$classes\\": { \\"c\\": 0 } },
-    propsTwo,
-  ]),
+  $$_spread([{ \\"class\\": \\"foo bar\\", \\"$$class\\": { \\"a\\": id, \\"b\\": false } }, props, { \\"$$class\\": { \\"c\\": 0 } }, propsTwo]),
 )"
 `;
 
@@ -324,12 +326,19 @@ const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
 $$_ssr($$_templ, $$_spread([props, propsTwo, propsThree]))"
 `;
 
-exports[`should merge styles on spread 1`] = `
+exports[`should merge styles after spread 1`] = `
+"import { $$_spread, $$_ssr } from \\"maverick.js/ssr\\";
+
+const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
+$$_ssr($$_templ, $$_spread([props, { \\"style\\": \\"foo bar\\", \\"$$style\\": { \\"a\\": id, \\"b\\": false, \\"c\\": 0 } }]))"
+`;
+
+exports[`should merge styles between spreads 1`] = `
 "import { $$_spread, $$_ssr } from \\"maverick.js/ssr\\";
 
 const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
 $$_ssr(
   $$_templ,
-  $$_spread([{ \\"style\\": \\"foo bar\\", \\"$$styles\\": { \\"a\\": id, \\"b\\": false } }, props, { \\"$$styles\\": { \\"c\\": 0 } }, propsTwo]),
+  $$_spread([{ \\"style\\": \\"foo bar\\", \\"$$style\\": { \\"a\\": id, \\"b\\": false } }, props, { \\"$$style\\": { \\"c\\": 0 } }, propsTwo]),
 )"
 `;

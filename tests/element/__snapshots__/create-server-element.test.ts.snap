@@ -1,0 +1,35 @@
+// Vitest Snapshot v1
+
+exports[`should reflect props 1`] = `
+Map {
+  "data-hydrate" => "",
+  "data-delegate" => "",
+  "foo" => "10",
+  "bar" => "20",
+}
+`;
+
+exports[`should render attributes 1`] = `
+Map {
+  "data-hydrate" => "",
+  "data-delegate" => "",
+  "foo" => "1",
+  "bar" => "2",
+}
+`;
+
+exports[`should render class list 1`] = `
+Map {
+  "data-hydrate" => "",
+  "data-delegate" => "",
+  "class" => "foo baz doh boo",
+}
+`;
+
+exports[`should render styles 1`] = `
+Map {
+  "data-hydrate" => "",
+  "data-delegate" => "",
+  "style" => "foo: 1;bar: 2;display: content;--hux: none;",
+}
+`;

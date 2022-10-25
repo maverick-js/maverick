@@ -4,5 +4,5 @@ export * from './event';
 export * from './lifecycle';
 export * from './define-element';
 export * from './create-html-element';
-export * from './create-ssr-element';
-export { getHostElement } from './internal';
+export * from './create-server-element';
+export { getHost } from './internal';

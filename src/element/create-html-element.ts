@@ -5,7 +5,7 @@ import { run, runAll } from '../utils/fn';
 import { camelToKebabCase } from '../utils/str';
 
 import { isBoolean, isFunction, noop } from '../utils/unit';
-import { createSetupProps } from './define-element';
+import { setupElementProps } from './define-element';
 import { DOMEvent } from './event';
 import {
   CONNECT,
@@ -19,46 +19,37 @@ import {
 import type { ElementLifecycleManager, ElementLifecycleCallback } from './lifecycle';
 import type {
   ElementProps,
+  ElementCSSVars,
   ElementMembers,
   ElementPropDefinitions,
-  MaverickElementConstructor,
   ElementDefinition,
   ElementSetupContext,
   MaverickHost,
   MaverickElement,
+  MaverickElementConstructor,
 } from './types';
 
-export function defineCustomElement(definition: ElementDefinition) {
-  if (__NODE__) return;
-  if (!window.customElements.get(definition.tagName)) {
-    window.customElements.define(definition.tagName, createHTMLElement(definition));
-  }
-}
-
-const MAVERICK_ELEMENT = Symbol('MAVERICK');
-
-export function isMaverickElement(node?: Node): node is MaverickElement {
-  return !!node?.[MAVERICK_ELEMENT];
-}
+const MAVERICK = Symbol('MAVERICK');
 
 export function createHTMLElement<
   Props extends ElementProps,
   Events = JSX.GlobalOnAttributes,
+  CSSVars extends ElementCSSVars = ElementCSSVars,
   Members extends ElementMembers = ElementMembers,
 >(
-  definition: ElementDefinition<Props, Events, Members>,
+  definition: ElementDefinition<Props, Events, CSSVars, Members>,
 ): MaverickElementConstructor<Props, Events, Members> {
   if (__NODE__) {
     throw Error(
-      '[maverick] `createHTMLElement` was called outside of browser - use `createSSRElement`',
+      '[maverick] `createHTMLElement` was called outside of browser - use `createServerElement`',
     );
   }
 
-  const propDefs: ElementPropDefinitions<Props> = definition.props ?? ({} as any);
+  const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
 
   class MaverickElement
     extends HTMLElement
-    implements MaverickHost<Props>, ElementLifecycleManager
+    implements MaverickHost<Props, Members>, ElementLifecycleManager
   {
     /** attr name to prop name map */
     private static _attrMap = new Map<string, string>();
@@ -74,7 +65,7 @@ export function createHTMLElement<
     }
 
     /** @internal */
-    [MAVERICK_ELEMENT] = true;
+    [MAVERICK] = true;
     /** @internal */
     [CONNECT]: ElementLifecycleCallback[] = [];
     /** @internal */
@@ -91,11 +82,13 @@ export function createHTMLElement<
     private _root?: Node;
     private _setup = false;
     private _destroyed = false;
+    private _props: SubjectRecord = {};
+    private _onEventDispatch?: (eventType: string) => void;
+
     private _children = observable(false);
     private _connected = observable(false);
     private _mounted = observable(false);
-    private _props: SubjectRecord = {};
-    private _onEventDispatch?: (eventType: string) => void;
+    private _el = observable<MaverickElement | null>(null);
 
     private get _hydrate() {
       return this.hasAttribute('data-hydrate');
@@ -125,6 +118,10 @@ export function createHTMLElement<
 
     get $mounted() {
       return this._mounted();
+    }
+
+    get $el() {
+      return this._el() as any;
     }
 
     static get observedAttributes() {
@@ -210,21 +207,21 @@ export function createHTMLElement<
       }
     }
 
-    $setup({
-      props,
-      context,
-      children,
-      onEventDispatch,
-    }: ElementSetupContext<Props> = {}): () => void {
+    $setup(ctx: ElementSetupContext<Props> = {}): () => void {
       if (this._setup || this._destroyed) return noop;
       if (this._delegate) this.$keepAlive = true;
 
       const ctor = this.constructor as typeof MaverickElement;
 
       const members = root((dispose) => {
-        const { $props, $setupProps } = createSetupProps(propDefs, props);
+        const { $$props, $$setupProps } = setupElementProps(propDefs);
+        this._props = $$props;
 
-        this._props = $props;
+        if (ctx.props) {
+          for (const prop of Object.keys(ctx.props)) {
+            $$props[prop]?.set(ctx.props[prop]);
+          }
+        }
 
         ctor._resolveAttrs();
         for (const attrName of ctor._attrMap.keys()) {
@@ -238,8 +235,8 @@ export function createHTMLElement<
           }
         }
 
-        if (children) {
-          this._children = children;
+        if (ctx.children) {
+          this._children = ctx.children as any;
         } else {
           const onMutation = () => {
             const noChildren =
@@ -259,8 +256,8 @@ export function createHTMLElement<
 
         const members = definition.setup({
           host: this as any,
-          props: $setupProps,
-          context,
+          props: $$setupProps,
+          context: ctx.context,
           dispatch,
           ssr: false,
         });
@@ -273,15 +270,16 @@ export function createHTMLElement<
       if (this._destroyed) return noop;
 
       this._root = definition.shadow
-        ? this.attachShadow(isBoolean(definition.shadow) ? { mode: 'open' } : definition.shadow)
+        ? this.shadowRoot ??
+          this.attachShadow(isBoolean(definition.shadow) ? { mode: 'open' } : definition.shadow)
         : this;
 
       Object.defineProperties(this, Object.getOwnPropertyDescriptors(members));
       this._reflectProps();
 
-      if (onEventDispatch) {
-        for (const eventType of ctor._events) onEventDispatch(eventType);
-        this._onEventDispatch = onEventDispatch;
+      if (ctx.onEventDispatch) {
+        for (const eventType of ctor._events) ctx.onEventDispatch(eventType);
+        this._onEventDispatch = ctx.onEventDispatch;
       }
 
       let before: Node | undefined;
@@ -296,6 +294,7 @@ export function createHTMLElement<
       getScheduler().flushSync();
 
       this._setup = true;
+      this._el.set(this);
       this.connectedCallback();
       return () => this.$destroy();
     }
@@ -342,4 +341,15 @@ export function createHTMLElement<
   }
 
   return MaverickElement as any;
+}
+
+export function isMaverickElement(node?: Node): node is MaverickElement {
+  return !!node?.[MAVERICK];
+}
+
+export function defineCustomElement(definition: ElementDefinition<any, any, any, any>) {
+  if (__NODE__) return;
+  if (!window.customElements.get(definition.tagName)) {
+    window.customElements.define(definition.tagName, createHTMLElement(definition));
+  }
 }

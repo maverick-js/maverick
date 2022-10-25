@@ -1,0 +1,15 @@
+// Vitest Snapshot v1
+
+exports[`should forward attrs to props 1`] = `"<!$><mk-foo foo=\\"100\\" data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><div><!$>100</div><!/#internal></mk-foo>"`;
+
+exports[`should forward props 1`] = `"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><div><!$>100</div><!/#internal></mk-foo>"`;
+
+exports[`should render custom element 1`] = `"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><div class=\\"foo\\">Test</div><!/#internal></mk-foo>"`;
+
+exports[`should render custom element with attributes 1`] = `"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" data-hydrate=\\"\\" data-delegate=\\"\\" class=\\"foo bar\\" style=\\"display: none;--baz: 10;\\"><!#internal><!/#internal></mk-foo>"`;
+
+exports[`should render custom element with children 1`] = `"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><div>Child</div></mk-foo>"`;
+
+exports[`should render custom element with shadow dom 1`] = `"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><template shadowroot=\\"open\\"><div class=\\"foo\\">Test</div></template><div>Light A</div><div>Light B</div><div>Light C</div></mk-foo>"`;
+
+exports[`should set inner html 1`] = `"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><div>INNER HTML</div></mk-foo>"`;

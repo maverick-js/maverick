@@ -27,5 +27,5 @@ export function property<T>(
     initialValue,
     ...options,
     transform: options?.transform ?? createTransformer(),
-  };
+  } as const;
 }

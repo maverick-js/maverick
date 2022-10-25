@@ -3,7 +3,6 @@
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
     "alwaysStrict": true,
-    "baseUrl": ".",
     "checkJs": true,
     "declaration": true,
     "declarationDir": "types",
@@ -23,11 +22,12 @@
     "noImplicitReturns": true,
     "noUnusedParameters": false,
     "paths": {
-      "maverick.js": ["src/runtime"],
-      "maverick.js/*": ["src/runtime/*"],
-      "maverick.js/dom": ["src/runtime/dom"],
-      "maverick.js/ssr": ["src/runtime/ssr"],
-      "maverick.js/element": ["src/element"]
+      "maverick.js": ["./src/runtime"],
+      "maverick.js/*": ["./src/runtime/*"],
+      "maverick.js/dom": ["./src/runtime/dom"],
+      "maverick.js/ssr": ["./src/runtime/ssr"],
+      "maverick.js/element": ["./src/element"],
+      "maverick.js/transformer": ["./src/transformer/"]
     },
     "preserveWatchOutput": true,
     "skipLibCheck": true,

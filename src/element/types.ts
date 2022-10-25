@@ -1,4 +1,4 @@
-import type { JSX, observable, ObservableSubject } from '../runtime';
+import type { JSX, Observable, observable, ObservableSubject } from '../runtime';
 import type { Constructor } from '../utils/types';
 import type { InferEventInit } from './event';
 import type { ElementLifecycleManager } from './lifecycle';
@@ -31,6 +31,14 @@ export type ElementProps = Readonly<{
   [name: string]: any;
 }>;
 
+export type ElementCSSVars = Readonly<{
+  [name: string]: JSX.CSSValue;
+}>;
+
+export type ElementEvents = Readonly<{
+  [name: string]: Event;
+}>;
+
 export type ObservableElementProps<Props extends ElementProps> = Readonly<{
   [Prop in keyof Props]: ObservableSubject<Props[Prop]>;
 }>;
@@ -52,18 +60,16 @@ export type ElementSetup<
   Events = JSX.GlobalOnAttributes,
   Members extends ElementMembers = ElementMembers,
 > = (context: {
-  host: MaverickElement;
+  host: MaverickHost<Props, Members>;
   props: Readonly<Props>;
   dispatch: ElementDispatcher<Events>;
   ssr: boolean;
 }) => (() => JSX.Element) | Members;
 
 export type ElementSetupContext<Props extends ElementProps = ElementProps> = {
-  props?: ObservableElementProps<Props>;
-  class?: string;
-  style?: string;
+  props?: Readonly<Props>;
   context?: ElementContextMap;
-  children?: ObservableSubject<boolean>;
+  children?: Observable<boolean>;
   onEventDispatch?: (eventType: string) => void;
 };
 
@@ -78,13 +84,15 @@ export type ElementDeclaration<
   shadow?: true | ShadowRootInit;
 }>;
 
-export type DefinedElementSetup<
+export type ElementDefinitionSetup<
   Props extends ElementProps = ElementProps,
   Events = JSX.GlobalOnAttributes,
+  CSSVars extends ElementCSSVars = ElementCSSVars,
   Members extends ElementMembers = ElementMembers,
 > = (context: {
-  host: MaverickElement;
+  host: MaverickHost<Props, Members>;
   props: Readonly<Props>;
+  vars?: Readonly<CSSVars>;
   dispatch: ElementDispatcher<Events>;
   context?: ElementContextMap;
   ssr: boolean;
@@ -93,20 +101,52 @@ export type DefinedElementSetup<
 export type ElementDefinition<
   Props extends ElementProps = ElementProps,
   Events = JSX.GlobalOnAttributes,
+  CSSVars extends ElementCSSVars = ElementCSSVars,
   Members extends ElementMembers = ElementMembers,
 > = Omit<ElementDeclaration<Props, Events, Members>, 'setup'> &
   Readonly<{
-    setup: DefinedElementSetup<Props, Events, Members>;
+    setup: ElementDefinitionSetup<Props, Events, CSSVars, Members>;
   }>;
 
 export type MaverickElement<
   Props extends ElementProps = ElementProps,
   Members extends ElementMembers = ElementMembers,
-> = Members & HTMLElement & MaverickHost<Props> & ElementLifecycleManager;
+> = Members & HTMLElement & MaverickHost<Props, Members> & ElementLifecycleManager;
 
-export type MaverickHost<Props extends ElementProps = ElementProps> = {
+export type MaverickElementConstructor<
+  Props extends ElementProps = ElementProps,
+  Events = JSX.GlobalOnAttributes,
+  Members extends ElementMembers = ElementMembers,
+> = Constructor<MaverickElement<Props, Members>> & {
+  readonly observedAttributes: string[];
+  readonly $definition: ElementDeclaration<Props, Events, Members>;
+};
+
+export type MaverickHost<
+  Props extends ElementProps = ElementProps,
+  Members extends ElementMembers = ElementMembers,
+> = Pick<
+  HTMLElement,
+  | 'getAttribute'
+  | 'setAttribute'
+  | 'hasAttribute'
+  | 'removeAttribute'
+  | 'dispatchEvent'
+  | 'addEventListener'
+  | 'removeEventListener'
+> & {
+  readonly classList: Pick<
+    HTMLElement['classList'],
+    'length' | 'add' | 'contains' | 'remove' | 'replace' | 'toggle' | 'toString'
+  >;
+  readonly style: Pick<
+    HTMLElement['style'],
+    'length' | 'getPropertyValue' | 'removeProperty' | 'setProperty'
+  > & { toString(): string };
+} & {
   /** @internal */
   readonly $$props: { [Prop in keyof Props]: ObservableSubject<Props[Prop]> };
+
   /**
    * Whether to keep this component alive until it's manually destroyed by calling the `$destroy`
    * method.
@@ -120,6 +160,11 @@ export type MaverickHost<Props extends ElementProps = ElementProps> = {
    */
   readonly $tagName: string;
   /**
+   * The DOM element associated with this host. This is `null` server-side and during the setup
+   * call client-side.
+   */
+  readonly $el: MaverickElement<Props, Members> | null;
+  /**
    * Whether the current element has connected to the DOM. This is a reactive observable call.
    */
   readonly $connected: boolean;
@@ -129,8 +174,8 @@ export type MaverickHost<Props extends ElementProps = ElementProps> = {
    */
   readonly $mounted: boolean;
   /**
-   * Whether there is any children being provided by the user, if `false` you can return fallback
-   * content. This is a reactive observable call.
+   * Whether there is any child nodes in the light DOM, if `false` you can return fallback content.
+   * This is a reactive observable call.
    */
   readonly $children: boolean;
   /**
@@ -143,43 +188,3 @@ export type MaverickHost<Props extends ElementProps = ElementProps> = {
    */
   $destroy(): void;
 };
-
-export type MaverickElementConstructor<
-  Props extends ElementProps = ElementProps,
-  Events = JSX.GlobalOnAttributes,
-  Members extends ElementMembers = ElementMembers,
-> = Constructor<MaverickElement<Props, Members>> & {
-  readonly observedAttributes: string[];
-  readonly $definition: ElementDeclaration<Props, Events, Members>;
-};
-
-export type MaverickSSRHost = MaverickHost &
-  Pick<
-    HTMLElement,
-    | 'getAttribute'
-    | 'setAttribute'
-    | 'hasAttribute'
-    | 'removeAttribute'
-    | 'dispatchEvent'
-    | 'addEventListener'
-    | 'removeEventListener'
-  > & {
-    readonly classList: {
-      readonly length: number;
-      readonly tokens: Set<string>;
-      add(...tokens: string[]): void;
-      contains(token: string): boolean;
-      remove(...tokens: string[]): void;
-      replace(token: string, newToken: string): boolean;
-      toggle(token: string, force?: boolean): boolean;
-      toString(): string;
-    };
-    readonly style: {
-      readonly length: number;
-      readonly tokens: Map<string, string>;
-      getPropertyValue(property: string): string;
-      removeProperty(property: string): string;
-      setProperty(property: string, value: string | null): void;
-      toString(): string;
-    };
-  };

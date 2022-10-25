@@ -1,21 +1,21 @@
 import { peek } from '@maverick-js/observables';
 import { isNull } from '../utils/unit';
 import type { ElementLifecycleCallback, ElementLifecycleManager } from './lifecycle';
-import type { MaverickElement } from './types';
+import type { MaverickHost } from './types';
 
-let _elements: (MaverickElement | null)[] = [null];
+let _hosts: (MaverickHost | null)[] = [null];
 
-export function getHostElement(): MaverickElement | null {
-  return _elements[_elements.length - 1];
+export function getHost(): MaverickHost | null {
+  return _hosts[_hosts.length - 1];
 }
 
-export function setHostElement(element: MaverickElement | null) {
-  if (isNull(element)) {
-    _elements.pop();
+export function setHost(host: MaverickHost | null) {
+  if (isNull(host)) {
+    _hosts.pop();
     return;
   }
 
-  _elements.push(element);
+  _hosts.push(host);
 }
 
 export const CONNECT = Symbol('CONNECT');
@@ -38,13 +38,13 @@ export function createLifecycleMethod(name: keyof ElementLifecycleManager) {
   return (callback: ElementLifecycleCallback) => {
     if (__NODE__) return;
 
-    const element = getHostElement();
+    const host = getHost();
 
-    if (!element) {
+    if (!host) {
       if (__DEV__) throw Error('[maverick] lifecycle hook called outside of element setup');
       return;
     }
 
-    element[name].push(() => peek(callback));
+    host[name].push(() => peek(callback));
   };
 }

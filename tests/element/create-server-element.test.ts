@@ -1,12 +1,12 @@
 import {
-  createSSRElement,
+  createServerElement,
   defineElement,
   property,
   type ElementDeclaration,
 } from 'maverick.js/element';
 
 it('should render attributes', () => {
-  const { ssr } = setupTestElement({
+  const { host } = setupTestElement({
     setup: ({ host }) => {
       host.setAttribute('foo', '1');
       host.setAttribute('bar', '2');
@@ -16,14 +16,17 @@ it('should render attributes', () => {
     },
   });
 
-  expect(ssr()).toMatchSnapshot();
+  host.$setup();
+  host.$render();
+
+  expect(host.attributes.tokens).toMatchSnapshot();
 });
 
 it('should render class list', () => {
-  const { ssr } = setupTestElement({
+  const { host } = setupTestElement({
     setup: ({ host }) => {
       host.classList.add('foo');
-      host.classList.add('baz', 'baz');
+      host.classList.add('baz', 'bam', 'doh');
       host.classList.toggle('boo');
       host.classList.toggle('bax');
       host.classList.toggle('bax');
@@ -34,38 +37,47 @@ it('should render class list', () => {
     },
   });
 
-  expect(ssr({ class: 'hux bux bam' })).toMatchSnapshot();
+  host.$setup();
+  host.$render();
+
+  expect(host.attributes.tokens).toMatchSnapshot();
 });
 
 it('should render styles', () => {
-  const { ssr } = setupTestElement({
+  const { host } = setupTestElement({
     setup: ({ host }) => {
       host.style.setProperty('foo', '1');
       host.style.setProperty('bar', '2');
       host.style.setProperty('baz', '3');
-      host.style.removeProperty('bzz');
+      host.style.removeProperty('baz');
       host.style.setProperty('display', 'content');
       host.style.setProperty('--hux', 'none');
       return () => 'Test';
     },
   });
 
-  expect(ssr({ style: 'display: none; color: white;' })).toMatchSnapshot();
+  host.$setup();
+  host.$render();
+
+  expect(host.attributes.tokens).toMatchSnapshot();
 });
 
 it('should reflect props', () => {
-  const { ssr } = setupTestElement({
+  const { host } = setupTestElement({
     props: {
       foo: property(10, { reflect: true }),
       bar: property(20, { reflect: true }),
     },
   });
 
-  expect(ssr()).toMatchSnapshot();
+  host.$setup();
+  host.$render();
+
+  expect(host.attributes.tokens).toMatchSnapshot();
 });
 
 it('should noop dom events api', () => {
-  const { ssr } = setupTestElement({
+  const { host } = setupTestElement({
     setup({ host }) {
       host.addEventListener('click', () => {});
       host.removeEventListener('click', () => {});
@@ -74,13 +86,14 @@ it('should noop dom events api', () => {
     },
   });
 
-  expect(() => ssr()).not.toThrow();
+  expect(() => {
+    host.$setup();
+  }).not.toThrow();
 });
 
-let count = 0;
 function setupTestElement(definitionInit?: Partial<ElementDeclaration>) {
   const definition = defineElement({
-    tagName: `mk-test-${++count}`,
+    tagName: `mk-foo`,
     setup: ({ props }) => {
       const members = { $render: () => 'Test' };
 
@@ -100,6 +113,6 @@ function setupTestElement(definitionInit?: Partial<ElementDeclaration>) {
 
   return {
     definition,
-    ssr: createSSRElement(definition),
+    host: new (createServerElement(definition))(),
   };
 }

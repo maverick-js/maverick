@@ -1,4 +1,4 @@
-import { isArray, isFunction, isNumber, isObject, isString } from '../../utils/unit';
+import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import { escape } from '../../utils/html';
 import { root as $root } from '../reactivity';
 
@@ -27,7 +27,7 @@ export function resolve(node: unknown): string {
     return result;
   } else if (isString(node) || isNumber(node)) {
     return node + '';
-  } else if (isObject(node) && node[SSR_TEMPLATE]) {
+  } else if (node?.[SSR_TEMPLATE]) {
     return node[SSR_TEMPLATE];
   }
 

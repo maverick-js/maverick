@@ -15,6 +15,7 @@ export default defineConfig({
       'maverick.js/element': '/src/element',
       'maverick.js/dom': '/src/runtime/dom',
       'maverick.js/ssr': '/src/runtime/ssr',
+      'maverick.js/transformer': '/src/transformer',
       'maverick.js': '/src/runtime',
     },
   },

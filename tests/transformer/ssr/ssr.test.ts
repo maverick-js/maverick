@@ -1,4 +1,4 @@
-import { transform } from 'src/transformer';
+import { transform } from 'maverick.js/transformer';
 
 const t = (code: string) => transform(code, { generate: 'ssr' }).code;
 
@@ -73,16 +73,28 @@ it('should compile spread with attributes', () => {
   expect(result).toMatchSnapshot();
 });
 
-it('should merge classes on spread', () => {
+it('should merge classes between spreads', () => {
   const result = t(
     `<div $class:a={id} $class:b={false} class="foo bar" {...props} $class:c={0} {...propsTwo}></div>`,
   );
   expect(result).toMatchSnapshot();
 });
 
-it('should merge styles on spread', () => {
+it('should merge classes after spread', () => {
+  const result = t(`<div {...props} $class:a={id} $class:b={false} class="foo bar"></div>`);
+  expect(result).toMatchSnapshot();
+});
+
+it('should merge styles between spreads', () => {
   const result = t(
     `<div $style:a={id} $style:b={false} style="foo bar" {...props} $style:c={0} {...propsTwo}></div>`,
+  );
+  expect(result).toMatchSnapshot();
+});
+
+it('should merge styles after spread', () => {
+  const result = t(
+    `<div {...props} $style:a={id} $style:b={false} style="foo bar"  $style:c={0}></div>`,
   );
   expect(result).toMatchSnapshot();
 });

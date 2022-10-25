@@ -1,5 +1,4 @@
-import { $$_attr, $$_classes, $$_spread, $$_ssr, $$_styles } from 'maverick.js/ssr';
-import { SSR_TEMPLATE } from 'maverick.js/ssr/render';
+import { $$_attr, $$_classes, $$_spread, $$_ssr, $$_styles, SSR_TEMPLATE } from 'maverick.js/ssr';
 
 it('should concat template and parts', () => {
   const template = ['<div><span', '>', '</span>', '</div>'];
@@ -80,7 +79,7 @@ it('should merge classes on spread', () => {
     { class: 'foo bar box ' },
     {
       class: ' lo fox wha',
-      $$classes: {
+      $$class: {
         foo: false,
         bar: true,
         baz: true,
@@ -98,7 +97,7 @@ it('should clear classes on spread', () => {
     { class: 'foo bar box ' },
     {
       class: null,
-      $$classes: {
+      $$class: {
         bar: true,
         baz: () => true,
       },
@@ -113,7 +112,7 @@ it('should merge styles on spread', () => {
     { style: ' foo: 10;  hux: center;qux:left;' },
     {
       style: '--wha:   50;',
-      $$styles: {
+      $$style: {
         bar: 'items-center',
         boo: () => null,
         hux: false,
@@ -135,7 +134,7 @@ it('should clear styles on spread', () => {
     { style: ' foo: 10;  hux: center;qux:left;' },
     {
       style: null,
-      $$styles: {
+      $$style: {
         boo: () => null,
         hux: true,
         qux: () => true,

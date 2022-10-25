@@ -1,4 +1,4 @@
-import { transform } from 'src/transformer';
+import { transform } from 'maverick.js/transformer';
 
 const t = (code: string) => transform(code, { generate: 'ssr' }).code;
 

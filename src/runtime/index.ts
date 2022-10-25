@@ -2,6 +2,7 @@ import { computed, observable } from './reactivity';
 
 export * from './types';
 export * from './reactivity';
+export * from './components/CustomElement';
 export * from './components/ErrorBoundary';
 export * from './components/For';
 export * from './context';

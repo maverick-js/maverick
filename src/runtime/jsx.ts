@@ -191,6 +191,16 @@ export namespace JSX {
 
   /**
    * -------------------------------------------------------------------------------------------
+   * Class ($class)
+   * -------------------------------------------------------------------------------------------
+   */
+
+  export type ClassValue = any;
+
+  export type ClassAttributes = Record<`$class:${string}`, ClassValue>;
+
+  /**
+   * -------------------------------------------------------------------------------------------
    * CSS ($style and $cssvar)
    * -------------------------------------------------------------------------------------------
    */
@@ -254,7 +264,7 @@ export namespace JSX {
   };
 
   export type HTMLDataAttributes = {
-    [id: `data-${string}`]: AttrValue;
+    [id: `data-${string}`]: Value<AttrValue>;
   };
 
   export type HTMLElementAttributes<
@@ -265,6 +275,7 @@ export namespace JSX {
   > =
     // HTML Defaults
     HTMLAttributes &
+      ClassAttributes &
       StyleAttributes &
       HTMLDataAttributes &
       InnerContentAttributes &

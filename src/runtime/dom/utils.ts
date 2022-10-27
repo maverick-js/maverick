@@ -28,7 +28,6 @@ export function insert(
   if (before === null) parent.appendChild(marker);
   else parent.insertBefore(marker, before);
   insertNodeAtMarker(marker, value);
-  if (!isFunction(value)) marker.remove();
 }
 
 export function listen<Target extends EventTarget, EventType extends string>(

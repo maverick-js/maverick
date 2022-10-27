@@ -1,22 +1,17 @@
-import { decode, encode } from 'html-entities';
+import { encode } from 'html-entities';
 import kleur from 'kleur';
-import MagicString from 'magic-string';
-import { e } from 'vitest/dist/index-40e0cb97';
 import { escape } from '../../utils/html';
 import {
   createFunctionCall,
   createObjectLiteral,
-  createStringLiteral,
   escapeDoubleQuotes,
   trimQuotes,
   trimTrailingSemicolon,
 } from '../../utils/print';
 import {
   type ElementNode,
-  type ExpressionNode,
   type AttributeNode,
   type SpreadNode,
-  type ComponentChildren,
   isElementNode,
   isAttributeNode,
   isSpreadNode,
@@ -25,9 +20,15 @@ import {
   isStructuralNode,
   isElementEnd,
   isAttributesEnd,
-  isAST,
+  isFragmentNode,
 } from '../ast';
-import type { ASTSerializer, TransformContext } from '../transform';
+import {
+  serializeChildren,
+  serializeComponentChildrenProp,
+  serializeComponentProp,
+  serializeParentExpression,
+} from '../jsx/utils';
+import type { ASTSerializer } from '../transform';
 
 const HYDRATION_MARKER = '<!$>';
 
@@ -71,21 +72,26 @@ export const ssr: ASTSerializer = {
 
     const firstNode = ast.tree[0],
       isFirstNodeElement = isElementNode(firstNode),
-      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
+      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent,
+      isFirstNodeFragment = isFragmentNode(firstNode);
+
+    if (isFirstNodeElement && !firstNode.isComponent) {
+      template += HYDRATION_MARKER;
+    }
 
     for (let i = 0; i < ast.tree.length; i++) {
       const node = ast.tree[i];
 
       if (component) {
         if (isAttributeNode(node) && !node.namespace) {
-          props.push(createComponentPropEntry(node));
+          props.push(serializeComponentProp(node));
         } else if (isSpreadNode(node)) {
           spreads.push(node.value);
         } else if (isStructuralNode(node) && isElementEnd(node)) {
           const children = component.children;
 
           if (children) {
-            props.push(createComponentChildrenEntry(children, ctx));
+            props.push(serializeComponentChildrenProp(ssr, children, ctx));
           }
 
           const hasProps = props.length > 0;
@@ -103,11 +109,15 @@ export const ssr: ASTSerializer = {
             ]),
           );
 
+          ctx.runtime.add(RUNTIME.createComponent);
+
+          if (hasSpreads && (hasProps || spreads.length > 1)) {
+            ctx.runtime.add(RUNTIME.mergeProps);
+          }
+
           props = [];
           spreads = [];
           component = undefined;
-          ctx.runtime.add(RUNTIME.createComponent);
-          if (hasSpreads) ctx.runtime.add(RUNTIME.mergeProps);
         }
       } else if (isStructuralNode(node)) {
         if (isAttributesEnd(node)) {
@@ -141,7 +151,7 @@ export const ssr: ASTSerializer = {
               const prop = merger[i];
               if (isAttributeNode(prop)) {
                 if (prop.namespace === '$prop') {
-                  props.push(createComponentPropEntry(prop));
+                  props.push(serializeComponentProp(prop));
                 } else if (prop.name === 'element') {
                   definition = prop.value;
                 } else {
@@ -173,23 +183,24 @@ export const ssr: ASTSerializer = {
                   )}`,
                 );
 
-                throw Error(`[maverick] definition was not provided for custom element at ${loc}`);
+                throw Error(
+                  `[maverick] \`element\` prop was not provided for \`CustomElement\` at ${loc}`,
+                );
               }
 
               if (customElement.children) {
-                props.push(createComponentChildrenEntry(customElement.children, ctx));
+                props.push(serializeComponentChildrenProp(ssr, customElement.children, ctx));
               }
 
               commit(
                 createFunctionCall(RUNTIME.customElement, [
                   definition,
-                  `{ ${props.join(', ')} }`,
-                  `[${$spread.join(', ')}]`,
+                  props.length > 0 || $spread.length > 0 ? `{ ${props.join(', ')} }` : null,
+                  $spread.length > 0 ? `[${$spread.join(', ')}]` : null,
                 ]),
               );
 
               ctx.runtime.add(RUNTIME.customElement);
-              customElement = undefined;
             } else if ($spread.length) {
               commit(createFunctionCall(RUNTIME.spread, [`[${$spread.join(', ')}]`]));
               ctx.runtime.add(RUNTIME.spread);
@@ -255,25 +266,36 @@ export const ssr: ASTSerializer = {
           }
 
           merging = false;
-          if (element && !element.isVoid) template += '>';
+          if (!customElement && element && !element.isVoid) template += '>';
         } else if (isElementEnd(node)) {
           const element = elements.pop();
-          if (element) template += element.isVoid ? ` />` : `</${element.tagName}>`;
+          if (customElement) {
+            customElement = undefined;
+          } else if (element) {
+            template += element.isVoid ? ` />` : `</${element.tagName}>`;
+          }
+        }
+      } else if (isFragmentNode(node)) {
+        if (node.children) {
+          commit(serializeChildren(ssr, node.children, ctx));
         }
       } else if (isElementNode(node)) {
         if (node.isComponent) {
-          if (node.tagName === 'CustomElement') {
-            merging = true;
+          if (i > 0) marker();
+          component = node;
+        } else {
+          const isCustomElement = node.tagName === 'CustomElement';
+
+          if (i > 0 && !isCustomElement && node.dynamic()) marker();
+          merging = isCustomElement || node.spread();
+
+          if (isCustomElement) {
             customElement = node;
           } else {
-            marker();
-            component = node;
+            template += `<${node.tagName}`;
           }
-        } else {
-          if (node.dynamic()) marker();
-          merging = node.spread();
+
           elements.push(node);
-          template += `<${node.tagName}`;
         }
       } else if (isAttributeNode(node)) {
         if (node.namespace) {
@@ -321,7 +343,7 @@ export const ssr: ASTSerializer = {
           template += encode(trimQuotes(node.value));
         } else {
           marker();
-          const code = !node.children ? node.value : transformParentExpression(node, ctx);
+          const code = !node.children ? node.value : serializeParentExpression(ssr, node, ctx);
           commit(node.callId ?? (node.observable ? `() => ${code}` : code));
         }
       } else if (isSpreadNode(node)) {
@@ -333,7 +355,7 @@ export const ssr: ASTSerializer = {
       templates.push(template);
     }
 
-    if (isFirstNodeComponent) {
+    if (isFirstNodeComponent || isFirstNodeFragment) {
       return parts[0];
     } else if (templates.length) {
       const templateId = ctx.globals.create(
@@ -348,39 +370,6 @@ export const ssr: ASTSerializer = {
     return '';
   },
 };
-
-function transformParentExpression(node: ExpressionNode, ctx: TransformContext) {
-  let code = new MagicString(node.value),
-    start = node.ref.getStart() + 1;
-
-  for (const ast of node.children!) {
-    code.overwrite(ast.root.getStart() - start, ast.root.getEnd() - start, ssr.serialize(ast, ctx));
-  }
-
-  return code.toString();
-}
-
-function createComponentPropEntry(node: AttributeNode) {
-  return !node.observable || node.callId
-    ? `${node.name}: ${node.callId ?? node.value}`
-    : `get ${node.name}() { return ${node.value}; }`;
-}
-
-function createComponentChildrenEntry(children: ComponentChildren[], ctx: TransformContext) {
-  const serialized = children.map((child) => {
-    if (isAST(child)) {
-      return ssr.serialize(child, ctx);
-    } else if (isTextNode(child)) {
-      return createStringLiteral(escapeDoubleQuotes(decode(child.value)));
-    } else {
-      return child.children ? transformParentExpression(child, ctx) : child.value;
-    }
-  });
-
-  return `get children() { return ${
-    serialized.length === 1 ? serialized[0] : `[${serialized.join(', ')}]`
-  } }`;
-}
 
 function createClassesObjectLiteral(classes: AttributeNode[]) {
   const props = {};

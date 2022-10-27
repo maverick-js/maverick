@@ -217,12 +217,6 @@ export function createHTMLElement<
         const { $$props, $$setupProps } = setupElementProps(propDefs);
         this._props = $$props;
 
-        if (ctx.props) {
-          for (const prop of Object.keys(ctx.props)) {
-            $$props[prop]?.set(ctx.props[prop]);
-          }
-        }
-
         ctor._resolveAttrs();
         for (const attrName of ctor._attrMap.keys()) {
           if (this.hasAttribute(attrName)) {
@@ -232,6 +226,12 @@ export function createHTMLElement<
               const attrValue = this.getAttribute(attrName);
               this._props[propName]?.set(from(attrValue));
             }
+          }
+        }
+
+        if (ctx.props) {
+          for (const prop of Object.keys(ctx.props)) {
+            $$props[prop]?.set(ctx.props[prop]);
           }
         }
 

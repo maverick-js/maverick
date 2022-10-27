@@ -6,7 +6,7 @@ import { insert } from './utils';
 export let hydration: HydrationContext | null = null;
 
 export type HydrationContext = {
-  m: MarkerWalker;
+  w: MarkerWalker;
 };
 
 export { type MarkerWalker };
@@ -14,7 +14,7 @@ export { type MarkerWalker };
 export type HydrateOptions = RenderOptions;
 
 export function hydrate(root: () => JSX.Element, options: HydrateOptions): Dispose {
-  hydration = { m: createMarkerWalker(options.target) };
+  hydration = { w: createMarkerWalker(options.target) };
   const dispose = render(root, options);
   hydration = null;
   return dispose;

@@ -20,11 +20,14 @@ export type EndMarker = Comment;
 // start markers (<!--$-->) are reserved for hydration.
 export const createMarker = () => document.createComment('/$');
 
-export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, observable = false) {
+export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, isObservable = false) {
   if (isFunction(value)) {
     effect(() => insertNodeAtMarker(start, (value as Function)(), true));
     return;
-  } else if (hydration && !observable) return;
+  } else if (hydration && !isObservable) {
+    start.remove();
+    return;
+  }
 
   let lastChild: Node = start,
     end = start[END_MARKER];
@@ -80,7 +83,12 @@ export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, obser
     removeNodesBetweenMarkers(start, end);
   }
 
-  if (!end && observable) {
+  if (!isObservable) {
+    start.remove();
+    return;
+  }
+
+  if (!end) {
     const marker = createMarker();
     start[END_MARKER] = marker;
     (lastChild as Element).after(marker);

@@ -1,12 +1,17 @@
 import t from 'typescript';
 
-export function containsCallExpression(node: t.Node) {
-  if (t.isCallExpression(node)) return true;
+export function containsObservableCallExpression(node: t.Node) {
+  if (t.isCallExpression(node) || t.isPropertyAccessExpression(node)) {
+    return true;
+  }
 
   let found = false;
 
   const visit = (node: t.Node) => {
-    if (t.isCallExpression(node)) return (found = true);
+    if (t.isCallExpression(node) || t.isPropertyAccessExpression(node)) {
+      return (found = true);
+    }
+
     return t.forEachChild(node, visit);
   };
 

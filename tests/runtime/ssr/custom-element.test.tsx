@@ -10,7 +10,9 @@ it('should render custom element', () => {
 
   const result = renderToString(() => <CustomElement element={element} />).code;
 
-  expect(result).toMatchSnapshot();
+  expect(result).toMatchInlineSnapshot(
+    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><!$><div class=\\"foo\\">Test</div><!/#internal></mk-foo>"',
+  );
 });
 
 it('should render custom element with children', () => {
@@ -25,7 +27,9 @@ it('should render custom element with children', () => {
     </CustomElement>
   )).code;
 
-  expect(result).toMatchSnapshot();
+  expect(result).toMatchInlineSnapshot(
+    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!$><div>Child</div></mk-foo>"',
+  );
 });
 
 it('should render custom element with shadow dom', () => {
@@ -43,7 +47,9 @@ it('should render custom element with shadow dom', () => {
     </CustomElement>
   )).code;
 
-  expect(result).toMatchSnapshot();
+  expect(result).toMatchInlineSnapshot(
+    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><template shadowroot=\\"open\\"><!$><div class=\\"foo\\">Test</div></template><!$><div>Light A</div><!$><div>Light B</div><!$><div>Light C</div></mk-foo>"',
+  );
 });
 
 it('should render custom element with attributes', () => {
@@ -64,7 +70,9 @@ it('should render custom element with attributes', () => {
     />
   )).code;
 
-  expect(result).toMatchSnapshot();
+  expect(result).toMatchInlineSnapshot(
+    '"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" data-hydrate=\\"\\" data-delegate=\\"\\" class=\\"foo bar\\" style=\\"display: none;--baz: 10;\\"><!#internal><!/#internal></mk-foo>"',
+  );
 });
 
 it('should forward props', () => {
@@ -81,7 +89,9 @@ it('should forward props', () => {
 
   const result = renderToString(() => <CustomElement $prop:foo={100} element={element} />).code;
 
-  expect(result).toMatchSnapshot();
+  expect(result).toMatchInlineSnapshot(
+    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><!$><div><!$>100</div><!/#internal></mk-foo>"',
+  );
 });
 
 it('should forward attrs to props', () => {
@@ -98,7 +108,9 @@ it('should forward attrs to props', () => {
 
   const result = renderToString(() => <CustomElement foo={100} element={element} />).code;
 
-  expect(result).toMatchSnapshot();
+  expect(result).toMatchInlineSnapshot(
+    '"<!$><mk-foo foo=\\"100\\" data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><!$><div><!$>100</div><!/#internal></mk-foo>"',
+  );
 });
 
 it('should set inner html', () => {
@@ -111,5 +123,7 @@ it('should set inner html', () => {
     <CustomElement $prop:innerHTML={`<div>INNER HTML</div>`} element={element} />
   )).code;
 
-  expect(result).toMatchSnapshot();
+  expect(result).toMatchInlineSnapshot(
+    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><div>INNER HTML</div></mk-foo>"',
+  );
 });

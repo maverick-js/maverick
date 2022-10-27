@@ -35,7 +35,7 @@ import {
 } from './parse-jsx';
 import { STATICABLE_NAMESPACE, SVG_ELEMENT_TAGNAME, VOID_ELEMENT_TAGNAME } from './constants';
 import { onceFn } from '../../utils/fn';
-import { containsCallExpression } from '../../utils/ts';
+import { containsObservableCallExpression } from '../../utils/ts';
 
 export function buildAST(
   root: JSXRootNode,
@@ -86,7 +86,7 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
 
   // Whether this element contains any dynamic top-level expressions which would require a new marker.
   // For example, a property set or attaching an event listener.
-  let isDynamic = isComponent;
+  let isDynamic = isComponent || tagName === 'CustomElement';
   const dynamic = onceFn(() => {
     isDynamic = true;
   });
@@ -118,7 +118,7 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
 
   if (hasChildren) {
     ast.tree.push(createStructuralNode(StructuralNodeType.ChildrenStart));
-    if (isComponent) {
+    if (isComponent || tagName === 'CustomElement') {
       const childNodes: ComponentChildren[] = [];
 
       for (const child of children) {
@@ -173,7 +173,8 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
     const isStaticValue = !initializer || !!literal || isStaticExpr;
     const isDynamic =
       !isStaticValue || (namespace && !STATICABLE_NAMESPACE.has(namespace)) || name === 'innerHTML';
-    const isObservable = !isStaticValue && expression && containsCallExpression(expression);
+    const isObservable =
+      !isStaticValue && expression && containsObservableCallExpression(expression);
 
     const callId =
       expression && t.isCallExpression(expression) && expression.arguments.length === 0
@@ -248,16 +249,27 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
 }
 
 function parseFragment(node: t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
+  const childNodes: ComponentChildren[] = [];
   const children = filterEmptyJSXChildNodes(Array.from(node.children));
+
+  for (const child of children) {
+    if (t.isJsxText(child)) {
+      childNodes.push(createTextNode({ ref: child }));
+    } else if (t.isJsxExpression(child)) {
+      childNodes.push(buildExpressionNode(child, { parent: node }));
+    } else {
+      childNodes.push(buildAST(child));
+    }
+  }
+
   ast.tree.push(
     createFragmentNode({
       ref: node,
       childCount: children.length,
       childElementCount: filterNonJSXElements(children).length,
+      children: childNodes,
     }),
   );
-  for (const child of children) parseNode(child, ast, { parent: meta });
-  ast.tree.push(createStructuralNode(StructuralNodeType.FragmentEnd));
 }
 
 function parseChildren(root: t.JsxElement | t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
@@ -278,7 +290,7 @@ function buildExpressionNode(node: t.JsxExpression, meta: JSXNodeMeta): Expressi
     children: AST[] | undefined;
 
   const parse = (node: t.Node) => {
-    if (!isObservable && t.isCallExpression(node)) {
+    if (!isObservable && (t.isCallExpression(node) || t.isPropertyAccessExpression(node))) {
       isObservable = true;
     } else if (isJSXElementNode(node) || t.isJsxFragment(node)) {
       if (!children) children = [];

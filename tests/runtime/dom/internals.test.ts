@@ -4,20 +4,19 @@ import {
   $$_class,
   $$_clone,
   $$_create_component,
-  $$_create_markers_walker,
   $$_create_template,
   $$_cssvar,
   $$_directive,
   $$_inner_html,
   $$_listen,
   $$_merge_props,
-  $$_next_element,
   $$_prop,
   $$_ref,
   $$_spread,
   $$_style,
   insert,
 } from 'maverick.js/dom';
+import { createMarkerWalker } from 'maverick.js/dom/markers';
 import { element, endMarker, startMarker } from './utils';
 
 it('should create template', () => {
@@ -34,22 +33,14 @@ it('should create svg template', () => {
 
 it('should clone template', () => {
   const template = $$_create_template(`<div></div>`);
+
   const cloneA = $$_clone(template);
   const cloneB = $$_clone(template);
 
-  expect(cloneA).toBeInstanceOf(DocumentFragment);
-  expect(cloneB).toBeInstanceOf(DocumentFragment);
-
-  expect(cloneA!.firstChild).toBeInstanceOf(HTMLDivElement);
-  expect(cloneB!.firstChild).toBeInstanceOf(HTMLDivElement);
+  expect(cloneA).toBeInstanceOf(HTMLDivElement);
+  expect(cloneB).toBeInstanceOf(HTMLDivElement);
 
   expect(cloneA !== cloneB).toBeTruthy();
-});
-
-it('should clone element template', () => {
-  const template = $$_create_template(`<div></div>`);
-  const clone = $$_clone(template, 1);
-  expect(clone).toBeInstanceOf(HTMLDivElement);
 });
 
 it('should create markers walker', () => {
@@ -62,7 +53,7 @@ it('should create markers walker', () => {
 
   root.append(markerA, element('div'), markerB, endMarker(), endMarker(), div);
 
-  const walker = $$_create_markers_walker(root);
+  const walker = createMarkerWalker(root);
   expect(walker.nextNode()).toBe(markerA);
   expect(walker.nextNode()).toBe(markerB);
   expect(walker.nextNode()).toBe(markerC);
@@ -75,8 +66,8 @@ it('should return next marked element', () => {
   const markedElement = element('span');
   root.append(element('div'), marker, markedElement);
 
-  const walker = $$_create_markers_walker(root);
-  const nextElement = $$_next_element(walker);
+  const walker = createMarkerWalker(root);
+  const nextElement = walker.nextNode()?.nextSibling;
   expect(nextElement).toBe(markedElement);
 });
 

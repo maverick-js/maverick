@@ -18,9 +18,19 @@ import {
 it('should handle basic setup and destroy', () => {
   const { container, element } = setupTestElement();
   element.$setup();
-  expect(container).toMatchSnapshot();
+  expect(container).toMatchInlineSnapshot(`
+    <div>
+      <mk-test-1
+        data-delegate=""
+      >
+        <!--#internal-->
+        Test
+        <!--/#internal-->
+      </mk-test-1>
+    </div>
+  `);
   element.$destroy();
-  expect(container).toMatchSnapshot();
+  expect(container).toMatchInlineSnapshot('<div />');
 });
 
 it('should observe attributes', () => {

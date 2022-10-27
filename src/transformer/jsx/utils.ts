@@ -1,10 +1,19 @@
+import { decode } from 'html-entities';
 import MagicString from 'magic-string';
 import t from 'typescript';
-import { trimQuotes } from '../../utils/print';
+import { createStringLiteral, escapeDoubleQuotes, trimQuotes } from '../../utils/print';
+import {
+  type AttributeNode,
+  type ComponentChildren,
+  type ExpressionNode,
+  isAST,
+  isTextNode,
+} from '../ast';
+import type { ASTSerializer, TransformContext } from '../transform';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
 import {
   isJSXElementNode,
-  JSXAttrNamespace,
+  type JSXAttrNamespace,
   type JSXElementNode,
   type JSXEventNamespace,
   type JSXNamespace,
@@ -12,9 +21,10 @@ import {
 
 export function isComponentTagName(tagName: string) {
   return (
-    (tagName[0] && tagName[0].toLowerCase() !== tagName[0]) ||
-    tagName.includes('.') ||
-    /[^a-zA-Z]/.test(tagName[0])
+    tagName !== 'CustomElement' &&
+    ((tagName[0] && tagName[0].toLowerCase() !== tagName[0]) ||
+      tagName.includes('.') ||
+      /[^a-zA-Z]/.test(tagName[0]))
   );
 }
 
@@ -102,4 +112,57 @@ export function filterNonJSXElements(children: t.JsxChild[]) {
   return children.filter(
     (node) => isJSXElementNode(node) && !isComponentTagName(getTagName(node)),
   ) as JSXElementNode[];
+}
+
+export function serializeComponentProp(node: AttributeNode) {
+  return !node.observable || node.callId
+    ? `${node.name}: ${node.callId ?? node.value}`
+    : `get ${node.name}() { return ${node.value}; }`;
+}
+
+export function serializeChildren(
+  serializer: ASTSerializer,
+  children: ComponentChildren[],
+  ctx: TransformContext,
+) {
+  const serialized = children.map((child) => {
+    if (isAST(child)) {
+      return serializer.serialize(child, ctx);
+    } else if (isTextNode(child)) {
+      return createStringLiteral(escapeDoubleQuotes(decode(child.value)));
+    } else {
+      return child.children ? serializeParentExpression(serializer, child, ctx) : child.value;
+    }
+  });
+
+  if (serialized.length === 1 && serialized[0].length === 0) return '';
+
+  return serialized.length === 1 ? serialized[0] : `[${serialized.join(', ')}]`;
+}
+
+export function serializeComponentChildrenProp(
+  serializer: ASTSerializer,
+  children: ComponentChildren[],
+  ctx: TransformContext,
+) {
+  return `get children() { return ${serializeChildren(serializer, children, ctx)} }`;
+}
+
+export function serializeParentExpression(
+  serializer: ASTSerializer,
+  node: ExpressionNode,
+  ctx: TransformContext,
+) {
+  let code = new MagicString(node.value),
+    start = node.ref.getStart() + 1;
+
+  for (const ast of node.children!) {
+    code.overwrite(
+      ast.root.getStart() - start,
+      ast.root.getEnd() - start,
+      serializer.serialize(ast, ctx),
+    );
+  }
+
+  return code.toString();
 }

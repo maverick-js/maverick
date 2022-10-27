@@ -6,17 +6,34 @@ import { element } from './utils';
 
 it('should render element', () => {
   const root = element('root');
+
   render(() => <Element />, { target: root });
-  expect(root).toMatchSnapshot();
+
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <div />
+    </root>
+  `);
+
   expect(root.firstElementChild).toBeInstanceOf(HTMLDivElement);
   expect(<Element />).toBeInstanceOf(HTMLDivElement);
 });
 
 it('should render fragment', () => {
   const root = element('root');
+
   render(() => <Fragment />, { target: root });
-  expect(root).toMatchSnapshot();
-  expect(<Fragment />).toBeInstanceOf(DocumentFragment);
+
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <div />
+      <div />
+      <div />
+    </root>
+  `);
+
+  expect(Array.isArray(<Fragment />)).toBeTruthy();
+  expect(((<Fragment />) as any[])[0]).toBeInstanceOf(HTMLDivElement);
 });
 
 it('should render components', () => {
@@ -29,6 +46,7 @@ it('should render components', () => {
   }
 
   const root = element('root');
+
   render(
     () => (
       <Component>
@@ -43,22 +61,63 @@ it('should render components', () => {
     { target: root },
   );
 
-  expect(root).toMatchSnapshot();
-  expect(<Fragment />).toBeInstanceOf(DocumentFragment);
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      Text
+      <div>
+        Text
+      </div>
+      <div>
+        <!--$-->
+        Child Text
+        <!--/$-->
+      </div>
+      <div>
+        <!--$-->
+        Child Text
+        <!--/$-->
+      </div>
+      <div>
+        Text
+      </div>
+      <div>
+        <!--$-->
+        <!--/$-->
+      </div>
+    </root>
+  `);
+
+  expect(<Fragment />).toBeInstanceOf(Array);
 });
 
 it('should be reactive', async () => {
   const root = element('root');
-
   let next!: () => void;
+
   const input = <InputField next={(n) => (next = n)} />;
 
   render(() => input, { target: root });
-
   await tick();
-  expect(root).toMatchSnapshot();
+
+  expect(root).toMatchInlineSnapshot(`
+  <root>
+    <div>
+      <span>
+        Count is 
+        <!--$-->
+        1
+        <!--/$-->
+      </span>
+      <!--$-->
+      <input
+        type="number"
+      />
+    </div>
+  </root>
+`);
 
   const getValueTextNode = () => root.querySelector('span')!.childNodes[2];
+
   const valueText = getValueTextNode();
   expect(valueText).toBeInstanceOf(Text);
 
@@ -67,14 +126,46 @@ it('should be reactive', async () => {
 
   next();
   await tick();
-  expect(root).toMatchSnapshot();
+
+  expect(root).toMatchInlineSnapshot(`
+  <root>
+    <div>
+      <span>
+        Count is 
+        <!--$-->
+        2
+        <!--/$-->
+      </span>
+      <!--$-->
+      <input
+        type="number"
+      />
+    </div>
+  </root>
+`);
 
   // it should re-use existing node.
   expect(getValueTextNode()).toBe(valueText);
 
   inputElement!.dispatchEvent(new CustomEvent('next'));
   await tick();
-  expect(root).toMatchSnapshot();
+
+  expect(root).toMatchInlineSnapshot(`
+  <root>
+    <div>
+      <span>
+        Count is 
+        <!--$-->
+        3
+        <!--/$-->
+      </span>
+      <!--$-->
+      <input
+        type="number"
+      />
+    </div>
+  </root>
+`);
 });
 
 it('should render observable component', async () => {
@@ -83,6 +174,7 @@ it('should render observable component', async () => {
   }
 
   const $count = observable(1);
+
   const $component = observable(
     <Component>
       <span>{$count()}</span>
@@ -93,7 +185,22 @@ it('should render observable component', async () => {
   const root = element('root');
   render(() => $component, { target: root });
 
-  expect(root).toMatchSnapshot();
+  expect(root).toMatchInlineSnapshot(`
+  <root>
+    <!--$$-->
+    <span>
+      <!--$-->
+      1
+      <!--/$-->
+    </span>
+    <span>
+      <!--$-->
+      1
+      <!--/$-->
+    </span>
+    <!--/$-->
+  </root>
+`);
 
   $component.set(
     <Component>
@@ -103,5 +210,17 @@ it('should render observable component', async () => {
   );
 
   await tick();
-  expect(root).toMatchSnapshot();
+
+  expect(root).toMatchInlineSnapshot(`
+  <root>
+    <!--$$-->
+    <span>
+      Foo
+    </span>
+    <span>
+      Bar
+    </span>
+    <!--/$-->
+  </root>
+`);
 });

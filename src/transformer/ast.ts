@@ -50,7 +50,6 @@ export type ASTUnknownNode = {
 
 export const enum StructuralNodeType {
   ElementEnd = 1,
-  FragmentEnd = 3,
   ChildrenStart = 4,
   ChildrenEnd = 5,
   AttributesEnd = 6,
@@ -84,6 +83,7 @@ export type FragmentNode = {
   ref: t.JsxFragment;
   childCount: number;
   childElementCount: number;
+  children?: ComponentChildren[];
 };
 
 export type TextNode = {
@@ -199,7 +199,7 @@ export function isElementNode(node: ASTUnknownNode): node is ElementNode {
   return node.kind === ASTNodeKind.Element;
 }
 
-export function isFragmentNode(node: ASTUnknownNode) {
+export function isFragmentNode(node: ASTUnknownNode): node is FragmentNode {
   return node.kind === ASTNodeKind.Fragment;
 }
 
@@ -237,10 +237,6 @@ export function isStructuralNode(node: ASTUnknownNode): node is StructuralNode {
 
 export function isElementEnd(node: StructuralNode) {
   return node.type === StructuralNodeType.ElementEnd;
-}
-
-export function isFragmentEnd(node: StructuralNode) {
-  return node.type === StructuralNodeType.FragmentEnd;
 }
 
 export function isAttributesEnd(node: StructuralNode) {

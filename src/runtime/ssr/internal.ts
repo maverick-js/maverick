@@ -20,13 +20,12 @@ export function $$_ssr(template: string[], ...parts: unknown[]) {
 /** @internal */
 export function $$_custom_element(
   definition: ElementDefinition,
-  props: Record<string, any>,
-  spreads: Record<string, unknown>[] = [],
+  props?: Record<string, any>,
+  spreads?: Record<string, unknown>[],
 ) {
   const host = new (createServerElement(definition))();
-  const children = resolve(props.children);
 
-  if (spreads.length > 0) {
+  if (spreads && spreads.length > 0) {
     const spread = $$_merge_spreads(spreads);
 
     for (const [key, value] of spread.attributes) {
@@ -42,18 +41,21 @@ export function $$_custom_element(
     }
   }
 
+  const children = props?.children ? resolve(props.children) : '';
+  const childElements = children.replace(/<!--\$-->/g, '').length > 0;
+
   host.$setup({
     props,
-    children: () => children.replace(/<!--\$-->/g, '').length > 0,
+    children: () => childElements,
   });
 
   let ssr = host.$render();
 
-  const innerHTML = props.innerHTML || props.innerText || props.textContent;
+  const innerHTML = props ? props.innerHTML || props.innerText || props.textContent : null;
   if (innerHTML) ssr = innerHTML;
 
   return {
-    [SSR_TEMPLATE]: `<!$><${definition.tagName}${host.attributes}>${
+    [SSR_TEMPLATE]: `<${definition.tagName}${host.attributes}>${
       children ? (definition.shadow ? ssr + children : children) : ssr
     }</${definition.tagName}>`,
   };

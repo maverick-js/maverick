@@ -1,8 +1,7 @@
-import MagicString from 'magic-string';
 import {
   type AttributeNode,
   type ElementNode,
-  type ExpressionNode,
+  type ComponentChildren,
   isAST,
   isAttributeNode,
   isAttributesEnd,
@@ -19,17 +18,18 @@ import {
   isChildrenEnd,
   isFragmentNode,
 } from '../ast';
-import { type ASTSerializer, type TransformContext } from '../transform';
+import { type ASTSerializer } from '../transform';
 import {
   createFunctionCall,
   createStringLiteral,
   Declarations,
-  escapeDoubleQuotes,
   trimQuotes,
   trimTrailingSemicolon,
 } from '../../utils/print';
 import { escape } from '../../utils/html';
-import { decode, encode } from 'html-entities';
+import { encode } from 'html-entities';
+import kleur from 'kleur';
+import { serializeChildren, serializeComponentProp, serializeParentExpression } from '../jsx/utils';
 
 const ID = {
   template: '$$_templ',
@@ -43,9 +43,11 @@ const ID = {
 const RUNTIME = {
   createTemplate: '$$_create_template',
   createFragment: '$$_create_fragment',
-  createMarkersWalker: '$$_create_markers_walker',
-  nextElement: '$$_next_element',
   createComponent: '$$_create_component',
+  createWalker: '$$_create_walker',
+  nextTemplate: '$$_next_template',
+  nextElement: '$$_next_element',
+  setupCustomElement: '$$_setup_custom_element',
   insert: '$$_insert',
   insertAtMarker: '$$_insert_at_marker',
   listen: '$$_listen',
@@ -69,13 +71,17 @@ const MARKERS = {
   expression: '<!$>',
 };
 
+const NEXT_ELEMENT = createFunctionCall(RUNTIME.nextElement, [ID.walker]);
+const NEXT_MARKER = `${ID.walker}.nextNode()`;
+
 let scoped = true;
 export const dom: ASTSerializer = {
   serialize(ast, ctx) {
-    let rootId!: string,
+    let initRoot = false,
       currentId!: string,
-      walkerId!: string,
       component!: ElementNode | undefined,
+      definition!: AttributeNode | undefined,
+      customElement!: ElementNode | undefined,
       templateId: string | undefined,
       hierarchy: number[] = [],
       props: string[] = [],
@@ -88,23 +94,43 @@ export const dom: ASTSerializer = {
       elementChildIndex = -1,
       elementIds: Record<string, string> = {},
       getRootId = () => {
-        if (!rootId) {
+        if (!initRoot) {
           if (!templateId) templateId = ctx.globals.create(ID.template);
-          rootId = locals.create(ID.root, createFunctionCall(RUNTIME.clone, [templateId]));
-          currentId = rootId;
+
+          if (ctx.hydratable) {
+            locals.create(
+              `[${ID.root}, ${ID.walker}]`,
+              createFunctionCall(RUNTIME.createWalker, [templateId]),
+            );
+            ctx.runtime.add(RUNTIME.createWalker);
+          } else {
+            locals.create(ID.root, createFunctionCall(RUNTIME.clone, [templateId]));
+          }
+
+          currentId = ID.root;
           ctx.runtime.add(RUNTIME.clone);
           elementIds[0] = ID.root;
           hierarchy.push(0);
+          initRoot = true;
         }
 
-        return rootId;
+        return ID.root;
+      },
+      nextElement = () => {
+        if (!initRoot) getRootId();
+        ctx.runtime.add(RUNTIME.nextElement);
+        return NEXT_ELEMENT;
+      },
+      nextMarker = () => {
+        if (!initRoot) getRootId();
+        return NEXT_MARKER;
       },
       getParentElementId = () => {
-        if (!rootId) getRootId();
+        if (!initRoot) getRootId();
         return getElementId(hierarchy, elementIds, locals);
       },
       getCurrentElementId = () => {
-        if (!rootId) getRootId();
+        if (!initRoot) getRootId();
         return getElementId(
           elementChildIndex >= 0 ? [...hierarchy, elementChildIndex] : hierarchy,
           elementIds,
@@ -112,6 +138,7 @@ export const dom: ASTSerializer = {
         );
       },
       getNextElementId = () => {
+        if (!initRoot) getRootId();
         const element = elements.at(-1);
         const nextSibling = elementChildIndex + 1;
         return element && element.childCount > 1
@@ -120,19 +147,6 @@ export const dom: ASTSerializer = {
             : getElementId([...hierarchy, nextSibling], elementIds, locals)
           : null;
       },
-      getWalkerId = () => {
-        if (!walkerId) {
-          walkerId = locals.create(
-            ID.walker,
-            createFunctionCall(RUNTIME.createMarkersWalker, [getRootId()]),
-          );
-          ctx.runtime.add(RUNTIME.clone);
-          ctx.runtime.add(RUNTIME.createMarkersWalker);
-        }
-
-        return walkerId;
-      },
-      newMarkerId = () => `${getWalkerId()}.nextNode()`,
       addAttrExpression = (node: AttributeNode, runtimeId: string) => {
         expressions.push(
           createFunctionCall(runtimeId, [
@@ -142,54 +156,40 @@ export const dom: ASTSerializer = {
           ]),
         );
         ctx.runtime.add(runtimeId);
+      },
+      addChildren = (children: ComponentChildren[]) => {
+        const prevScoped = scoped;
+        scoped = children.length !== 1 || !isAST(children[0]);
+        const serialized = serializeChildren(dom, children, ctx);
+        const hasReturn = scoped || /^(\[|\(|\$\$|\")/.test(serialized);
+        props.push(`get children() { ${hasReturn ? `return ${serialized}` : serialized} }`);
+        scoped = prevScoped;
       };
 
     const firstNode = ast.tree[0],
       isFirstNodeElement = isElementNode(firstNode),
-      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
-    if (isFragmentNode(firstNode)) elements.push(firstNode as ElementNode);
+      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent,
+      isFirstNodeFragment = isFragmentNode(firstNode);
+
+    if (ctx.hydratable && isFirstNodeElement && !firstNode.isComponent) {
+      template.push(MARKERS.element);
+    }
 
     for (let i = 0; i < ast.tree.length; i++) {
       const node = ast.tree[i];
 
       if (component) {
         if (isAttributeNode(node) && !node.namespace) {
-          if (!node.observable || node.callId) {
-            props.push(`${node.name}: ${node.callId ?? node.value}`);
-          } else {
-            props.push(`get ${node.name}() { return ${node.value}; }`);
-          }
+          props.push(serializeComponentProp(node));
         } else if (isSpreadNode(node)) {
           spreads.push(node.value);
         } else if (isStructuralNode(node) && isElementEnd(node)) {
-          const children = component.children;
-          if (children) {
-            const prevScoped = scoped;
-            if (children.length === 1 && isAST(children[0])) scoped = false;
-
-            const serialized = children.map((child) => {
-              if (isAST(child)) {
-                return dom.serialize(child, ctx);
-              } else if (isTextNode(child)) {
-                return createStringLiteral(escapeDoubleQuotes(decode(child.value)));
-              } else {
-                return child.children ? transformParentExpression(child, ctx) : child.value;
-              }
-            });
-
-            const hasReturn = scoped || serialized[0].startsWith(RUNTIME.clone);
-            props.push(
-              `get children() { ${hasReturn ? 'return ' : ''}${
-                serialized.length === 1 ? serialized[0] : `[${serialized.join(', ')}]`
-              } }`,
-            );
-
-            scoped = prevScoped;
-          }
+          if (component.children) addChildren(component.children);
 
           const hasProps = props.length > 0;
           const hasSpreads = spreads.length > 0;
           const propsExpr = hasProps ? `{ ${props.join(', ')} }` : '';
+
           const createComponent = createFunctionCall(RUNTIME.createComponent, [
             component.tagName,
             hasSpreads
@@ -220,14 +220,32 @@ export const dom: ASTSerializer = {
             ctx.runtime.add(insertId);
           }
 
+          ctx.runtime.add(RUNTIME.createComponent);
+
+          if (hasSpreads && (hasProps || spreads.length > 1)) {
+            ctx.runtime.add(RUNTIME.mergeProps);
+          }
+
           props = [];
           spreads = [];
           component = undefined;
-          ctx.runtime.add(RUNTIME.createComponent);
-          if (hasSpreads) ctx.runtime.add(RUNTIME.mergeProps);
         }
       } else if (isStructuralNode(node)) {
         if (isAttributesEnd(node)) {
+          if (customElement) {
+            if (customElement.children) addChildren(customElement.children);
+
+            expressions.push(
+              createFunctionCall(RUNTIME.setupCustomElement, [
+                currentId,
+                definition!.value,
+                props.length > 0 ? `{ ${props.join(', ')} }` : null,
+              ]),
+            );
+
+            ctx.runtime.add(RUNTIME.setupCustomElement);
+          }
+
           if (styles.length > 0) {
             template.push(` style="${styles.join(';')}"`);
             styles = [];
@@ -236,16 +254,35 @@ export const dom: ASTSerializer = {
           const element = elements.at(-1);
           if (element && !element.isVoid) template.push('>');
         } else if (isChildrenStart(node)) {
-          hierarchy.push(elementChildIndex);
-          elementChildIndex = -1;
+          if (elements.at(-1) !== firstNode) {
+            hierarchy.push(elementChildIndex);
+            elementChildIndex = -1;
+          }
         } else if (isChildrenEnd(node)) {
           elementChildIndex = hierarchy.pop()!;
         } else if (isElementEnd(node)) {
           const element = elements.pop();
-          if (element) template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
+
+          if (definition) {
+            template.push(`</\${${definition.value}.tagName}>`);
+          } else if (element) {
+            template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
+          }
+
+          definition = undefined;
+          customElement = undefined;
+        }
+      } else if (isFragmentNode(node)) {
+        if (node.children) {
+          const prevScoped = scoped;
+          scoped = true;
+          expressions.push(serializeChildren(dom, node.children, ctx));
+          scoped = prevScoped;
+        } else {
+          expressions.push('""');
         }
       } else if (isElementNode(node)) {
-        if (!node.isComponent) elementChildIndex++;
+        if (i > 0 && !node.isComponent) elementChildIndex++;
 
         if (isFirstNodeComponent && node == firstNode) {
           component = node;
@@ -253,28 +290,55 @@ export const dom: ASTSerializer = {
         }
 
         const dynamic = node.dynamic();
-        if (ctx.hydratable && dynamic) {
-          if (node.isComponent) {
-            currentId = locals.create(ID.component, newMarkerId());
+
+        if (dynamic) {
+          if (ctx.hydratable) {
+            if (node.isComponent) {
+              currentId = locals.create(ID.component, nextMarker());
+            } else if (i > 0) {
+              currentId = locals.create(ID.element, nextElement());
+            } else {
+              currentId = getRootId();
+            }
           } else {
-            currentId = locals.create(
-              ID.element,
-              createFunctionCall(RUNTIME.nextElement, [getWalkerId()]),
-            );
-            ctx.runtime.add(RUNTIME.nextElement);
+            currentId = getCurrentElementId();
           }
         }
 
-        if (!ctx.hydratable && dynamic) {
-          currentId = getCurrentElementId();
-        }
-
         if (node.isComponent) {
-          if (ctx.hydratable) template.push(MARKERS.component);
+          if (ctx.hydratable && i > 0) template.push(MARKERS.component);
           component = node;
         } else {
-          if (ctx.hydratable && dynamic) template.push(MARKERS.element);
-          template.push(`<${node.tagName}`);
+          if (ctx.hydratable && i > 0 && dynamic) template.push(MARKERS.element);
+
+          if (node.tagName === 'CustomElement') {
+            for (let j = i; j < ast.tree.length; j++) {
+              const node = ast.tree[j];
+              if (isAttributeNode(node) && node.name === 'element') {
+                definition = node;
+                break;
+              } else if (isStructuralNode(node)) {
+                break;
+              }
+            }
+
+            if (!definition) {
+              const loc = kleur.bold(
+                `${node.ref.getSourceFile().fileName} ${kleur.cyan(
+                  `${node.ref.getStart()}:${node.ref.getEnd()}`,
+                )}`,
+              );
+              throw Error(
+                `[maverick] \`element\` prop was not provided for \`CustomElement\` at ${loc}`,
+              );
+            }
+
+            template.push(`<\${${definition.value}.tagName}`);
+            customElement = node;
+          } else {
+            template.push(`<${node.tagName}`);
+          }
+
           elements.push(node);
         }
       } else if (isAttributeNode(node)) {
@@ -283,6 +347,8 @@ export const dom: ASTSerializer = {
             if (node.name === 'innerHTML') {
               expressions.push(createFunctionCall(RUNTIME.innerHTML, [currentId, node.value]));
               ctx.runtime.add(RUNTIME.innerHTML);
+            } else if (customElement) {
+              props.push(serializeComponentProp(node));
             } else {
               addAttrExpression(node, RUNTIME.prop);
             }
@@ -307,7 +373,7 @@ export const dom: ASTSerializer = {
           } else {
             template.push(` ${node.name}="${escape(trimQuotes(node.value), true)}"`);
           }
-        } else {
+        } else if (!customElement || node.name !== 'element') {
           addAttrExpression(node, RUNTIME.attr);
         }
       } else if (isRefNode(node)) {
@@ -330,12 +396,12 @@ export const dom: ASTSerializer = {
           if (ctx.hydratable) template.push(MARKERS.expression);
           const beforeId = ctx.hydratable ? null : getNextElementId();
           const id = ctx.hydratable
-            ? locals.create(ID.expression, newMarkerId())
+            ? locals.create(ID.expression, nextMarker())
             : beforeId || elementChildIndex === -1
             ? getParentElementId()
             : (currentId ??= getCurrentElementId());
           const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;
-          const code = !node.children ? node.value : transformParentExpression(node, ctx);
+          const code = !node.children ? node.value : serializeParentExpression(dom, node, ctx);
           expressions.push(
             createFunctionCall(insertId, [
               id,
@@ -369,6 +435,8 @@ export const dom: ASTSerializer = {
     if (locals.size > 1 || expressions.length) {
       return isFirstNodeComponent
         ? expressions.join(';')
+        : isFirstNodeFragment
+        ? expressions[0]
         : [
             scoped && `(() => { `,
             locals.serialize(),
@@ -377,43 +445,24 @@ export const dom: ASTSerializer = {
             ';',
             '\n',
             '\n',
-            `return ${
-              isFirstNodeElement
-                ? !ctx.hydratable
-                  ? ID.element
-                  : !firstNode.dynamic()
-                  ? `${rootId}.firstChild`
-                  : rootId
-                : rootId
-            }; `,
+            `return ${getRootId()}`,
             scoped && '})()',
           ]
             .filter(Boolean)
             .join('');
     } else if (templateId) {
+      if (ctx.hydratable) {
+        ctx.runtime.add(RUNTIME.nextTemplate);
+        return createFunctionCall(RUNTIME.nextTemplate, [templateId]);
+      }
+
       ctx.runtime.add(RUNTIME.clone);
-      return createFunctionCall(
-        RUNTIME.clone,
-        isFirstNodeElement && !isFirstNodeComponent
-          ? [templateId, '1 /* ELEMENT */']
-          : [templateId],
-      );
+      return createFunctionCall(RUNTIME.clone, [templateId]);
     }
 
     return '';
   },
 };
-
-function transformParentExpression(node: ExpressionNode, ctx: TransformContext) {
-  let code = new MagicString(node.value),
-    start = node.ref.getStart() + 1;
-
-  for (const ast of node.children!) {
-    code.overwrite(ast.root.getStart() - start, ast.root.getEnd() - start, dom.serialize(ast, ctx));
-  }
-
-  return code.toString();
-}
 
 function getElementId(
   positions: number[],
@@ -424,22 +473,21 @@ function getElementId(
   if (cache[key]) return cache[key];
 
   let id = ID.root,
-    hierarchy = '';
+    hierarchy = '0';
 
-  for (let i = 0; i < positions.length; i++) {
+  for (let i = 1; i < positions.length; i++) {
     const childIndex = positions[i];
     const current = hierarchy + childIndex;
 
     if (cache[current]) {
       id = cache[current];
-    } else if (childIndex === 0) {
-      id = cache[current] = declarations.create(ID.element, `${id}.firstChild`);
     } else {
-      id = cache[hierarchy + 0];
-      for (let j = 1; j <= childIndex; j++) {
+      for (let j = 0; j <= childIndex; j++) {
         const sibling = hierarchy + j;
-        id =
-          cache[sibling] ?? (cache[sibling] = declarations.create(ID.element, `${id}.nextSibling`));
+        id = cache[sibling] ??= declarations.create(
+          ID.element,
+          `${id}.${j === 0 ? 'firstChild' : 'nextSibling'}`,
+        );
       }
     }
 

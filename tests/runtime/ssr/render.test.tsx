@@ -27,6 +27,6 @@ function ChildComponent(props) {
 it('should render to string', () => {
   const result = renderToString(() => <Component />);
   expect(result.code).toMatchInlineSnapshot(
-    '"<!$><div data-foo=\\"hux\\" data-baz=\\"0\\"><span>Foo</span><!$><span>Bar</span>&lt;script>&lt;/script><span>Baz - 10</span><!$><div>Woo</div><!$><!$><!$><!$>&lt;script>&lt;/script></div>"',
+    '"<!$><div data-foo=\\"hux\\" data-baz=\\"0\\"><span>Foo</span><!$><!$><span>Bar</span>&lt;script>&lt;/script><span>Baz - 10</span><!$><!$><div>Woo</div><!$><!$><!$><!$>&lt;script>&lt;/script></div>"',
   );
 });

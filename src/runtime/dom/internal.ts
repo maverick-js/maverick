@@ -1,12 +1,7 @@
 import { computed, effect, onDispose, peek } from '../reactivity';
 import { isArray, isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
-import {
-  createMarkerWalker,
-  insertNodeAtMarker,
-  type MarkerWalker,
-  type StartMarker,
-} from './markers';
+import { createMarkerWalker, insertNodeAtMarker, type StartMarker } from './markers';
 import { hydration } from './render';
 import { createFragment, insert, listen, setAttribute, setStyle, toggleClass } from './utils';
 import { defineCustomElement, type MaverickElement, type ElementDefinition } from '../../element';
@@ -25,42 +20,53 @@ export function $$_create_fragment() {
 }
 
 /** @internal */
-export function $$_create_custom_element(definition: ElementDefinition) {
-  defineCustomElement(definition);
+export function $$_create_walker(
+  fragment: DocumentFragment,
+  walker = hydration?.w,
+): [root: Node, walker: TreeWalker] {
+  try {
+    return [$$_next_element(walker!), walker!];
+  } catch (e) {
+    return $$_create_walker(fragment, createMarkerWalker(fragment.cloneNode(true)));
+  }
+}
 
-  const element = (
-    hydration ? hydration.m.nextNode() : document.createElement(definition.tagName)
-  ) as MaverickElement;
+/** @internal */
+export function $$_next_template(fragment: DocumentFragment) {
+  return $$_create_walker(fragment)[0];
+}
+
+/** @internal */
+export function $$_next_element(walker: TreeWalker): Node {
+  return walker.nextNode()!.nextSibling!;
+}
+
+/** @internal */
+export function $$_clone(fragment: DocumentFragment): Element {
+  const clone = fragment.cloneNode(true) as DocumentFragment;
+  return clone.firstElementChild!;
+}
+
+/** @internal */
+export function $$_setup_custom_element(
+  element: MaverickElement,
+  definition: ElementDefinition,
+  props?: Record<string, any>,
+) {
+  defineCustomElement(definition);
 
   if (hydration && definition.shadow && !supportsDeclarativeShadowDOM()) {
     attachDeclarativeShadowDOM(element);
   }
 
-  return element;
-}
-
-/** @internal */
-export function $$_setup_custom_element(element: MaverickElement, props: Record<string, any>) {
-  const children = computed(() => props.children);
+  const children = computed(() => props?.children);
   onDispose(element.$setup({ props, children }));
-  if (!hydration) $$_insert(element, children);
-}
 
-/** @internal */
-export function $$_clone(fragment: DocumentFragment, type = 0) {
-  const clone = fragment.cloneNode(true) as DocumentFragment;
-  // type = 0 (FRAGMENT), type = 1 (ELEMENT)
-  return !type ? clone : clone.firstElementChild;
-}
-
-/** @internal */
-export function $$_create_markers_walker(root: Node) {
-  return hydration?.m ?? createMarkerWalker(root);
-}
-
-/** @internal */
-export function $$_next_element(walker: MarkerWalker) {
-  return walker.nextNode()!.nextSibling;
+  if (!hydration) {
+    $$_insert(element, children);
+  } else {
+    children();
+  }
 }
 
 /** @internal */

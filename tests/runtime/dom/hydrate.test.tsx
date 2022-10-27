@@ -16,7 +16,18 @@ it('should hydrate', async () => {
   const div = element('div');
   const countIsText = text('Count is');
   const countText = text('1');
-  div.append(countIsText, startMarker(), countText, startMarker(), spanOne, spanTwo);
+
+  div.append(
+    countIsText,
+    startMarker(),
+    countText,
+    startMarker(),
+    startMarker(),
+    spanOne,
+    startMarker(),
+    spanTwo,
+  );
+
   root.append(startMarker(), div);
 
   const $count = observable(1);
@@ -40,7 +51,29 @@ it('should hydrate', async () => {
 
   hydrate(() => <Component />, { target: root });
 
-  expect(root).toMatchSnapshot();
+  expect(root).toMatchInlineSnapshot(`
+  <root>
+    <!--$-->
+    <div>
+      Count is
+      <!--$-->
+      1
+      <!--/$-->
+      <!--$-->
+      <span>
+        <!--$-->
+        1
+        <!--/$-->
+      </span>
+      <!--$-->
+      <span>
+        <!--$-->
+        1
+        <!--/$-->
+      </span>
+    </div>
+  </root>
+`);
 
   const a = root.firstElementChild;
   expect(a).toBe(div);
@@ -51,7 +84,7 @@ it('should hydrate', async () => {
   expect(c?.nextSibling).toBeInstanceOf(Comment);
   const d = c?.nextSibling?.nextSibling?.nextSibling;
   expect(d).toBe(spanOne);
-  const e = d?.nextSibling;
+  const e = d?.nextSibling?.nextSibling;
   expect(e).toBe(spanTwo);
   expect(e?.nextSibling).toBe(null);
   const f = e?.firstChild?.nextSibling;
@@ -69,5 +102,27 @@ it('should hydrate', async () => {
   expect(countText.textContent).toBe('2');
   expect(countTextTwo.textContent).toBe('2');
   expect(countTextThree.textContent).toBe('2');
-  expect(root).toMatchSnapshot();
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <!--$-->
+      <div>
+        Count is
+        <!--$-->
+        2
+        <!--/$-->
+        <!--$-->
+        <span>
+          <!--$-->
+          2
+          <!--/$-->
+        </span>
+        <!--$-->
+        <span>
+          <!--$-->
+          2
+          <!--/$-->
+        </span>
+      </div>
+    </root>
+  `);
 });

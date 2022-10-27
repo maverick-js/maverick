@@ -19,7 +19,14 @@ it('should render attributes', () => {
   host.$setup();
   host.$render();
 
-  expect(host.attributes.tokens).toMatchSnapshot();
+  expect(host.attributes.tokens).toMatchInlineSnapshot(`
+    Map {
+      "data-hydrate" => "",
+      "data-delegate" => "",
+      "foo" => "1",
+      "bar" => "2",
+    }
+  `);
 });
 
 it('should render class list', () => {
@@ -40,7 +47,13 @@ it('should render class list', () => {
   host.$setup();
   host.$render();
 
-  expect(host.attributes.tokens).toMatchSnapshot();
+  expect(host.attributes.tokens).toMatchInlineSnapshot(`
+    Map {
+      "data-hydrate" => "",
+      "data-delegate" => "",
+      "class" => "foo baz doh boo",
+    }
+  `);
 });
 
 it('should render styles', () => {
@@ -59,7 +72,13 @@ it('should render styles', () => {
   host.$setup();
   host.$render();
 
-  expect(host.attributes.tokens).toMatchSnapshot();
+  expect(host.attributes.tokens).toMatchInlineSnapshot(`
+    Map {
+      "data-hydrate" => "",
+      "data-delegate" => "",
+      "style" => "foo: 1;bar: 2;display: content;--hux: none;",
+    }
+  `);
 });
 
 it('should reflect props', () => {
@@ -73,7 +92,14 @@ it('should reflect props', () => {
   host.$setup();
   host.$render();
 
-  expect(host.attributes.tokens).toMatchSnapshot();
+  expect(host.attributes.tokens).toMatchInlineSnapshot(`
+    Map {
+      "data-hydrate" => "",
+      "data-delegate" => "",
+      "foo" => "10",
+      "bar" => "20",
+    }
+  `);
 });
 
 it('should noop dom events api', () => {

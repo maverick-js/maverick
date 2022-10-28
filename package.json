@@ -67,7 +67,7 @@
     "unplugin": "^0.7.2"
   },
   "devDependencies": {
-    "@maverick-js/observables": "^4.3.2",
+    "@maverick-js/observables": "^4.6.0",
     "@maverick-js/scheduler": "^2.1.0",
     "@microsoft/api-extractor": "^7.28.6",
     "@rollup/pluginutils": "^4.2.1",

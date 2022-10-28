@@ -62,30 +62,23 @@ it('should render components', () => {
   );
 
   expect(root).toMatchInlineSnapshot(`
-    <root>
+  <root>
+    Text
+    <div>
       Text
-      <div>
-        Text
-      </div>
-      <div>
-        <!--$-->
-        Child Text
-        <!--/$-->
-      </div>
-      <div>
-        <!--$-->
-        Child Text
-        <!--/$-->
-      </div>
-      <div>
-        Text
-      </div>
-      <div>
-        <!--$-->
-        <!--/$-->
-      </div>
-    </root>
-  `);
+    </div>
+    <div>
+      Child Text
+    </div>
+    <div>
+      Child Text
+    </div>
+    <div>
+      Text
+    </div>
+    <div />
+  </root>
+`);
 
   expect(<Fragment />).toBeInstanceOf(Array);
 });

@@ -1,6 +1,6 @@
 import type { JSX } from '../jsx';
 import { onDispose } from '../reactivity';
-import { insertExpression } from './markers';
+import { insertExpression } from './expression';
 
 export function isDOMNode(node: any): node is Node {
   return node instanceof Node;

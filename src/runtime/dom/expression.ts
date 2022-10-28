@@ -1,8 +1,9 @@
 import type { JSX } from '../jsx';
-import { effect } from '../reactivity';
+import { effect, isObserved } from '../reactivity';
 import { createComment, createFragment, insert, isDOMNode } from './utils';
 import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import { hydration } from './render';
+import { run } from '../../utils/fn';
 
 const TEXT = Symbol();
 const END_MARKER = Symbol();
@@ -19,7 +20,22 @@ export type EndMarker = Comment;
 
 export function insertExpression(start: StartMarker, value: JSX.Element, isObservable = false) {
   if (isFunction(value)) {
-    effect(() => insertExpression(start, (value as Function)(), true));
+    let observed = false;
+
+    const stop = effect(() => {
+      insertExpression(start, (value as Function)(), true);
+      observed = isObserved();
+    });
+
+    if (!observed) {
+      const idle = __TEST__ ? run : requestIdleCallback ?? requestAnimationFrame;
+      idle(() => {
+        stop();
+        start.remove();
+        start[END_MARKER]?.remove();
+      });
+    }
+
     return;
   } else if (hydration && !isObservable) {
     start.remove();

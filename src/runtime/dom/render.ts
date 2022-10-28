@@ -1,6 +1,6 @@
 import { root as $root, type Dispose } from '../reactivity';
 import type { JSX } from '../jsx';
-import { createMarkerWalker, type MarkerWalker } from './markers';
+import { createMarkerWalker, type MarkerWalker } from './expression';
 import { insert } from './utils';
 
 export let hydration: HydrationContext | null = null;

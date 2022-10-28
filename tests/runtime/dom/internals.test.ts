@@ -16,7 +16,7 @@ import {
   $$_style,
   insert,
 } from 'maverick.js/dom';
-import { createMarkerWalker } from 'maverick.js/dom/markers';
+import { createMarkerWalker, insertExpression } from 'maverick.js/dom/expression';
 import { element, endMarker, startMarker } from './utils';
 
 it('should create template', () => {
@@ -134,9 +134,7 @@ it('should insert observable element', () => {
   insert(root, observable);
   expect(root).toMatchInlineSnapshot(`
     <div>
-      <!--$$-->
       <div />
-      <!--/$-->
     </div>
   `);
 });
@@ -380,4 +378,40 @@ it('should set listener (capture)', () => {
   el.dispatchEvent(new MouseEvent('click'));
   expect(handler).toHaveBeenCalledWith(event);
   expect(handler).toHaveBeenCalledTimes(1);
+});
+
+it('should stop expression effect if not observed', () => {
+  const root = document.createElement('root');
+  const marker = document.createComment('$$');
+  root.append(marker);
+  insertExpression(marker, () => 'Text');
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      Text
+    </root>
+  `);
+});
+
+it('should _not_ stop expression effect if observed', async () => {
+  const root = document.createElement('root');
+  const marker = document.createComment('$$');
+  root.append(marker);
+  const $a = observable(10);
+  insertExpression(marker, $a);
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <!--$$-->
+      10
+      <!--/$-->
+    </root>
+  `);
+  $a.set(20);
+  await tick();
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <!--$$-->
+      20
+      <!--/$-->
+    </root>
+  `);
 });

@@ -1,7 +1,7 @@
 import { computed, effect, onDispose, peek } from '../reactivity';
 import { isArray, isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
-import { createMarkerWalker, insertExpression, type StartMarker } from './markers';
+import { createMarkerWalker, insertExpression, type StartMarker } from './expression';
 import { hydration } from './render';
 import { createFragment, insert, listen, setAttribute, setStyle, toggleClass } from './utils';
 import { defineCustomElement, type MaverickElement, type ElementDefinition } from '../../element';

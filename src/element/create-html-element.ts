@@ -91,7 +91,6 @@ export function createHTMLElement<
     private _setup = false;
     private _destroyed = false;
     private _props: SubjectRecord = {};
-    zzz;
     private _onEventDispatch?: (eventType: string) => void;
 
     private _scheduler = getScheduler();

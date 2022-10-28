@@ -26,6 +26,7 @@ import {
   serializeChildren,
   serializeComponentChildrenProp,
   serializeComponentProp,
+  serializeCreateComponent,
   serializeParentExpression,
 } from '../jsx/utils';
 import type { ASTSerializer } from '../transform';
@@ -86,7 +87,8 @@ export const ssr: ASTSerializer = {
         if (isAttributeNode(node) && !node.namespace) {
           props.push(serializeComponentProp(node));
         } else if (isSpreadNode(node)) {
-          spreads.push(node.value);
+          props.push('$$SPREAD');
+          spreads.unshift(node.value);
         } else if (isStructuralNode(node) && isElementEnd(node)) {
           const children = component.children;
 
@@ -94,26 +96,18 @@ export const ssr: ASTSerializer = {
             props.push(serializeComponentChildrenProp(ssr, children, ctx));
           }
 
-          const hasProps = props.length > 0;
-          const hasSpreads = spreads.length > 0;
-          const propsExpr = hasProps ? `{ ${props.join(', ')} }` : '';
-
-          commit(
-            createFunctionCall(RUNTIME.createComponent, [
-              component.tagName,
-              hasSpreads
-                ? !hasProps && spreads.length === 1
-                  ? spreads[0]
-                  : createFunctionCall(RUNTIME.mergeProps, [...spreads, propsExpr])
-                : propsExpr,
-            ]),
+          const { createComponent, shouldMergeProps } = serializeCreateComponent(
+            RUNTIME.createComponent,
+            RUNTIME.mergeProps,
+            component.tagName,
+            props,
+            spreads,
           );
 
-          ctx.runtime.add(RUNTIME.createComponent);
+          commit(createComponent);
 
-          if (hasSpreads && (hasProps || spreads.length > 1)) {
-            ctx.runtime.add(RUNTIME.mergeProps);
-          }
+          ctx.runtime.add(RUNTIME.createComponent);
+          if (shouldMergeProps) ctx.runtime.add(RUNTIME.mergeProps);
 
           props = [];
           spreads = [];

@@ -30,7 +30,13 @@ import {
 import { escape } from '../../utils/html';
 import { encode } from 'html-entities';
 import kleur from 'kleur';
-import { serializeChildren, serializeComponentProp, serializeParentExpression } from '../jsx/utils';
+import {
+  serializeChildren,
+  serializeComponentProp,
+  serializeCreateComponent,
+  serializeParentExpression,
+} from '../jsx/utils';
+import { isArray } from '../../utils/unit';
 
 const ID = {
   template: '$$_templ',
@@ -202,22 +208,18 @@ export const dom: ASTSerializer = {
         if (isAttributeNode(node) && !node.namespace) {
           props.push(serializeComponentProp(node));
         } else if (isSpreadNode(node)) {
-          spreads.push(node.value);
+          props.push('$$SPREAD');
+          spreads.unshift(node.value);
         } else if (isStructuralNode(node) && isElementEnd(node)) {
           if (component.children) addChildren(component.children);
 
-          const hasProps = props.length > 0;
-          const hasSpreads = spreads.length > 0;
-          const propsExpr = hasProps ? `{ ${props.join(', ')} }` : '';
-
-          const createComponent = createFunctionCall(RUNTIME.createComponent, [
+          const { createComponent, shouldMergeProps } = serializeCreateComponent(
+            RUNTIME.createComponent,
+            RUNTIME.mergeProps,
             component.tagName,
-            hasSpreads
-              ? !hasProps && spreads.length === 1
-                ? spreads[0]
-                : createFunctionCall(RUNTIME.mergeProps, [...spreads, propsExpr])
-              : propsExpr,
-          ]);
+            props,
+            spreads,
+          );
 
           if (isFirstNodeComponent) {
             expressions.push(createComponent);
@@ -226,10 +228,7 @@ export const dom: ASTSerializer = {
           }
 
           ctx.runtime.add(RUNTIME.createComponent);
-
-          if (hasSpreads && (hasProps || spreads.length > 1)) {
-            ctx.runtime.add(RUNTIME.mergeProps);
-          }
+          if (shouldMergeProps) ctx.runtime.add(RUNTIME.mergeProps);
 
           props = [];
           spreads = [];

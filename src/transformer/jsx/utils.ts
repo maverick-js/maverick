@@ -1,7 +1,13 @@
 import { decode } from 'html-entities';
 import MagicString from 'magic-string';
 import t from 'typescript';
-import { createStringLiteral, escapeDoubleQuotes, trimQuotes } from '../../utils/print';
+import {
+  createFunctionCall,
+  createStringLiteral,
+  escapeDoubleQuotes,
+  trimQuotes,
+} from '../../utils/print';
+import { isArray } from '../../utils/unit';
 import {
   type AttributeNode,
   type ComponentChildren,
@@ -167,4 +173,47 @@ export function serializeParentExpression(
   }
 
   return code.toString();
+}
+
+export function serializeCreateComponent(
+  createId: string,
+  mergeId: string,
+  tagName: string,
+  props: string[],
+  spreads: string[],
+) {
+  const hasProps = props.filter((prop) => prop !== '$$SPREAD').length > 0;
+  const hasSpreads = spreads.length > 0;
+  const shouldMergeProps = hasSpreads && (hasProps || spreads.length > 1);
+
+  const mergedProps: (string | string[])[] = [];
+
+  if (shouldMergeProps) {
+    let i = 0;
+    for (const prop of props) {
+      if (prop === '$$SPREAD') {
+        mergedProps.push(spreads.pop()!);
+        i = mergedProps.length;
+      } else {
+        ((mergedProps[i] ??= []) as string[]).push(prop);
+      }
+    }
+  }
+
+  const mergedPropsArgs = mergedProps.map((prop) =>
+    isArray(prop) ? `{ ${prop.join(', ')} }` : prop,
+  );
+
+  const createComponent = createFunctionCall(createId, [
+    tagName,
+    hasSpreads
+      ? !hasProps && spreads.length === 1
+        ? spreads[spreads.length - 1]
+        : createFunctionCall(mergeId, mergedPropsArgs)
+      : hasProps
+      ? `{ ${props.join(', ')} }`
+      : '',
+  ]);
+
+  return { createComponent, shouldMergeProps };
 }

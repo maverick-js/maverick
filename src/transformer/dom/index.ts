@@ -87,6 +87,8 @@ let scoped = true;
 export const dom: ASTSerializer = {
   serialize(ast, ctx) {
     let initRoot = false,
+      innerHTML = false,
+      skip = -1,
       currentId!: string,
       component!: ElementNode | undefined,
       definition!: AttributeNode | undefined,
@@ -202,6 +204,8 @@ export const dom: ASTSerializer = {
     }
 
     for (let i = 0; i < ast.tree.length; i++) {
+      if (i <= skip) continue;
+
       const node = ast.tree[i];
 
       if (component) {
@@ -237,7 +241,9 @@ export const dom: ASTSerializer = {
       } else if (isStructuralNode(node)) {
         if (isAttributesEnd(node)) {
           if (customElement) {
-            if (customElement.children) addChildren(customElement.children);
+            if (!innerHTML && customElement.children) {
+              addChildren(customElement.children);
+            }
 
             expressions.push(
               createFunctionCall(RUNTIME.setupCustomElement, [
@@ -258,7 +264,31 @@ export const dom: ASTSerializer = {
           const element = elements.at(-1);
           if (element && !element.isVoid && !customElement) template.push('>');
         } else if (isChildrenStart(node)) {
-          if (elements.at(-1) !== firstNode) {
+          if (innerHTML) {
+            let depth = 0;
+            for (let j = i + 1; j < ast.tree.length; j++) {
+              const node = ast.tree[j];
+              if (isStructuralNode(node)) {
+                if (isChildrenStart(node)) {
+                  depth++;
+                } else if (isChildrenEnd(node)) {
+                  if (depth === 0) {
+                    skip = j + 1;
+                    break;
+                  } else {
+                    depth--;
+                  }
+                }
+              }
+            }
+
+            const element = elements.pop();
+            if (element) {
+              template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
+            }
+
+            elementChildIndex = hierarchy.pop()!;
+          } else if (elements.at(-1) !== firstNode) {
             hierarchy.push(elementChildIndex);
             elementChildIndex = -1;
           }
@@ -284,6 +314,8 @@ export const dom: ASTSerializer = {
               template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
             }
           }
+
+          innerHTML = false;
         }
       } else if (isFragmentNode(node)) {
         if (node.children) {
@@ -353,10 +385,14 @@ export const dom: ASTSerializer = {
         if (node.namespace) {
           if (node.namespace === '$prop') {
             if (node.name === 'innerHTML') {
+              innerHTML = true;
+            }
+
+            if (customElement) {
+              props.push(serializeComponentProp(node));
+            } else if (node.name === 'innerHTML') {
               expressions.push(createFunctionCall(RUNTIME.innerHTML, [currentId, node.value]));
               ctx.runtime.add(RUNTIME.innerHTML);
-            } else if (customElement) {
-              props.push(serializeComponentProp(node));
             } else {
               addAttrExpression(node, RUNTIME.prop);
             }

@@ -75,13 +75,11 @@ it('should render custom element with only internal content', () => {
   expect(root).toMatchInlineSnapshot(`
   <root>
     <mk-button-2>
-      <!--$$-->
       <!--#internal-->
       <button>
         Test
       </button>
       <!--/#internal-->
-      <!--/$-->
       <!--$$-->
       <!--/$-->
     </mk-button-2>
@@ -109,13 +107,43 @@ it('should render custom element with only children', () => {
   <root>
     <mk-button-3>
       <!--$$-->
-      <!--/$-->
-      <!--$$-->
       <div>
         Children
       </div>
       <!--/$-->
     </mk-button-3>
+  </root>
+`);
+});
+
+it('should render custom element with inner html', () => {
+  const Button = defineElement({
+    tagName: `mk-button-4`,
+    setup:
+      ({ host }) =>
+      () =>
+        !host.$children && <div>Foo</div>,
+  });
+
+  const root = document.createElement('root');
+  render(
+    () => (
+      <CustomElement element={Button} $prop:innerHTML="<div>INNER HTML</div>">
+        <div>Children</div>
+      </CustomElement>
+    ),
+    { target: root },
+  );
+
+  expect(root).toMatchInlineSnapshot(`
+  <root>
+    <mk-button-4>
+      <!--$$-->
+      <!--/$-->
+      <div>
+        INNER HTML
+      </div>
+    </mk-button-4>
   </root>
 `);
 });

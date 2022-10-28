@@ -146,6 +146,20 @@ it('should compile child custom element', () => {
   `);
 });
 
+it('shoud compile custom element with inner html', () => {
+  const result = t(`<CustomElement $prop:innerHTML="<div>Foo</div>" element={DEFINITION} />`);
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_create_element, $$_setup_custom_element } from \\"maverick.js/dom\\";
+    (() => {
+      const $$_el = $$_create_element(DEFINITION.tagName);
+
+      $$_setup_custom_element($$_el, DEFINITION, { innerHTML: \\"<div>Foo</div>\\" });
+
+      return $$_el;
+    })()"
+  `);
+});
+
 it('should compile shorthand boolean attribute', () => {
   const result = t(`<button disabled />`);
   expect(result).toMatchInlineSnapshot(`
@@ -261,7 +275,7 @@ it('should compile observable attribute', () => {
 });
 
 it('should compile innerHTML expression', () => {
-  const result = t(`<div $prop:innerHTML="baz"></div>`);
+  const result = t(`<div $prop:innerHTML="baz"><div>Foo</div><div>Bar</div></div>`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_clone, $$_inner_html, $$_create_template } from \\"maverick.js/dom\\";
 

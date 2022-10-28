@@ -2,7 +2,7 @@ import { trimTrailingSemicolon } from '../../utils/print';
 import { isFunction, isNull, isString } from '../../utils/unit';
 import { escape } from '../../utils/html';
 import { unwrapDeep } from '../../utils/obs';
-import { resolve, SSR_TEMPLATE } from './render';
+import { resolve, SSR_TEMPLATE, injectHTML } from './render';
 import { createServerElement, type ElementDefinition } from '../../element';
 
 /** @internal */
@@ -41,7 +41,12 @@ export function $$_custom_element(
     }
   }
 
-  const children = props?.children ? resolve(props.children) : '';
+  const children = props?.innerHTML
+    ? resolve(props.innerHTML)
+    : props?.children
+    ? resolve(props.children)
+    : '';
+
   const childElements = children.replace(/<!(.*?)>/g, '').length > 0;
 
   host.$setup({
@@ -51,12 +56,9 @@ export function $$_custom_element(
 
   let ssr = host.$render();
 
-  const innerHTML = props ? props.innerHTML || props.innerText || props.textContent : null;
-  if (innerHTML) ssr = innerHTML;
-
   return {
     [SSR_TEMPLATE]: `<${definition.tagName}${host.attributes}>${
-      children ? (definition.shadow ? ssr + children : children) : ssr
+      childElements ? (definition.shadow ? ssr + children : children) : ssr
     }</${definition.tagName}>`,
   };
 }
@@ -218,6 +220,10 @@ export function $$_spread(spreads: Record<string, unknown>[]) {
   }
 
   return result.trim();
+}
+
+export function $$_inject_html(value: unknown): any {
+  return injectHTML(resolve(value));
 }
 
 export { $$_merge_props, $$_create_component } from '../dom';

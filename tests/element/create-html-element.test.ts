@@ -23,11 +23,9 @@ it('should handle basic setup and destroy', () => {
       <mk-test-1
         data-delegate=""
       >
-        <!--$$-->
         <!--#internal-->
         Test
         <!--/#internal-->
-        <!--/$-->
       </mk-test-1>
     </div>
   `);

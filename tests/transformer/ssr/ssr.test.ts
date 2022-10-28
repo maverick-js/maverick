@@ -109,6 +109,27 @@ it('shoud compile child custom element', () => {
   `);
 });
 
+it('shoud compile custom element with inner html', () => {
+  const result = t(
+    `<CustomElement $prop:innerHTML="<div>Foo</div>" element={DEFINITION}><div>Foo</div></CustomElement>`,
+  );
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_ssr, $$_custom_element } from \\"maverick.js/ssr\\";
+
+    const $$_templ = /* #__PURE__ */ [\\"<!$><div>Foo</div>\\"],
+      $$_templ_2 = /* #__PURE__ */ [\\"<!$>\\"];
+    $$_ssr(
+      $$_templ_2,
+      $$_custom_element(DEFINITION, {
+        innerHTML: \\"<div>Foo</div>\\",
+        get children() {
+          return $$_ssr($$_templ);
+        },
+      }),
+    )"
+  `);
+});
+
 it('should compile shorthand boolean attribute', () => {
   const result = t(`<button disabled />`);
   expect(result).toMatchInlineSnapshot(`
@@ -261,13 +282,13 @@ it('should compile observable attribute', () => {
   `);
 });
 
-it('should _not_ compile innerHTML expression', () => {
-  const result = t(`<div $prop:innerHTML="baz"></div>`);
+it('should compile innerHTML expression', () => {
+  const result = t(`<div $prop:innerHTML="baz"><div>Foo</div><div>Bar</div></div>`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_ssr } from \\"maverick.js/ssr\\";
 
-    const $$_templ = /* #__PURE__ */ [\\"<!$><div></div>\\"];
-    $$_ssr($$_templ)"
+    const $$_templ = /* #__PURE__ */ [\\"<!$><div>\\", \\"</div>\\"];
+    $$_ssr($$_templ, $$_inject_html(\\"baz\\"))"
   `);
 });
 

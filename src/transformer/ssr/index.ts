@@ -21,6 +21,8 @@ import {
   isElementEnd,
   isAttributesEnd,
   isFragmentNode,
+  isChildrenStart,
+  isChildrenEnd,
 } from '../ast';
 import {
   serializeChildren,
@@ -46,14 +48,17 @@ const RUNTIME = {
   styles: '$$_styles',
   spread: '$$_spread',
   mergeProps: '$$_merge_props',
+  injectHTML: '$$_inject_html',
 };
 
 export const ssr: ASTSerializer = {
   serialize(ast, ctx) {
     let template = '',
+      skip = -1,
       merging = false,
       templates: string[] = [],
       parts: string[] = [],
+      innerHTML: string | undefined,
       classes: AttributeNode[] = [],
       styles: AttributeNode[] = [],
       props: string[] = [],
@@ -69,6 +74,29 @@ export const ssr: ASTSerializer = {
       },
       marker = () => {
         template += HYDRATION_MARKER;
+      },
+      commitInnerHTML = (i: number) => {
+        if (!innerHTML) return;
+        commit(createFunctionCall(RUNTIME.injectHTML, [innerHTML]));
+
+        let depth = 0;
+        for (let j = i + 1; j < ast.tree.length; j++) {
+          const node = ast.tree[j];
+          if (isStructuralNode(node)) {
+            if (isChildrenStart(node)) {
+              depth++;
+            } else if (isChildrenEnd(node)) {
+              if (depth === 0) {
+                skip = j + 1;
+                break;
+              } else {
+                depth--;
+              }
+            }
+          }
+        }
+
+        innerHTML = undefined;
       };
 
     const firstNode = ast.tree[0],
@@ -81,6 +109,8 @@ export const ssr: ASTSerializer = {
     }
 
     for (let i = 0; i < ast.tree.length; i++) {
+      if (i <= skip) continue;
+
       const node = ast.tree[i];
 
       if (component) {
@@ -260,8 +290,17 @@ export const ssr: ASTSerializer = {
 
           merging = false;
           if (!customElement && element && !element.isVoid) template += '>';
+        } else if (isChildrenStart(node)) {
+          if (innerHTML) {
+            commitInnerHTML(i);
+            const element = elements.pop();
+            if (element) template += element.isVoid ? ` />` : `</${element.tagName}>`;
+          }
         } else if (isElementEnd(node)) {
           const element = elements.pop();
+
+          if (element?.childCount === 0) commitInnerHTML(i);
+
           if (customElement) {
             customElement = undefined;
           } else if (element) {
@@ -292,7 +331,13 @@ export const ssr: ASTSerializer = {
         }
       } else if (isAttributeNode(node)) {
         if (node.namespace) {
-          if (node.namespace === '$class') {
+          if (node.namespace === '$prop' && node.name === 'innerHTML') {
+            if (merging) {
+              merger.push(node);
+            } else if (!elements[elements.length - 1].isVoid) {
+              innerHTML = node.value;
+            }
+          } else if (node.namespace === '$class') {
             if (merging) {
               merger.push(node);
             } else {
@@ -304,7 +349,7 @@ export const ssr: ASTSerializer = {
             } else {
               styles.push(node);
             }
-          } else if (customElement && node.namespace === '$prop') {
+          } else if (merging && node.namespace === '$prop') {
             merger.push(node);
           }
         } else {

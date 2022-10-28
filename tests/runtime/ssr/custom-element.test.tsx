@@ -115,15 +115,17 @@ it('should forward attrs to props', () => {
 
 it('should set inner html', () => {
   const element = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-10',
     setup: () => () => <div>Test</div>,
   });
 
   const result = renderToString(() => (
-    <CustomElement $prop:innerHTML={`<div>INNER HTML</div>`} element={element} />
+    <CustomElement $prop:innerHTML={`<div>INNER HTML</div>`} element={element}>
+      <div>Foo</div>
+    </CustomElement>
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><div>INNER HTML</div></mk-foo>"',
+    '"<!$><mk-foo-10 data-hydrate=\\"\\" data-delegate=\\"\\"><div>INNER HTML</div></mk-foo-10>"',
   );
 });

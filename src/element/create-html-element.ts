@@ -284,11 +284,10 @@ export function createHTMLElement<
       }
 
       const $render = () =>
-        peek(() => () => [
-          !this.$children && createComment(INTERNAL_START),
-          members.$render(),
-          !this.$children && createComment(INTERNAL_END),
-        ]) as any;
+        peek(() => () => {
+          const result = members.$render();
+          return result ? [createComment(INTERNAL_START), result, createComment(INTERNAL_END)] : [];
+        }) as any;
 
       const renderer = this._hydrate ? hydrate : render;
       this[DESTROY].push(

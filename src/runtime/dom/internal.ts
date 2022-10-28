@@ -80,11 +80,17 @@ export function $$_setup_custom_element(
     attachDeclarativeShadowDOM(element);
   }
 
-  const children = computed(() => props?.children);
+  const children = computed(() => props?.innerHTML || props?.children);
   onDispose(element.$setup({ props, children }));
 
   if (!hydration) {
-    $$_insert(element, children);
+    if (props?.innerHTML) {
+      observeOrRun(props.innerHTML, (innerHTML) => {
+        element.innerHTML += innerHTML;
+      });
+    } else {
+      $$_insert(element, children);
+    }
   } else {
     children();
   }

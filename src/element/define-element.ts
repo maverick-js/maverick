@@ -1,4 +1,4 @@
-import { observable, peek } from '@maverick-js/observables';
+import { observable } from '@maverick-js/observables';
 import { type JSX, setContextMap } from '../runtime';
 import { isFunction } from '../utils/unit';
 import { setHost } from './internal';
@@ -25,7 +25,8 @@ export function defineElement<
     setup(context) {
       if (context.context) setContextMap(context.context);
 
-      setHost(context.host);
+      const { host } = context;
+      setHost(host);
       const setup = declaration.setup(context);
       setHost(null);
 
@@ -33,13 +34,12 @@ export function defineElement<
       const render = members.$render;
 
       // @ts-expect-error - override readonly
-      members.$render = () =>
-        peek(() => {
-          setHost(context.host);
-          const result = render();
-          setHost(null);
-          return result;
-        });
+      members.$render = () => {
+        setHost(host);
+        const result = render();
+        setHost(null);
+        return result;
+      };
 
       return members;
     },

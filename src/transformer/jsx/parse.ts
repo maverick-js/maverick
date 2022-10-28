@@ -1,5 +1,5 @@
 import {
-  filterNonJSXElements,
+  filterDOMElements,
   filterEmptyJSXChildNodes,
   getTagName,
   isComponentTagName,
@@ -81,7 +81,7 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   }
 
   const childCount = children.length;
-  const childElementCount = filterNonJSXElements(children).length;
+  const childElementCount = filterDOMElements(children).length;
   const hasChildren = childCount > 0;
 
   // Whether this element contains any dynamic top-level expressions which would require a new marker.
@@ -117,7 +117,6 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   ast.tree.push(createStructuralNode(StructuralNodeType.AttributesEnd));
 
   if (hasChildren) {
-    ast.tree.push(createStructuralNode(StructuralNodeType.ChildrenStart));
     if (isComponent || tagName === 'CustomElement') {
       const childNodes: ComponentChildren[] = [];
 
@@ -133,11 +132,12 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
 
       element.children = childNodes;
     } else {
+      ast.tree.push(createStructuralNode(StructuralNodeType.ChildrenStart));
       for (const child of children) {
         parseNode(child, ast, { parent: meta, dynamic });
       }
+      ast.tree.push(createStructuralNode(StructuralNodeType.ChildrenEnd));
     }
-    ast.tree.push(createStructuralNode(StructuralNodeType.ChildrenEnd));
   }
 
   ast.tree.push(createStructuralNode(StructuralNodeType.ElementEnd));
@@ -266,7 +266,7 @@ function parseFragment(node: t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
     createFragmentNode({
       ref: node,
       childCount: children.length,
-      childElementCount: filterNonJSXElements(children).length,
+      childElementCount: filterDOMElements(children).length,
       children: childNodes,
     }),
   );

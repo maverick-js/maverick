@@ -4,8 +4,10 @@ export function raf(callback: () => void | Promise<void>) {
     return;
   }
 
-  return new Promise(async (resolve) => {
-    await callback();
-    resolve(void 0);
+  return new Promise((resolve) => {
+    window.requestAnimationFrame(async () => {
+      await callback();
+      resolve(void 0);
+    });
   });
 }

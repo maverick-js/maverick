@@ -42,7 +42,7 @@ export function $$_custom_element(
   }
 
   const children = props?.children ? resolve(props.children) : '';
-  const childElements = children.replace(/<!--\$-->/g, '').length > 0;
+  const childElements = children.replace(/<!(.*?)>/g, '').length > 0;
 
   host.$setup({
     props,

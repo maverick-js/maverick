@@ -182,7 +182,6 @@ export const ssr: ASTSerializer = {
                     `${ref.getStart()}:${ref.getEnd()}`,
                   )}`,
                 );
-
                 throw Error(
                   `[maverick] \`element\` prop was not provided for \`CustomElement\` at ${loc}`,
                 );

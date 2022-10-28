@@ -1,4 +1,5 @@
 import {
+  type AST,
   type AttributeNode,
   type ElementNode,
   type ComponentChildren,
@@ -47,6 +48,8 @@ const RUNTIME = {
   createWalker: '$$_create_walker',
   nextTemplate: '$$_next_template',
   nextElement: '$$_next_element',
+  nextCustomElement: '$$_next_custom_element',
+  createElement: '$$_create_element',
   setupCustomElement: '$$_setup_custom_element',
   insert: '$$_insert',
   insertAtMarker: '$$_insert_at_marker',
@@ -83,6 +86,7 @@ export const dom: ASTSerializer = {
       definition!: AttributeNode | undefined,
       customElement!: ElementNode | undefined,
       templateId: string | undefined,
+      returnId: string | undefined,
       hierarchy: number[] = [],
       props: string[] = [],
       styles: string[] = [],
@@ -93,7 +97,7 @@ export const dom: ASTSerializer = {
       locals = new Declarations(),
       elementChildIndex = -1,
       elementIds: Record<string, string> = {},
-      getRootId = () => {
+      createRootId = () => {
         if (!initRoot) {
           if (!templateId) templateId = ctx.globals.create(ID.template);
 
@@ -117,20 +121,20 @@ export const dom: ASTSerializer = {
         return ID.root;
       },
       nextElement = () => {
-        if (!initRoot) getRootId();
+        createRootId();
         ctx.runtime.add(RUNTIME.nextElement);
         return NEXT_ELEMENT;
       },
       nextMarker = () => {
-        if (!initRoot) getRootId();
+        createRootId();
         return NEXT_MARKER;
       },
       getParentElementId = () => {
-        if (!initRoot) getRootId();
+        createRootId();
         return getElementId(hierarchy, elementIds, locals);
       },
       getCurrentElementId = () => {
-        if (!initRoot) getRootId();
+        createRootId();
         return getElementId(
           elementChildIndex >= 0 ? [...hierarchy, elementChildIndex] : hierarchy,
           elementIds,
@@ -138,7 +142,7 @@ export const dom: ASTSerializer = {
         );
       },
       getNextElementId = () => {
-        if (!initRoot) getRootId();
+        createRootId();
         const element = elements.at(-1);
         const nextSibling = elementChildIndex + 1;
         return element && element.childCount > 1
@@ -164,6 +168,17 @@ export const dom: ASTSerializer = {
         const hasReturn = scoped || /^(\[|\(|\$\$|\")/.test(serialized);
         props.push(`get children() { ${hasReturn ? `return ${serialized}` : serialized} }`);
         scoped = prevScoped;
+      },
+      insert = (marker: (() => string) | null, value: string) => {
+        const beforeId = ctx.hydratable ? null : getNextElementId();
+        const parentId = ctx.hydratable
+          ? marker?.() ?? null
+          : beforeId || elementChildIndex === -1
+          ? getParentElementId()
+          : (currentId ??= getCurrentElementId());
+        const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;
+        expressions.push(createFunctionCall(insertId, [parentId, value, beforeId]));
+        ctx.runtime.add(insertId);
       };
 
     const firstNode = ast.tree[0],
@@ -171,7 +186,12 @@ export const dom: ASTSerializer = {
       isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent,
       isFirstNodeFragment = isFragmentNode(firstNode);
 
-    if (ctx.hydratable && isFirstNodeElement && !firstNode.isComponent) {
+    if (
+      ctx.hydratable &&
+      isFirstNodeElement &&
+      !firstNode.isComponent &&
+      firstNode.tagName !== 'CustomElement'
+    ) {
       template.push(MARKERS.element);
     }
 
@@ -202,22 +222,7 @@ export const dom: ASTSerializer = {
           if (isFirstNodeComponent) {
             expressions.push(createComponent);
           } else {
-            const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;
-            const beforeId = ctx.hydratable ? null : getNextElementId();
-
-            expressions.push(
-              createFunctionCall(insertId, [
-                ctx.hydratable
-                  ? currentId
-                  : beforeId || elementChildIndex === -1
-                  ? getParentElementId()
-                  : (currentId ??= getCurrentElementId()),
-                createComponent,
-                beforeId,
-              ]),
-            );
-
-            ctx.runtime.add(insertId);
+            insert(() => currentId, createComponent);
           }
 
           ctx.runtime.add(RUNTIME.createComponent);
@@ -252,7 +257,7 @@ export const dom: ASTSerializer = {
           }
 
           const element = elements.at(-1);
-          if (element && !element.isVoid) template.push('>');
+          if (element && !element.isVoid && !customElement) template.push('>');
         } else if (isChildrenStart(node)) {
           if (elements.at(-1) !== firstNode) {
             hierarchy.push(elementChildIndex);
@@ -261,16 +266,25 @@ export const dom: ASTSerializer = {
         } else if (isChildrenEnd(node)) {
           elementChildIndex = hierarchy.pop()!;
         } else if (isElementEnd(node)) {
-          const element = elements.pop();
+          if (customElement) {
+            if (!ctx.hydratable) {
+              if (initRoot) {
+                insert(null, currentId);
+              } else {
+                returnId = currentId;
+              }
+            } else if (elements.length === 0) {
+              returnId = currentId;
+            }
 
-          if (definition) {
-            template.push(`</\${${definition.value}.tagName}>`);
-          } else if (element) {
-            template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
+            definition = undefined;
+            customElement = undefined;
+          } else {
+            const element = elements.pop();
+            if (element) {
+              template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
+            }
           }
-
-          definition = undefined;
-          customElement = undefined;
         }
       } else if (isFragmentNode(node)) {
         if (node.children) {
@@ -282,63 +296,58 @@ export const dom: ASTSerializer = {
           expressions.push('""');
         }
       } else if (isElementNode(node)) {
-        if (i > 0 && !node.isComponent) elementChildIndex++;
-
         if (isFirstNodeComponent && node == firstNode) {
           component = node;
           continue;
         }
 
+        if (node.isComponent) component = node;
+        if (node.tagName === 'CustomElement') customElement = node;
+
+        const isElement = !component && !customElement;
+        if (i > 0 && isElement) elementChildIndex++;
+
         const dynamic = node.dynamic();
 
-        if (dynamic) {
+        if (customElement) {
+          if (elements.length > 0) createRootId();
+
+          definition = findCustomElementDefinition(ast, node, i);
+          currentId = locals.create(
+            ID.element,
+            ctx.hydratable
+              ? createFunctionCall(RUNTIME.nextCustomElement, [
+                  definition.value,
+                  elements.length > 0 ? ID.walker : null,
+                ])
+              : createFunctionCall(RUNTIME.createElement, [`${definition.value}.tagName`]),
+          );
+
+          if (ctx.hydratable) {
+            ctx.runtime.add(RUNTIME.nextCustomElement);
+          } else {
+            ctx.runtime.add(RUNTIME.createElement);
+          }
+        } else if (dynamic) {
           if (ctx.hydratable) {
             if (node.isComponent) {
               currentId = locals.create(ID.component, nextMarker());
             } else if (i > 0) {
               currentId = locals.create(ID.element, nextElement());
             } else {
-              currentId = getRootId();
+              currentId = createRootId();
             }
           } else {
             currentId = getCurrentElementId();
           }
         }
 
-        if (node.isComponent) {
-          if (ctx.hydratable && i > 0) template.push(MARKERS.component);
-          component = node;
-        } else {
-          if (ctx.hydratable && i > 0 && dynamic) template.push(MARKERS.element);
+        if (ctx.hydratable && i > 0 && dynamic) {
+          template.push(MARKERS.element);
+        }
 
-          if (node.tagName === 'CustomElement') {
-            for (let j = i; j < ast.tree.length; j++) {
-              const node = ast.tree[j];
-              if (isAttributeNode(node) && node.name === 'element') {
-                definition = node;
-                break;
-              } else if (isStructuralNode(node)) {
-                break;
-              }
-            }
-
-            if (!definition) {
-              const loc = kleur.bold(
-                `${node.ref.getSourceFile().fileName} ${kleur.cyan(
-                  `${node.ref.getStart()}:${node.ref.getEnd()}`,
-                )}`,
-              );
-              throw Error(
-                `[maverick] \`element\` prop was not provided for \`CustomElement\` at ${loc}`,
-              );
-            }
-
-            template.push(`<\${${definition.value}.tagName}`);
-            customElement = node;
-          } else {
-            template.push(`<${node.tagName}`);
-          }
-
+        if (isElement) {
+          template.push(`<${node.tagName}`);
           elements.push(node);
         }
       } else if (isAttributeNode(node)) {
@@ -355,19 +364,19 @@ export const dom: ASTSerializer = {
           } else if (node.namespace === '$class') {
             addAttrExpression(node, RUNTIME.class);
           } else if (node.namespace === '$style') {
-            if (!node.dynamic) {
+            if (!node.dynamic && !customElement) {
               styles.push(`${node.name}: ${trimQuotes(node.value)}`);
             } else {
               addAttrExpression(node, RUNTIME.style);
             }
           } else if (node.namespace === '$cssvar') {
-            if (!node.dynamic) {
+            if (!node.dynamic && !customElement) {
               styles.push(`--${node.name}: ${trimQuotes(node.value)}`);
             } else {
               addAttrExpression(node, RUNTIME.cssvar);
             }
           }
-        } else if (!node.dynamic) {
+        } else if (!node.dynamic && !customElement) {
           if (node.name === 'style') {
             styles.push(trimTrailingSemicolon(trimQuotes(node.value)));
           } else {
@@ -390,26 +399,16 @@ export const dom: ASTSerializer = {
       } else if (isTextNode(node)) {
         template.push(node.value);
       } else if (isExpressionNode(node)) {
-        if (!node.dynamic) {
+        if (!node.dynamic && !customElement) {
           template.push(encode(trimQuotes(node.value)));
         } else {
+          if (!initRoot) createRootId();
           if (ctx.hydratable) template.push(MARKERS.expression);
-          const beforeId = ctx.hydratable ? null : getNextElementId();
-          const id = ctx.hydratable
-            ? locals.create(ID.expression, nextMarker())
-            : beforeId || elementChildIndex === -1
-            ? getParentElementId()
-            : (currentId ??= getCurrentElementId());
-          const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;
           const code = !node.children ? node.value : serializeParentExpression(dom, node, ctx);
-          expressions.push(
-            createFunctionCall(insertId, [
-              id,
-              node.callId ?? (node.observable ? `() => ${code}` : code),
-              beforeId,
-            ]),
+          insert(
+            () => locals.create(ID.expression, nextMarker()),
+            node.callId ?? (node.observable ? `() => ${code}` : code),
           );
-          ctx.runtime.add(insertId);
         }
       } else if (isSpreadNode(node)) {
         expressions.push(createFunctionCall(RUNTIME.spread, [currentId, node.value]));
@@ -445,7 +444,7 @@ export const dom: ASTSerializer = {
             ';',
             '\n',
             '\n',
-            `return ${getRootId()}`,
+            `return ${returnId ?? createRootId()}`,
             scoped && '})()',
           ]
             .filter(Boolean)
@@ -495,4 +494,23 @@ function getElementId(
   }
 
   return id;
+}
+
+function findCustomElementDefinition(ast: AST, node: ElementNode, start: number) {
+  for (let j = start; j < ast.tree.length; j++) {
+    const attr = ast.tree[j];
+    if (isAttributeNode(attr) && attr.name === 'element') {
+      return attr;
+    } else if (isStructuralNode(attr)) {
+      break;
+    }
+  }
+
+  const loc = kleur.bold(
+    `${node.ref.getSourceFile().fileName} ${kleur.cyan(
+      `${node.ref.getStart()}:${node.ref.getEnd()}`,
+    )}`,
+  );
+
+  throw Error(`[maverick] \`element\` prop was not provided for \`CustomElement\` at ${loc}`);
 }

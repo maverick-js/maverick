@@ -1,6 +1,6 @@
 import type { JSX } from '../jsx';
 import { effect } from '../reactivity';
-import { createFragment, insert, isDOMNode } from './utils';
+import { createComment, createFragment, insert, isDOMNode } from './utils';
 import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import { hydration } from './render';
 
@@ -17,12 +17,9 @@ export type StartMarker = Comment & {
 // <!--/$-->
 export type EndMarker = Comment;
 
-// start markers (<!--$-->) are reserved for hydration.
-export const createMarker = () => document.createComment('/$');
-
-export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, isObservable = false) {
+export function insertExpression(start: StartMarker, value: JSX.Element, isObservable = false) {
   if (isFunction(value)) {
-    effect(() => insertNodeAtMarker(start, (value as Function)(), true));
+    effect(() => insertExpression(start, (value as Function)(), true));
     return;
   } else if (hydration && !isObservable) {
     start.remove();
@@ -89,7 +86,7 @@ export function insertNodeAtMarker(start: StartMarker, value: JSX.Element, isObs
   }
 
   if (!end) {
-    const marker = createMarker();
+    const marker = createComment('/$');
     start[END_MARKER] = marker;
     (lastChild as Element).after(marker);
   }

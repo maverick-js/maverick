@@ -5,6 +5,9 @@ import type { MaverickHost } from './types';
 
 let _hosts: (MaverickHost | null)[] = [null];
 
+export const INTERNAL_START = '#internal' as const;
+export const INTERNAL_END = `/${INTERNAL_START}` as const;
+
 export function getHost(): MaverickHost | null {
   return _hosts[_hosts.length - 1];
 }

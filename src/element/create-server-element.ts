@@ -13,6 +13,7 @@ import { camelToKebabCase } from '../utils/str';
 import { setupElementProps } from './define-element';
 import { type SubjectRecord, type JSX, setAttribute, renderToString } from '../runtime';
 import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
+import { INTERNAL_START, INTERNAL_END } from './internal';
 
 const registry = new WeakMap<ElementDefinition<any, any, any, any>, any>();
 
@@ -127,11 +128,16 @@ export function createServerElement<
         this.setAttribute('style', this.style.toString());
       }
 
+      const template =
+        (!this._children ? `<!${INTERNAL_START}>` : '') +
+        ssr +
+        (!this._children ? `<!${INTERNAL_END}>` : '');
+
       return definition.shadow
         ? `<template shadowroot="${
             isBoolean(definition.shadow) ? 'open' : definition.shadow.mode
-          }">${ssr}</template>`
-        : `<!#internal>${ssr}<!/#internal>`;
+          }">${template}</template>`
+        : template;
     }
 
     $destroy() {

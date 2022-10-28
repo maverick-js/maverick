@@ -23,9 +23,11 @@ it('should handle basic setup and destroy', () => {
       <mk-test-1
         data-delegate=""
       >
+        <!--$$-->
         <!--#internal-->
         Test
         <!--/#internal-->
+        <!--/$-->
       </mk-test-1>
     </div>
   `);
@@ -228,7 +230,7 @@ it('should detect children during initial setup', async () => {
   expect(element.$children).toBe(false);
 });
 
-it('should not detect children during initial setup', async () => {
+it('should _not_ detect children during initial setup', async () => {
   const { element } = setupTestElement();
 
   element.$setup();

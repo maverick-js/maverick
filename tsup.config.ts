@@ -4,6 +4,7 @@ function base({ dev = false, node = false } = {}): Options {
   return {
     format: 'esm',
     external: ['typescript', 'rollup', 'chokidar', 'esbuild'],
+    // minify: true,
     treeshake: true,
     splitting: true,
     tsconfig: 'tsconfig.build.json',

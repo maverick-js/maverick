@@ -1,6 +1,12 @@
-import { effect, getScheduler, observable, root } from '@maverick-js/observables';
-import { hydrate, render, setAttribute, type JSX, type SubjectRecord } from '../runtime';
-import { raf } from '../utils/animation';
+import { effect, getScheduler, observable, peek, root } from '@maverick-js/observables';
+import {
+  createComment,
+  hydrate,
+  render,
+  setAttribute,
+  type JSX,
+  type SubjectRecord,
+} from '../runtime';
 import { run, runAll } from '../utils/fn';
 import { camelToKebabCase } from '../utils/str';
 
@@ -15,6 +21,8 @@ import {
   DISCONNECT,
   DESTROY,
   LIFECYCLES,
+  INTERNAL_START,
+  INTERNAL_END,
 } from './internal';
 import type { ElementLifecycleManager, ElementLifecycleCallback } from './lifecycle';
 import type {
@@ -83,8 +91,10 @@ export function createHTMLElement<
     private _setup = false;
     private _destroyed = false;
     private _props: SubjectRecord = {};
+    zzz;
     private _onEventDispatch?: (eventType: string) => void;
 
+    private _scheduler = getScheduler();
     private _children = observable(false);
     private _connected = observable(false);
     private _mounted = observable(false);
@@ -184,11 +194,9 @@ export function createHTMLElement<
 
         this[MOUNT] = [];
 
-        const scheduler = getScheduler();
-        scheduler.flushSync();
-
-        this[DESTROY].push(scheduler.onBeforeFlush(() => runAll(this[BEFORE_UPDATE])));
-        this[DESTROY].push(scheduler.onFlush(() => runAll(this[AFTER_UPDATE])));
+        this._scheduler.flushSync();
+        this[DESTROY].push(this._scheduler.onBeforeFlush(() => runAll(this[BEFORE_UPDATE])));
+        this[DESTROY].push(this._scheduler.onFlush(() => runAll(this[AFTER_UPDATE])));
       }
     }
 
@@ -201,7 +209,7 @@ export function createHTMLElement<
       this[DISCONNECT] = [];
 
       if (!this.$keepAlive) {
-        raf(() => {
+        requestAnimationFrame(() => {
           if (!this.isConnected) this.$destroy();
         });
       }
@@ -238,15 +246,9 @@ export function createHTMLElement<
         if (ctx.children) {
           this._children = ctx.children as any;
         } else {
-          const onMutation = () => {
-            const noChildren =
-              (!this.firstChild || this.firstChild.nodeType === 8) &&
-              (!this.lastChild || this.lastChild.nodeType === 8);
-            this._children.set(!noChildren);
-          };
-
+          const onMutation = () => this._children.set(!internalNodesCheck(this));
           onMutation();
-          const observer = new MutationObserver(onMutation);
+          const observer = new MutationObserver(() => this._scheduler.enqueue(onMutation));
           observer.observe(this, { childList: true });
           this[DESTROY].push(() => observer.disconnect());
         }
@@ -282,16 +284,16 @@ export function createHTMLElement<
         this._onEventDispatch = ctx.onEventDispatch;
       }
 
-      let before: Node | undefined;
-      if (!this._hydrate) {
-        this.append(document.createComment('#internal'));
-        before = document.createComment('/#internal');
-        this.append(before);
-      }
+      const $render = () =>
+        peek(() => () => [
+          !this.$children && createComment(INTERNAL_START),
+          members.$render(),
+          !this.$children && createComment(INTERNAL_END),
+        ]) as any;
 
       const renderer = this._hydrate ? hydrate : render;
-      this[DESTROY].push(renderer(members.$render, { target: this._root, before }));
-      getScheduler().flushSync();
+      this[DESTROY].push(renderer($render, { target: this._root }));
+      this._scheduler.flushSync();
 
       this._setup = true;
       this._el.set(this);
@@ -306,7 +308,7 @@ export function createHTMLElement<
 
       this.remove();
       runAll(this[DESTROY]);
-      getScheduler().flushSync();
+      this._scheduler.flushSync();
 
       this._props = {};
       for (const name of LIFECYCLES) this[name] = [];
@@ -352,4 +354,26 @@ export function defineCustomElement(definition: ElementDefinition<any, any, any,
   if (!window.customElements.get(definition.tagName)) {
     window.customElements.define(definition.tagName, createHTMLElement(definition));
   }
+}
+
+function internalNodesCheck(root: Element) {
+  if (root.childElementCount === 0) return true;
+
+  let internal = false;
+
+  for (let i = 0; i < root.childNodes.length; i++) {
+    const child = root.childNodes[i];
+    if (child.nodeType === 8) {
+      const text = child.textContent;
+      if (text === INTERNAL_START) {
+        internal = true;
+      } else if (text === INTERNAL_END) {
+        internal = false;
+      }
+    } else if (!internal) {
+      return false;
+    }
+  }
+
+  return true;
 }

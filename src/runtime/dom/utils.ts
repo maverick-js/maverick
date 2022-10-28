@@ -1,7 +1,6 @@
 import type { JSX } from '../jsx';
 import { onDispose } from '../reactivity';
-import { isFunction } from '../../utils/unit';
-import { insertNodeAtMarker } from './markers';
+import { insertExpression } from './markers';
 
 export function isDOMNode(node: any): node is Node {
   return node instanceof Node;
@@ -19,15 +18,19 @@ export function createFragment() {
   return document.createDocumentFragment();
 }
 
+export function createComment(data: string) {
+  return document.createComment(data);
+}
+
 export function insert(
   parent: Node | DocumentFragment,
   value: JSX.Element,
   before: Node | null = null,
 ) {
-  const marker = document.createComment('$$');
+  const marker = createComment('$$');
   if (before === null) parent.appendChild(marker);
   else parent.insertBefore(marker, before);
-  insertNodeAtMarker(marker, value);
+  insertExpression(marker, value);
 }
 
 export function listen<Target extends EventTarget, EventType extends string>(

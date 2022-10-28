@@ -1,7 +1,7 @@
 import { computed, effect, onDispose, peek } from '../reactivity';
 import { isArray, isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
-import { createMarkerWalker, insertNodeAtMarker, type StartMarker } from './markers';
+import { createMarkerWalker, insertExpression, type StartMarker } from './markers';
 import { hydration } from './render';
 import { createFragment, insert, listen, setAttribute, setStyle, toggleClass } from './utils';
 import { defineCustomElement, type MaverickElement, type ElementDefinition } from '../../element';
@@ -42,9 +42,32 @@ export function $$_next_element(walker: TreeWalker): Node {
 }
 
 /** @internal */
+export function $$_next_custom_element(definition: ElementDefinition, walker = hydration?.w): Node {
+  defineCustomElement(definition);
+  const { tagName } = definition;
+  if (walker) {
+    const next = walker.nextNode() as Node;
+    if ((next.nextSibling as Element)?.localName !== tagName) {
+      const element = $$_create_element(tagName);
+      insertExpression(next as Comment, element);
+      return element;
+    } else {
+      return next;
+    }
+  } else {
+    return $$_create_element(tagName);
+  }
+}
+
+/** @internal */
 export function $$_clone(fragment: DocumentFragment): Element {
   const clone = fragment.cloneNode(true) as DocumentFragment;
   return clone.firstElementChild!;
+}
+
+/** @internal */
+export function $$_create_element(tagName: string) {
+  return document.createElement(tagName);
 }
 
 /** @internal */
@@ -53,8 +76,6 @@ export function $$_setup_custom_element(
   definition: ElementDefinition,
   props?: Record<string, any>,
 ) {
-  defineCustomElement(definition);
-
   if (hydration && definition.shadow && !supportsDeclarativeShadowDOM()) {
     attachDeclarativeShadowDOM(element);
   }
@@ -76,7 +97,7 @@ export function $$_insert(parent: Element, value: JSX.Element, before?: Element)
 
 /** @internal */
 export function $$_insert_at_marker(marker: StartMarker, value: JSX.Element) {
-  insertNodeAtMarker(marker, value);
+  insertExpression(marker, value);
 }
 
 /** @internal */

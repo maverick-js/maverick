@@ -108,7 +108,7 @@ export function filterEmptyJSXChildNodes(children: t.JsxChild[]) {
   return children.filter((child) => !isEmptyExpressionNode(child) && !isEmptyTextNode(child));
 }
 
-export function filterNonJSXElements(children: t.JsxChild[]) {
+export function filterDOMElements(children: t.JsxChild[]) {
   return children.filter(
     (node) => isJSXElementNode(node) && !isComponentTagName(getTagName(node)),
   ) as JSXElementNode[];

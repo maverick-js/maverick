@@ -292,7 +292,13 @@ export function createHTMLElement<
         ]) as any;
 
       const renderer = this._hydrate ? hydrate : render;
-      this[DESTROY].push(renderer($render, { target: this._root }));
+      this[DESTROY].push(
+        renderer($render, {
+          target: this._root,
+          resume: !definition.shadow,
+        }),
+      );
+
       this._scheduler.flushSync();
 
       this._setup = true;

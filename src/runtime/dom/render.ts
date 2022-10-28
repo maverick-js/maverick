@@ -11,12 +11,15 @@ export type HydrationContext = {
 
 export { type MarkerWalker };
 
-export type HydrateOptions = RenderOptions;
+export type HydrateOptions = RenderOptions & {
+  resume?: boolean;
+};
 
 export function hydrate(root: () => JSX.Element, options: HydrateOptions): Dispose {
-  hydration = hydration ?? { w: createMarkerWalker(options.target) };
+  const prev = hydration;
+  hydration = options.resume && hydration ? hydration : { w: createMarkerWalker(options.target) };
   const dispose = render(root, options);
-  hydration = null;
+  hydration = prev;
   return dispose;
 }
 

@@ -397,6 +397,7 @@ export const dom: ASTSerializer = {
         expressions.push(createFunctionCall(RUNTIME.directive, [currentId, node.name, node.value]));
         ctx.runtime.add(RUNTIME.directive);
       } else if (isTextNode(node)) {
+        if (!ctx.hydratable) elementChildIndex++;
         template.push(node.value);
       } else if (isExpressionNode(node)) {
         if (!node.dynamic && !customElement) {

@@ -353,9 +353,10 @@ it('should compile for loop', () => {
       get children() {
         return (item, i) => (
           (() => {
-            const $$_root = $$_clone($$_templ);
+            const $$_root = $$_clone($$_templ),
+              $$_el = $$_root.firstChild;
 
-            $$_insert($$_root, item, null);
+            $$_insert($$_root, item, $$_el);
             $$_insert($$_root, i, null);
 
             return $$_root;

@@ -35,7 +35,7 @@ it('should render custom element with children', () => {
 it('should render custom element with shadow dom', () => {
   const element = defineElement({
     tagName: 'mk-foo',
-    shadow: true,
+    shadowRoot: true,
     setup: () => () => <div class="foo">Test</div>,
   });
 

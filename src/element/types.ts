@@ -81,7 +81,7 @@ export type ElementDeclaration<
   tagName: `${string}-${string}`;
   props?: ElementPropDefinitions<Props>;
   setup: ElementSetup<Props, Events, Members>;
-  shadow?: true | ShadowRootInit;
+  shadowRoot?: true | ShadowRootInit;
 }>;
 
 export type ElementDefinitionSetup<

@@ -58,7 +58,7 @@ export function $$_custom_element(
 
   return {
     [SSR_TEMPLATE]: `<${definition.tagName}${host.attributes}>${
-      childElements ? (definition.shadow ? ssr + children : children) : ssr
+      childElements ? (definition.shadowRoot ? ssr + children : children) : ssr
     }</${definition.tagName}>`,
   };
 }

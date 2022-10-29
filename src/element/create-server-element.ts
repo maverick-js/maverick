@@ -133,9 +133,9 @@ export function createServerElement<
         ssr +
         (!this._children ? `<!${INTERNAL_END}>` : '');
 
-      return definition.shadow
+      return definition.shadowRoot
         ? `<template shadowroot="${
-            isBoolean(definition.shadow) ? 'open' : definition.shadow.mode
+            isBoolean(definition.shadowRoot) ? 'open' : definition.shadowRoot.mode
           }">${template}</template>`
         : template;
     }

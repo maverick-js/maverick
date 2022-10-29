@@ -270,9 +270,11 @@ export function createHTMLElement<
       // User might've destroy component in setup.
       if (this._destroyed) return noop;
 
-      this._root = definition.shadow
+      this._root = definition.shadowRoot
         ? this.shadowRoot ??
-          this.attachShadow(isBoolean(definition.shadow) ? { mode: 'open' } : definition.shadow)
+          this.attachShadow(
+            isBoolean(definition.shadowRoot) ? { mode: 'open' } : definition.shadowRoot,
+          )
         : this;
 
       Object.defineProperties(this, Object.getOwnPropertyDescriptors(members));
@@ -293,7 +295,7 @@ export function createHTMLElement<
       this[DESTROY].push(
         renderer($render, {
           target: this._root,
-          resume: !definition.shadow,
+          resume: !definition.shadowRoot,
         }),
       );
 

@@ -76,7 +76,7 @@ export function $$_setup_custom_element(
   definition: ElementDefinition,
   props?: Record<string, any>,
 ) {
-  if (hydration && definition.shadow && !supportsDeclarativeShadowDOM()) {
+  if (hydration && definition.shadowRoot && !supportsDeclarativeShadowDOM()) {
     attachDeclarativeShadowDOM(element);
   }
 

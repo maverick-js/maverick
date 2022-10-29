@@ -13,7 +13,7 @@ it('should render custom element', async () => {
   const root = document.createElement('root');
 
   const children = observable(<div>Foo</div>);
-  render(() => <CustomElement element={Button}>{children()}</CustomElement>, { target: root });
+  render(() => <CustomElement $element={Button}>{children()}</CustomElement>, { target: root });
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-button-1>
@@ -70,7 +70,7 @@ it('should render custom element with only internal content', () => {
   });
 
   const root = document.createElement('root');
-  render(() => <CustomElement element={Button} />, { target: root });
+  render(() => <CustomElement $element={Button} />, { target: root });
 
   expect(root).toMatchInlineSnapshot(`
   <root>
@@ -96,7 +96,7 @@ it('should render custom element with only children', () => {
   const root = document.createElement('root');
   render(
     () => (
-      <CustomElement element={Button}>
+      <CustomElement $element={Button}>
         <div>Children</div>
       </CustomElement>
     ),
@@ -128,7 +128,7 @@ it('should render custom element with inner html', () => {
   const root = document.createElement('root');
   render(
     () => (
-      <CustomElement element={Button} $prop:innerHTML="<div>INNER HTML</div>">
+      <CustomElement $element={Button} $prop:innerHTML="<div>INNER HTML</div>">
         <div>Children</div>
       </CustomElement>
     ),

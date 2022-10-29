@@ -8,6 +8,42 @@ import type {
 } from '../../element/types';
 
 /**
+ * Takes an element definition and enables setting attributes and event listeners on the host
+ * element from inside a setup function (i.e., the custom element). This is a virtual component
+ * meaning it's compiled away, so don't try calling this function.
+ *
+ * @example
+ * ```tsx
+ * const MyButton = defineElement({
+ *   tagName: 'my-button',
+ *   setup: () => {
+ *     return () => <HostElement $element={MyButton}>...</HostElement>
+ *   }
+ * });
+ * ```
+ */
+export function HostElement<
+  Props extends ElementProps = ElementProps,
+  Events = JSX.GlobalOnAttributes,
+  CSSVars extends ElementCSSVars = ElementCSSVars,
+  Members extends ElementMembers = ElementMembers,
+>(
+  props: {
+    /** Custom element defintion. */
+    $element: ElementDefinition<Props, Events, CSSVars, Members>;
+    children?: JSX.Element;
+  } & JSX.HTMLElementAttributes<
+    MaverickElement<Props, Members>,
+    never,
+    Events & JSX.GlobalOnAttributes & JSX.EventRecord,
+    CSSVars
+  >,
+): MaverickElement<Props, Members> {
+  // Virtual component so it doesn't return anything, output is determined by the compiler.
+  return null as any;
+}
+
+/**
  * Takes an element definition and renders a custom element. This is a virtual component meaning
  * it's compiled away, so don't try creating elements by calling this function.
  *
@@ -18,7 +54,7 @@ import type {
  *   setup: () => () => <button />
  * });
  *
- * const element = <CustomElement element={MyButton} />
+ * const element = <CustomElement $element={MyButton} />
  * ```
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements}
  */
@@ -29,7 +65,8 @@ export function CustomElement<
   Members extends ElementMembers = ElementMembers,
 >(
   props: {
-    element: ElementDefinition<Props, Events, CSSVars, Members>;
+    /** Custom element defintion. */
+    $element: ElementDefinition<Props, Events, CSSVars, Members>;
     children?: JSX.Element;
   } & JSX.HTMLElementAttributes<
     MaverickElement<Props, Members>,

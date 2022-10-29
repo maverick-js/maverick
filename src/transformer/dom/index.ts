@@ -417,7 +417,7 @@ export const dom: ASTSerializer = {
           } else {
             template.push(` ${node.name}="${escape(trimQuotes(node.value), true)}"`);
           }
-        } else if (!customElement || node.name !== 'element') {
+        } else if (!customElement || node.name !== '$element') {
           addAttrExpression(node, RUNTIME.attr);
         }
       } else if (isRefNode(node)) {
@@ -535,7 +535,7 @@ function getElementId(
 function findCustomElementDefinition(ast: AST, node: ElementNode, start: number) {
   for (let j = start; j < ast.tree.length; j++) {
     const attr = ast.tree[j];
-    if (isAttributeNode(attr) && attr.name === 'element') {
+    if (isAttributeNode(attr) && attr.name === '$element') {
       return attr;
     } else if (isStructuralNode(attr)) {
       break;

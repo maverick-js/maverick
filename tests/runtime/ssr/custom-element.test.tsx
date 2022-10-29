@@ -8,7 +8,7 @@ it('should render custom element', () => {
     setup: () => () => <div class="foo">Test</div>,
   });
 
-  const result = renderToString(() => <CustomElement element={element} />).code;
+  const result = renderToString(() => <CustomElement $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
     '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><!$><div class=\\"foo\\">Test</div><!/#internal></mk-foo>"',
@@ -22,7 +22,7 @@ it('should render custom element with children', () => {
   });
 
   const result = renderToString(() => (
-    <CustomElement element={element}>
+    <CustomElement $element={element}>
       <div>Child</div>
     </CustomElement>
   )).code;
@@ -40,7 +40,7 @@ it('should render custom element with shadow dom', () => {
   });
 
   const result = renderToString(() => (
-    <CustomElement element={element}>
+    <CustomElement $element={element}>
       <div>Light A</div>
       <div>Light B</div>
       <div>Light C</div>
@@ -66,7 +66,7 @@ it('should render custom element with attributes', () => {
       $class:bar={true}
       $style:display={'none'}
       $cssvar:baz={10}
-      element={element}
+      $element={element}
     />
   )).code;
 
@@ -87,7 +87,7 @@ it('should forward props', () => {
         <div>{props.foo}</div>,
   });
 
-  const result = renderToString(() => <CustomElement $prop:foo={100} element={element} />).code;
+  const result = renderToString(() => <CustomElement $prop:foo={100} $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
     '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><!$><div><!$>100</div><!/#internal></mk-foo>"',
@@ -106,7 +106,7 @@ it('should forward attrs to props', () => {
         <div>{props.foo}</div>,
   });
 
-  const result = renderToString(() => <CustomElement foo={100} element={element} />).code;
+  const result = renderToString(() => <CustomElement foo={100} $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
     '"<!$><mk-foo foo=\\"100\\" data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><!$><div><!$>100</div><!/#internal></mk-foo>"',
@@ -120,7 +120,7 @@ it('should set inner html', () => {
   });
 
   const result = renderToString(() => (
-    <CustomElement $prop:innerHTML={`<div>INNER HTML</div>`} element={element}>
+    <CustomElement $prop:innerHTML={`<div>INNER HTML</div>`} $element={element}>
       <div>Foo</div>
     </CustomElement>
   )).code;

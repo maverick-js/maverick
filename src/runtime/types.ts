@@ -7,7 +7,7 @@ export type DOMEvent = Event;
 export type ComponentChildren = JSX.Element;
 
 export type ComponentProps<Props = {}, Children = never> = Props & {
-  children?: Children;
+  $children?: Children;
 };
 
 export type Component<Props = {}, Children = never> = (
@@ -15,7 +15,7 @@ export type Component<Props = {}, Children = never> = (
 ) => JSX.Element;
 
 export type ParentComponentProps<Props = {}, Children = ComponentChildren> = Props & {
-  children: Children;
+  $children: Children;
 };
 
 export type ParentComponent<Props = {}, Children = ComponentChildren> = (

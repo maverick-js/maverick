@@ -91,7 +91,7 @@ it('shoud compile custom element with children', () => {
     $$_ssr(
       $$_templ_2,
       $$_custom_element(DEFINITION, {
-        get children() {
+        get $children() {
           return $$_ssr($$_templ, id);
         },
       }),
@@ -122,7 +122,7 @@ it('shoud compile custom element with inner html', () => {
       $$_templ_2,
       $$_custom_element(DEFINITION, {
         innerHTML: \\"<div>Foo</div>\\",
-        get children() {
+        get $children() {
           return $$_ssr($$_templ);
         },
       }),

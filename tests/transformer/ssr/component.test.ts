@@ -41,13 +41,13 @@ it('should compile nested components', () => {
       $$_templ_2 = /* #__PURE__ */ [\\"<!$><div></div>\\"];
 
     $$_create_component(Component, {
-      get children() {
+      get $children() {
         return [
           \\"Text\\",
           $$_ssr($$_templ),
           $$_create_component(Foo),
           $$_create_component(Bar, {
-            get children() {
+            get $children() {
               return [$$_ssr($$_templ_2), $$_create_component(Baz)];
             },
           }),
@@ -121,7 +121,7 @@ it('should compile component with text children', () => {
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_component } from \\"maverick.js/ssr\\";
     $$_create_component(Component, {
-      get children() {
+      get $children() {
         return \\"foo 10 bar 20 baz\\";
       },
     })"
@@ -135,7 +135,7 @@ it('should compile component with element children', () => {
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div>Foo<!$>\\", \\"</div>\\"];
     $$_create_component(Component, {
-      get children() {
+      get $children() {
         return $$_ssr($$_templ, id);
       },
     })"
@@ -150,7 +150,7 @@ it('should compile component with props and children', () => {
     const $$_templ = /* #__PURE__ */ [\\"<!$><div></div>\\"];
     $$_create_component(Component, {
       foo: id,
-      get children() {
+      get $children() {
         return $$_ssr($$_templ);
       },
     })"
@@ -164,7 +164,7 @@ it('should forward single call expression', () => {
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div><!$>\\", \\"</div>\\"];
     $$_create_component(Component, {
-      get children() {
+      get $children() {
         return () => $$_ssr($$_templ, id);
       },
     })"
@@ -185,7 +185,7 @@ it('should forward multiple call expressions', () => {
       $$_templ_2 = /* #__PURE__ */ $$_templ;
 
     $$_create_component(Component, {
-      get children() {
+      get $children() {
         return [() => $$_ssr($$_templ, id), () => $$_ssr($$_templ_2, id)];
       },
     })
@@ -215,7 +215,7 @@ it('should compile component child fragment', () => {
       $$_templ_3 = /* #__PURE__ */ [\\"<!$><div></div>\\"];
 
     $$_create_component(Component, {
-      get children() {
+      get $children() {
         return [$$_ssr($$_templ, id), $$_ssr($$_templ_2, id), id, $$_ssr($$_templ_3), id];
       },
     })

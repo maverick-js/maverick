@@ -38,11 +38,11 @@ it('should render fragment', () => {
 
 it('should render components', () => {
   function Component(props) {
-    return props.children;
+    return props.$children;
   }
 
   function ChildComponent(props) {
-    return <div>{props.children}</div>;
+    return <div>{props.$children}</div>;
   }
 
   const root = element('root');
@@ -163,7 +163,7 @@ it('should be reactive', async () => {
 
 it('should render observable component', async () => {
   function Component(props) {
-    return props.children;
+    return props.$children;
   }
 
   const $count = observable(1);

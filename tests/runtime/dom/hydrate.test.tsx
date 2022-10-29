@@ -34,7 +34,7 @@ it('should hydrate', async () => {
   const clickHandler = vi.fn();
 
   const ChildComponent: ParentComponent = (props) => {
-    return props.children;
+    return props.$children;
   };
 
   function Component() {

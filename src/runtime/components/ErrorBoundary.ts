@@ -29,8 +29,8 @@ export type ErrorBoundaryHandler<T = unknown> = (error: ObservableError<T>) => J
  * ```
  */
 export function ErrorBoundary(props: {
-  children: JSX.Element | ErrorBoundaryHandler;
   onError?: (error: unknown, handled: () => void) => void;
+  $children: JSX.Element | ErrorBoundaryHandler;
 }): Observable<JSX.Element> {
   const $e = observable<unknown>(null);
 
@@ -38,10 +38,10 @@ export function ErrorBoundary(props: {
   $error.handled = () => $e.set(null);
 
   return computed(() => {
-    const children = props.children;
+    const $children = props.$children;
 
     onError((error) => {
-      if (__DEV__ && (!isFunction(children) || children.length === 0)) {
+      if (__DEV__ && (!isFunction($children) || $children.length === 0)) {
         console.error(error);
       }
 
@@ -49,8 +49,8 @@ export function ErrorBoundary(props: {
       props.onError?.(error, $error.handled);
     });
 
-    return isFunction(children) && children.length > 0
-      ? peek(() => (children as any)($error))
-      : children;
+    return isFunction($children) && $children.length > 0
+      ? peek(() => ($children as any)($error))
+      : $children;
   });
 }

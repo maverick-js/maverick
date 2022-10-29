@@ -43,8 +43,8 @@ export function $$_custom_element(
 
   const children = props?.innerHTML
     ? resolve(props.innerHTML)
-    : props?.children
-    ? resolve(props.children)
+    : props?.$children
+    ? resolve(props.$children)
     : '';
 
   const childElements = children.replace(/<!(.*?)>/g, '').length > 0;

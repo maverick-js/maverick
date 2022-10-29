@@ -12,8 +12,8 @@ it('should render custom element', async () => {
 
   const root = document.createElement('root');
 
-  const children = observable(<div>Foo</div>);
-  render(() => <CustomElement $element={Button}>{children()}</CustomElement>, { target: root });
+  const $children = observable(<div>Foo</div>);
+  render(() => <CustomElement $element={Button}>{$children()}</CustomElement>, { target: root });
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-button-1>
@@ -28,7 +28,7 @@ it('should render custom element', async () => {
     </root>
   `);
 
-  children.set(null);
+  $children.set(null);
   await tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -46,7 +46,7 @@ it('should render custom element', async () => {
     </root>
   `);
 
-  children.set(<div>Bar</div>);
+  $children.set(<div>Bar</div>);
   await tick();
   expect(root).toMatchInlineSnapshot(`
     <root>

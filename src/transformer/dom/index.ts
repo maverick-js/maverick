@@ -174,7 +174,7 @@ export const dom: ASTSerializer = {
         scoped = children.length !== 1 || !isAST(children[0]);
         const serialized = serializeChildren(dom, children, ctx);
         const hasReturn = scoped || /^(\[|\(|\$\$|\")/.test(serialized);
-        props.push(`get children() { ${hasReturn ? `return ${serialized}` : serialized} }`);
+        props.push(`get $children() { ${hasReturn ? `return ${serialized}` : serialized} }`);
         scoped = prevScoped;
       },
       insert = (marker: (() => string) | null, value: string) => {

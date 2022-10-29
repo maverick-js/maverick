@@ -83,7 +83,7 @@ it('should compile custom element with children', () => {
       const $$_el = $$_create_element(DEFINITION.tagName);
 
       $$_setup_custom_element($$_el, DEFINITION, {
-        get children() {
+        get $children() {
           const $$_root = $$_clone($$_templ);
 
           $$_insert($$_root, id);
@@ -135,7 +135,7 @@ it('should compile child custom element', () => {
         get foo() {
           return props.foo;
         },
-        get children() {
+        get $children() {
           return id();
         },
       });

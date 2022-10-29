@@ -61,7 +61,7 @@ export namespace JSX {
   export interface ElementAttributesProperty {}
 
   export interface ElementChildrenAttribute {
-    children?: Element;
+    $children?: Element;
   }
 
   /**
@@ -253,7 +253,7 @@ export namespace JSX {
   } & LowercasedObservableAttributes<ConditionalPick<Record, AttrValue>>;
 
   export type HTMLAttributes = HTMLPropAttributes<HTMLProperties> & {
-    children?: Element;
+    $children?: Element;
   };
 
   export type HTMLCSSProperties = {

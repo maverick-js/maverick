@@ -31,7 +31,7 @@ export function HostElement<
   props: {
     /** Custom element defintion. */
     $element: ElementDefinition<Props, Events, CSSVars, Members>;
-    children?: JSX.Element;
+    $children?: JSX.Element;
   } & JSX.HTMLElementAttributes<
     MaverickElement<Props, Members>,
     never,
@@ -67,7 +67,7 @@ export function CustomElement<
   props: {
     /** Custom element defintion. */
     $element: ElementDefinition<Props, Events, CSSVars, Members>;
-    children?: JSX.Element;
+    $children?: JSX.Element;
   } & JSX.HTMLElementAttributes<
     MaverickElement<Props, Members>,
     Partial<Props>,

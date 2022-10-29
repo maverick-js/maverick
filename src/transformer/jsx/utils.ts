@@ -153,7 +153,7 @@ export function serializeComponentChildrenProp(
   children: ComponentChildren[],
   ctx: TransformContext,
 ) {
-  return `get children() { return ${serializeChildren(serializer, children, ctx)} }`;
+  return `get $children() { return ${serializeChildren(serializer, children, ctx)} }`;
 }
 
 export function serializeParentExpression(

@@ -142,8 +142,7 @@ export function appendTriggerEvent(event: DOMEvent, triggerEvent?: Event) {
 export function defineEvent<Event>(
   init?: InferEventInit<Event>,
 ): Event extends DOMEvent ? Event : InferEventInit<Event> {
-  // type macro which is compiled away.
-  return null as any;
+  return init as any;
 }
 
 export function defineEvents<EventRecord extends ElementEventRecord>(): EventRecord {

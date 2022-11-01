@@ -42,7 +42,7 @@ export const LIFECYCLES = [
 
 export function createLifecycleMethod(name: keyof ElementLifecycleManager) {
   return (callback: ElementLifecycleCallback) => {
-    if (__NODE__) return;
+    if (__SERVER__) return;
 
     const host = getHost();
 

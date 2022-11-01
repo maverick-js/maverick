@@ -48,7 +48,7 @@ export function createHTMLElement<
 >(
   definition: ElementDefinition<Props, Events, CSSVars, Members>,
 ): MaverickElementConstructor<Props, Events, CSSVars, Members> {
-  if (__NODE__) {
+  if (__SERVER__) {
     throw Error(
       '[maverick] `createHTMLElement` was called outside of browser - use `createServerElement`',
     );
@@ -369,7 +369,7 @@ export function isMaverickElement(node?: Node): node is MaverickElement {
 }
 
 export function defineCustomElement(definition: ElementDefinition<any, any, any, any>) {
-  if (__NODE__) return;
+  if (__SERVER__) return;
   if (!window.customElements.get(definition.tagName)) {
     window.customElements.define(definition.tagName, createHTMLElement(definition));
   }

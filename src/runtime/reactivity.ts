@@ -14,7 +14,7 @@ import type { ObservableRecord, ObservableRecordValues } from './types';
  * @see {@link https://github.com/maverick-js/observables#effect}
  */
 export function effect(fn: Effect, opts?: { id?: string }): StopEffect {
-  if (__NODE__) return noop;
+  if (__SERVER__) return noop;
   return $effect(fn, opts);
 }
 

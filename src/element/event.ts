@@ -4,7 +4,7 @@ import type { ElementEventRecord } from './types';
 
 const DOM_EVENT = Symbol('DOM_EVENT');
 
-const DOMEventBase: Event = __NODE__ ? (class Event {} as any) : Event;
+const DOMEventBase: Event = __SERVER__ ? (class Event {} as any) : Event;
 
 export type DOMEventInit<Detail = unknown> = EventInit & {
   readonly detail?: Detail;

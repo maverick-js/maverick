@@ -1,5 +1,5 @@
 export function raf(callback: () => void | Promise<void>) {
-  if (__NODE__) {
+  if (__SERVER__) {
     callback();
     return;
   }

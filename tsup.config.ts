@@ -1,23 +1,23 @@
 import { defineConfig, type Options } from 'tsup';
 
-function base({ dev = false, node = false } = {}): Options {
+function base({ dev = false, server = false } = {}): Options {
   return {
-    format: 'esm',
+    format: server ? ['esm', 'cjs'] : 'esm',
     external: ['typescript', 'rollup', 'chokidar', 'esbuild'],
     // minify: true,
     treeshake: true,
     splitting: true,
     tsconfig: 'tsconfig.build.json',
-    target: node ? 'node16' : 'esnext',
-    platform: node ? 'node' : 'browser',
-    outDir: node ? 'dist/node' : dev ? 'dist/dev' : 'dist/prod',
+    target: server ? 'node16' : 'esnext',
+    platform: server ? 'node' : 'browser',
+    outDir: server ? 'dist/server' : dev ? 'dist/dev' : 'dist/prod',
     define: {
       __DEV__: dev ? 'true' : 'false',
-      __NODE__: node ? 'true' : 'false',
+      __SERVER__: server ? 'true' : 'false',
       __TEST__: 'false',
     },
     esbuildOptions(opts) {
-      if (!dev && !node) {
+      if (!dev && !server) {
         opts.mangleProps = /^_/;
       }
 
@@ -44,11 +44,11 @@ export default defineConfig([
     dts: true,
   },
   {
-    ...base({ node: true }),
+    ...base({ server: true }),
     entry: runtimeEntry,
   },
   {
-    ...base({ node: true }),
+    ...base({ server: true }),
     entry: { plugins: './src/plugins/index.ts' },
     dts: true,
   },

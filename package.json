@@ -11,33 +11,42 @@
       "types": "./index.d.ts",
       "development": "./dist/dev/runtime.js",
       "test": "./dist/dev/runtime.js",
-      "node": "./dist/node/runtime.js",
+      "require": "./dist/server/runtime.cjs",
+      "deno": "./dist/server/runtime.js",
+      "node": "./dist/server/runtime.js",
       "default": "./dist/prod/runtime.js"
     },
     "./dom": {
       "types": "./dom.d.ts",
       "development": "./dist/dev/dom.js",
       "test": "./dist/dev/dom.js",
-      "node": "./dist/node/dom.js",
+      "require": "./dist/server/dom.cjs",
+      "deno": "./dist/server/dom.js",
+      "node": "./dist/server/dom.js",
       "default": "./dist/prod/dom.js"
     },
     "./ssr": {
       "types": "./ssr.d.ts",
       "development": "./dist/dev/ssr.js",
       "test": "./dist/dev/ssr.js",
-      "node": "./dist/node/ssr.js",
+      "require": "./dist/server/ssr.cjs",
+      "deno": "./dist/server/ssr.js",
+      "node": "./dist/server/ssr.js",
       "default": "./dist/prod/ssr.js"
     },
     "./element": {
       "types": "./element.d.ts",
       "development": "./dist/dev/element.js",
       "test": "./dist/dev/element.js",
-      "node": "./dist/node/element.js",
+      "require": "./dist/server/element.cjs",
+      "deno": "./dist/server/element.js",
+      "node": "./dist/server/element.js",
       "default": "./dist/prod/element.js"
     },
     "./plugins": {
       "types": "./plugins.d.ts",
-      "default": "./dist/node/plugins.js"
+      "require": "./dist/server/plugins.cjs",
+      "default": "./dist/server/plugins.js"
     },
     "./package.json": "./package.json"
   },

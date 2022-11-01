@@ -54,7 +54,7 @@ export function listen<Target extends EventTarget | MaverickHost, EventType exte
     : JSX.EventHandler,
   options?: AddEventListenerOptions | boolean,
 ) {
-  if (__NODE__) return;
+  if (__SERVER__) return;
   target.addEventListener(type, handler, options);
   onDispose(() => {
     target.removeEventListener(type, handler, options);
@@ -127,7 +127,7 @@ export function toggleClass(host: Element | MaverickHost, name: string, value: u
  * created.
  */
 export function observe<T>(value: T, onUpdate: (value: T) => void) {
-  if (__NODE__) {
+  if (__SERVER__) {
     onUpdate(isFunction(value) ? value() : value);
     return;
   }

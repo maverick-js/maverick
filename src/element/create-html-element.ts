@@ -336,7 +336,8 @@ export function createHTMLElement<
 
     override dispatchEvent(event: Event): boolean {
       const ctor = this.constructor as typeof MaverickElement;
-      if (event.type.includes('-') && !ctor._events.has(event.type)) {
+
+      if (!ctor._events.has(event.type)) {
         this._onEventDispatch?.(event.type);
         ctor._events.add(event.type);
       }

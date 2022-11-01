@@ -1,4 +1,6 @@
+import { effect } from '@maverick-js/observables';
 import type { MaverickHost } from '../../element/types';
+import { isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
 import { onDispose } from '../reactivity';
 import { insertExpression } from './expression';
@@ -34,56 +36,140 @@ export function insert(
   insertExpression(marker, value);
 }
 
-export function listen<Target extends EventTarget, EventType extends string>(
+/**
+ * Adds an event listener for the given `type`.
+ *
+ * This function is safe to use on the server.
+ */
+export function listen<Target extends EventTarget | MaverickHost, EventType extends string>(
   target: Target,
   type: EventType,
   handler: EventType extends keyof JSX.GlobalEventRecord
-    ? JSX.EventHandler<JSX.TargetedEvent<Target, JSX.GlobalEventRecord[EventType]>>
+    ? JSX.EventHandler<
+        JSX.TargetedEvent<
+          Target extends MaverickHost ? Target['$el'] & EventTarget : Target,
+          JSX.GlobalEventRecord[EventType]
+        >
+      >
     : JSX.EventHandler,
   options?: AddEventListenerOptions | boolean,
 ) {
   if (__NODE__) return;
-  target.addEventListener(type as string, handler as JSX.EventHandler, options);
+  target.addEventListener(type, handler, options);
   onDispose(() => {
-    target.removeEventListener(type as string, handler as JSX.EventHandler, options);
+    target.removeEventListener(type, handler, options);
   });
 }
 
 /**
  * Sets or removes the given attribute `value`. Falsy values except `''` and `0` will remove
- * the attribute.
+ * the attribute. If the given `value` is a function/observable, the attribute will be updated as
+ * the value updates.
+ *
+ * This function is safe to use on the server.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
-export function setAttribute(element: Element, name: string, value: unknown) {
-  if (!value && value !== '' && value !== 0) {
-    element.removeAttribute(name);
+export function setAttribute(host: Element | MaverickHost, name: string, value: unknown) {
+  observe(value, ($value) => {
+    if (!$value && $value !== '' && $value !== 0) {
+      host.removeAttribute(name);
+    } else {
+      const attrValue = $value + '';
+      if (host.getAttribute(name) !== attrValue) {
+        host.setAttribute(name, attrValue);
+      }
+    }
+  });
+}
+
+/**
+ * Sets or removes the given style `value`. Falsy values will remove the style. If the
+ * given `value` is a function/observable, the style will be updated as the value updates.
+ *
+ * This function is safe to use on the server.
+ *
+ * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
+ */
+export function setStyle(host: HTMLElement | MaverickHost, property: string, value: unknown) {
+  observe(value, ($value) => {
+    if (!$value && $value !== 0) {
+      host.style.removeProperty(property);
+    } else {
+      host.style.setProperty(property, $value + '');
+    }
+  });
+}
+
+/**
+ * Toggles the given class `name`. Falsy values will remove the class from the list. If the
+ * given `value` is a function/observable, the class will be toggled as the value updates.
+ *
+ * This function is safe to use on the server.
+ *
+ * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
+ */
+export function toggleClass(host: Element | MaverickHost, name: string, value: unknown) {
+  observe(value, ($value) => {
+    host.classList[$value ? 'add' : 'remove'](name);
+  });
+}
+
+/**
+ * Observes the given `value`. This utility is useful when a side effect needs to run on both
+ * the client and server.
+ *
+ *- If the given `value` is a function/observable it will be run in an effect and observed. The
+ * observed value will be passed to the given `callback`.
+ *- If the given `value` is _not_ a function/observable, it'll simply be passed to the given
+ * `callback`.
+ * - In a server environment the given `value` will be unwrapped if needed but no effect will be
+ * created.
+ */
+export function observe<T>(value: T, onUpdate: (value: T) => void) {
+  if (__NODE__) {
+    onUpdate(isFunction(value) ? value() : value);
+    return;
+  }
+
+  if (isFunction(value)) {
+    effect(() => onUpdate(value()));
   } else {
-    const attrValue = value + '';
-    if (element.getAttribute(name) !== attrValue) {
-      element.setAttribute(name, attrValue);
+    onUpdate(value);
+  }
+}
+
+export function mergeProperties<A, B>(...sources: [A, B]): Omit<A, keyof B> & B;
+
+export function mergeProperties<A, B, C>(
+  ...sources: [A, B, C]
+): Omit<A, keyof B | keyof C> & Omit<B, keyof C> & C;
+
+export function mergeProperties<A, B, C, D>(
+  ...sources: [A, B, C, D]
+): Omit<A, keyof B | keyof C | keyof D> & Omit<B, keyof C | keyof D> & Omit<C, keyof D> & D;
+
+export function mergeProperties<A, B, C, D, E>(
+  ...sources: [A, B, C, D, E]
+): Omit<A, keyof B | keyof C | keyof D | keyof E> &
+  Omit<B, keyof C | keyof D | keyof E> &
+  Omit<C, keyof D | keyof E> &
+  Omit<D, keyof E> &
+  E;
+
+/**
+ * Merges properties of the given `sources` together into a single object. All enumerable properties
+ * are merged including values, getters, setters, and methods.
+ */
+export function mergeProperties(...sources: any[]) {
+  const target = {} as any;
+
+  for (let i = 0; i < sources.length; i++) {
+    const source = sources[i];
+    if (source) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
     }
   }
-}
 
-/**
- * Sets or removes the given style `value`. Falsy values will remove the style.
- *
- * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
- */
-export function setStyle(element: MaverickHost | HTMLElement, property: string, value: unknown) {
-  if (!value && value !== 0) {
-    element.style.removeProperty(property);
-  } else {
-    element.style.setProperty(property, value + '');
-  }
-}
-
-/**
- * Toggles the given class `name`. Falsy values will remove the class from the list.
- *
- * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
- */
-export function toggleClass(element: Element, name: string, value: unknown) {
-  element.classList[value ? 'add' : 'remove'](name);
+  return target;
 }

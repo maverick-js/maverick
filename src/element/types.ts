@@ -87,7 +87,6 @@ export type ElementSetupContext<
   CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
 > = {
   props?: Readonly<Props>;
-  cssvars?: Readonly<CSSVars> | ElementCSSVarsBuilder<Props, CSSVars>;
   context?: ElementContextMap;
   children?: Observable<boolean>;
   onEventDispatch?: (eventType: string) => void;

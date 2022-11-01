@@ -1,5 +1,5 @@
 import { CustomElement, observable, render, tick } from 'maverick.js';
-import { defineElement } from 'maverick.js/element';
+import { defineCustomElement, defineElement, MaverickElement } from 'maverick.js/element';
 
 it('should render custom element', async () => {
   const Button = defineElement({
@@ -145,5 +145,58 @@ it('should render custom element with inner html', () => {
       </div>
     </mk-button-4>
   </root>
+`);
+});
+
+it('should render css vars', () => {
+  const Button = defineElement({
+    tagName: `mk-button-5`,
+    cssvars: {
+      foo: 10,
+      bar: 'none',
+    },
+    setup: () => () => null,
+  });
+
+  defineCustomElement(Button);
+
+  const element = document.createElement(Button.tagName) as MaverickElement;
+  element.$setup();
+
+  expect(element).toMatchInlineSnapshot(`
+  <mk-button-5
+    style="--foo: 10; --bar: none;"
+  />
+`);
+});
+
+it('should render css vars builder', async () => {
+  const Button = defineElement({
+    tagName: `mk-button-6`,
+    props: { foo: { initial: 0 } },
+    cssvars: (props) => ({
+      foo: () => props.foo,
+    }),
+    setup: () => () => null,
+  });
+
+  defineCustomElement(Button);
+
+  const element = document.createElement(Button.tagName) as MaverickElement;
+  element.$setup();
+
+  expect(element).toMatchInlineSnapshot(`
+  <mk-button-6
+    style="--foo: 0;"
+  />
+`);
+
+  element.$$props.foo.set(100);
+  await tick();
+
+  expect(element).toMatchInlineSnapshot(`
+  <mk-button-6
+    style="--foo: 100;"
+  />
 `);
 });

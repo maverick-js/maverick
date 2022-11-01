@@ -1,9 +1,18 @@
-import { computed, effect, onDispose, peek } from '../reactivity';
+import { computed, onDispose, peek } from '../reactivity';
 import { isArray, isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
 import { createMarkerWalker, insertExpression, type StartMarker } from './expression';
 import { hydration } from './render';
-import { createFragment, insert, listen, setAttribute, setStyle, toggleClass } from './utils';
+import {
+  createFragment,
+  insert,
+  listen,
+  mergeProperties,
+  observe,
+  setAttribute,
+  setStyle,
+  toggleClass,
+} from './utils';
 import { defineCustomElement, type MaverickElement, type ElementDefinition } from '../../element';
 import { attachDeclarativeShadowDOM, supportsDeclarativeShadowDOM } from '../../utils/dom';
 
@@ -86,7 +95,7 @@ export function $$_setup_custom_element(
 
   if (!hydration) {
     if (props?.innerHTML) {
-      observeOrRun(props.innerHTML, (innerHTML) => {
+      observe(props.innerHTML, (innerHTML) => {
         element.innerHTML += innerHTML;
       });
     } else {
@@ -133,37 +142,36 @@ export function $$_directive(element: Element, directive: JSX.Directive, args: u
 
 /** @internal */
 export function $$_attr(element: Element, name: string, value: unknown) {
-  observeOrRun(value, (value) => setAttribute(element, name, value));
+  setAttribute(element, name, value);
 }
 
 /** @internal */
 export function $$_prop(element: Element, name: string, value: unknown) {
-  observeOrRun(value, (value) => {
+  observe(value, (value) => {
     element[name] = value;
   });
 }
 
 /** @internal */
 export function $$_inner_html(element: Element, value: unknown) {
-  observeOrRun(value, (value) => {
+  observe(value, (value) => {
     if (!hydration) element.innerHTML = value as string;
   });
 }
 
 /** @internal */
 export function $$_class(element: Element, name: string, value: unknown) {
-  observeOrRun(value, (value) => toggleClass(element, name, value));
+  toggleClass(element, name, value);
 }
 
 /** @internal */
 export function $$_style(element: HTMLElement, name: string, value: unknown) {
-  observeOrRun(value, (value) => setStyle(element, name, value));
+  setStyle(element, name, value);
 }
 
 /** @internal */
 export function $$_cssvar(element: HTMLElement, name: string, value: unknown) {
-  const prop = `--${name}`;
-  observeOrRun(value, (value) => setStyle(element, prop, value));
+  setStyle(element, `--${name}`, value);
 }
 
 /** @internal */
@@ -181,32 +189,13 @@ export function $$_spread(element: Element, props: Record<string, unknown>) {
 
 /** @internal */
 export function $$_merge_props(...sources: Record<string, unknown>[]) {
-  const target = {};
-
-  for (let i = 0; i < sources.length; i++) {
-    const source = sources[i];
-    if (source) Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-  }
-
-  return target;
+  // @ts-expect-error
+  return mergeProperties(...sources);
 }
 
 /** @internal */
 export function $$_listen(target: EventTarget, type: string, handler: unknown, capture = false) {
   if (isFunction(handler)) {
     listen(target, type, handler as any, { capture });
-  }
-}
-
-function observeOrRun<T>(value: T, callback: (value: T) => void) {
-  if (__NODE__) {
-    callback(value);
-    return;
-  }
-
-  if (isFunction(value)) {
-    effect(() => callback(value()));
-  } else {
-    callback(value);
   }
 }

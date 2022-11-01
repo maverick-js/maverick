@@ -1,5 +1,5 @@
 import { CustomElement } from 'maverick.js';
-import { defineElement, defineProp } from 'maverick.js/element';
+import { createServerElement, defineElement, defineProp } from 'maverick.js/element';
 import { renderToString } from 'maverick.js/ssr';
 
 it('should render custom element', () => {
@@ -128,4 +128,43 @@ it('should set inner html', () => {
   expect(result).toMatchInlineSnapshot(
     '"<!$><mk-foo-10 data-hydrate=\\"\\" data-delegate=\\"\\"><div>INNER HTML</div></mk-foo-10>"',
   );
+});
+
+it('should render css vars', () => {
+  const Button = defineElement({
+    tagName: `mk-button-5`,
+    cssvars: {
+      foo: 10,
+      bar: 'none',
+    },
+    setup: () => () => null,
+  });
+
+  const element = new (createServerElement(Button))();
+  element.$setup();
+  expect(element.style.tokens).toMatchInlineSnapshot(`
+    Map {
+      "--foo" => "10",
+      "--bar" => "none",
+    }
+  `);
+});
+
+it('should render css vars builder', () => {
+  const Button = defineElement({
+    tagName: `mk-button-6`,
+    props: { foo: { initial: 100 } },
+    cssvars: (props) => ({
+      foo: () => props.foo,
+    }),
+    setup: () => () => null,
+  });
+
+  const element = new (createServerElement(Button))();
+  element.$setup();
+  expect(element.style.tokens).toMatchInlineSnapshot(`
+    Map {
+      "--foo" => "100",
+    }
+  `);
 });

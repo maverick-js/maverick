@@ -243,8 +243,10 @@ export function createHTMLElement<
           }
         }
 
-        if (ctx.cssvars) {
-          const vars = isFunction(ctx.cssvars) ? ctx.cssvars($$setupProps) : ctx.cssvars;
+        if (definition.cssvars) {
+          const vars = isFunction(definition.cssvars)
+            ? definition.cssvars($$setupProps)
+            : definition.cssvars;
           for (const name of Object.keys(vars)) setStyle(this, `--${name}`, vars[name]);
         }
 

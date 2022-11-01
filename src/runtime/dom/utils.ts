@@ -1,3 +1,4 @@
+import type { MaverickHost } from '../../element/types';
 import type { JSX } from '../jsx';
 import { onDispose } from '../reactivity';
 import { insertExpression } from './expression';
@@ -70,7 +71,7 @@ export function setAttribute(element: Element, name: string, value: unknown) {
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
-export function setStyle(element: HTMLElement, property: string, value: unknown) {
+export function setStyle(element: MaverickHost | HTMLElement, property: string, value: unknown) {
   if (!value && value !== 0) {
     element.style.removeProperty(property);
   } else {

@@ -23,12 +23,6 @@ export type ElementPropDefinition<Value = unknown> = Readonly<
      */
     attribute?: string | false;
     /**
-     * Whether the property is associated with a CSS variable, or a custom name for the associated
-     * CSS variable. By default this matches the `reflect` property and the name is inferred by
-     * kebab-casing the property name.
-     */
-    cssvar?: string | boolean;
-    /**
      * Whether the property value should be reflected back to the attribute. By default this
      * is `false`.
      */
@@ -49,7 +43,7 @@ export type ElementPropRecord = {
 };
 
 export type ElementCSSVarRecord = {
-  [name: string]: JSX.CSSValue;
+  [name: string]: any;
 };
 
 export type ElementEventRecord = {
@@ -60,6 +54,13 @@ export type ElementMembers = {
   [name: string]: unknown;
   readonly $render: () => JSX.Element;
 };
+
+export type ElementCSSVarsBuilder<
+  Props extends ElementPropRecord = ElementPropRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
+> = (props: Readonly<Props>) => Partial<{
+  [P in keyof CSSVars]: CSSVars[P] | Observable<CSSVars[P]>;
+}>;
 
 export type ElementContextMap = Map<string | symbol, unknown>;
 
@@ -86,7 +87,7 @@ export type ElementSetupContext<
   CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
 > = {
   props?: Readonly<Props>;
-  cssvars?: Readonly<CSSVars>;
+  cssvars?: Readonly<CSSVars> | ElementCSSVarsBuilder<Props, CSSVars>;
   context?: ElementContextMap;
   children?: Observable<boolean>;
   onEventDispatch?: (eventType: string) => void;
@@ -101,7 +102,7 @@ export type ElementDeclaration<
   tagName: `${string}-${string}`;
   props?: ElementPropDefinitions<Props>;
   events?: Partial<Events>;
-  cssvars?: Partial<CSSVars>;
+  cssvars?: Partial<CSSVars> | ElementCSSVarsBuilder<Props, CSSVars>;
   setup: ElementSetup<Props, Events, CSSVars, Members>;
   shadowRoot?: true | ShadowRootInit;
 }>;

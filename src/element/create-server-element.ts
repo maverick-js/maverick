@@ -9,10 +9,10 @@ import type {
   ElementSetupContext,
   MaverickHost,
 } from './types';
-import { isBoolean, noop } from '../utils/unit';
+import { isBoolean, isFunction, noop } from '../utils/unit';
 import { camelToKebabCase } from '../utils/str';
 import { setupElementProps } from './define-element';
-import { type SubjectRecord, type JSX, setAttribute, renderToString } from '../runtime';
+import { type SubjectRecord, type JSX, setAttribute, renderToString, setStyle } from '../runtime';
 import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
 import { INTERNAL_START, INTERNAL_END } from './internal';
 
@@ -90,6 +90,11 @@ export function createServerElement<
         for (const prop of Object.keys(ctx.props)) {
           $$props[prop]?.set(ctx.props[prop]);
         }
+      }
+
+      if (ctx.cssvars) {
+        const vars = isFunction(ctx.cssvars) ? ctx.cssvars($$setupProps) : ctx.cssvars;
+        for (const name of Object.keys(vars)) setStyle(this, `--${name}`, vars[name]);
       }
 
       const members = definition.setup({

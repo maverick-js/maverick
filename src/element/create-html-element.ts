@@ -1,5 +1,12 @@
 import { effect, getScheduler, observable, peek, root } from '@maverick-js/observables';
-import { createComment, hydrate, render, setAttribute, type SubjectRecord } from '../runtime';
+import {
+  createComment,
+  hydrate,
+  render,
+  setAttribute,
+  setStyle,
+  type SubjectRecord,
+} from '../runtime';
 import { run, runAll } from '../utils/fn';
 import { camelToKebabCase } from '../utils/str';
 
@@ -234,6 +241,11 @@ export function createHTMLElement<
           for (const prop of Object.keys(ctx.props)) {
             $$props[prop]?.set(ctx.props[prop]);
           }
+        }
+
+        if (ctx.cssvars) {
+          const vars = isFunction(ctx.cssvars) ? ctx.cssvars($$setupProps) : ctx.cssvars;
+          for (const name of Object.keys(vars)) setStyle(this, `--${name}`, vars[name]);
         }
 
         if (ctx.children) {

@@ -11,7 +11,7 @@ it('should render custom element', () => {
   const result = renderToString(() => <CustomElement $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><!$><div class=\\"foo\\">Test</div><!/#internal></mk-foo>"',
+    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root></mk-foo>"',
   );
 });
 
@@ -28,7 +28,7 @@ it('should render custom element with children', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!$><div>Child</div></mk-foo>"',
+    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root><!$><div>Child</div></mk-foo>"',
   );
 });
 
@@ -71,7 +71,7 @@ it('should render custom element with attributes', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" data-hydrate=\\"\\" data-delegate=\\"\\" class=\\"foo bar\\" style=\\"display: none;--baz: 10;\\"><!#internal><!/#internal></mk-foo>"',
+    '"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root></shadow-root></mk-foo>"',
   );
 });
 
@@ -90,7 +90,7 @@ it('should forward props', () => {
   const result = renderToString(() => <CustomElement $prop:foo={100} $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><!$><div><!$>100</div><!/#internal></mk-foo>"',
+    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
   );
 });
 
@@ -109,7 +109,7 @@ it('should forward attrs to props', () => {
   const result = renderToString(() => <CustomElement foo={100} $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo foo=\\"100\\" data-hydrate=\\"\\" data-delegate=\\"\\"><!#internal><!$><div><!$>100</div><!/#internal></mk-foo>"',
+    '"<!$><mk-foo foo=\\"100\\" data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
   );
 });
 
@@ -126,7 +126,7 @@ it('should set inner html', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo-10 data-hydrate=\\"\\" data-delegate=\\"\\"><div>INNER HTML</div></mk-foo-10>"',
+    '"<!$><mk-foo-10 data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root><!$><div>Test</div></shadow-root><div>INNER HTML</div></mk-foo-10>"',
   );
 });
 

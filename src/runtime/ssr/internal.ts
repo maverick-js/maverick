@@ -47,19 +47,17 @@ export function $$_custom_element(
     ? resolve(props.$children)
     : '';
 
-  const childElements = children.replace(/<!(.*?)>/g, '').length > 0;
+  const hasChildElements = children.replace(/<!(.*?)>/g, '').length > 0;
 
   host.$setup({
     props,
-    children: () => childElements,
+    children: () => hasChildElements,
   });
 
-  let ssr = host.$render();
-
   return {
-    [SSR_TEMPLATE]: `<${definition.tagName}${host.attributes}>${
-      childElements ? (definition.shadowRoot ? ssr + children : children) : ssr
-    }</${definition.tagName}>`,
+    [SSR_TEMPLATE]: `<${definition.tagName}${host.attributes}>${host.$render() + children}</${
+      definition.tagName
+    }>`,
   };
 }
 

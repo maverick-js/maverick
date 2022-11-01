@@ -1,12 +1,6 @@
-import { effect, getScheduler, observable, peek, root } from '@maverick-js/observables';
-import {
-  createComment,
-  hydrate,
-  render,
-  setAttribute,
-  setStyle,
-  type SubjectRecord,
-} from '../runtime';
+import { effect, getScheduler, observable, root } from '@maverick-js/observables';
+import { $$_create_element, $$_next_element } from '../runtime/dom/internal';
+import { hydrate, hydration, render, setAttribute, setStyle, type SubjectRecord } from '../runtime';
 import { run, runAll } from '../utils/fn';
 import { camelToKebabCase } from '../utils/str';
 
@@ -21,8 +15,6 @@ import {
   DISCONNECT,
   DESTROY,
   LIFECYCLES,
-  INTERNAL_START,
-  INTERNAL_END,
 } from './internal';
 import type { ElementLifecycleManager, ElementLifecycleCallback } from './lifecycle';
 import type {
@@ -221,6 +213,13 @@ export function createHTMLElement<
 
       const ctor = this.constructor as typeof MaverickElement;
 
+      this._root = definition.shadowRoot
+        ? this.shadowRoot ??
+          this.attachShadow(
+            isBoolean(definition.shadowRoot) ? { mode: 'open' } : definition.shadowRoot,
+          )
+        : resolveShadowRootElement(this);
+
       const members = root((dispose) => {
         const { $$props, $$setupProps } = setupElementProps(propDefs);
         this._props = $$props;
@@ -253,7 +252,7 @@ export function createHTMLElement<
         if (ctx.children) {
           this._children = ctx.children as any;
         } else {
-          const onMutation = () => this._children.set(!internalNodesCheck(this));
+          const onMutation = () => this._children.set(this.childNodes.length > 1);
           onMutation();
           const observer = new MutationObserver(() => this._scheduler.enqueue(onMutation));
           observer.observe(this, { childList: true });
@@ -282,13 +281,6 @@ export function createHTMLElement<
       // User might've destroy component in setup.
       if (this._destroyed) return noop;
 
-      this._root = definition.shadowRoot
-        ? this.shadowRoot ??
-          this.attachShadow(
-            isBoolean(definition.shadowRoot) ? { mode: 'open' } : definition.shadowRoot,
-          )
-        : this;
-
       Object.defineProperties(this, Object.getOwnPropertyDescriptors(members));
       this._reflectProps();
 
@@ -297,15 +289,9 @@ export function createHTMLElement<
         this._onEventDispatch = ctx.onEventDispatch;
       }
 
-      const $render = () =>
-        peek(() => () => {
-          const result = members.$render();
-          return result ? [createComment(INTERNAL_START), result, createComment(INTERNAL_END)] : [];
-        }) as any;
-
       const renderer = this._hydrate ? hydrate : render;
       this[DESTROY].push(
-        renderer($render, {
+        renderer(() => members.$render, {
           target: this._root,
           resume: !definition.shadowRoot,
         }),
@@ -375,24 +361,12 @@ export function defineCustomElement(definition: ElementDefinition<any, any, any,
   }
 }
 
-function internalNodesCheck(root: Element) {
-  if (root.childElementCount === 0) return true;
-
-  let internal = false;
-
-  for (let i = 0; i < root.childNodes.length; i++) {
-    const child = root.childNodes[i];
-    if (child.nodeType === 8) {
-      const text = child.textContent;
-      if (text === INTERNAL_START) {
-        internal = true;
-      } else if (text === INTERNAL_END) {
-        internal = false;
-      }
-    } else if (!internal) {
-      return false;
-    }
+function resolveShadowRootElement(root: Element) {
+  if (hydration) {
+    return $$_next_element(hydration.w);
+  } else {
+    const shadowRoot = $$_create_element('shadow-root');
+    root.prepend(shadowRoot);
+    return shadowRoot;
   }
-
-  return true;
 }

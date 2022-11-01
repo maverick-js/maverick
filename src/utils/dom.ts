@@ -1,7 +1,3 @@
-export function supportsDeclarativeShadowDOM() {
-  return HTMLTemplateElement.prototype.hasOwnProperty('shadowRoot');
-}
-
 export function attachDeclarativeShadowDOM(element: HTMLElement) {
   const template = element.firstChild as HTMLTemplateElement;
   const mode = template.getAttribute('shadowroot')! as 'open' | 'closed';

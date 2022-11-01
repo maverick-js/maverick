@@ -17,8 +17,10 @@ it('should render custom element', async () => {
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-button-1>
-        <!--$$-->
-        <!--/$-->
+        <shadow-root>
+          <!--$$-->
+          <!--/$-->
+        </shadow-root>
         <!--$$-->
         <div>
           Foo
@@ -33,13 +35,13 @@ it('should render custom element', async () => {
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-button-1>
-        <!--$$-->
-        <!--#internal-->
-        <div>
-          Internal
-        </div>
-        <!--/#internal-->
-        <!--/$-->
+        <shadow-root>
+          <!--$$-->
+          <div>
+            Internal
+          </div>
+          <!--/$-->
+        </shadow-root>
         <!--$$-->
         <!--/$-->
       </mk-button-1>
@@ -51,8 +53,10 @@ it('should render custom element', async () => {
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-button-1>
-        <!--$$-->
-        <!--/$-->
+        <shadow-root>
+          <!--$$-->
+          <!--/$-->
+        </shadow-root>
         <!--$$-->
         <div>
           Bar
@@ -75,11 +79,11 @@ it('should render custom element with only internal content', () => {
   expect(root).toMatchInlineSnapshot(`
   <root>
     <mk-button-2>
-      <!--#internal-->
-      <button>
-        Test
-      </button>
-      <!--/#internal-->
+      <shadow-root>
+        <button>
+          Test
+        </button>
+      </shadow-root>
       <!--$$-->
       <!--/$-->
     </mk-button-2>
@@ -106,6 +110,7 @@ it('should render custom element with only children', () => {
   expect(root).toMatchInlineSnapshot(`
   <root>
     <mk-button-3>
+      <shadow-root />
       <!--$$-->
       <div>
         Children
@@ -138,8 +143,10 @@ it('should render custom element with inner html', () => {
   expect(root).toMatchInlineSnapshot(`
   <root>
     <mk-button-4>
-      <!--$$-->
-      <!--/$-->
+      <shadow-root>
+        <!--$$-->
+        <!--/$-->
+      </shadow-root>
       <div>
         INNER HTML
       </div>
@@ -166,7 +173,9 @@ it('should render css vars', () => {
   expect(element).toMatchInlineSnapshot(`
   <mk-button-5
     style="--foo: 10; --bar: none;"
-  />
+  >
+    <shadow-root />
+  </mk-button-5>
 `);
 });
 
@@ -188,7 +197,9 @@ it('should render css vars builder', async () => {
   expect(element).toMatchInlineSnapshot(`
   <mk-button-6
     style="--foo: 0;"
-  />
+  >
+    <shadow-root />
+  </mk-button-6>
 `);
 
   element.$$props.foo.set(100);
@@ -197,6 +208,8 @@ it('should render css vars builder', async () => {
   expect(element).toMatchInlineSnapshot(`
   <mk-button-6
     style="--foo: 100;"
-  />
+  >
+    <shadow-root />
+  </mk-button-6>
 `);
 });

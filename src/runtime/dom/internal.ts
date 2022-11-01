@@ -14,7 +14,7 @@ import {
   toggleClass,
 } from './utils';
 import { defineCustomElement, type MaverickElement, type ElementDefinition } from '../../element';
-import { attachDeclarativeShadowDOM, supportsDeclarativeShadowDOM } from '../../utils/dom';
+import { attachDeclarativeShadowDOM } from '../../utils/dom';
 
 /** @internal */
 export function $$_create_template(html: string) {
@@ -86,7 +86,12 @@ export function $$_setup_custom_element(
   definition: ElementDefinition,
   props?: Record<string, any>,
 ) {
-  if (hydration && definition.shadowRoot && !supportsDeclarativeShadowDOM()) {
+  if (
+    hydration &&
+    definition.shadowRoot &&
+    element.firstChild?.nodeName === 'TEMPLATE' &&
+    (element.firstChild as HTMLTemplateElement).hasAttribute('shadowroot')
+  ) {
     attachDeclarativeShadowDOM(element);
   }
 

@@ -1,5 +1,5 @@
 import { CustomElement } from 'maverick.js';
-import { createServerElement, defineElement, defineProp } from 'maverick.js/element';
+import { createServerElement, css, defineElement, defineProp } from 'maverick.js/element';
 import { renderToString } from 'maverick.js/ssr';
 
 it('should render custom element', () => {
@@ -50,6 +50,42 @@ it('should render custom element with shadow dom', () => {
   expect(result).toMatchInlineSnapshot(
     '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><template shadowroot=\\"open\\"><!$><div class=\\"foo\\">Test</div></template><!$><div>Light A</div><!$><div>Light B</div><!$><div>Light C</div></mk-foo>"',
   );
+});
+
+it('should render adopted css styles in shadow root template', () => {
+  const Button = defineElement({
+    tagName: `mk-button-7`,
+    shadowRoot: true,
+    css: [
+      css`
+        div {
+          display: inline-block;
+        }
+      `,
+      css`
+        .container {
+          color: blue;
+          order: ${4};
+        }
+      `,
+    ],
+    setup: () => () => null,
+  });
+
+  const element = new (createServerElement(Button))();
+  element.$setup();
+  expect(element.$render()).toMatchInlineSnapshot(`
+    "<template shadowroot=\\"open\\"><style>
+            div {
+              display: inline-block;
+            }
+          
+            .container {
+              color: blue;
+              order: 4;
+            }
+          </style></template>"
+  `);
 });
 
 it('should render custom element with attributes', () => {

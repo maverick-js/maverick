@@ -29,6 +29,7 @@ import type {
   MaverickElement,
   MaverickElementConstructor,
 } from './types';
+import { adoptCSS } from './css';
 
 const MAVERICK = Symbol('MAVERICK');
 
@@ -219,6 +220,10 @@ export function createHTMLElement<
             isBoolean(definition.shadowRoot) ? { mode: 'open' } : definition.shadowRoot,
           )
         : resolveShadowRootElement(this);
+
+      if (!hydration && definition.shadowRoot && definition.css) {
+        adoptCSS(this._root as ShadowRoot, definition.css);
+      }
 
       const members = root((dispose) => {
         const { $$props, $$setupProps } = setupElementProps(propDefs);

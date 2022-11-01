@@ -2,6 +2,7 @@ import type { JSX, Observable, observable, SubjectRecord } from '../runtime';
 import type { Constructor } from 'type-fest';
 import type { DOMEventInit } from './event';
 import type { ElementLifecycleManager } from './lifecycle';
+import type { CSS } from './css';
 
 export type AttributeValue = string | null;
 
@@ -101,6 +102,7 @@ export type ElementDeclaration<
   tagName: `${string}-${string}`;
   props?: ElementPropDefinitions<Props>;
   events?: Partial<Events>;
+  css?: CSS[];
   cssvars?: Partial<CSSVars> | ElementCSSVarsBuilder<Props, CSSVars>;
   setup: ElementSetup<Props, Events, CSSVars, Members>;
   shadowRoot?: true | ShadowRootInit;

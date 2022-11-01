@@ -137,7 +137,9 @@ export function createServerElement<
       return definition.shadowRoot
         ? `<template shadowroot="${
             isBoolean(definition.shadowRoot) ? 'open' : definition.shadowRoot.mode
-          }">${ssr}</template>`
+          }">${
+            definition.css ? `<style>${definition.css.map((css) => css.text).join('')}</style>` : ''
+          }${ssr}</template>`
         : `<!$><shadow-root>${ssr}</shadow-root>`;
     }
 

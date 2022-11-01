@@ -1,13 +1,15 @@
+import type { Constructor } from 'type-fest';
 import type { JSX } from '../runtime';
+import type { ElementEventRecord } from './types';
 
 const DOM_EVENT = Symbol('DOM_EVENT');
+
+const DOMEventBase: Event = __NODE__ ? (class Event {} as any) : Event;
 
 export type DOMEventInit<Detail = unknown> = EventInit & {
   readonly detail?: Detail;
   readonly triggerEvent?: Event;
 };
-
-const DOMEventBase: Event = __NODE__ ? (class Event {} as any) : Event;
 
 export class DOMEvent<Detail = unknown> extends DOMEventBase {
   /**
@@ -32,22 +34,35 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
    */
   readonly isOriginTrusted!: boolean;
 
-  constructor(type: string, eventInit: DOMEventInit<Detail> = {}) {
-    super(type, eventInit);
+  constructor(type: string, init?: DOMEventInit<Detail>) {
+    super(type, init);
 
     Object.defineProperty(this, DOM_EVENT, {
       get: () => true,
     });
 
-    defineEventProperty(this, 'detail', () => eventInit.detail);
-    defineEventProperty(this, 'triggerEvent', () => eventInit.triggerEvent);
+    defineEventProperty(this, 'detail', () => init?.detail);
+    defineEventProperty(this, 'triggerEvent', () => init?.triggerEvent);
     defineEventProperty(this, 'originEvent', () => getOriginEvent(this) ?? this);
     defineEventProperty(this, 'isOriginTrusted', () => getOriginEvent(this)?.isTrusted ?? false);
   }
 }
 
+/**
+ * Whether the given `event` is a Maverick DOM Event class.
+ */
 export function isDOMEvent(event: Event | undefined): event is DOMEvent<unknown> {
   return !!event?.[DOM_EVENT];
+}
+
+/**
+ * Whether the given `event` is of the given `type`.
+ */
+export function isEventType<Type extends keyof JSX.GlobalEventRecord>(
+  event: Event,
+  type: Type,
+): event is JSX.GlobalEventRecord[Type] {
+  return event.type === type;
 }
 
 /**
@@ -97,7 +112,7 @@ export function walkTriggerEventChain<T>(
 export function findTriggerEvent<Type extends string>(
   event: Event,
   type: Type,
-): (Type extends keyof JSX.GlobalOnAttributes ? JSX.GlobalOnAttributes[Type] : Event) | undefined {
+): (Type extends keyof JSX.GlobalEventRecord ? JSX.GlobalEventRecord[Type] : Event) | undefined {
   return walkTriggerEventChain(event, (e) => e.type === type)?.[0] as any;
 }
 
@@ -124,6 +139,18 @@ export function appendTriggerEvent(event: DOMEvent, triggerEvent?: Event) {
   defineEventProperty(origin, 'triggerEvent', () => triggerEvent);
 }
 
+export function defineEvent<Event>(
+  init?: InferEventInit<Event>,
+): Event extends DOMEvent ? Event : InferEventInit<Event> {
+  // type macro which is compiled away.
+  return null as any;
+}
+
+export function defineEvents<EventRecord extends ElementEventRecord>(): EventRecord {
+  // type macro which is compiled away.
+  return null as any;
+}
+
 function defineEventProperty<T extends keyof DOMEvent>(
   event: DOMEvent,
   prop: T,
@@ -142,4 +169,10 @@ export type InferEventDetail<Event> = Event extends DOMEvent<infer Detail>
   ? Detail
   : never;
 
-export type InferEventInit<Event> = DOMEventInit<InferEventDetail<Event>>;
+export type InferEventInit<Init> = Init extends Constructor<DOMEvent>
+  ? DOMEventInit<InferEventDetail<InstanceType<Init>>>
+  : Init extends DOMEvent
+  ? DOMEventInit<InferEventDetail<Init>>
+  : Init extends DOMEventInit
+  ? Init
+  : EventInit;

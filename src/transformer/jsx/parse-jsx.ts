@@ -2,6 +2,7 @@ import t from 'typescript';
 import { buildAST } from './parse';
 import type { AST } from '../ast';
 import { logTime } from '../../utils/logger';
+import type MagicString from 'magic-string';
 
 export type ParseJSXOptions = {
   filename: string;
@@ -9,14 +10,17 @@ export type ParseJSXOptions = {
 
 const tsxRE = /\.tsx/;
 
-export function parseJSX(
-  source: string,
-  options: Partial<ParseJSXOptions> = {},
-): [start: number, ast: AST[]] {
+export function parseJSX(code: MagicString, options: Partial<ParseJSXOptions> = {}) {
   const { filename = '' } = options;
 
   const parseStartTime = process.hrtime();
-  const sourceFile = t.createSourceFile(filename, source, 99, true, tsxRE.test(filename) ? 4 : 2);
+  const sourceFile = t.createSourceFile(
+    filename,
+    code.original,
+    99,
+    true,
+    tsxRE.test(filename) ? 4 : 2,
+  );
   logTime('Parsed Source File (TS)', parseStartTime);
 
   const ast: AST[] = [];
@@ -34,7 +38,11 @@ export function parseJSX(
   };
 
   t.forEachChild(sourceFile, parse);
-  return [lastImportNode?.getEnd() ?? 0, ast];
+
+  return {
+    startPos: lastImportNode?.getEnd() ?? 0,
+    ast,
+  };
 }
 
 export function isJSXElementNode(node: t.Node): node is JSXElementNode {

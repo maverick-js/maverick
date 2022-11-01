@@ -51,11 +51,11 @@ export function transform(source: string, options: Partial<TransformOptions> = {
   log(() => `Transforming ${path.relative(process.cwd(), filename)}`, LogLevel.Info);
   log(options, LogLevel.Verbose);
 
-  const astStartTime = process.hrtime();
-  const [startPos, ast] = parseJSX(source, options);
-  logTime('Built AST', astStartTime, LogLevel.Info);
-
   const code = new MagicString(source);
+
+  const astStartTime = process.hrtime();
+  const { startPos, ast } = parseJSX(code, options);
+  logTime('Built AST', astStartTime, LogLevel.Info);
 
   const ctx: TransformContext = {
     globals: new Declarations(),

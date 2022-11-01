@@ -1,47 +1,60 @@
-import type { JSX, Observable, observable, ObservableSubject } from '../runtime';
-import type { Constructor } from '../utils/types';
-import type { InferEventInit } from './event';
+import type { JSX, Observable, observable, SubjectRecord } from '../runtime';
+import type { Constructor } from 'type-fest';
+import type { DOMEventInit } from './event';
 import type { ElementLifecycleManager } from './lifecycle';
 
 export type AttributeValue = string | null;
 
-export type AttributeTransformer<Value = unknown> = Readonly<{
+export type ElementAttributeConverter<Value = unknown> = Readonly<{
   from: ((value: AttributeValue) => Value) | false;
   to?: (value: Value) => AttributeValue;
 }>;
 
 export type ElementPropDefinition<Value = unknown> = Readonly<
   Parameters<typeof observable<Value>>[1] & {
-    /** The properties initial value. */
-    initialValue: Value;
-    /** Whether the property is associated with an attribute, or a custom name for the associated attribute. */
+    /**
+     * The initial value of this property.
+     */
+    initial: Value;
+    /**
+     * Whether the property is associated with an attribute, or a custom name for the associated
+     * attribute. By default this is `true` and the attribute name is inferred by kebab-casing the
+     * property name.
+     */
     attribute?: string | false;
-    /** Whether the property value should be reflected back to the attribute (default: false). */
+    /**
+     * Whether the property is associated with a CSS variable, or a custom name for the associated
+     * CSS variable. By default this matches the `reflect` property and the name is inferred by
+     * kebab-casing the property name.
+     */
+    cssvar?: string | boolean;
+    /**
+     * Whether the property value should be reflected back to the attribute. By default this
+     * is `false`.
+     */
     reflect?: boolean;
-    /** Transform an attribute value to property value. */
-    transform?: AttributeTransformer<Value>;
+    /**
+     * Convert between an attribute value and property value.
+     */
+    converter?: ElementAttributeConverter<Value>;
   }
 >;
 
-export type ElementPropDefinitions<Props extends ElementProps = ElementProps> = Readonly<{
+export type ElementPropDefinitions<Props extends ElementPropRecord = ElementPropRecord> = Readonly<{
   [Prop in keyof Props]: ElementPropDefinition<Props[Prop]>;
 }>;
 
-export type ElementProps = Readonly<{
+export type ElementPropRecord = {
   [name: string]: any;
-}>;
+};
 
-export type ElementCSSVars = Readonly<{
+export type ElementCSSVarRecord = {
   [name: string]: JSX.CSSValue;
-}>;
+};
 
-export type ElementEvents = Readonly<{
-  [name: string]: Event;
-}>;
-
-export type ObservableElementProps<Props extends ElementProps> = Readonly<{
-  [Prop in keyof Props]: ObservableSubject<Props[Prop]>;
-}>;
+export type ElementEventRecord = {
+  [name: string]: DOMEventInit;
+};
 
 export type ElementMembers = {
   [name: string]: unknown;
@@ -50,81 +63,89 @@ export type ElementMembers = {
 
 export type ElementContextMap = Map<string | symbol, unknown>;
 
-export interface ElementDispatcher<Events = JSX.GlobalOnAttributes> {
-  (event: Events[keyof Events]): boolean;
-  <Type extends keyof Events>(type: Type, init: InferEventInit<Events[Type]>): boolean;
+export interface ElementDispatcher<Events extends ElementEventRecord = ElementEventRecord> {
+  <Type extends keyof Events>(
+    type: Type,
+    detail?: Events[Type]['detail'] | DOMEventInit<Events[Type]['detail']>,
+  ): boolean;
 }
 
 export type ElementSetup<
-  Props extends ElementProps = ElementProps,
-  Events = JSX.GlobalOnAttributes,
+  Props extends ElementPropRecord = ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
 > = (context: {
-  host: MaverickHost<Props, Members>;
+  host: MaverickHost<Props, CSSVars>;
   props: Readonly<Props>;
   dispatch: ElementDispatcher<Events>;
-  ssr: boolean;
 }) => (() => JSX.Element) | Members;
 
-export type ElementSetupContext<Props extends ElementProps = ElementProps> = {
+export type ElementSetupContext<
+  Props extends ElementPropRecord = ElementPropRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
+> = {
   props?: Readonly<Props>;
+  cssvars?: Readonly<CSSVars>;
   context?: ElementContextMap;
   children?: Observable<boolean>;
   onEventDispatch?: (eventType: string) => void;
 };
 
 export type ElementDeclaration<
-  Props extends ElementProps = ElementProps,
-  Events = JSX.GlobalOnAttributes,
+  Props extends ElementPropRecord = ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
 > = Readonly<{
   tagName: `${string}-${string}`;
   props?: ElementPropDefinitions<Props>;
-  setup: ElementSetup<Props, Events, Members>;
+  events?: Partial<Events>;
+  cssvars?: Partial<CSSVars>;
+  setup: ElementSetup<Props, Events, CSSVars, Members>;
   shadowRoot?: true | ShadowRootInit;
 }>;
 
 export type ElementDefinitionSetup<
-  Props extends ElementProps = ElementProps,
-  Events = JSX.GlobalOnAttributes,
-  CSSVars extends ElementCSSVars = ElementCSSVars,
+  Props extends ElementPropRecord = ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
 > = (context: {
-  host: MaverickHost<Props, Members>;
+  host: MaverickHost<Props, CSSVars>;
   props: Readonly<Props>;
-  vars?: Readonly<CSSVars>;
   dispatch: ElementDispatcher<Events>;
   context?: ElementContextMap;
-  ssr: boolean;
 }) => Members;
 
 export type ElementDefinition<
-  Props extends ElementProps = ElementProps,
-  Events = JSX.GlobalOnAttributes,
-  CSSVars extends ElementCSSVars = ElementCSSVars,
+  Props extends ElementPropRecord = ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
-> = Omit<ElementDeclaration<Props, Events, Members>, 'setup'> &
+> = Omit<ElementDeclaration<Props, Events, CSSVars, Members>, 'setup'> &
   Readonly<{
     setup: ElementDefinitionSetup<Props, Events, CSSVars, Members>;
   }>;
 
 export type MaverickElement<
-  Props extends ElementProps = ElementProps,
-  Members extends ElementMembers = ElementMembers,
-> = Members & HTMLElement & MaverickHost<Props, Members> & ElementLifecycleManager;
+  Props extends ElementPropRecord = ElementPropRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
+> = HTMLElement & Omit<MaverickHost<Props, CSSVars>, '$el'> & ElementLifecycleManager;
 
 export type MaverickElementConstructor<
-  Props extends ElementProps = ElementProps,
-  Events = JSX.GlobalOnAttributes,
+  Props extends ElementPropRecord = ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
-> = Constructor<MaverickElement<Props, Members>> & {
+> = Constructor<MaverickElement<Props, CSSVars> & Members> & {
   readonly observedAttributes: string[];
-  readonly $definition: ElementDeclaration<Props, Events, Members>;
+  readonly $definition: ElementDefinition<Props, Events, CSSVars, Members>;
 };
 
 export type MaverickHost<
-  Props extends ElementProps = ElementProps,
-  Members extends ElementMembers = ElementMembers,
+  Props extends ElementPropRecord = ElementPropRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
 > = Pick<
   HTMLElement,
   | 'getAttribute'
@@ -145,7 +166,7 @@ export type MaverickHost<
   > & { toString(): string };
 } & {
   /** @internal */
-  readonly $$props: { [Prop in keyof Props]: ObservableSubject<Props[Prop]> };
+  readonly $$props: SubjectRecord<Props>;
 
   /**
    * Whether to keep this component alive until it's manually destroyed by calling the `$destroy`
@@ -163,7 +184,7 @@ export type MaverickHost<
    * The DOM element associated with this host. This is `null` server-side and during the setup
    * call client-side.
    */
-  readonly $el: MaverickElement<Props, Members> | null;
+  readonly $el: MaverickElement<Props, CSSVars> | null;
   /**
    * Whether the current element has connected to the DOM. This is a reactive observable call.
    */
@@ -182,7 +203,7 @@ export type MaverickHost<
    * Manually call the setup function when appropriate. The `data-delegate` attribute must
    * be present for `setup` to not be immediately called in the constructor.
    */
-  $setup(context?: ElementSetupContext<Props>): () => void;
+  $setup(context?: ElementSetupContext<Props, CSSVars>): () => void;
   /**
    * Permanently destroys the component.
    */

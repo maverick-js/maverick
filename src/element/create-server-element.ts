@@ -1,9 +1,10 @@
 import { escape } from '../utils/html';
 import type {
-  ElementCSSVars,
+  ElementPropRecord,
+  ElementEventRecord,
+  ElementCSSVarRecord,
   ElementDefinition,
   ElementMembers,
-  ElementProps,
   ElementPropDefinitions,
   ElementSetupContext,
   MaverickHost,
@@ -18,9 +19,9 @@ import { INTERNAL_START, INTERNAL_END } from './internal';
 const registry = new WeakMap<ElementDefinition<any, any, any, any>, any>();
 
 export function createServerElement<
-  Props extends ElementProps,
-  Events = JSX.GlobalOnAttributes,
-  CSSVars extends ElementCSSVars = ElementCSSVars,
+  Props extends ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
 >(definition: ElementDefinition<Props, Events, CSSVars, Members>) {
   if (registry.has(definition)) {
@@ -29,7 +30,7 @@ export function createServerElement<
 
   const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
 
-  class MaverickServerElement implements MaverickHost<Props, Members> {
+  class MaverickServerElement implements MaverickHost<Props, CSSVars> {
     /** @internal */
     _children = false;
     /** @internal */
@@ -56,7 +57,7 @@ export function createServerElement<
       return this._children;
     }
 
-    $setup(ctx: ElementSetupContext<Props> = {}) {
+    $setup(ctx: ElementSetupContext<Props, CSSVars> = {}) {
       const { $$props, $$setupProps } = setupElementProps(definition.props);
 
       this._props = $$props;
@@ -77,7 +78,7 @@ export function createServerElement<
         const def = propDefs[propName];
         if (def.attribute !== false) {
           const attrName = def.attribute ?? camelToKebabCase(propName);
-          const fromAttr = propDefs[propName].transform?.from;
+          const fromAttr = propDefs[propName].converter?.from;
           if (this.hasAttribute(attrName) && fromAttr) {
             const attrValue = this.getAttribute(attrName);
             this._props[propName]?.set(fromAttr(attrValue));
@@ -96,14 +97,13 @@ export function createServerElement<
         props: $$setupProps,
         context: ctx.context,
         dispatch: () => false,
-        ssr: true,
       });
 
       // prop reflection.
       for (const propName of Object.keys(propDefs)) {
         const def = propDefs[propName];
         if (!def.reflect || def.attribute === false) continue;
-        const transform = propDefs[propName]!.transform?.to;
+        const transform = propDefs[propName]!.converter?.to;
         const attrName = def.attribute ?? camelToKebabCase(propName);
         const propValue = $$setupProps[propName];
         setAttribute(this as any, attrName, transform ? transform(propValue) : propValue + '');

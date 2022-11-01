@@ -3,7 +3,7 @@ import { computed } from '@maverick-js/observables';
 
 it('should create context', () => {
   const context = createContext(100);
-  expect(context.initialValue).toEqual(100);
+  expect(context.initial).toEqual(100);
 
   root(() => {
     expect(context.get()).toEqual(100);

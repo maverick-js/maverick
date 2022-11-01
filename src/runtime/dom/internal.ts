@@ -46,13 +46,14 @@ export function $$_next_custom_element(definition: ElementDefinition, walker = h
   defineCustomElement(definition);
   const { tagName } = definition;
   if (walker) {
-    const next = walker.nextNode() as Node;
-    if ((next.nextSibling as Element)?.localName !== tagName) {
+    const next = walker.nextNode() as Comment;
+    const element = next.nextSibling as Element | null;
+    if (!element || element.localName !== tagName) {
       const element = $$_create_element(tagName);
-      insertExpression(next as Comment, element);
+      insertExpression(next, element);
       return element;
     } else {
-      return next;
+      return element;
     }
   } else {
     return $$_create_element(tagName);

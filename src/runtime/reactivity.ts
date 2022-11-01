@@ -5,7 +5,7 @@ import {
   type StopEffect,
 } from '@maverick-js/observables';
 import { noop } from '../utils/unit';
-import type { ObservableRecord, ObservableValueRecord } from './types';
+import type { ObservableRecord, ObservableRecordValues } from './types';
 
 /**
  * Invokes the given function each time any of the observables that are read inside are updated
@@ -41,7 +41,7 @@ export * from '@maverick-js/observables';
 export function accessors<T extends ObservableRecord, R>(
   record: T,
   options?: { readonly?: R },
-): R extends true ? Readonly<ObservableValueRecord<T>> : ObservableValueRecord<T> {
+): R extends true ? Readonly<ObservableRecordValues<T>> : ObservableRecordValues<T> {
   const accessors: any = {};
 
   for (const name of Object.keys(record)) {

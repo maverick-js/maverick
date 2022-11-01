@@ -1,7 +1,7 @@
 import { tick } from '@maverick-js/observables';
 import { createContext } from 'maverick.js';
 import {
-  property,
+  defineProp,
   MaverickElement,
   defineElement,
   defineCustomElement,
@@ -36,10 +36,10 @@ it('should handle basic setup and destroy', () => {
 it('should observe attributes', () => {
   const { element, elementCtor } = setupTestElement({
     props: {
-      foo: property(1),
-      bar: property(2),
-      bazBax: property(3),
-      bazBaxHux: property(4),
+      foo: defineProp(1),
+      bar: defineProp(2),
+      bazBax: defineProp(3),
+      bazBaxHux: defineProp(4),
     },
   });
 
@@ -53,7 +53,7 @@ it('should observe attributes', () => {
 it('should initialize from attribute', () => {
   const { element } = setupTestElement({
     props: {
-      foo: property(1),
+      foo: defineProp(1),
     },
   });
 
@@ -65,7 +65,7 @@ it('should initialize from attribute', () => {
 it('should reflect props', async () => {
   const { element } = setupTestElement({
     props: {
-      foo: property(100, { reflect: true }),
+      foo: defineProp(100, { reflect: true }),
     },
   });
 
@@ -137,7 +137,7 @@ it('should call update hooks', async () => {
 
   const { element } = setupTestElement({
     props: {
-      foo: property(10),
+      foo: defineProp(10),
     },
     setup() {
       onBeforeUpdate(() => {
@@ -282,7 +282,7 @@ beforeEach(() => {
 });
 
 function setupTestElement(
-  definitionInit?: Partial<ElementDeclaration>,
+  declaration?: Partial<ElementDeclaration>,
   { hydrate = false, delegate = true } = {},
 ) {
   const definition = defineElement({
@@ -301,7 +301,7 @@ function setupTestElement(
 
       return members;
     },
-    ...definitionInit,
+    ...declaration,
   });
 
   defineCustomElement(definition);

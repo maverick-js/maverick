@@ -1,65 +1,52 @@
 import { observable } from '@maverick-js/observables';
-import { type JSX, setContextMap } from '../runtime';
+import { type SubjectRecord, setContextMap } from '../runtime';
 import { isFunction } from '../utils/unit';
 import { setHost } from './internal';
 import type {
-  ElementCSSVars,
+  ElementPropRecord,
+  ElementEventRecord,
+  ElementCSSVarRecord,
   ElementDeclaration,
   ElementDefinition,
-  ElementMembers,
   ElementPropDefinitions,
-  ElementProps,
-  ObservableElementProps,
+  ElementMembers,
 } from './types';
 
 export function defineElement<
-  Props extends ElementProps = ElementProps,
-  Events = JSX.GlobalOnAttributes,
-  CSSVars extends ElementCSSVars = ElementCSSVars,
-  Members extends ElementMembers = ElementMembers,
+  Props extends ElementPropRecord,
+  Events extends ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord,
+  Members extends ElementMembers,
 >(
-  declaration: ElementDeclaration<Props, Events, Members>,
+  declaration: ElementDeclaration<Props, Events, CSSVars, Members>,
 ): ElementDefinition<Props, Events, CSSVars, Members> {
   const definition: ElementDefinition<Props, Events, CSSVars, Members> = {
     ...declaration,
     setup(context) {
       if (context.context) setContextMap(context.context);
 
-      const { host } = context;
-      setHost(host);
+      setHost(context.host);
       const setup = declaration.setup(context);
       setHost(null);
 
-      const members = (isFunction(setup) ? { $render: setup } : setup) as Members;
-      const render = members.$render;
-
-      // @ts-expect-error - override readonly
-      members.$render = () => {
-        setHost(host);
-        const result = render();
-        setHost(null);
-        return result;
-      };
-
-      return members;
+      return (isFunction(setup) ? { $render: setup } : setup) as Members;
     },
   };
 
   return definition;
 }
 
-export function setupElementProps<Props extends ElementProps>(
+export function setupElementProps<Props extends ElementPropRecord>(
   propDefs?: ElementPropDefinitions<Props>,
 ) {
-  const $$props = {} as ObservableElementProps<Props>;
+  const $$props = {} as SubjectRecord<Props>;
   const $$setupProps = {} as Props;
 
   if (propDefs) {
     for (const propName of Object.keys(propDefs) as (keyof Props)[]) {
       const def = propDefs![propName];
-      const $prop = observable(def.initialValue, def);
+      const $prop = observable(def.initial, def);
 
-      // @ts-expect-error - override readonly
       $$props[propName] = $prop;
 
       Object.defineProperty($$setupProps, propName, {

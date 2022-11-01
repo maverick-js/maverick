@@ -3,22 +3,25 @@ import { isNull } from '../utils/unit';
 import type { ElementLifecycleCallback, ElementLifecycleManager } from './lifecycle';
 import type { MaverickHost } from './types';
 
-let _hosts: (MaverickHost | null)[] = [null];
+let _hosts: (MaverickHost | null)[] = [null],
+  _current = 0;
 
 export const INTERNAL_START = '#internal' as const;
 export const INTERNAL_END = `/${INTERNAL_START}` as const;
 
 export function getHost(): MaverickHost | null {
-  return _hosts[_hosts.length - 1];
+  return _hosts[_current];
 }
 
 export function setHost(host: MaverickHost | null) {
   if (isNull(host)) {
     _hosts.pop();
+    _current--;
     return;
   }
 
   _hosts.push(host);
+  _current++;
 }
 
 export const CONNECT = Symbol('CONNECT');

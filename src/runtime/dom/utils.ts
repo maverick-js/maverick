@@ -36,8 +36,8 @@ export function insert(
 export function listen<Target extends EventTarget, EventType extends string>(
   target: Target,
   type: EventType,
-  handler: EventType extends keyof JSX.GlobalOnAttributes
-    ? JSX.EventHandler<JSX.TargetedEvent<Target, JSX.GlobalOnAttributes[EventType]>>
+  handler: EventType extends keyof JSX.GlobalEventRecord
+    ? JSX.EventHandler<JSX.TargetedEvent<Target, JSX.GlobalEventRecord[EventType]>>
     : JSX.EventHandler,
   options?: AddEventListenerOptions | boolean,
 ) {

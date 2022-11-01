@@ -1,47 +1,12 @@
 import type { JSX } from '../jsx';
 import type {
   ElementDefinition,
-  ElementProps,
-  ElementCSSVars,
+  ElementPropRecord,
+  ElementEventRecord,
+  ElementCSSVarRecord,
   ElementMembers,
   MaverickElement,
 } from '../../element/types';
-
-/**
- * Takes an element definition and enables setting attributes and event listeners on the host
- * element from inside a setup function (i.e., the custom element). This is a virtual component
- * meaning it's compiled away, so don't try calling this function.
- *
- * @example
- * ```tsx
- * const MyButton = defineElement({
- *   tagName: 'my-button',
- *   setup: () => {
- *     return () => <HostElement $element={MyButton}>...</HostElement>
- *   }
- * });
- * ```
- */
-export function HostElement<
-  Props extends ElementProps = ElementProps,
-  Events = JSX.GlobalOnAttributes,
-  CSSVars extends ElementCSSVars = ElementCSSVars,
-  Members extends ElementMembers = ElementMembers,
->(
-  props: {
-    /** Custom element defintion. */
-    $element: ElementDefinition<Props, Events, CSSVars, Members>;
-    $children?: JSX.Element;
-  } & JSX.HTMLElementAttributes<
-    MaverickElement<Props, Members>,
-    never,
-    Events & JSX.GlobalOnAttributes & JSX.EventRecord,
-    CSSVars
-  >,
-): MaverickElement<Props, Members> {
-  // Virtual component so it doesn't return anything, output is determined by the compiler.
-  return null as any;
-}
 
 /**
  * Takes an element definition and renders a custom element. This is a virtual component meaning
@@ -59,22 +24,22 @@ export function HostElement<
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements}
  */
 export function CustomElement<
-  Props extends ElementProps = ElementProps,
-  Events = JSX.GlobalOnAttributes,
-  CSSVars extends ElementCSSVars = ElementCSSVars,
-  Members extends ElementMembers = ElementMembers,
+  Props extends ElementPropRecord,
+  Events extends ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord,
+  Members extends ElementMembers,
 >(
   props: {
     /** Custom element defintion. */
     $element: ElementDefinition<Props, Events, CSSVars, Members>;
     $children?: JSX.Element;
   } & JSX.HTMLElementAttributes<
-    MaverickElement<Props, Members>,
+    MaverickElement<Props, CSSVars> & Members,
     Partial<Props>,
     Events & JSX.GlobalOnAttributes & JSX.EventRecord,
     CSSVars
   >,
-): MaverickElement<Props, Members> {
+): MaverickElement<Props, CSSVars> & Members {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;
 }

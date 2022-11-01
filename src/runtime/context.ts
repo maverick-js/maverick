@@ -2,7 +2,7 @@ import { getParent, getContext, setContext } from '@maverick-js/observables';
 
 export type Context<T> = {
   id: symbol;
-  initialValue: T;
+  initial: T;
   get(): T;
   set(value: T): void;
 };
@@ -30,7 +30,7 @@ export function createContext<T>(initialValue: T): Context<T> {
   const id = Symbol();
   return {
     id,
-    initialValue,
+    initial: initialValue,
     get: () => {
       if (__DEV__) {
         if (!getParent()) {

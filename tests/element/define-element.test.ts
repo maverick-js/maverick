@@ -1,22 +1,22 @@
 import { isSubject } from '@maverick-js/observables';
-import { setupElementProps, defineElement, property } from 'maverick.js/element';
+import { setupElementProps, defineElement, defineProp } from 'maverick.js/element';
 
 it('should create element definition', () => {
   const definition = defineElement({
     tagName: 'mk-foo-2',
-    props: { apples: property(10) },
+    props: { apples: defineProp(10) },
     setup: () => () => null,
   });
 
   expect(definition.tagName).toBe('mk-foo-2');
-  expect(definition.props?.apples.initialValue).toBe(10);
+  expect(definition.props?.apples.initial).toBe(10);
   expect(definition.setup).toBeInstanceOf(Function);
 });
 
 it('should create setup props', () => {
   const definition = defineElement({
     tagName: 'mk-foo-3',
-    props: { foo: property(10), bar: property(20) },
+    props: { foo: defineProp(10), bar: defineProp(20) },
     setup: () => () => null,
   });
 

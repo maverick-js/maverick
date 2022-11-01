@@ -1,5 +1,5 @@
 import { CustomElement } from 'maverick.js';
-import { defineElement, property } from 'maverick.js/element';
+import { defineElement, defineProp } from 'maverick.js/element';
 import { renderToString } from 'maverick.js/ssr';
 
 it('should render custom element', () => {
@@ -79,7 +79,7 @@ it('should forward props', () => {
   const element = defineElement({
     tagName: 'mk-foo',
     props: {
-      foo: property(10),
+      foo: defineProp(10),
     },
     setup:
       ({ props }) =>
@@ -98,7 +98,7 @@ it('should forward attrs to props', () => {
   const element = defineElement({
     tagName: 'mk-foo',
     props: {
-      foo: property(10),
+      foo: defineProp(10),
     },
     setup:
       ({ props }) =>

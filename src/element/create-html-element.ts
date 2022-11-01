@@ -1,12 +1,5 @@
 import { effect, getScheduler, observable, peek, root } from '@maverick-js/observables';
-import {
-  createComment,
-  hydrate,
-  render,
-  setAttribute,
-  type JSX,
-  type SubjectRecord,
-} from '../runtime';
+import { createComment, hydrate, render, setAttribute, type SubjectRecord } from '../runtime';
 import { run, runAll } from '../utils/fn';
 import { camelToKebabCase } from '../utils/str';
 
@@ -26,8 +19,9 @@ import {
 } from './internal';
 import type { ElementLifecycleManager, ElementLifecycleCallback } from './lifecycle';
 import type {
-  ElementProps,
-  ElementCSSVars,
+  ElementPropRecord,
+  ElementEventRecord,
+  ElementCSSVarRecord,
   ElementMembers,
   ElementPropDefinitions,
   ElementDefinition,
@@ -40,13 +34,13 @@ import type {
 const MAVERICK = Symbol('MAVERICK');
 
 export function createHTMLElement<
-  Props extends ElementProps,
-  Events = JSX.GlobalOnAttributes,
-  CSSVars extends ElementCSSVars = ElementCSSVars,
+  Props extends ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
 >(
   definition: ElementDefinition<Props, Events, CSSVars, Members>,
-): MaverickElementConstructor<Props, Events, Members> {
+): MaverickElementConstructor<Props, Events, CSSVars, Members> {
   if (__NODE__) {
     throw Error(
       '[maverick] `createHTMLElement` was called outside of browser - use `createServerElement`',
@@ -57,7 +51,7 @@ export function createHTMLElement<
 
   class MaverickElement
     extends HTMLElement
-    implements MaverickHost<Props, Members>, ElementLifecycleManager
+    implements MaverickHost<Props, CSSVars>, ElementLifecycleManager
   {
     /** attr name to prop name map */
     private static _attrMap = new Map<string, string>();
@@ -160,7 +154,7 @@ export function createHTMLElement<
       if (!this._setup) return;
       const ctor = this.constructor as typeof MaverickElement;
       const propName = ctor._attrMap.get(name)!;
-      const from = propDefs[propName]?.transform?.from;
+      const from = propDefs[propName]?.converter?.from;
       if (from) this._props[propName]?.set(from(newValue));
     }
 
@@ -214,7 +208,7 @@ export function createHTMLElement<
       }
     }
 
-    $setup(ctx: ElementSetupContext<Props> = {}): () => void {
+    $setup(ctx: ElementSetupContext<Props, CSSVars> = {}): () => void {
       if (this._setup || this._destroyed) return noop;
       if (this._delegate) this.$keepAlive = true;
 
@@ -228,7 +222,7 @@ export function createHTMLElement<
         for (const attrName of ctor._attrMap.keys()) {
           if (this.hasAttribute(attrName)) {
             const propName = ctor._attrMap.get(attrName)!;
-            const from = propDefs[propName].transform?.from;
+            const from = propDefs[propName].converter?.from;
             if (from) {
               const attrValue = this.getAttribute(attrName);
               this._props[propName]?.set(from(attrValue));
@@ -252,15 +246,19 @@ export function createHTMLElement<
           this[DESTROY].push(() => observer.disconnect());
         }
 
-        const dispatch: any = (type, init) =>
-          this.dispatchEvent(type instanceof Event ? type : new DOMEvent(type, init));
+        const dispatch = (type, init) =>
+          this.dispatchEvent(
+            new DOMEvent(type, {
+              ...definition.events?.[type],
+              ...(init?.detail ? init : { detail: init }),
+            }),
+          );
 
         const members = definition.setup({
           host: this as any,
           props: $$setupProps,
           context: ctx.context,
           dispatch,
-          ssr: false,
         });
 
         this[DESTROY].push(dispose);
@@ -336,11 +334,11 @@ export function createHTMLElement<
       const ctor = this.constructor as typeof MaverickElement;
       for (const propName of ctor._reflectedProps) {
         const attrName = ctor._propMap.get(propName)!;
-        const transform = propDefs[propName]!.transform?.to;
+        const convert = propDefs[propName]!.converter?.to;
         this[DESTROY].push(
           effect(() => {
             const propValue = this._props[propName]();
-            const attrValue = transform?.(propValue) ?? propValue + '';
+            const attrValue = convert?.(propValue) ?? propValue + '';
             setAttribute(this, attrName, attrValue);
           }),
         );

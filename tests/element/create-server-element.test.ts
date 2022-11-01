@@ -1,7 +1,7 @@
 import {
   createServerElement,
   defineElement,
-  property,
+  defineProp,
   type ElementDeclaration,
 } from 'maverick.js/element';
 
@@ -84,8 +84,8 @@ it('should render styles', () => {
 it('should reflect props', () => {
   const { host } = setupTestElement({
     props: {
-      foo: property(10, { reflect: true }),
-      bar: property(20, { reflect: true }),
+      foo: defineProp(10, { reflect: true }),
+      bar: defineProp(20, { reflect: true }),
     },
   });
 
@@ -117,7 +117,7 @@ it('should noop dom events api', () => {
   }).not.toThrow();
 });
 
-function setupTestElement(definitionInit?: Partial<ElementDeclaration>) {
+function setupTestElement(declaration?: Partial<ElementDeclaration>) {
   const definition = defineElement({
     tagName: `mk-foo`,
     setup: ({ props }) => {
@@ -134,7 +134,7 @@ function setupTestElement(definitionInit?: Partial<ElementDeclaration>) {
 
       return members;
     },
-    ...definitionInit,
+    ...declaration,
   });
 
   return {

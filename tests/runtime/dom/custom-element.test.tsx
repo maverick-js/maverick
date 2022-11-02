@@ -1,6 +1,10 @@
 import { CustomElement, observable, render, tick } from 'maverick.js';
 import { defineCustomElement, defineElement, MaverickElement } from 'maverick.js/element';
 
+afterEach(() => {
+  document.body.innerHTML = '';
+});
+
 it('should render custom element', async () => {
   const Button = defineElement({
     tagName: `mk-button-1`,
@@ -212,4 +216,92 @@ it('should render css vars builder', async () => {
     <shadow-root />
   </mk-button-6>
 `);
+});
+
+it('should call `$onMount` callback', async () => {
+  const Button = defineElement({
+    tagName: `mk-button-7`,
+    setup: () => () => null,
+  });
+
+  defineCustomElement(Button);
+
+  const element = document.createElement(Button.tagName) as MaverickElement;
+  element.setAttribute('data-delegate', '');
+
+  const callback = vi.fn();
+  element.$onMount(callback);
+  expect(callback).not.toBeCalled();
+
+  document.body.appendChild(element);
+  element.$setup();
+
+  await tick();
+  expect(callback).toHaveBeenCalledOnce();
+});
+
+it('should call `$onDestroy` callback', async () => {
+  const Button = defineElement({
+    tagName: `mk-button-8`,
+    setup: () => () => null,
+  });
+
+  defineCustomElement(Button);
+
+  const element = document.createElement(Button.tagName) as MaverickElement;
+  element.setAttribute('data-delegate', '');
+
+  const callback = vi.fn();
+  element.$onDestroy(callback);
+  expect(callback).not.toBeCalled();
+
+  document.body.appendChild(element);
+  element.$setup();
+
+  await tick();
+  expect(callback).not.toBeCalled();
+
+  element.$destroy();
+
+  await tick();
+  expect(callback).toHaveBeenCalledOnce();
+});
+
+it('should wait for parent to mount', async () => {
+  const Parent = defineElement({
+    tagName: `mk-parent-1`,
+    setup: () => () => null,
+  });
+
+  const Child = defineElement({
+    tagName: `mk-child-1`,
+    parent: Parent,
+    setup: () => () => null,
+  });
+
+  const parent = document.createElement(Parent.tagName) as MaverickElement;
+  parent.setAttribute('data-delegate', '');
+  const child = document.createElement(Child.tagName) as MaverickElement;
+  parent.append(child);
+  document.body.append(parent);
+
+  expect(document.body).toMatchInlineSnapshot(`
+  <body>
+    <mk-parent-1
+      data-delegate=""
+    >
+      <mk-child-1 />
+    </mk-parent-1>
+  </body>
+`);
+
+  defineCustomElement(Child);
+  expect(child.$mounted).toBeFalsy();
+
+  await new Promise((res) => window.requestAnimationFrame(res));
+  expect(child.$mounted).toBeFalsy();
+
+  parent.$setup();
+
+  expect(child.$mounted).toBeTruthy();
 });

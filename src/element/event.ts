@@ -51,7 +51,7 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
 /**
  * Whether the given `event` is a Maverick DOM Event class.
  */
-export function isDOMEvent(event: Event | undefined): event is DOMEvent<unknown> {
+export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {
   return !!event?.[DOM_EVENT];
 }
 

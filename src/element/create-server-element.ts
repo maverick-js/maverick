@@ -109,10 +109,10 @@ export function createServerElement<
       for (const propName of Object.keys(propDefs)) {
         const def = propDefs[propName];
         if (!def.reflect || def.attribute === false) continue;
-        const transform = propDefs[propName]!.converter?.to;
+        const convert = propDefs[propName]!.converter?.to;
         const attrName = def.attribute ?? camelToKebabCase(propName);
         const propValue = $$setupProps[propName];
-        setAttribute(this as any, attrName, transform ? transform(propValue) : propValue + '');
+        setAttribute(this as any, attrName, convert ? convert(propValue) : propValue + '');
       }
 
       this._render = members.$render;

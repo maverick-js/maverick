@@ -44,7 +44,7 @@ export type ElementPropRecord = {
 };
 
 export type ElementCSSVarRecord = {
-  [name: string]: any;
+  [name: string]: JSX.CSSValue;
 };
 
 export type ElementEventRecord = {
@@ -99,13 +99,49 @@ export type ElementDeclaration<
   CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
 > = Readonly<{
+  /**
+   * The tag name of the custom element. Note that custom element names must contain a hypen (e.g.,
+   * `foo-bar`).
+   */
   tagName: `${string}-${string}`;
-  props?: ElementPropDefinitions<Props>;
-  events?: Partial<Events>;
-  css?: CSS[];
-  cssvars?: Partial<CSSVars> | ElementCSSVarsBuilder<Props, CSSVars>;
-  setup: ElementSetup<Props, Events, CSSVars, Members>;
+  /**
+   * Whether this custom element should contain a shadow root. Optionally, shadow root init options
+   * can be provided. If `true`, simply the `mode` is set to `open`.
+   */
   shadowRoot?: true | ShadowRootInit;
+  /**
+   * CSS styles that should be adopted by the shadow root. Note that these styles are only applied
+   * if the `shadowRoot` option is truthy.
+   */
+  css?: CSS[];
+  /**
+   * Component properties. Note that these are not exposed on the custom element, only members
+   * returned from the `setup` function are.
+   */
+  props?: ElementPropDefinitions<Props>;
+  /**
+   * CSS variables that should be initialized during setup.
+   */
+  cssvars?: Partial<CSSVars> | ElementCSSVarsBuilder<Props, CSSVars>;
+  /**
+   * Events types and their respective initializers that are dispatched by this component.
+   */
+  events?: Partial<Events>;
+  /**
+   * A parent element definition. Custom Elements are islands and have no knowledge about each
+   * other. When no host framework is available to ensure components are rendered in the correct
+   * order (e.g., loading components out of order over a CDN), this field can be used to ensure
+   * this component will only run it's setup function _after_ the parent is defined, connected,
+   * and has also run it's respective setup function. In other words, wait for the given parent
+   * element to be mounted.
+   */
+  parent?: ElementDefinition<any, any, any, any>;
+  /**
+   * The setup function is run once the custom element is ready to render. This function must
+   * return a render function. Optionally, class members (i.e., props and methods) can be returned
+   * which are assigned to the custom element.
+   */
+  setup: ElementSetup<Props, Events, CSSVars, Members>;
 }>;
 
 export type ElementDefinitionSetup<
@@ -127,13 +163,27 @@ export type ElementDefinition<
   Members extends ElementMembers = ElementMembers,
 > = Omit<ElementDeclaration<Props, Events, CSSVars, Members>, 'setup'> &
   Readonly<{
+    /** @internal */
     setup: ElementDefinitionSetup<Props, Events, CSSVars, Members>;
+    /**
+     * Whether the given `node` was created using this element defintion.
+     */
+    is: (node?: Node | null) => node is MaverickElement<Props, CSSVars> & Members;
   }>;
 
 export type MaverickElement<
   Props extends ElementPropRecord = ElementPropRecord,
   CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
 > = HTMLElement & Omit<MaverickHost<Props, CSSVars>, '$el'> & ElementLifecycleManager;
+
+export type InferMaverickElement<Definition> = Definition extends ElementDefinition<
+  infer Props,
+  any,
+  infer CSSVars,
+  infer Members
+>
+  ? MaverickElement<Props, CSSVars> & Members
+  : never;
 
 export type MaverickElementConstructor<
   Props extends ElementPropRecord = ElementPropRecord,
@@ -184,7 +234,7 @@ export type MaverickHost<
   readonly $tagName: string;
   /**
    * The DOM element associated with this host. This is `null` server-side and during the setup
-   * call client-side.
+   * call client-side. This is a reactive observable call.
    */
   readonly $el: MaverickElement<Props, CSSVars> | null;
   /**
@@ -210,4 +260,12 @@ export type MaverickHost<
    * Permanently destroys the component.
    */
   $destroy(): void;
+  /**
+   * Register a callback to be invoked once this element has mounted the DOM.
+   */
+  $onMount(callback: () => unknown): void;
+  /**
+   * Register a callback to be invoked once this element has been destroyed.
+   */
+  $onDestroy(callback: () => unknown): void;
 };

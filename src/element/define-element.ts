@@ -1,4 +1,5 @@
 import { observable } from '@maverick-js/observables';
+import { isMaverickElement } from './create-html-element';
 import { type SubjectRecord, setContextMap } from '../runtime';
 import { isFunction } from '../utils/unit';
 import { setHost } from './internal';
@@ -10,6 +11,7 @@ import type {
   ElementDefinition,
   ElementPropDefinitions,
   ElementMembers,
+  MaverickElement,
 } from './types';
 
 export function defineElement<
@@ -31,6 +33,10 @@ export function defineElement<
 
       return (isFunction(setup) ? { $render: setup } : setup) as Members;
     },
+    is: __SERVER__
+      ? (node): node is never => false
+      : (node): node is MaverickElement<Props, CSSVars> & Members =>
+          isMaverickElement(node) && node.localName === definition.tagName,
   };
 
   return definition;

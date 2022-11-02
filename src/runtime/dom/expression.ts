@@ -50,35 +50,27 @@ export function insertExpression(start: StartMarker, value: JSX.Element, isObser
     if (end) removeNodesBetweenMarkers(start, end);
 
     const flattened = value.flat(10);
+    const hasChildren = flattened.length > 0;
 
-    if (hydration) {
+    if (hydration && hasChildren) {
       lastChild = getLastNode(start, flattened.length);
-    } else {
+    } else if (hasChildren) {
       const fragment = createFragment();
       for (let i = 0; i < flattened.length; i++) {
         const child = flattened[i];
         if (isFunction(child) || isArray(child)) {
           insert(fragment, child);
         } else if (child) {
-          fragment.append(child as string);
+          fragment.append(child as any);
         }
       }
-      lastChild = fragment.lastChild || lastChild;
+      lastChild = fragment.lastChild!;
       start.after(fragment);
     }
   } else if (isDOMNode(value)) {
     // This won't exist yet when hydrating so nodes will stay intact.
     if (end) removeNodesBetweenMarkers(start, end);
-
-    // Fragment
-    if (value.nodeType === 11) {
-      lastChild = !hydration
-        ? value.lastChild || lastChild
-        : getLastNode(start, value.childNodes.length);
-    } else {
-      lastChild = !hydration ? value : start.nextSibling!;
-    }
-
+    lastChild = value;
     if (!hydration) start.after(value);
   } else if (isString(value) || isNumber(value)) {
     if (start[TEXT]) {

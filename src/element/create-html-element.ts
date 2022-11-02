@@ -31,7 +31,7 @@ import type {
 } from './types';
 import { adoptCSS } from './css';
 
-const MAVERICK = Symbol('MAVERICK');
+const MAVERICK_ELEMENT = Symbol('MAVERICK');
 
 export function createHTMLElement<
   Props extends ElementPropRecord,
@@ -48,6 +48,7 @@ export function createHTMLElement<
   }
 
   const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
+  const createId = __DEV__ ? (id: string) => ({ id: `${definition.tagName}.${id}` }) : undefined;
 
   class MaverickElement
     extends HTMLElement
@@ -67,7 +68,7 @@ export function createHTMLElement<
     }
 
     /** @internal */
-    [MAVERICK] = true;
+    [MAVERICK_ELEMENT] = true;
     /** @internal */
     [CONNECT]: ElementLifecycleCallback[] = [];
     /** @internal */
@@ -88,10 +89,10 @@ export function createHTMLElement<
     private _onEventDispatch?: (eventType: string) => void;
 
     private _scheduler = getScheduler();
-    private _children = observable(false);
-    private _connected = observable(false);
-    private _mounted = observable(false);
     private _el = observable<MaverickElement | null>(null);
+    private _children = observable(false, createId?.('$children'));
+    private _connected = observable(false, createId?.('$connected'));
+    private _mounted = observable(false, createId?.('$mounted'));
 
     private get _hydrate() {
       return this.hasAttribute('data-hydrate');
@@ -159,7 +160,15 @@ export function createHTMLElement<
     }
 
     connectedCallback() {
-      if (!this._delegate && !this._setup) this.$setup();
+      if (!this._delegate && !this._setup) {
+        if (definition.parent) {
+          defineCustomElement(definition.parent);
+          const parent = this.closest(definition.parent.tagName) as MaverickElement;
+          parent.$onMount(() => this.$setup());
+        } else {
+          this.$setup();
+        }
+      }
 
       // Could be called once element is no longer connected.
       if (!this._setup || !this.isConnected || this._connected()) return;
@@ -325,6 +334,22 @@ export function createHTMLElement<
       this._destroyed = true;
     }
 
+    $onMount(callback: () => void) {
+      if (this._mounted()) {
+        callback();
+      } else if (!this._destroyed) {
+        this[MOUNT].push(callback);
+      }
+    }
+
+    $onDestroy(callback: () => void) {
+      if (this._destroyed) {
+        callback();
+      } else {
+        this[DESTROY].push(callback);
+      }
+    }
+
     override dispatchEvent(event: Event): boolean {
       const ctor = this.constructor as typeof MaverickElement;
 
@@ -346,7 +371,7 @@ export function createHTMLElement<
             const propValue = this._props[propName]();
             const attrValue = convert?.(propValue) ?? propValue + '';
             setAttribute(this, attrName, attrValue);
-          }),
+          }, createId?.(`reflect.${propName}`)),
         );
       }
     }
@@ -355,8 +380,8 @@ export function createHTMLElement<
   return MaverickElement as any;
 }
 
-export function isMaverickElement(node?: Node): node is MaverickElement {
-  return !!node?.[MAVERICK];
+export function isMaverickElement(node?: Node | null): node is MaverickElement {
+  return !!node?.[MAVERICK_ELEMENT];
 }
 
 export function defineCustomElement(definition: ElementDefinition<any, any, any, any>) {

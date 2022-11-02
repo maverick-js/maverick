@@ -1,3 +1,32 @@
+import t from 'typescript';
+
+import { onceFn } from '../../utils/fn';
+import { containsObservableCallExpression } from '../../utils/ts';
+import {
+  type AST,
+  type ComponentChildren,
+  createAST,
+  createAttributeNode,
+  createDirectiveNode,
+  createElementNode,
+  createEventNode,
+  createExpressionNode,
+  createFragmentNode,
+  createRefNode,
+  createSpreadNode,
+  createStructuralNode,
+  createTextNode,
+  type ExpressionNode,
+  StructuralNodeType,
+} from '../ast';
+import { STATICABLE_NAMESPACE, SVG_ELEMENT_TAGNAME, VOID_ELEMENT_TAGNAME } from './constants';
+import {
+  isJSXElementNode,
+  type JSXElementNode,
+  type JSXNamespace,
+  type JSXNodeMeta,
+  type JSXRootNode,
+} from './parse-jsx';
 import {
   filterDOMElements,
   filterEmptyJSXChildNodes,
@@ -8,34 +37,6 @@ import {
   isValidAttrNamespace,
   isValidNamespace,
 } from './utils';
-import t from 'typescript';
-import {
-  type AST,
-  type ExpressionNode,
-  type ComponentChildren,
-  createAST,
-  createTextNode,
-  createExpressionNode,
-  createElementNode,
-  createRefNode,
-  createDirectiveNode,
-  createEventNode,
-  createSpreadNode,
-  createAttributeNode,
-  createStructuralNode,
-  createFragmentNode,
-  StructuralNodeType,
-} from '../ast';
-import {
-  type JSXRootNode,
-  type JSXNodeMeta,
-  type JSXNamespace,
-  type JSXElementNode,
-  isJSXElementNode,
-} from './parse-jsx';
-import { STATICABLE_NAMESPACE, SVG_ELEMENT_TAGNAME, VOID_ELEMENT_TAGNAME } from './constants';
-import { onceFn } from '../../utils/fn';
-import { containsObservableCallExpression } from '../../utils/ts';
 
 export function buildAST(
   root: JSXRootNode,

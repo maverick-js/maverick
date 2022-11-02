@@ -1,12 +1,12 @@
-import type { JSX } from '../jsx';
 import type {
-  ElementDefinition,
-  ElementPropRecord,
-  ElementEventRecord,
   ElementCSSVarRecord,
+  ElementDefinition,
+  ElementEventRecord,
   ElementMembers,
+  ElementPropRecord,
   MaverickElement,
 } from '../../element/types';
+import type { JSX } from '../jsx';
 
 /**
  * Takes an element definition and renders a custom element. This is a virtual component meaning
@@ -16,7 +16,7 @@ import type {
  * ```tsx
  * const MyButton = defineElement({
  *   tagName: 'my-button',
- *   setup: () => () => <button />
+ *   setup: () => <button />
  * });
  *
  * const element = <CustomElement $element={MyButton} />
@@ -34,12 +34,12 @@ export function CustomElement<
     $element: ElementDefinition<Props, Events, CSSVars, Members>;
     $children?: JSX.Element;
   } & JSX.HTMLElementAttributes<
-    MaverickElement<Props, CSSVars> & Members,
+    MaverickElement<Props> & Members,
     Partial<Props>,
-    Events & JSX.GlobalOnAttributes & JSX.EventRecord,
+    Events & JSX.EventRecord,
     CSSVars
   >,
-): MaverickElement<Props, CSSVars> & Members {
+): MaverickElement<Props> & Members {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;
 }

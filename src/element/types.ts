@@ -1,8 +1,9 @@
-import type { JSX, Observable, observable, SubjectRecord } from '../runtime';
 import type { Constructor } from 'type-fest';
+
+import type { ContextMap, JSX, Observable, observable, SubjectRecord } from '../runtime';
+import type { CSS } from './css';
 import type { DOMEventInit } from './event';
 import type { ElementLifecycleManager } from './lifecycle';
-import type { CSS } from './css';
 
 export type AttributeValue = string | null;
 
@@ -53,7 +54,7 @@ export type ElementEventRecord = {
 
 export type ElementMembers = {
   [name: string]: unknown;
-  readonly $render: () => JSX.Element;
+  readonly $render: JSX.Element;
 };
 
 export type ElementCSSVarsBuilder<
@@ -62,8 +63,6 @@ export type ElementCSSVarsBuilder<
 > = (props: Readonly<Props>) => Partial<{
   [P in keyof CSSVars]: CSSVars[P] | Observable<CSSVars[P]>;
 }>;
-
-export type ElementContextMap = Map<string | symbol, unknown>;
 
 export interface ElementDispatcher<Events extends ElementEventRecord = ElementEventRecord> {
   <Type extends keyof Events>(
@@ -78,20 +77,19 @@ export type ElementSetup<
   CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
 > = (context: {
-  host: MaverickHost<Props, CSSVars>;
+  host: MaverickHost<Props>;
   props: Readonly<Props>;
   dispatch: ElementDispatcher<Events>;
-}) => (() => JSX.Element) | Members;
+}) => JSX.Element | Members;
 
-export type ElementSetupContext<
-  Props extends ElementPropRecord = ElementPropRecord,
-  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
-> = {
+export type ElementSetupContext<Props extends ElementPropRecord = ElementPropRecord> = {
   props?: Readonly<Props>;
-  context?: ElementContextMap;
+  context?: ContextMap;
   children?: Observable<boolean>;
   onEventDispatch?: (eventType: string) => void;
 };
+
+export type AnyElementDeclaration = ElementDeclaration<any, any, any, any>;
 
 export type ElementDeclaration<
   Props extends ElementPropRecord = ElementPropRecord,
@@ -141,20 +139,10 @@ export type ElementDeclaration<
    * return a render function. Optionally, class members (i.e., props and methods) can be returned
    * which are assigned to the custom element.
    */
-  setup: ElementSetup<Props, Events, CSSVars, Members>;
+  setup?: ElementSetup<Props, Events, CSSVars, Members>;
 }>;
 
-export type ElementDefinitionSetup<
-  Props extends ElementPropRecord = ElementPropRecord,
-  Events extends ElementEventRecord = ElementEventRecord,
-  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
-  Members extends ElementMembers = ElementMembers,
-> = (context: {
-  host: MaverickHost<Props, CSSVars>;
-  props: Readonly<Props>;
-  dispatch: ElementDispatcher<Events>;
-  context?: ElementContextMap;
-}) => Members;
+export type AnyElementDefinition = ElementDefinition<any, any, any, any>;
 
 export type ElementDefinition<
   Props extends ElementPropRecord = ElementPropRecord,
@@ -164,41 +152,39 @@ export type ElementDefinition<
 > = Omit<ElementDeclaration<Props, Events, CSSVars, Members>, 'setup'> &
   Readonly<{
     /** @internal */
-    setup: ElementDefinitionSetup<Props, Events, CSSVars, Members>;
+    __element?: MaverickElement<Props> & Members;
+    /** @internal */
+    setup: (context: {
+      host: MaverickHost<Props>;
+      props: Readonly<Props>;
+      dispatch: ElementDispatcher<Events>;
+      context?: ContextMap;
+    }) => Members;
     /**
      * Whether the given `node` was created using this element defintion.
      */
-    is: (node?: Node | null) => node is MaverickElement<Props, CSSVars> & Members;
+    is: (node?: Node | null) => node is MaverickElement<Props> & Members;
   }>;
 
-export type MaverickElement<
-  Props extends ElementPropRecord = ElementPropRecord,
-  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
-> = HTMLElement & Omit<MaverickHost<Props, CSSVars>, '$el'> & ElementLifecycleManager;
+export type MaverickElement<Props extends ElementPropRecord = ElementPropRecord> = HTMLElement &
+  Omit<MaverickHost<Props>, '$el'> &
+  ElementLifecycleManager;
 
-export type InferMaverickElement<Definition> = Definition extends ElementDefinition<
-  infer Props,
-  any,
-  infer CSSVars,
-  infer Members
->
-  ? MaverickElement<Props, CSSVars> & Members
-  : never;
+export type InferMaverickElement<Definition extends AnyElementDefinition> = NonNullable<
+  Definition['__element']
+>;
 
 export type MaverickElementConstructor<
   Props extends ElementPropRecord = ElementPropRecord,
   Events extends ElementEventRecord = ElementEventRecord,
   CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
-> = Constructor<MaverickElement<Props, CSSVars> & Members> & {
+> = Constructor<MaverickElement<Props> & Members> & {
   readonly observedAttributes: string[];
   readonly $definition: ElementDefinition<Props, Events, CSSVars, Members>;
 };
 
-export type MaverickHost<
-  Props extends ElementPropRecord = ElementPropRecord,
-  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
-> = Pick<
+export type MaverickHost<Props extends ElementPropRecord = ElementPropRecord> = Pick<
   HTMLElement,
   | 'getAttribute'
   | 'setAttribute'
@@ -236,7 +222,7 @@ export type MaverickHost<
    * The DOM element associated with this host. This is `null` server-side and during the setup
    * call client-side. This is a reactive observable call.
    */
-  readonly $el: MaverickElement<Props, CSSVars> | null;
+  readonly $el: MaverickElement<Props> | null;
   /**
    * Whether the current element has connected to the DOM. This is a reactive observable call.
    */
@@ -252,10 +238,10 @@ export type MaverickHost<
    */
   readonly $children: boolean;
   /**
-   * Manually call the setup function when appropriate. The `data-delegate` attribute must
+   * Manually call the setup function when appropriate. The `mk-delegate` attribute must
    * be present for `setup` to not be immediately called in the constructor.
    */
-  $setup(context?: ElementSetupContext<Props, CSSVars>): () => void;
+  $setup(context?: ElementSetupContext<Props>): () => void;
   /**
    * Permanently destroys the component.
    */

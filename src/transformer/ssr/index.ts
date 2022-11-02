@@ -1,5 +1,6 @@
 import { encode } from 'html-entities';
 import kleur from 'kleur';
+
 import { escape } from '../../utils/html';
 import {
   createFunctionCall,
@@ -9,20 +10,20 @@ import {
   trimTrailingSemicolon,
 } from '../../utils/print';
 import {
-  type ElementNode,
   type AttributeNode,
-  type SpreadNode,
-  isElementNode,
+  type ElementNode,
   isAttributeNode,
-  isSpreadNode,
-  isTextNode,
-  isExpressionNode,
-  isStructuralNode,
-  isElementEnd,
   isAttributesEnd,
-  isFragmentNode,
-  isChildrenStart,
   isChildrenEnd,
+  isChildrenStart,
+  isElementEnd,
+  isElementNode,
+  isExpressionNode,
+  isFragmentNode,
+  isSpreadNode,
+  isStructuralNode,
+  isTextNode,
+  type SpreadNode,
 } from '../ast';
 import {
   serializeChildren,

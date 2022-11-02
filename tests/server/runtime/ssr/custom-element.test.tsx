@@ -1,24 +1,25 @@
 import { CustomElement } from 'maverick.js';
+
 import { createServerElement, css, defineElement, defineProp } from 'maverick.js/element';
 import { renderToString } from 'maverick.js/ssr';
 
 it('should render custom element', () => {
   const element = defineElement({
     tagName: 'mk-foo',
-    setup: () => () => <div class="foo">Test</div>,
+    setup: () => <div class="foo">Test</div>,
   });
 
   const result = renderToString(() => <CustomElement $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root></mk-foo>"',
+    '"<!$><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root></mk-foo>"',
   );
 });
 
 it('should render custom element with children', () => {
   const element = defineElement({
     tagName: 'mk-foo',
-    setup: () => () => <div class="foo">Test</div>,
+    setup: () => <div class="foo">Test</div>,
   });
 
   const result = renderToString(() => (
@@ -28,7 +29,7 @@ it('should render custom element with children', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root><!$><div>Child</div></mk-foo>"',
+    '"<!$><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root><!$><div>Child</div></mk-foo>"',
   );
 });
 
@@ -36,7 +37,7 @@ it('should render custom element with shadow dom', () => {
   const element = defineElement({
     tagName: 'mk-foo',
     shadowRoot: true,
-    setup: () => () => <div class="foo">Test</div>,
+    setup: () => <div class="foo">Test</div>,
   });
 
   const result = renderToString(() => (
@@ -48,7 +49,7 @@ it('should render custom element with shadow dom', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><template shadowroot=\\"open\\"><!$><div class=\\"foo\\">Test</div></template><!$><div>Light A</div><!$><div>Light B</div><!$><div>Light C</div></mk-foo>"',
+    '"<!$><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><template shadowroot=\\"open\\"><!$><div class=\\"foo\\">Test</div></template><!$><div>Light A</div><!$><div>Light B</div><!$><div>Light C</div></mk-foo>"',
   );
 });
 
@@ -69,30 +70,16 @@ it('should render adopted css styles in shadow root template', () => {
         }
       `,
     ],
-    setup: () => () => null,
   });
 
   const element = new (createServerElement(Button))();
   element.$setup();
-  expect(element.$render()).toMatchInlineSnapshot(`
-    "<template shadowroot=\\"open\\"><style>
-            div {
-              display: inline-block;
-            }
-          
-            .container {
-              color: blue;
-              order: 4;
-            }
-          </style></template>"
-  `);
+  // Fragile snapshot can't inline.
+  expect(element.$render()).toMatchSnapshot();
 });
 
 it('should render custom element with attributes', () => {
-  const element = defineElement({
-    tagName: 'mk-foo',
-    setup: () => () => null,
-  });
+  const element = defineElement({ tagName: 'mk-foo' });
 
   const result = renderToString(() => (
     <CustomElement
@@ -107,7 +94,7 @@ it('should render custom element with attributes', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root></shadow-root></mk-foo>"',
+    '"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root></shadow-root></mk-foo>"',
   );
 });
 
@@ -117,16 +104,13 @@ it('should forward props', () => {
     props: {
       foo: defineProp(10),
     },
-    setup:
-      ({ props }) =>
-      () =>
-        <div>{props.foo}</div>,
+    setup: ({ props }) => <div>{props.foo}</div>,
   });
 
   const result = renderToString(() => <CustomElement $prop:foo={100} $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
+    '"<!$><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
   );
 });
 
@@ -145,14 +129,14 @@ it('should forward attrs to props', () => {
   const result = renderToString(() => <CustomElement foo={100} $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo foo=\\"100\\" data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
+    '"<!$><mk-foo foo=\\"100\\" mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
   );
 });
 
 it('should set inner html', () => {
   const element = defineElement({
     tagName: 'mk-foo-10',
-    setup: () => () => <div>Test</div>,
+    setup: () => <div>Test</div>,
   });
 
   const result = renderToString(() => (
@@ -162,7 +146,7 @@ it('should set inner html', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo-10 data-hydrate=\\"\\" data-delegate=\\"\\"><!$><shadow-root><!$><div>Test</div></shadow-root><div>INNER HTML</div></mk-foo-10>"',
+    '"<!$><mk-foo-10 mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div>Test</div></shadow-root><div>INNER HTML</div></mk-foo-10>"',
   );
 });
 
@@ -173,7 +157,6 @@ it('should render css vars', () => {
       foo: 10,
       bar: 'none',
     },
-    setup: () => () => null,
   });
 
   const element = new (createServerElement(Button))();
@@ -193,7 +176,6 @@ it('should render css vars builder', () => {
     cssvars: (props) => ({
       foo: () => props.foo,
     }),
-    setup: () => () => null,
   });
 
   const element = new (createServerElement(Button))();

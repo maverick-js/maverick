@@ -1,6 +1,7 @@
 import { decode } from 'html-entities';
 import MagicString from 'magic-string';
 import t from 'typescript';
+
 import {
   createFunctionCall,
   createStringLiteral,

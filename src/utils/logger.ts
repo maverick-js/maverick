@@ -1,6 +1,7 @@
 import kleur from 'kleur';
 import normalizePath from 'normalize-path';
 import type { Node, SourceFile } from 'typescript';
+
 import { ms } from './ms';
 import { splitLineBreaks } from './print';
 import { isFunction, isObject } from './unit';

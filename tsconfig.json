@@ -27,6 +27,7 @@
       "maverick.js/dom": ["./src/runtime/dom"],
       "maverick.js/ssr": ["./src/runtime/ssr"],
       "maverick.js/element": ["./src/element"],
+      "maverick.js/react": ["./src/react"],
       "maverick.js/transformer": ["./src/transformer/"]
     },
     "preserveWatchOutput": true,

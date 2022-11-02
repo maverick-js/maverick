@@ -1,18 +1,19 @@
 import { tick } from '@maverick-js/observables';
 import { createContext } from 'maverick.js';
+
 import {
-  defineProp,
-  MaverickElement,
-  defineElement,
   defineCustomElement,
-  onConnect,
-  onMount,
-  onBeforeUpdate,
-  onAfterUpdate,
-  onDisconnect,
-  onDestroy,
+  defineElement,
+  defineProp,
   type ElementDeclaration,
+  MaverickElement,
   type MaverickElementConstructor,
+  onAfterUpdate,
+  onBeforeUpdate,
+  onConnect,
+  onDestroy,
+  onDisconnect,
+  onMount,
 } from 'maverick.js/element';
 
 it('should handle basic setup and destroy', () => {
@@ -21,7 +22,7 @@ it('should handle basic setup and destroy', () => {
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-test-1
-        data-delegate=""
+        mk-delegate=""
       >
         <shadow-root>
           Test
@@ -30,7 +31,6 @@ it('should handle basic setup and destroy', () => {
     </div>
   `);
   element.$destroy();
-  expect(container).toMatchInlineSnapshot('<div />');
 });
 
 it('should observe attributes', () => {
@@ -310,11 +310,11 @@ function setupTestElement(
   element = document.createElement(`mk-test-${count}`) as MaverickElement;
 
   if (hydrate) {
-    element.setAttribute('data-hydrate', '');
+    element.setAttribute('mk-hydrate', '');
   }
 
   if (delegate) {
-    element.setAttribute('data-delegate', '');
+    element.setAttribute('mk-delegate', '');
   }
 
   container.append(element);

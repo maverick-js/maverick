@@ -1,12 +1,13 @@
+import { encode } from 'html-entities';
+import t from 'typescript';
+
+import { trimWhitespace } from '../utils/print';
 import type {
   JSXAttrNamespace,
   JSXElementNode,
   JSXEventNamespace,
   JSXRootNode,
 } from './jsx/parse-jsx';
-import t from 'typescript';
-import { trimWhitespace } from '../utils/print';
-import { encode } from 'html-entities';
 
 const AST = Symbol('AST');
 

@@ -1,43 +1,53 @@
 import { effect, getScheduler, observable, root } from '@maverick-js/observables';
-import { $$_create_element, $$_next_element } from '../runtime/dom/internal';
-import { hydrate, hydration, render, setAttribute, setStyle, type SubjectRecord } from '../runtime';
+
+import {
+  hydrate,
+  hydration,
+  isDOMElement,
+  render,
+  setAttribute,
+  setStyle,
+  type SubjectRecord,
+} from '../runtime';
+import { $$_create_element } from '../runtime/dom/internal';
 import { run, runAll } from '../utils/fn';
 import { camelToKebabCase } from '../utils/str';
-
 import { isBoolean, isFunction, noop } from '../utils/unit';
+import { adoptCSS } from './css';
 import { setupElementProps } from './define-element';
 import { DOMEvent } from './event';
 import {
-  CONNECT,
-  MOUNT,
-  BEFORE_UPDATE,
   AFTER_UPDATE,
-  DISCONNECT,
+  BEFORE_UPDATE,
+  CONNECT,
   DESTROY,
+  DISCONNECT,
   LIFECYCLES,
+  MOUNT,
 } from './internal';
-import type { ElementLifecycleManager, ElementLifecycleCallback } from './lifecycle';
+import type { ElementLifecycleCallback, ElementLifecycleManager } from './lifecycle';
 import type {
-  ElementPropRecord,
-  ElementEventRecord,
+  AnyElementDefinition,
   ElementCSSVarRecord,
+  ElementDefinition,
+  ElementEventRecord,
   ElementMembers,
   ElementPropDefinitions,
-  ElementDefinition,
+  ElementPropRecord,
   ElementSetupContext,
-  MaverickHost,
   MaverickElement,
   MaverickElementConstructor,
+  MaverickHost,
 } from './types';
-import { adoptCSS } from './css';
 
-const MAVERICK_ELEMENT = Symbol('MAVERICK');
+const MAVERICK_ELEMENT = Symbol('MAVERICK'),
+  scheduler = getScheduler();
 
 export function createHTMLElement<
   Props extends ElementPropRecord,
-  Events extends ElementEventRecord = ElementEventRecord,
-  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
-  Members extends ElementMembers = ElementMembers,
+  Events extends ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord,
+  Members extends ElementMembers,
 >(
   definition: ElementDefinition<Props, Events, CSSVars, Members>,
 ): MaverickElementConstructor<Props, Events, CSSVars, Members> {
@@ -52,7 +62,7 @@ export function createHTMLElement<
 
   class MaverickElement
     extends HTMLElement
-    implements MaverickHost<Props, CSSVars>, ElementLifecycleManager
+    implements MaverickHost<Props>, ElementLifecycleManager
   {
     /** attr name to prop name map */
     private static _attrMap = new Map<string, string>();
@@ -88,18 +98,17 @@ export function createHTMLElement<
     private _props: SubjectRecord = {};
     private _onEventDispatch?: (eventType: string) => void;
 
-    private _scheduler = getScheduler();
     private _el = observable<MaverickElement | null>(null);
     private _children = observable(false, createId?.('$children'));
     private _connected = observable(false, createId?.('$connected'));
     private _mounted = observable(false, createId?.('$mounted'));
 
     private get _hydrate() {
-      return this.hasAttribute('data-hydrate');
+      return this.hasAttribute('mk-hydrate');
     }
 
     private get _delegate() {
-      return this.hasAttribute('data-delegate');
+      return this.hasAttribute('mk-delegate');
     }
 
     $keepAlive = false;
@@ -196,9 +205,9 @@ export function createHTMLElement<
 
         this[MOUNT] = [];
 
-        this._scheduler.flushSync();
-        this[DESTROY].push(this._scheduler.onBeforeFlush(() => runAll(this[BEFORE_UPDATE])));
-        this[DESTROY].push(this._scheduler.onFlush(() => runAll(this[AFTER_UPDATE])));
+        scheduler.flushSync();
+        this[DESTROY].push(scheduler.onBeforeFlush(() => runAll(this[BEFORE_UPDATE])));
+        this[DESTROY].push(scheduler.onFlush(() => runAll(this[AFTER_UPDATE])));
       }
     }
 
@@ -217,7 +226,7 @@ export function createHTMLElement<
       }
     }
 
-    $setup(ctx: ElementSetupContext<Props, CSSVars> = {}): () => void {
+    $setup(ctx: ElementSetupContext<Props> = {}): () => void {
       if (this._setup || this._destroyed) return noop;
       if (this._delegate) this.$keepAlive = true;
 
@@ -234,88 +243,86 @@ export function createHTMLElement<
         adoptCSS(this._root as ShadowRoot, definition.css);
       }
 
-      const members = root((dispose) => {
-        const { $$props, $$setupProps } = setupElementProps(propDefs);
-        this._props = $$props;
-
-        ctor._resolveAttrs();
-        for (const attrName of ctor._attrMap.keys()) {
-          if (this.hasAttribute(attrName)) {
-            const propName = ctor._attrMap.get(attrName)!;
-            const from = propDefs[propName].converter?.from;
-            if (from) {
-              const attrValue = this.getAttribute(attrName);
-              this._props[propName]?.set(from(attrValue));
-            }
-          }
-        }
-
-        if (ctx.props) {
-          for (const prop of Object.keys(ctx.props)) {
-            $$props[prop]?.set(ctx.props[prop]);
-          }
-        }
-
-        if (definition.cssvars) {
-          const vars = isFunction(definition.cssvars)
-            ? definition.cssvars($$setupProps)
-            : definition.cssvars;
-          for (const name of Object.keys(vars)) setStyle(this, `--${name}`, vars[name]);
-        }
-
-        if (ctx.children) {
-          this._children = ctx.children as any;
-        } else {
-          const onMutation = () => this._children.set(this.childNodes.length > 1);
-          onMutation();
-          const observer = new MutationObserver(() => this._scheduler.enqueue(onMutation));
-          observer.observe(this, { childList: true });
-          this[DESTROY].push(() => observer.disconnect());
-        }
-
-        const dispatch = (type, init) =>
-          this.dispatchEvent(
-            new DOMEvent(type, {
-              ...definition.events?.[type],
-              ...(init?.detail ? init : { detail: init }),
-            }),
-          );
-
-        const members = definition.setup({
-          host: this as any,
-          props: $$setupProps,
-          context: ctx.context,
-          dispatch,
-        });
-
-        this[DESTROY].push(dispose);
-        return members;
-      });
-
-      // User might've destroy component in setup.
-      if (this._destroyed) return noop;
-
-      Object.defineProperties(this, Object.getOwnPropertyDescriptors(members));
-      this._reflectProps();
-
-      if (ctx.onEventDispatch) {
-        for (const eventType of ctor._events) ctx.onEventDispatch(eventType);
-        this._onEventDispatch = ctx.onEventDispatch;
-      }
-
       const renderer = this._hydrate ? hydrate : render;
       this[DESTROY].push(
-        renderer(() => members.$render, {
-          target: this._root,
-          resume: !definition.shadowRoot,
-        }),
+        renderer(
+          () => {
+            const { $$props, $$setupProps } = setupElementProps(propDefs);
+            this._props = $$props;
+
+            ctor._resolveAttrs();
+            for (const attrName of ctor._attrMap.keys()) {
+              if (this.hasAttribute(attrName)) {
+                const propName = ctor._attrMap.get(attrName)!;
+                const from = propDefs[propName].converter?.from;
+                if (from) {
+                  const attrValue = this.getAttribute(attrName);
+                  this._props[propName]?.set(from(attrValue));
+                }
+              }
+            }
+
+            if (ctx.props) {
+              for (const prop of Object.keys(ctx.props)) {
+                $$props[prop]?.set(ctx.props[prop]);
+              }
+            }
+
+            if (definition.cssvars) {
+              const vars = isFunction(definition.cssvars)
+                ? definition.cssvars($$setupProps)
+                : definition.cssvars;
+              for (const name of Object.keys(vars)) setStyle(this, `--${name}`, vars[name]);
+            }
+
+            if (ctx.children) {
+              this._children = ctx.children as any;
+            } else {
+              const onMutation = () => this._children.set(this.childNodes.length > 1);
+              onMutation();
+              const observer = new MutationObserver(() => scheduler.enqueue(onMutation));
+              observer.observe(this, { childList: true });
+              this[DESTROY].push(() => observer.disconnect());
+            }
+
+            const dispatch = (type, init) =>
+              this.dispatchEvent(
+                new DOMEvent(type, {
+                  ...definition.events?.[type],
+                  ...(init?.detail ? init : { detail: init }),
+                }),
+              );
+
+            const members = definition.setup({
+              host: this as any,
+              props: $$setupProps,
+              context: ctx.context,
+              dispatch,
+            });
+
+            Object.defineProperties(this, Object.getOwnPropertyDescriptors(members));
+            this._reflectProps();
+
+            if (ctx.onEventDispatch) {
+              for (const eventType of ctor._events) ctx.onEventDispatch(eventType);
+              this._onEventDispatch = ctx.onEventDispatch;
+            }
+
+            return members.$render;
+          },
+          {
+            target: this._root!,
+            resume: !definition.shadowRoot,
+          },
+        ),
       );
 
-      this._scheduler.flushSync();
+      scheduler.flushSync();
 
       this._setup = true;
       this._el.set(this);
       this.connectedCallback();
+
       return () => this.$destroy();
     }
 
@@ -323,15 +330,17 @@ export function createHTMLElement<
       if (this._destroyed) return;
 
       this._mounted.set(false);
-
-      this.remove();
       runAll(this[DESTROY]);
-      this._scheduler.flushSync();
+      scheduler.flushSync();
 
       this._props = {};
       for (const name of LIFECYCLES) this[name] = [];
-      if (this._root) this._root.textContent = '';
       this._destroyed = true;
+
+      if (!this._delegate) {
+        this.remove();
+        if (this._root) this._root.textContent = '';
+      }
     }
 
     $onMount(callback: () => void) {
@@ -384,7 +393,7 @@ export function isMaverickElement(node?: Node | null): node is MaverickElement {
   return !!node?.[MAVERICK_ELEMENT];
 }
 
-export function defineCustomElement(definition: ElementDefinition<any, any, any, any>) {
+export function defineCustomElement(definition: AnyElementDefinition) {
   if (__SERVER__) return;
   if (!window.customElements.get(definition.tagName)) {
     window.customElements.define(definition.tagName, createHTMLElement(definition));
@@ -392,8 +401,8 @@ export function defineCustomElement(definition: ElementDefinition<any, any, any,
 }
 
 function resolveShadowRootElement(root: Element) {
-  if (hydration) {
-    return $$_next_element(hydration.w);
+  if (isDOMElement(root.firstChild) && root.firstChild.localName === 'shadow-root') {
+    return root.firstChild;
   } else {
     const shadowRoot = $$_create_element('shadow-root');
     root.prepend(shadowRoot);

@@ -1,8 +1,9 @@
-import t from 'typescript';
-import { buildAST } from './parse';
-import type { AST } from '../ast';
-import { logTime } from '../../utils/logger';
 import type MagicString from 'magic-string';
+import t from 'typescript';
+
+import { logTime } from '../../utils/logger';
+import type { AST } from '../ast';
+import { buildAST } from './parse';
 
 export type ParseJSXOptions = {
   filename: string;

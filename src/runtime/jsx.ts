@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
-
 import type { ConditionalPick, KebabCase } from 'type-fest';
+
 import type { Observable } from './reactivity';
 
 type DOMElement = Element;
@@ -306,6 +306,21 @@ export namespace JSX {
     (this: never, event: Event): void;
   };
 
+  export type TargetedEventHandler<
+    Target extends EventTarget,
+    Event extends DOMEvent,
+  > = JSX.EventHandler<JSX.TargetedEvent<Target, Event>>;
+
+  /**
+   * All global events with the event `currentTarget` set to the given generic `Target`.
+   */
+  export type TargetedGlobalEvents<Target extends EventTarget> = {
+    [EventType in keyof GlobalOnAttributes]: TargetedEventHandler<
+      Target,
+      GlobalOnAttributes[EventType]
+    >;
+  };
+
   /**
    * Creates `$on:{type}` and `$oncapture:{type}` type definitions given an event record.
    *
@@ -318,16 +333,23 @@ export namespace JSX {
    * }>
    * ```
    */
-  export type OnAttributes<Record extends EventRecord, Target extends EventTarget = EventTarget> = {
-    [P in keyof Record as `$on:${Stringify<P>}`]?: EventHandler<TargetedEvent<Target, Record[P]>>;
-  } & OnCaptureAttributes<Record, Target>;
+  export type OnAttributes<
+    Target extends EventTarget = EventTarget,
+    Events extends EventRecord = EventRecord,
+  > = {
+    [EventType in keyof Events as `$on:${Stringify<EventType>}`]?: TargetedEventHandler<
+      Target,
+      Events[EventType]
+    >;
+  } & OnCaptureAttributes<Target, Events>;
 
   export type OnCaptureAttributes<
-    Record extends EventRecord,
     Target extends EventTarget = EventTarget,
+    Events extends EventRecord = EventRecord,
   > = {
-    [P in keyof Record as `$oncapture:${Stringify<P>}`]?: EventHandler<
-      TargetedEvent<Target, Record[P]>
+    [EventType in keyof Events as `$oncapture:${Stringify<EventType>}`]?: TargetedEventHandler<
+      Target,
+      Events[EventType]
     >;
   };
 
@@ -355,8 +377,8 @@ export namespace JSX {
    * }>
    * ```
    */
-  export type UseAttributes<Record extends DirectiveRecord> = {
-    [P in keyof Record as `$use:${Stringify<P>}`]: Record[P] extends (
+  export type UseAttributes<Directives extends DirectiveRecord> = {
+    [Name in keyof Directives as `$use:${Stringify<Name>}`]: Directives[Name] extends (
       element: any,
       ...args: infer R
     ) => void
@@ -415,8 +437,10 @@ export namespace JSX {
    * }>
    * ```
    */
-  export type CSSVarAttributes<Record extends CSSRecord> = {
-    [P in keyof Record as `$cssvar:${Stringify<P>}`]: Value<Record[P] | null | undefined>;
+  export type CSSVarAttributes<Variables extends CSSRecord> = {
+    [Var in keyof Variables as `$cssvar:${Stringify<Var>}`]: Value<
+      Variables[Var] | null | undefined
+    >;
   } & AnyCSSVarAttribute;
 
   /**
@@ -425,9 +449,9 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
-  export type HTMLPropAttributes<Record extends PropRecord> = {
-    [P in keyof Record as `$prop:${Stringify<P>}`]?: Value<Record[P] | null>;
-  } & LowercasedObservableAttributes<ConditionalPick<Record, AttrValue>>;
+  export type HTMLPropAttributes<Props extends PropRecord> = {
+    [Prop in keyof Props as `$prop:${Stringify<Prop>}`]?: Value<Props[Prop] | null>;
+  } & LowercasedObservableAttributes<ConditionalPick<Props, AttrValue>>;
 
   export type HTMLAttributes = HTMLPropAttributes<HTMLProperties> & {
     $children?: Element;
@@ -459,11 +483,11 @@ export namespace JSX {
       // User Defined
       RefAttributes<Element> &
       PropAttributes<Props> &
-      OnAttributes<Events, Element> &
+      OnAttributes<Element, Events> &
       CSSVarAttributes<CSSVars> &
       // Globals
       CSSVarAttributes<GlobalCSSVarAttributes> &
-      OnAttributes<GlobalOnAttributes & EventRecord, Element> &
+      OnAttributes<Element, GlobalOnAttributes & EventRecord> &
       UseAttributes<GlobalUseAttributes>;
 
   export type HTMLMarqueeElement = HTMLElement & HTMLMarqueeElementProperties;

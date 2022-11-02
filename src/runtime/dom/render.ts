@@ -1,5 +1,5 @@
-import { root as $root, type Dispose } from '../reactivity';
 import type { JSX } from '../jsx';
+import { root as createRoot, type Dispose } from '../reactivity';
 import { createMarkerWalker, type MarkerWalker } from './expression';
 import { insert } from './utils';
 
@@ -30,7 +30,7 @@ export type RenderOptions = {
 
 export function render(root: () => JSX.Element, options: RenderOptions): Dispose {
   const { target, before } = options;
-  return $root((dispose) => {
+  return createRoot((dispose) => {
     if (!hydration) {
       insert(target, root(), before);
     } else {

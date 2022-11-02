@@ -1,19 +1,20 @@
 import MagicString, { type SourceMapOptions } from 'magic-string';
-import { dom } from './dom';
-import { ssr } from './ssr';
-import { parseJSX } from './jsx/parse-jsx';
-import { type AST } from './ast';
-import { overwrite } from './jsx/utils';
+import path from 'path';
+
 import {
   log,
   LogLevel,
   type LogLevelName,
-  setGlobalLogLevel,
-  mapLogLevelStringToNumber,
   logTime,
+  mapLogLevelStringToNumber,
+  setGlobalLogLevel,
 } from '../utils/logger';
 import { createImportDeclaration, Declarations, format } from '../utils/print';
-import path from 'path';
+import { type AST } from './ast';
+import { dom } from './dom';
+import { parseJSX } from './jsx/parse-jsx';
+import { overwrite } from './jsx/utils';
+import { ssr } from './ssr';
 
 export type TransformOptions = {
   logLevel: LogLevelName;

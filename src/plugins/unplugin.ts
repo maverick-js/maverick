@@ -1,7 +1,8 @@
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import { createUnplugin } from 'unplugin';
-import { type LogLevelName } from '../utils/logger';
+
 import { transform, type TransformOptions } from '../transformer';
+import { type LogLevelName } from '../utils/logger';
 import { isUndefined } from '../utils/unit';
 
 export type ResolvedOptions = {
@@ -10,7 +11,7 @@ export type ResolvedOptions = {
   exclude: FilterPattern;
   /** Filter files that should be logged verbosely. */
   debug: FilterPattern | undefined;
-  hydratable: boolean | null;
+  hydratable: boolean | ((id: string) => boolean | null) | null;
   pretty: boolean | null;
   generate: TransformOptions['generate'] | null;
 };
@@ -40,7 +41,7 @@ export const unplugin = createUnplugin((options: Options = {}) => {
     transform(code, {
       logLevel: debugFilter?.(filename) ? 'verbose' : logLevel,
       filename,
-      hydratable: hydratable ?? ssr,
+      hydratable: (typeof hydratable === 'boolean' ? hydratable : hydratable?.(filename)) ?? ssr,
       generate: generate ?? (ssr ? 'ssr' : 'dom'),
       pretty: pretty ?? true,
       sourcemap: true,

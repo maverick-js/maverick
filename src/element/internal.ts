@@ -1,4 +1,5 @@
 import { peek } from '@maverick-js/observables';
+
 import { isNull } from '../utils/unit';
 import type { ElementLifecycleCallback, ElementLifecycleManager } from './lifecycle';
 import type { MaverickHost } from './types';

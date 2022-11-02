@@ -1,6 +1,8 @@
-import { computed, onDispose, peek } from '../reactivity';
+import { defineCustomElement, type ElementDefinition, type MaverickElement } from '../../element';
+import { attachDeclarativeShadowDOM } from '../../utils/dom';
 import { isArray, isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
+import { computed, onDispose, peek } from '../reactivity';
 import { createMarkerWalker, insertExpression, type StartMarker } from './expression';
 import { hydration } from './render';
 import {
@@ -13,8 +15,6 @@ import {
   setStyle,
   toggleClass,
 } from './utils';
-import { defineCustomElement, type MaverickElement, type ElementDefinition } from '../../element';
-import { attachDeclarativeShadowDOM } from '../../utils/dom';
 
 /** @internal */
 export function $$_create_template(html: string) {
@@ -86,14 +86,7 @@ export function $$_setup_custom_element(
   definition: ElementDefinition,
   props?: Record<string, any>,
 ) {
-  if (
-    hydration &&
-    definition.shadowRoot &&
-    element.firstChild?.nodeName === 'TEMPLATE' &&
-    (element.firstChild as HTMLTemplateElement).hasAttribute('shadowroot')
-  ) {
-    attachDeclarativeShadowDOM(element);
-  }
+  if (definition.shadowRoot) $$_attach_declarative_shadow_dom(element);
 
   const children = computed(() => props?.innerHTML || props?.$children);
   onDispose(element.$setup({ props, children }));
@@ -108,6 +101,17 @@ export function $$_setup_custom_element(
     }
   } else {
     children();
+  }
+}
+
+/** @internal */
+export function $$_attach_declarative_shadow_dom(element: MaverickElement) {
+  if (element.firstChild?.nodeName === 'TEMPLATE') {
+    if ((element.firstChild as HTMLTemplateElement).hasAttribute('shadowroot')) {
+      attachDeclarativeShadowDOM(element);
+    } else {
+      element.firstChild.remove();
+    }
   }
 }
 

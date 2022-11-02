@@ -1,4 +1,5 @@
 import { CustomElement, observable, render, tick } from 'maverick.js';
+
 import { defineCustomElement, defineElement, MaverickElement } from 'maverick.js/element';
 
 afterEach(() => {
@@ -8,10 +9,9 @@ afterEach(() => {
 it('should render custom element', async () => {
   const Button = defineElement({
     tagName: `mk-button-1`,
-    setup:
-      ({ host }) =>
-      () =>
-        !host.$children && <div>Internal</div>,
+    setup: ({ host }) => {
+      return () => !host.$children && <div>Internal</div>;
+    },
   });
 
   const root = document.createElement('root');
@@ -74,7 +74,7 @@ it('should render custom element', async () => {
 it('should render custom element with only internal content', () => {
   const Button = defineElement({
     tagName: `mk-button-2`,
-    setup: () => () => <button>Test</button>,
+    setup: () => <button>Test</button>,
   });
 
   const root = document.createElement('root');
@@ -96,10 +96,7 @@ it('should render custom element with only internal content', () => {
 });
 
 it('should render custom element with only children', () => {
-  const Button = defineElement({
-    tagName: `mk-button-3`,
-    setup: () => () => null,
-  });
+  const Button = defineElement({ tagName: `mk-button-3` });
 
   const root = document.createElement('root');
   render(
@@ -128,10 +125,7 @@ it('should render custom element with only children', () => {
 it('should render custom element with inner html', () => {
   const Button = defineElement({
     tagName: `mk-button-4`,
-    setup:
-      ({ host }) =>
-      () =>
-        !host.$children && <div>Foo</div>,
+    setup: ({ host }) => !host.$children && <div>Foo</div>,
   });
 
   const root = document.createElement('root');
@@ -147,16 +141,27 @@ it('should render custom element with inner html', () => {
   expect(root).toMatchInlineSnapshot(`
   <root>
     <mk-button-4>
-      <shadow-root>
-        <!--$$-->
-        <!--/$-->
-      </shadow-root>
+      <shadow-root />
       <div>
         INNER HTML
       </div>
     </mk-button-4>
   </root>
 `);
+});
+
+it('should render custom element with shadow dom', () => {
+  const Button = defineElement({
+    tagName: `mk-button-10`,
+    shadowRoot: true,
+    setup: () => <button>Test</button>,
+  });
+
+  const root = document.createElement('root');
+  render(() => <CustomElement $element={Button} />, { target: root });
+
+  const shadowRoot = (root.firstChild as HTMLElement).shadowRoot;
+  expect(shadowRoot?.innerHTML).toMatchInlineSnapshot('"<button>Test</button>"');
 });
 
 it('should render css vars', () => {
@@ -166,7 +171,6 @@ it('should render css vars', () => {
       foo: 10,
       bar: 'none',
     },
-    setup: () => () => null,
   });
 
   defineCustomElement(Button);
@@ -190,7 +194,6 @@ it('should render css vars builder', async () => {
     cssvars: (props) => ({
       foo: () => props.foo,
     }),
-    setup: () => () => null,
   });
 
   defineCustomElement(Button);
@@ -219,15 +222,11 @@ it('should render css vars builder', async () => {
 });
 
 it('should call `$onMount` callback', async () => {
-  const Button = defineElement({
-    tagName: `mk-button-7`,
-    setup: () => () => null,
-  });
-
+  const Button = defineElement({ tagName: `mk-button-7` });
   defineCustomElement(Button);
 
   const element = document.createElement(Button.tagName) as MaverickElement;
-  element.setAttribute('data-delegate', '');
+  element.setAttribute('mk-delegate', '');
 
   const callback = vi.fn();
   element.$onMount(callback);
@@ -241,15 +240,11 @@ it('should call `$onMount` callback', async () => {
 });
 
 it('should call `$onDestroy` callback', async () => {
-  const Button = defineElement({
-    tagName: `mk-button-8`,
-    setup: () => () => null,
-  });
-
+  const Button = defineElement({ tagName: `mk-button-8` });
   defineCustomElement(Button);
 
   const element = document.createElement(Button.tagName) as MaverickElement;
-  element.setAttribute('data-delegate', '');
+  element.setAttribute('mk-delegate', '');
 
   const callback = vi.fn();
   element.$onDestroy(callback);
@@ -268,19 +263,15 @@ it('should call `$onDestroy` callback', async () => {
 });
 
 it('should wait for parent to mount', async () => {
-  const Parent = defineElement({
-    tagName: `mk-parent-1`,
-    setup: () => () => null,
-  });
+  const Parent = defineElement({ tagName: `mk-parent-1` });
 
   const Child = defineElement({
     tagName: `mk-child-1`,
     parent: Parent,
-    setup: () => () => null,
   });
 
   const parent = document.createElement(Parent.tagName) as MaverickElement;
-  parent.setAttribute('data-delegate', '');
+  parent.setAttribute('mk-delegate', '');
   const child = document.createElement(Child.tagName) as MaverickElement;
   parent.append(child);
   document.body.append(parent);
@@ -288,7 +279,7 @@ it('should wait for parent to mount', async () => {
   expect(document.body).toMatchInlineSnapshot(`
   <body>
     <mk-parent-1
-      data-delegate=""
+      mk-delegate=""
     >
       <mk-child-1 />
     </mk-parent-1>

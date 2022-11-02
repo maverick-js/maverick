@@ -1,11 +1,11 @@
 import {
-  CONNECT,
-  MOUNT,
-  BEFORE_UPDATE,
   AFTER_UPDATE,
-  DISCONNECT,
-  DESTROY,
+  BEFORE_UPDATE,
+  CONNECT,
   createLifecycleMethod,
+  DESTROY,
+  DISCONNECT,
+  MOUNT,
 } from './internal';
 
 export type ElementLifecycleCallback = () => any;

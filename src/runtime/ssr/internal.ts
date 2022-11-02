@@ -1,9 +1,9 @@
-import { trimTrailingSemicolon } from '../../utils/print';
-import { isFunction, isNull, isString } from '../../utils/unit';
+import { createServerElement, type ElementDefinition } from '../../element';
 import { escape } from '../../utils/html';
 import { unwrapDeep } from '../../utils/obs';
-import { resolve, SSR_TEMPLATE, injectHTML } from './render';
-import { createServerElement, type ElementDefinition } from '../../element';
+import { trimTrailingSemicolon } from '../../utils/print';
+import { isFunction, isNull, isString } from '../../utils/unit';
+import { injectHTML, resolve, SSR_TEMPLATE } from './render';
 
 /** @internal */
 export function $$_ssr(template: string[], ...parts: unknown[]) {

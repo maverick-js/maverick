@@ -1,9 +1,10 @@
 import {
   effect as $effect,
-  isSubject,
   type Effect,
+  isSubject,
   type StopEffect,
 } from '@maverick-js/observables';
+
 import { noop } from '../utils/unit';
 import type { ObservableRecord, ObservableRecordValues } from './types';
 

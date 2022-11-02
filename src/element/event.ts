@@ -1,4 +1,5 @@
 import type { Constructor } from 'type-fest';
+
 import type { JSX } from '../runtime';
 import type { ElementEventRecord } from './types';
 

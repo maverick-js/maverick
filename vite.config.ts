@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
-
 import { defineConfig } from 'vite';
+
 import { vite as maverick } from './src/plugins';
 import { transform } from './src/transformer';
 
@@ -14,6 +14,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      'maverick.js/react': '/src/react',
       'maverick.js/element': '/src/element',
       'maverick.js/dom': '/src/runtime/dom',
       'maverick.js/ssr': '/src/runtime/ssr',
@@ -35,7 +36,9 @@ export default defineConfig({
         }
       },
     },
-    maverick(),
+    maverick({
+      hydratable: (id) => (id.includes('hydrate.test') ? true : null),
+    }),
   ],
   // https://vitest.dev/config
   test: {

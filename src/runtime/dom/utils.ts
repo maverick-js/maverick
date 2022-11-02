@@ -1,4 +1,5 @@
 import { effect } from '@maverick-js/observables';
+
 import type { MaverickHost } from '../../element/types';
 import { isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
@@ -44,20 +45,16 @@ export function insert(
 export function listen<Target extends EventTarget | MaverickHost, EventType extends string>(
   target: Target,
   type: EventType,
-  handler: EventType extends keyof JSX.GlobalEventRecord
-    ? JSX.EventHandler<
-        JSX.TargetedEvent<
-          Target extends MaverickHost ? Target['$el'] & EventTarget : Target,
-          JSX.GlobalEventRecord[EventType]
-        >
-      >
-    : JSX.EventHandler,
+  handler: JSX.TargetedEventHandler<
+    Target extends MaverickHost ? Target['$el'] & EventTarget : Target,
+    EventType extends keyof JSX.GlobalEventRecord ? JSX.GlobalEventRecord[EventType] : Event
+  >,
   options?: AddEventListenerOptions | boolean,
 ) {
   if (__SERVER__) return;
-  target.addEventListener(type, handler, options);
+  target.addEventListener(type, handler as any, options);
   onDispose(() => {
-    target.removeEventListener(type, handler, options);
+    target.removeEventListener(type, handler as any, options);
   });
 }
 

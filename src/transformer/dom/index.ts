@@ -1,25 +1,7 @@
-import {
-  type AST,
-  type AttributeNode,
-  type ElementNode,
-  type ComponentChildren,
-  isAST,
-  isAttributeNode,
-  isAttributesEnd,
-  isDirectiveNode,
-  isElementEnd,
-  isElementNode,
-  isEventNode,
-  isExpressionNode,
-  isRefNode,
-  isSpreadNode,
-  isStructuralNode,
-  isTextNode,
-  isChildrenStart,
-  isChildrenEnd,
-  isFragmentNode,
-} from '../ast';
-import { type ASTSerializer } from '../transform';
+import { encode } from 'html-entities';
+import kleur from 'kleur';
+
+import { escape } from '../../utils/html';
 import {
   createFunctionCall,
   createStringLiteral,
@@ -27,16 +9,35 @@ import {
   trimQuotes,
   trimTrailingSemicolon,
 } from '../../utils/print';
-import { escape } from '../../utils/html';
-import { encode } from 'html-entities';
-import kleur from 'kleur';
+import { isArray } from '../../utils/unit';
+import {
+  type AST,
+  type AttributeNode,
+  type ComponentChildren,
+  type ElementNode,
+  isAST,
+  isAttributeNode,
+  isAttributesEnd,
+  isChildrenEnd,
+  isChildrenStart,
+  isDirectiveNode,
+  isElementEnd,
+  isElementNode,
+  isEventNode,
+  isExpressionNode,
+  isFragmentNode,
+  isRefNode,
+  isSpreadNode,
+  isStructuralNode,
+  isTextNode,
+} from '../ast';
 import {
   serializeChildren,
   serializeComponentProp,
   serializeCreateComponent,
   serializeParentExpression,
 } from '../jsx/utils';
-import { isArray } from '../../utils/unit';
+import { type ASTSerializer } from '../transform';
 
 const ID = {
   template: '$$_templ',

@@ -1,9 +1,9 @@
+import { run } from '../../utils/fn';
+import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import type { JSX } from '../jsx';
 import { effect, isObserved } from '../reactivity';
-import { createComment, createFragment, insert, isDOMNode } from './utils';
-import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import { hydration } from './render';
-import { run } from '../../utils/fn';
+import { createComment, createFragment, insert, isDOMNode } from './utils';
 
 const TEXT = Symbol();
 const END_MARKER = Symbol();

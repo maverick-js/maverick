@@ -3,7 +3,18 @@ import { defineConfig, type Options } from 'tsup';
 function base({ dev = false, server = false } = {}): Options {
   return {
     format: server ? ['esm', 'cjs'] : 'esm',
-    external: ['typescript', 'rollup', 'chokidar', 'esbuild'],
+    external: [
+      'typescript',
+      'rollup',
+      'chokidar',
+      'esbuild',
+      'react',
+      'react-dom',
+      'vue',
+      'svelte',
+      'preact',
+      'solid-js',
+    ],
     // minify: true,
     treeshake: true,
     splitting: true,
@@ -31,6 +42,7 @@ const runtimeEntry = {
   dom: './src/runtime/dom/index.ts',
   ssr: './src/runtime/ssr/index.ts',
   element: './src/element/index.ts',
+  react: './src/react/index.ts',
 };
 
 export default defineConfig([

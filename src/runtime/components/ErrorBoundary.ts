@@ -1,6 +1,6 @@
 import type { JSX } from '../../runtime/jsx';
-import { peek, observable, computed, onError, type Observable } from '../reactivity';
 import { isFunction } from '../../utils/unit';
+import { computed, observable, type Observable, onError, peek } from '../reactivity';
 
 export type ObservableError<T = unknown> = Observable<T | null> & { handled(): void };
 export type ErrorBoundaryHandler<T = unknown> = (error: ObservableError<T>) => JSX.Element;

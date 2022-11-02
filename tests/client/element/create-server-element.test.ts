@@ -21,8 +21,8 @@ it('should render attributes', () => {
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
-      "data-hydrate" => "",
-      "data-delegate" => "",
+      "mk-hydrate" => "",
+      "mk-delegate" => "",
       "foo" => "1",
       "bar" => "2",
     }
@@ -49,8 +49,8 @@ it('should render class list', () => {
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
-      "data-hydrate" => "",
-      "data-delegate" => "",
+      "mk-hydrate" => "",
+      "mk-delegate" => "",
       "class" => "foo baz doh boo",
     }
   `);
@@ -74,8 +74,8 @@ it('should render styles', () => {
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
-      "data-hydrate" => "",
-      "data-delegate" => "",
+      "mk-hydrate" => "",
+      "mk-delegate" => "",
       "style" => "foo: 1;bar: 2;display: content;--hux: none;",
     }
   `);
@@ -94,8 +94,8 @@ it('should reflect props', () => {
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
-      "data-hydrate" => "",
-      "data-delegate" => "",
+      "mk-hydrate" => "",
+      "mk-delegate" => "",
       "foo" => "10",
       "bar" => "20",
     }
@@ -108,7 +108,7 @@ it('should noop dom events api', () => {
       host.addEventListener('click', () => {});
       host.removeEventListener('click', () => {});
       host.dispatchEvent(new MouseEvent('click'));
-      return () => null;
+      return null;
     },
   });
 

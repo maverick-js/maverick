@@ -1,4 +1,4 @@
-import { getParent, getContext, setContext } from '@maverick-js/observables';
+import { getContext, getParent, setContext } from '@maverick-js/observables';
 
 export type Context<T> = {
   id: symbol;
@@ -9,7 +9,7 @@ export type Context<T> = {
 
 const CONTEXT_MAP = Symbol();
 
-export type ContextMap = Map<string | symbol, unknown>;
+export type ContextMap = Map<string | symbol, any>;
 
 export function getContextMap(): ContextMap {
   let map = getContext(CONTEXT_MAP) as ContextMap;
@@ -39,7 +39,7 @@ export function createContext<T>(initialValue: T): Context<T> {
       }
 
       const map = getContextMap();
-      return map.has(id) ? (map.get(id) as T) : initialValue;
+      return map.has(id) ? map.get(id) : initialValue;
     },
     set: (value) => {
       if (__DEV__) {

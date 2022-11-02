@@ -1,16 +1,16 @@
 import { observable } from '@maverick-js/observables';
+
+import { setContextMap, type SubjectRecord } from '../runtime';
 import { isMaverickElement } from './create-html-element';
-import { type SubjectRecord, setContextMap } from '../runtime';
-import { isFunction } from '../utils/unit';
 import { setHost } from './internal';
 import type {
-  ElementPropRecord,
-  ElementEventRecord,
   ElementCSSVarRecord,
   ElementDeclaration,
   ElementDefinition,
-  ElementPropDefinitions,
+  ElementEventRecord,
   ElementMembers,
+  ElementPropDefinitions,
+  ElementPropRecord,
   MaverickElement,
 } from './types';
 
@@ -28,14 +28,14 @@ export function defineElement<
       if (context.context) setContextMap(context.context);
 
       setHost(context.host);
-      const setup = declaration.setup(context);
+      const setup = declaration.setup?.(context) ?? { $render: () => null };
       setHost(null);
 
-      return (isFunction(setup) ? { $render: setup } : setup) as Members;
+      return ((setup as Members)?.$render ? setup : { $render: setup }) as Members;
     },
     is: __SERVER__
       ? (node): node is never => false
-      : (node): node is MaverickElement<Props, CSSVars> & Members =>
+      : (node): node is MaverickElement<Props> & Members =>
           isMaverickElement(node) && node.localName === definition.tagName,
   };
 

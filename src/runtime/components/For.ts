@@ -1,6 +1,6 @@
 import type { JSX } from '../../runtime/jsx';
-import { computedMap, computedKeyedMap, type Maybe, type Observable } from '../reactivity';
 import { unwrap } from '../../utils/obs';
+import { computedKeyedMap, computedMap, type Maybe, type Observable } from '../reactivity';
 
 /**
  * Non-keyed list iteration where rendered nodes are keyed to an array index. This is useful when

@@ -1,27 +1,36 @@
+import {
+  type ContextMap,
+  type JSX,
+  renderToString,
+  root,
+  setAttribute,
+  setStyle,
+  type SubjectRecord,
+} from '../runtime';
+import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
 import { escape } from '../utils/html';
+import { camelToKebabCase } from '../utils/str';
+import { isBoolean, isFunction, noop } from '../utils/unit';
+import { setupElementProps } from './define-element';
 import type {
-  ElementPropRecord,
-  ElementEventRecord,
+  AnyElementDefinition,
   ElementCSSVarRecord,
   ElementDefinition,
+  ElementEventRecord,
   ElementMembers,
   ElementPropDefinitions,
+  ElementPropRecord,
   ElementSetupContext,
   MaverickHost,
 } from './types';
-import { isBoolean, isFunction, noop } from '../utils/unit';
-import { camelToKebabCase } from '../utils/str';
-import { setupElementProps } from './define-element';
-import { type SubjectRecord, type JSX, setAttribute, renderToString, setStyle } from '../runtime';
-import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
 
-const registry = new WeakMap<ElementDefinition<any, any, any, any>, any>();
+const registry = new WeakMap<AnyElementDefinition, any>();
 
 export function createServerElement<
   Props extends ElementPropRecord,
-  Events extends ElementEventRecord = ElementEventRecord,
-  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
-  Members extends ElementMembers = ElementMembers,
+  Events extends ElementEventRecord,
+  CSSVars extends ElementCSSVarRecord,
+  Members extends ElementMembers,
 >(definition: ElementDefinition<Props, Events, CSSVars, Members>) {
   if (registry.has(definition)) {
     return registry.get(definition) as typeof MaverickServerElement;
@@ -29,13 +38,13 @@ export function createServerElement<
 
   const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
 
-  class MaverickServerElement implements MaverickHost<Props, CSSVars> {
+  class MaverickServerElement implements MaverickHost<Props> {
     /** @internal */
     _children = false;
     /** @internal */
     _props: SubjectRecord = {};
     /** @internal */
-    _render?: () => JSX.Element;
+    _ssr?: string;
 
     $keepAlive = false;
 
@@ -56,75 +65,89 @@ export function createServerElement<
       return this._children;
     }
 
-    $setup(ctx: ElementSetupContext<Props, CSSVars> = {}) {
-      const { $$props, $$setupProps } = setupElementProps(definition.props);
+    $setup(ctx: ElementSetupContext<Props> = {}) {
+      root((dispose) => {
+        const { $$props, $$setupProps } = setupElementProps(definition.props);
 
-      this._props = $$props;
-      this._children = ctx.children?.() ?? false;
+        this._props = $$props;
+        this._children = ctx.children?.() ?? false;
 
-      this.setAttribute('data-hydrate', '');
-      this.setAttribute('data-delegate', '');
+        this.setAttribute('mk-hydrate', '');
+        this.setAttribute('mk-delegate', '');
 
-      if (this.hasAttribute('class')) {
-        parseClassAttr(this.classList.tokens, this.getAttribute('class')!);
-      }
+        if (this.hasAttribute('class')) {
+          parseClassAttr(this.classList.tokens, this.getAttribute('class')!);
+        }
 
-      if (this.hasAttribute('style')) {
-        parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
-      }
+        if (this.hasAttribute('style')) {
+          parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
+        }
 
-      for (const propName of Object.keys(propDefs)) {
-        const def = propDefs[propName];
-        if (def.attribute !== false) {
-          const attrName = def.attribute ?? camelToKebabCase(propName);
-          const fromAttr = propDefs[propName].converter?.from;
-          if (this.hasAttribute(attrName) && fromAttr) {
-            const attrValue = this.getAttribute(attrName);
-            this._props[propName]?.set(fromAttr(attrValue));
+        for (const propName of Object.keys(propDefs)) {
+          const def = propDefs[propName];
+          if (def.attribute !== false) {
+            const attrName = def.attribute ?? camelToKebabCase(propName);
+            const fromAttr = propDefs[propName].converter?.from;
+            if (this.hasAttribute(attrName) && fromAttr) {
+              const attrValue = this.getAttribute(attrName);
+              this._props[propName]?.set(fromAttr(attrValue));
+            }
           }
         }
-      }
 
-      if (ctx.props) {
-        for (const prop of Object.keys(ctx.props)) {
-          $$props[prop]?.set(ctx.props[prop]);
+        if (ctx.props) {
+          for (const prop of Object.keys(ctx.props)) {
+            $$props[prop]?.set(ctx.props[prop]);
+          }
         }
-      }
 
-      if (definition.cssvars) {
-        const vars = isFunction(definition.cssvars)
-          ? definition.cssvars($$setupProps)
-          : definition.cssvars;
-        for (const name of Object.keys(vars)) setStyle(this, `--${name}`, vars[name]);
-      }
+        if (definition.cssvars) {
+          const vars = isFunction(definition.cssvars)
+            ? definition.cssvars($$setupProps)
+            : definition.cssvars;
+          for (const name of Object.keys(vars)) setStyle(this, `--${name}`, vars[name]);
+        }
 
-      const members = definition.setup({
-        host: this,
-        props: $$setupProps,
-        context: ctx.context,
-        dispatch: () => false,
+        const members = definition.setup({
+          host: this,
+          props: $$setupProps,
+          context: ctx.context,
+          dispatch: () => false,
+        });
+
+        // prop reflection.
+        for (const propName of Object.keys(propDefs)) {
+          const def = propDefs[propName];
+          if (!def.reflect || def.attribute === false) continue;
+          const convert = propDefs[propName]!.converter?.to;
+          const attrName = def.attribute ?? camelToKebabCase(propName);
+          const propValue = $$setupProps[propName];
+          setAttribute(this as any, attrName, convert ? convert(propValue) : propValue + '');
+        }
+
+        this._ssr = renderToString(() => members.$render).code;
+        dispose();
       });
 
-      // prop reflection.
-      for (const propName of Object.keys(propDefs)) {
-        const def = propDefs[propName];
-        if (!def.reflect || def.attribute === false) continue;
-        const convert = propDefs[propName]!.converter?.to;
-        const attrName = def.attribute ?? camelToKebabCase(propName);
-        const propValue = $$setupProps[propName];
-        setAttribute(this as any, attrName, convert ? convert(propValue) : propValue + '');
-      }
-
-      this._render = members.$render;
       return noop;
     }
 
     $render(): string {
-      if (!this._render) {
+      if (typeof this._ssr !== 'string') {
         throw Error('[maverick] called `$render` before calling `$setup`');
       }
 
-      const ssr = renderToString(this._render).code;
+      const innerHTML = this.$renderInnerHTML();
+
+      return definition.shadowRoot
+        ? `<template shadowroot="${this.getShadowRootMode()}">${innerHTML}</template>`
+        : `<shadow-root>${innerHTML}</shadow-root>`;
+    }
+
+    $renderInnerHTML() {
+      if (typeof this._ssr !== 'string') {
+        throw Error('[maverick] called `$renderInnerHTML` before calling `$setup`');
+      }
 
       if (this.classList.length > 0) {
         this.setAttribute('class', this.classList.toString());
@@ -134,17 +157,20 @@ export function createServerElement<
         this.setAttribute('style', this.style.toString());
       }
 
-      return definition.shadowRoot
-        ? `<template shadowroot="${
-            isBoolean(definition.shadowRoot) ? 'open' : definition.shadowRoot.mode
-          }">${
-            definition.css ? `<style>${definition.css.map((css) => css.text).join('')}</style>` : ''
-          }${ssr}</template>`
-        : `<!$><shadow-root>${ssr}</shadow-root>`;
+      const styleTag =
+        definition.shadowRoot && definition.css
+          ? `<style>${definition.css.map((css) => css.text).join('')}</style>`
+          : '';
+
+      return styleTag + this._ssr;
     }
 
-    $destroy() {
-      // no-op
+    getShadowRootMode() {
+      return definition.shadowRoot
+        ? isBoolean(definition.shadowRoot)
+          ? 'open'
+          : definition.shadowRoot.mode
+        : 'open';
     }
 
     getAttribute(name: string): string | null {
@@ -167,13 +193,12 @@ export function createServerElement<
       return false;
     }
 
-    addEventListener() {
-      // no-op
-    }
+    addEventListener() {}
+    removeEventListener() {}
 
-    removeEventListener() {
-      // no-op
-    }
+    $destroy() {}
+    $onMount() {}
+    $onDestroy() {}
   }
 
   registry.set(definition, MaverickServerElement);

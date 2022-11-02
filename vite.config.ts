@@ -4,11 +4,13 @@ import { defineConfig } from 'vite';
 import { vite as maverick } from './src/plugins';
 import { transform } from './src/transformer';
 
+const SERVER = !!process.env.SERVER;
+
 export default defineConfig({
   define: {
     __DEV__: 'true',
     __TEST__: 'true',
-    __SERVER__: 'false',
+    __SERVER__: SERVER ? 'true' : 'false',
   },
   resolve: {
     alias: {
@@ -24,7 +26,7 @@ export default defineConfig({
       name: 'maverick-ssr',
       enforce: 'pre',
       transform(code, id) {
-        if (id.includes('tests/runtime/ssr')) {
+        if (id.includes('tests/server')) {
           return transform(code, {
             filename: id,
             generate: 'ssr',
@@ -37,8 +39,8 @@ export default defineConfig({
   ],
   // https://vitest.dev/config
   test: {
-    include: ['tests/**/*.test.{ts,tsx}'],
+    include: [`tests/${SERVER ? 'server' : 'client'}/**/*.test.{ts,tsx}`],
     globals: true,
-    environment: 'jsdom',
+    environment: SERVER ? 'edge-runtime' : 'jsdom',
   },
 });

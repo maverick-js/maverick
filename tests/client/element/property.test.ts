@@ -1,5 +1,6 @@
 import { defineProp } from 'maverick.js/element';
-import { isFunction } from '../../src/utils/unit';
+
+const isFunction = (value: unknown): value is Function => typeof value === 'function';
 
 it('should set options', () => {
   const prop = defineProp('foo', { attribute: 'bar', reflect: true });

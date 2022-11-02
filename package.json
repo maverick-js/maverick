@@ -58,13 +58,15 @@
     "dev": "pnpm run build --watch",
     "build": "rimraf dist && tsup",
     "format": "prettier src --write --loglevel warn",
-    "test": "vitest --run",
-    "test:watch": "vitest --watch",
+    "test:client": "vitest --run",
+    "test:client:watch": "vitest --watch",
+    "test:server": "SERVER=true vitest --run",
+    "test:server:watch": "SERVER=true vitest --watch",
     "sandbox:dev": "vite dev sandbox",
     "sandbox:build": "vite build sandbox",
     "sandbox:preview": "vite preview sandbox",
     "size": "pnpm bundle && export-size .",
-    "release": "pnpm test && pnpm build && standard-version && git push --follow-tags origin main && npm publish"
+    "release": "pnpm test:client && pnpm test:server && pnpm build && standard-version && git push --follow-tags origin main && npm publish"
   },
   "dependencies": {
     "@dprint/formatter": "^0.2.0",
@@ -76,6 +78,7 @@
     "unplugin": "^0.7.2"
   },
   "devDependencies": {
+    "@edge-runtime/vm": "^2.0.0",
     "@maverick-js/observables": "^4.6.0",
     "@maverick-js/scheduler": "^2.1.0",
     "@microsoft/api-extractor": "^7.28.6",

@@ -1,4 +1,4 @@
-import { peek } from '@maverick-js/observables';
+import { scope } from '@maverick-js/observables';
 
 import { isNull } from '../utils/unit';
 import type { ElementLifecycleCallback, ElementLifecycleManager } from './lifecycle';
@@ -49,6 +49,6 @@ export function createLifecycleMethod(name: keyof ElementLifecycleManager) {
       return;
     }
 
-    host[name].push(() => peek(callback));
+    host[name].push(scope(callback));
   };
 }

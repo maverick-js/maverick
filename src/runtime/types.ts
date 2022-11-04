@@ -36,8 +36,8 @@ export type ObservableRecordValues<T> = {
   [P in keyof T]: T[P] extends Observable<infer R> ? R : never;
 };
 
-export type AnyRecord = Readonly<{
+export type AnyRecord = {
   [name: string]: any;
-}>;
+};
 
 export {};

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { type ContextMap } from '../runtime';
-import { ReactElementContextMap } from './react-element-context';
+import { ReactContextMap } from './use-react-context';
 
 export function WithContextMap(
   contextMap: ContextMap,
@@ -10,7 +10,7 @@ export function WithContextMap(
 ) {
   return providedContextMap
     ? customElement
-    : React.createElement(ReactElementContextMap.Provider, { value: contextMap }, customElement);
+    : React.createElement(ReactContextMap.Provider, { value: contextMap }, customElement);
 }
 
 export function setRef(ref: React.Ref<unknown>, value: Element | null) {

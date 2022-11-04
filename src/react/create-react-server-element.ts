@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { createServerElement } from '../element/create-server-element';
 import type { AnyElementDefinition } from '../element/types';
 import { kebabToCamelCase } from '../utils/str';
-import { ReactElementContextMap } from './react-element-context';
+import { ReactContextMap } from './use-react-context';
 import { WithContextMap } from './utils';
 
 const stylesRE = /style="(.*?)"/;
@@ -37,7 +37,7 @@ export function createReactServerElement(definition: AnyElementDefinition): any 
       }
     }
 
-    const providedContextMap = React.useContext(ReactElementContextMap);
+    const providedContextMap = React.useContext(ReactContextMap);
     const contextMap = providedContextMap ?? new Map();
 
     host.$setup({

@@ -7,8 +7,8 @@ import { ContextMap } from '../runtime';
 import { $$_attach_declarative_shadow_dom } from '../runtime/dom';
 import { kebabToPascalCase } from '../utils/str';
 import { createReactServerElement } from './create-react-server-element';
-import { ReactElementContextMap } from './react-element-context';
 import type { ReactElement, ReactElementProps } from './types';
+import { ReactContextMap } from './use-react-context';
 import { setRef, WithContextMap } from './utils';
 
 export type ReactElementInit = {
@@ -38,8 +38,8 @@ function createReactClientElement<Definition extends AnyElementDefinition>(
 
   class CustomElement extends React.Component<ReactElementProps<Definition>> {
     static displayName = init?.displayName ?? definition.tagName;
-    static override contextType = ReactElementContextMap;
-    declare context: React.ContextType<typeof ReactElementContextMap>;
+    static override contextType = ReactContextMap;
+    declare context: React.ContextType<typeof ReactContextMap>;
 
     private _element: MaverickElement | null = null;
     private _context!: ContextMap;

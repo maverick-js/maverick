@@ -10,6 +10,9 @@
     "dist/",
     "*.d.ts"
   ],
+  "bin": {
+    "maverick": "cli.js"
+  },
   "scripts": {
     "dev": "pnpm run build --watch",
     "build": "rimraf dist && tsup",
@@ -44,6 +47,7 @@
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
     "benchmark": "^2.1.4",
+    "cac": "^6.7.14",
     "esbuild": "^0.14.49",
     "export-size": "^0.5.2",
     "globby": "^13.1.2",
@@ -121,6 +125,7 @@
       "require": "./dist/server/plugins.cjs",
       "default": "./dist/server/plugins.js"
     },
+    "./cli.js": "./cli.js",
     "./package.json": "./package.json"
   },
   "contributors": [

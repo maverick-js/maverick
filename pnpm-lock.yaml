@@ -13,6 +13,7 @@ specifiers:
   '@types/react': ^18.0.24
   '@types/react-dom': ^18.0.8
   benchmark: ^2.1.4
+  cac: ^6.7.14
   esbuild: ^0.14.49
   export-size: ^0.5.2
   globby: ^13.1.2
@@ -57,6 +58,7 @@ devDependencies:
   '@types/react': 18.0.24
   '@types/react-dom': 18.0.8
   benchmark: 2.1.4
+  cac: 6.7.14
   esbuild: 0.14.54
   export-size: 0.5.2
   globby: 13.1.2
@@ -2252,7 +2254,7 @@ packages:
       gzip-size: 6.0.0
       rollup: 2.79.1
       terser: 5.15.1
-      yargs: 17.6.0
+      yargs: 17.6.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4653,8 +4655,8 @@ packages:
       yargs-parser: 20.2.9
     dev: true
 
-  /yargs/17.6.0:
-    resolution: {integrity: sha512-8H/wTDqlSwoSnScvV2N/JHfLWOKuh5MVla9hqLjK3nsfyy6Y4kDSYSvkU5YCUEPOSnRXfIyx3Sq+B/IWudTo4g==}
+  /yargs/17.6.2:
+    resolution: {integrity: sha512-1/9UrdHjDZc0eOU0HxOHoS78C69UD3JRMvzlJ7S79S2nTaWRA/whGCTV8o9e/N/1Va9YIV7Q4sOxD8VV4pCWOw==}
     engines: {node: '>=12'}
     dependencies:
       cliui: 8.0.1

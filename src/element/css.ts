@@ -39,7 +39,7 @@ export function injectCSS(value: unknown) {
 /**
  * A template literal tag which can be used with Maverick's `defineElement` function to create
  * element styles. For security reasons, only literal string values and number may be used in
- * embedded expressions. Use `unsafeCSS` to incorporate non-literal values inside CSS expressions.
+ * embedded expressions. Use `injectCSS` to incorporate non-literal values inside CSS expressions.
  */
 export function css(strings: TemplateStringsArray, ...values: (CSS | number)[]): CSS {
   let css = strings[0] ?? '';
@@ -54,7 +54,7 @@ export function css(strings: TemplateStringsArray, ...values: (CSS | number)[]):
     } else if (__DEV__) {
       throw new Error(
         `[maverick] value passed to \`css\` function must be a \`css\` function result: ` +
-          `${value}. Use \`unsafeCSS\` to pass non-literal values, but take care ` +
+          `${value}. Use \`injectCSS\` to pass non-literal values, but take care ` +
           `to ensure page security.`,
       );
     }

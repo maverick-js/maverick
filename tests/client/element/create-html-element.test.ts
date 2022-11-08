@@ -2,23 +2,26 @@ import { tick } from '@maverick-js/observables';
 import { createContext } from 'maverick.js';
 
 import {
+  createElementInstance,
   defineCustomElement,
   defineElement,
   defineProp,
   type ElementDeclaration,
-  MaverickElement,
+  type MaverickElement,
   type MaverickElementConstructor,
   onAfterUpdate,
+  onAttach,
   onBeforeUpdate,
   onConnect,
   onDestroy,
   onDisconnect,
   onMount,
+  PROPS,
 } from 'maverick.js/element';
 
 it('should handle basic setup and destroy', () => {
-  const { container, element } = setupTestElement();
-  element.$setup();
+  const { container, instance, element } = setupTestElement();
+  element.attachComponent(instance);
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-test-1
@@ -30,11 +33,11 @@ it('should handle basic setup and destroy', () => {
       </mk-test-1>
     </div>
   `);
-  element.$destroy();
+  instance.destroy();
 });
 
 it('should observe attributes', () => {
-  const { element, elementCtor } = setupTestElement({
+  const { instance, element, elementCtor } = setupTestElement({
     props: {
       foo: defineProp(1),
       bar: defineProp(2),
@@ -45,44 +48,61 @@ it('should observe attributes', () => {
 
   expect(elementCtor.observedAttributes).toEqual(['foo', 'bar', 'baz-bax', 'baz-bax-hux']);
 
-  element.$setup();
+  element.attachComponent(instance);
   element.setAttribute('foo', '10');
   expect(element.foo).toBe(10);
 });
 
 it('should initialize from attribute', () => {
-  const { element } = setupTestElement({
+  const { instance, element } = setupTestElement({
     props: {
       foo: defineProp(1),
     },
   });
 
   element.setAttribute('foo', '10');
-  element.$setup();
+  element.attachComponent(instance);
   expect(element.foo).toBe(10);
 });
 
 it('should reflect props', async () => {
-  const { element } = setupTestElement({
+  const { instance, element } = setupTestElement({
     props: {
       foo: defineProp(100, { reflect: true }),
     },
   });
 
-  element.$setup();
+  element.attachComponent(instance);
 
   expect(element.getAttribute('foo')).toBe('100');
-  element.$$props.foo.set(200);
+  instance[PROPS].foo.set(200);
 
   await tick();
   expect(element.getAttribute('foo')).toBe('200');
 });
 
 it('should call connect lifecycle hook', () => {
+  const attach = vi.fn();
+
+  const { instance, element } = setupTestElement({
+    setup({ host }) {
+      onAttach(() => {
+        attach();
+        expect(host.el).toBeDefined();
+      });
+      return () => null;
+    },
+  });
+
+  element.attachComponent(instance);
+  expect(attach).toBeCalledTimes(1);
+});
+
+it('should call connect lifecycle hook', () => {
   const disconnect = vi.fn();
   const connect = vi.fn().mockReturnValue(disconnect);
 
-  const { element } = setupTestElement({
+  const { instance, element } = setupTestElement({
     setup() {
       onConnect(connect);
       return () => null;
@@ -92,13 +112,14 @@ it('should call connect lifecycle hook', () => {
   expect(connect).not.toHaveBeenCalled();
   expect(disconnect).not.toHaveBeenCalled();
 
-  element.$setup();
-  expect(element.$connected).toBeTruthy();
+  element.attachComponent(instance);
+
+  expect(instance.host.$connected).toBeTruthy();
   expect(connect).toHaveBeenCalledTimes(1);
   expect(disconnect).not.toHaveBeenCalled();
 
   element.remove();
-  expect(element.$connected).toBeFalsy();
+  expect(instance.host.$connected).toBeFalsy();
   expect(connect).toHaveBeenCalledTimes(1);
   expect(disconnect).toHaveBeenCalledTimes(1);
 });
@@ -107,7 +128,7 @@ it('should call mount lifecycle hook', () => {
   const destroy = vi.fn();
   const mount = vi.fn().mockReturnValue(destroy);
 
-  const { element } = setupTestElement({
+  const { instance, element } = setupTestElement({
     setup() {
       onMount(mount);
       return () => null;
@@ -117,13 +138,13 @@ it('should call mount lifecycle hook', () => {
   expect(mount).not.toHaveBeenCalled();
   expect(destroy).not.toHaveBeenCalled();
 
-  element.$setup();
-  expect(element.$mounted).toBeTruthy();
+  element.attachComponent(instance);
+  expect(instance.host.$mounted).toBeTruthy();
   expect(mount).toHaveBeenCalledTimes(1);
   expect(destroy).not.toHaveBeenCalled();
 
-  element.$destroy();
-  expect(element.$mounted).toBeFalsy();
+  instance.destroy();
+  expect(instance.host.$mounted).toBeFalsy();
   expect(mount).toHaveBeenCalledTimes(1);
   expect(destroy).toHaveBeenCalledTimes(1);
 });
@@ -135,7 +156,7 @@ it('should call update hooks', async () => {
   let beforeCalledAt = 0;
   let afterCalledAt = 0;
 
-  const { element } = setupTestElement({
+  const { instance, element } = setupTestElement({
     props: {
       foo: defineProp(10),
     },
@@ -155,11 +176,11 @@ it('should call update hooks', async () => {
   expect(beforeUpdate).not.toHaveBeenCalled();
   expect(afterUpdate).not.toHaveBeenCalled();
 
-  element.$setup();
+  element.attachComponent(instance);
   expect(beforeUpdate).not.toHaveBeenCalled();
   expect(afterUpdate).not.toHaveBeenCalled();
 
-  element.$$props.foo.set(20);
+  instance[PROPS].foo.set(20);
   await tick();
   expect(beforeUpdate).toHaveBeenCalled();
   expect(afterUpdate).toHaveBeenCalled();
@@ -170,7 +191,7 @@ it('should call update hooks', async () => {
 it('should call disconnect lifecycle hook', () => {
   const disconnect = vi.fn();
 
-  const { element } = setupTestElement({
+  const { instance, element } = setupTestElement({
     setup() {
       onDisconnect(disconnect);
       return () => null;
@@ -179,7 +200,7 @@ it('should call disconnect lifecycle hook', () => {
 
   expect(disconnect).not.toHaveBeenCalled();
 
-  element.$setup();
+  element.attachComponent(instance);
   expect(disconnect).not.toHaveBeenCalled();
 
   element.remove();
@@ -189,7 +210,7 @@ it('should call disconnect lifecycle hook', () => {
 it('should call destroy lifecycle hook', () => {
   const destroy = vi.fn();
 
-  const { element } = setupTestElement({
+  const { instance, element } = setupTestElement({
     setup() {
       onDestroy(destroy);
       return () => null;
@@ -198,13 +219,13 @@ it('should call destroy lifecycle hook', () => {
 
   expect(destroy).not.toHaveBeenCalled();
 
-  element.$setup();
+  element.attachComponent(instance);
   expect(destroy).not.toHaveBeenCalled();
 
   element.remove();
   expect(destroy).not.toHaveBeenCalled();
 
-  element.$destroy();
+  instance.destroy();
   expect(destroy).toHaveBeenCalledTimes(1);
 });
 
@@ -214,76 +235,175 @@ it('should throw if lifecycle hook called outside setup', () => {
   }).toThrowError(/called outside of element setup/);
 });
 
-it('should detect children during initial setup', async () => {
-  const { element } = setupTestElement();
+it('should detect children during initial render', async () => {
+  const { container, element } = setupTestElement(
+    {
+      setup({ host }) {
+        return () => {
+          expect(host.$children).toBeTruthy();
+          return null;
+        };
+      },
+    },
+    { append: false, delegate: false },
+  );
 
   const child = document.createElement('div');
   element.appendChild(child);
-
-  element.$setup();
-  expect(element.$children).toBe(true);
-
-  child.remove();
-  await tick();
-  expect(element.$children).toBe(false);
+  container.append(element);
 });
 
-it('should _not_ detect children during initial setup', async () => {
-  const { element } = setupTestElement();
-
-  element.$setup();
-  expect(element.$children).toBe(false);
-
-  const child = document.createElement('div');
-  element.appendChild(child);
-
-  await tick();
-  expect(element.$children).toBe(true);
-
-  child.remove();
-  await tick();
-  expect(element.$children).toBe(false);
+it('should _not_ detect children during initial render', () => {
+  setupTestElement(
+    {
+      setup({ host }) {
+        return () => {
+          expect(host.$children).toBeFalsy();
+          return null;
+        };
+      },
+    },
+    { delegate: false },
+  );
 });
 
 it('should discover events on dispatch', () => {
-  const { element } = setupTestElement();
+  const { instance, element } = setupTestElement();
 
   const callback = vi.fn();
-  element.$setup({ onEventDispatch: callback });
 
+  element.attachComponent(instance);
+  element.onEventDispatch(callback);
   element.dispatchEvent(new MouseEvent('mk-click'));
 
   expect(callback).toHaveBeenCalledTimes(1);
   expect(callback).toHaveBeenCalledWith('mk-click');
 });
 
-it('should forward context map', () => {
-  const foo = createContext(10);
-  const bar = createContext(10);
+it('should render css vars', () => {
+  const Button = defineElement({
+    tagName: `mk-button-5`,
+    cssvars: {
+      foo: 10,
+      bar: 'none',
+    },
+  });
 
-  const { element } = setupTestElement({
+  defineCustomElement(Button);
+
+  const instance = createElementInstance(Button);
+  const element = document.createElement(Button.tagName) as MaverickElement;
+  element.attachComponent(instance);
+
+  expect(element).toMatchInlineSnapshot(`
+  <mk-button-5
+    style="--foo: 10; --bar: none;"
+  >
+    <shadow-root />
+  </mk-button-5>
+`);
+});
+
+it('should render css vars builder', async () => {
+  const Button = defineElement({
+    tagName: `mk-button-6`,
+    props: { foo: { initial: 0 } },
+    cssvars: (props) => ({
+      foo: () => props.foo,
+    }),
+  });
+
+  defineCustomElement(Button);
+
+  const instance = createElementInstance(Button);
+  const element = document.createElement(Button.tagName) as MaverickElement;
+  element.attachComponent(instance);
+
+  expect(element).toMatchInlineSnapshot(`
+  <mk-button-6
+    style="--foo: 0;"
+  >
+    <shadow-root />
+  </mk-button-6>
+`);
+
+  instance[PROPS].foo.set(100);
+  await tick();
+
+  expect(element).toMatchInlineSnapshot(`
+  <mk-button-6
+    style="--foo: 100;"
+  >
+    <shadow-root />
+  </mk-button-6>
+`);
+});
+
+it('should wait for parent to mount', async () => {
+  const context = createContext(0);
+
+  const Parent = defineElement({
+    tagName: `mk-parent-1`,
     setup() {
-      expect(foo.get()).toBe(20);
-      expect(bar.get()).toBe(10);
+      context.set(1);
       return () => null;
     },
   });
 
-  const context = new Map();
-  context.set(foo.id, 20);
-  element.$setup({ context });
+  const Child = defineElement({
+    tagName: `mk-child-1`,
+    parent: Parent,
+    setup() {
+      expect(context.get()).toBe(1);
+      return () => null;
+    },
+  });
+
+  const parent = document.createElement(Parent.tagName) as MaverickElement;
+  parent.setAttribute('mk-delegate', '');
+
+  const child = document.createElement(Child.tagName) as MaverickElement;
+  parent.append(child);
+
+  document.body.append(parent);
+
+  expect(document.body).toMatchInlineSnapshot(`
+  <body>
+    <mk-parent-1
+      mk-delegate=""
+    >
+      <mk-child-1 />
+    </mk-parent-1>
+  </body>
+`);
+
+  defineCustomElement(Child);
+  expect(child.instance?.host.$mounted).toBeFalsy();
+
+  await new Promise((res) => window.requestAnimationFrame(res));
+  expect(child.instance?.host.$mounted).toBeFalsy();
+
+  parent.attachComponent(createElementInstance(Parent));
+  expect(parent.instance?.host.$mounted).toBeTruthy();
+  expect(child.instance?.host.$mounted).toBeTruthy();
+
+  parent.removeAttribute('mk-delegate');
+  parent.remove();
+  await new Promise((res) => window.requestAnimationFrame(res));
+
+  expect(parent.instance).toBeNull();
+  expect(child.instance).toBeNull();
 });
 
-let count = 0,
-  element: MaverickElement;
-
-beforeEach(() => {
-  element?.$destroy();
+afterEach(() => {
+  document.body.innerHTML = '';
 });
+
+let count = 0;
 
 function setupTestElement(
   declaration?: Partial<ElementDeclaration>,
-  { hydrate = false, delegate = true } = {},
+  { hydrate = false, delegate = true, append = true } = {},
 ) {
   const definition = defineElement({
     tagName: `mk-test-${++count}`,
@@ -306,8 +426,9 @@ function setupTestElement(
 
   defineCustomElement(definition);
 
-  const container = document.createElement('div');
-  element = document.createElement(`mk-test-${count}`) as MaverickElement;
+  const container = document.createElement('div'),
+    instance = createElementInstance(definition),
+    element = document.createElement(`mk-test-${count}`) as MaverickElement & Record<string, any>;
 
   if (hydrate) {
     element.setAttribute('mk-hydrate', '');
@@ -317,11 +438,14 @@ function setupTestElement(
     element.setAttribute('mk-delegate', '');
   }
 
-  container.append(element);
-  document.body.append(container);
+  if (append) {
+    container.append(element);
+    document.body.append(container);
+  }
 
   return {
     definition,
+    instance,
     container,
     element,
     elementCtor: element.constructor as MaverickElementConstructor,

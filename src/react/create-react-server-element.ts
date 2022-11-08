@@ -2,6 +2,7 @@ import * as React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { createServerElement } from '../element/create-server-element';
+import { createElementInstance } from '../element/instance';
 import type { AnyElementDefinition } from '../element/types';
 import { kebabToCamelCase } from '../utils/str';
 import { ReactContextMap } from './use-react-context';
@@ -40,13 +41,15 @@ export function createReactServerElement(definition: AnyElementDefinition): any 
     const providedContextMap = React.useContext(ReactContextMap);
     const contextMap = providedContextMap ?? new Map();
 
-    host.$setup({
+    const instance = createElementInstance(definition, {
       props: $props,
       context: contextMap,
       children: () => !!props.children,
     });
 
-    const innerHTML = host.$renderInnerHTML();
+    host.attachComponent(instance);
+
+    const innerHTML = host.renderInnerHTML();
 
     if (host.hasAttribute('style')) {
       $attrs.style = {};

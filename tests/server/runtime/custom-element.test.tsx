@@ -1,12 +1,18 @@
 import { CustomElement } from 'maverick.js';
 
-import { createServerElement, css, defineElement, defineProp } from 'maverick.js/element';
+import {
+  createElementInstance,
+  createServerElement,
+  css,
+  defineElement,
+  defineProp,
+} from 'maverick.js/element';
 import { renderToString } from 'maverick.js/ssr';
 
 it('should render custom element', () => {
   const element = defineElement({
     tagName: 'mk-foo',
-    setup: () => <div class="foo">Test</div>,
+    setup: () => () => <div class="foo">Test</div>,
   });
 
   const result = renderToString(() => <CustomElement $element={element} />).code;
@@ -19,7 +25,7 @@ it('should render custom element', () => {
 it('should render custom element with children', () => {
   const element = defineElement({
     tagName: 'mk-foo',
-    setup: () => <div class="foo">Test</div>,
+    setup: () => () => <div class="foo">Test</div>,
   });
 
   const result = renderToString(() => (
@@ -37,7 +43,7 @@ it('should render custom element with shadow dom', () => {
   const element = defineElement({
     tagName: 'mk-foo',
     shadowRoot: true,
-    setup: () => <div class="foo">Test</div>,
+    setup: () => () => <div class="foo">Test</div>,
   });
 
   const result = renderToString(() => (
@@ -72,10 +78,12 @@ it('should render adopted css styles in shadow root template', () => {
     ],
   });
 
+  const instance = createElementInstance(Button);
   const element = new (createServerElement(Button))();
-  element.$setup();
+  element.attachComponent(instance);
+
   // Fragile snapshot can't inline.
-  expect(element.$render()).toMatchSnapshot();
+  expect(element.render()).toMatchSnapshot();
 });
 
 it('should render custom element with attributes', () => {
@@ -94,7 +102,7 @@ it('should render custom element with attributes', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root></shadow-root></mk-foo>"',
+    '"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" mk-hydrate=\\"\\" mk-delegate=\\"\\" class=\\"foo bar\\" style=\\"display: none;--baz: 10;\\"><shadow-root></shadow-root></mk-foo>"',
   );
 });
 
@@ -104,7 +112,10 @@ it('should forward props', () => {
     props: {
       foo: defineProp(10),
     },
-    setup: ({ props }) => <div>{props.foo}</div>,
+    setup:
+      ({ props }) =>
+      () =>
+        <div>{props.foo}</div>,
   });
 
   const result = renderToString(() => <CustomElement $prop:foo={100} $element={element} />).code;
@@ -136,7 +147,7 @@ it('should forward attrs to props', () => {
 it('should set inner html', () => {
   const element = defineElement({
     tagName: 'mk-foo-10',
-    setup: () => <div>Test</div>,
+    setup: () => () => <div>Test</div>,
   });
 
   const result = renderToString(() => (
@@ -159,8 +170,10 @@ it('should render css vars', () => {
     },
   });
 
+  const instance = createElementInstance(Button);
   const element = new (createServerElement(Button))();
-  element.$setup();
+  element.attachComponent(instance);
+
   expect(element.style.tokens).toMatchInlineSnapshot(`
     Map {
       "--foo" => "10",
@@ -178,8 +191,10 @@ it('should render css vars builder', () => {
     }),
   });
 
+  const instance = createElementInstance(Button);
   const element = new (createServerElement(Button))();
-  element.$setup();
+  element.attachComponent(instance);
+
   expect(element.style.tokens).toMatchInlineSnapshot(`
     Map {
       "--foo" => "100",

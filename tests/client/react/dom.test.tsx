@@ -1,4 +1,4 @@
-import { createContext } from 'maverick.js';
+import { createContext, getContextMap } from 'maverick.js';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
@@ -7,7 +7,7 @@ import { type AnyElementDeclaration, defineElement, DOMEvent } from 'maverick.js
 import { createReactElement } from 'maverick.js/react';
 
 it('should render', () => {
-  const { root, container } = render({ setup: () => <div>Test</div> });
+  const { root, container } = render({ setup: () => () => <div>Test</div> });
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-foo-1
@@ -30,7 +30,7 @@ it('should render', () => {
 });
 
 it('should render with children', () => {
-  const { container } = render({ setup: () => <div>Test</div> }, (el) =>
+  const { container } = render({ setup: () => () => <div>Test</div> }, (el) =>
     React.createElement(el, null, React.createElement('div', null, 'Content')),
   );
   expect(container).toMatchInlineSnapshot(`
@@ -54,7 +54,7 @@ it('should render with children', () => {
 it('should render with shadow dom', () => {
   const { container } = render({
     shadowRoot: true,
-    setup: () => <div>Test</div>,
+    setup: () => () => <div>Test</div>,
   });
 
   expect(container).toMatchInlineSnapshot(`
@@ -86,28 +86,31 @@ it('should update', () => {
   const { container } = render(
     {
       props: { state: { initial: 0 } },
-      setup: ({ props }) => <div>{props.state}</div>,
+      setup:
+        ({ props }) =>
+        () =>
+          <div>{props.state}</div>,
     },
     (el) => React.createElement(Component, {}, el),
   );
 
   expect(container).toMatchInlineSnapshot(`
-  <div>
-    <button>
-      <mk-foo-4
-        mk-delegate="true"
-      >
-        <shadow-root>
-          <div>
-            <!--$-->
-            0
-            <!--/$-->
-          </div>
-        </shadow-root>
-      </mk-foo-4>
-    </button>
-  </div>
-`);
+    <div>
+      <button>
+        <mk-foo-4
+          mk-delegate="true"
+        >
+          <shadow-root>
+            <div>
+              <!--$-->
+              0
+              <!--/$-->
+            </div>
+          </shadow-root>
+        </mk-foo-4>
+      </button>
+    </div>
+  `);
 
   act(() => {
     container.querySelector('button')?.dispatchEvent(
@@ -118,22 +121,22 @@ it('should update', () => {
   });
 
   expect(container).toMatchInlineSnapshot(`
-  <div>
-    <button>
-      <mk-foo-4
-        mk-delegate="true"
-      >
-        <shadow-root>
-          <div>
-            <!--$-->
-            1
-            <!--/$-->
-          </div>
-        </shadow-root>
-      </mk-foo-4>
-    </button>
-  </div>
-`);
+    <div>
+      <button>
+        <mk-foo-4
+          mk-delegate="true"
+        >
+          <shadow-root>
+            <div>
+              <!--$-->
+              1
+              <!--/$-->
+            </div>
+          </shadow-root>
+        </mk-foo-4>
+      </button>
+    </div>
+  `);
 });
 
 it('should set attributes', () => {
@@ -174,7 +177,10 @@ it('should forward context', () => {
   }
 
   const Child = createReactElement(
-    defineElement({ tagName: 'mk-child-1', setup: () => <Component /> }),
+    defineElement({
+      tagName: 'mk-child-1',
+      setup: () => () => <Component />,
+    }),
   );
 
   const { container } = render(
@@ -188,6 +194,7 @@ it('should forward context', () => {
       React.createElement(el, null, React.createElement('div', null, React.createElement(Child))),
   );
 
+  expect(value).toBe(10);
   expect(container).toMatchInlineSnapshot(`
   <div>
     <mk-foo-7
@@ -208,8 +215,6 @@ it('should forward context', () => {
     </mk-foo-7>
   </div>
 `);
-
-  expect(value).toBe(10);
 });
 
 it('should update event callbacks', () => {
@@ -293,7 +298,6 @@ function render(
 
   const container = document.body.appendChild(document.createElement('div'));
   const root = createRoot(container);
-
   const element = createReactElement(definition);
 
   act(() => {

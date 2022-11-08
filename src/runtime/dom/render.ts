@@ -1,3 +1,4 @@
+import { unwrapDeep } from '../../utils/obs';
 import type { JSX } from '../jsx';
 import { root as createRoot, type Dispose } from '../reactivity';
 import { createMarkerWalker, type MarkerWalker } from './expression';
@@ -34,7 +35,7 @@ export function render(root: () => JSX.Element, options: RenderOptions): Dispose
     if (!hydration) {
       insert(target, root(), before);
     } else {
-      root();
+      unwrapDeep(root);
     }
     return dispose;
   });

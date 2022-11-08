@@ -41,18 +41,16 @@ const OBJECT_CONVERTER: ElementAttributeConverter<object> = {
 };
 
 function createConverter(value: unknown): ElementAttributeConverter<any> {
-  const type = typeof value;
-  if (type === 'string') {
-    return STRING_CONVERTER;
-  } else if (type === 'number') {
-    return NUMBER_CONVERTER;
-  } else if (type === 'boolean') {
-    return BOOLEAN_CONVERTER;
-  } else if (type === 'function') {
-    return FUNCTION_CONVERTER;
-  } else if (isArray(value)) {
-    return ARRAY_CONVERTER;
-  } else {
-    return OBJECT_CONVERTER;
+  switch (typeof value) {
+    case 'string':
+      return STRING_CONVERTER;
+    case 'boolean':
+      return BOOLEAN_CONVERTER;
+    case 'number':
+      return NUMBER_CONVERTER;
+    case 'function':
+      return FUNCTION_CONVERTER;
+    default:
+      return isArray(value) ? ARRAY_CONVERTER : OBJECT_CONVERTER;
   }
 }

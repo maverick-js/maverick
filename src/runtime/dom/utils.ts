@@ -1,6 +1,6 @@
 import { effect } from '@maverick-js/observables';
 
-import type { MaverickHost } from '../../element/types';
+import type { ServerHTMLElement } from '../../element/create-server-element';
 import { isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
 import { onDispose } from '../reactivity';
@@ -42,11 +42,11 @@ export function insert(
  *
  * This function is safe to use on the server.
  */
-export function listen<Target extends EventTarget | MaverickHost, EventType extends string>(
+export function listen<Target extends EventTarget, EventType extends string>(
   target: Target,
   type: EventType,
   handler: JSX.TargetedEventHandler<
-    Target extends MaverickHost ? Target['$el'] & EventTarget : Target,
+    Target,
     EventType extends keyof JSX.GlobalEventRecord ? JSX.GlobalEventRecord[EventType] : Event
   >,
   options?: AddEventListenerOptions | boolean,
@@ -67,7 +67,7 @@ export function listen<Target extends EventTarget | MaverickHost, EventType exte
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
-export function setAttribute(host: Element | MaverickHost, name: string, value: unknown) {
+export function setAttribute(host: Element | ServerHTMLElement, name: string, value: unknown) {
   observe(value, ($value) => {
     if (!$value && $value !== '' && $value !== 0) {
       host.removeAttribute(name);
@@ -88,7 +88,7 @@ export function setAttribute(host: Element | MaverickHost, name: string, value: 
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
-export function setStyle(host: HTMLElement | MaverickHost, property: string, value: unknown) {
+export function setStyle(host: HTMLElement | ServerHTMLElement, property: string, value: unknown) {
   observe(value, ($value) => {
     if (!$value && $value !== 0) {
       host.style.removeProperty(property);
@@ -106,7 +106,7 @@ export function setStyle(host: HTMLElement | MaverickHost, property: string, val
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
-export function toggleClass(host: Element | MaverickHost, name: string, value: unknown) {
+export function toggleClass(host: Element | ServerHTMLElement, name: string, value: unknown) {
   observe(value, ($value) => {
     host.classList[$value ? 'add' : 'remove'](name);
   });

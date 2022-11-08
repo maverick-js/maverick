@@ -1,5 +1,6 @@
 import {
   AFTER_UPDATE,
+  ATTACH,
   BEFORE_UPDATE,
   CONNECT,
   createLifecycleMethod,
@@ -11,6 +12,7 @@ import {
 export type ElementLifecycleCallback = () => any;
 
 export type ElementLifecycleManager = {
+  [ATTACH]: ElementLifecycleCallback[];
   [CONNECT]: ElementLifecycleCallback[];
   [MOUNT]: ElementLifecycleCallback[];
   [BEFORE_UPDATE]: ElementLifecycleCallback[];
@@ -18,6 +20,15 @@ export type ElementLifecycleManager = {
   [DISCONNECT]: ElementLifecycleCallback[];
   [DESTROY]: ElementLifecycleCallback[];
 };
+
+/**
+ * The given callback is invoked when the component has attached to a host element.
+ *
+ * - This hook will only run once when the component is attached.
+ * - This hook may be called while the host element is not connected to the DOM yet.
+ * - This hook is called both client-side and server-side.
+ */
+export const onAttach = createLifecycleMethod(ATTACH);
 
 /**
  * The given callback is invoked when the component has connected to the DOM. If a function is

@@ -6,7 +6,7 @@ import type {
   AnyElementDefinition,
   ElementDefinition,
   ElementEventRecord,
-  InferMaverickElement,
+  InferHostElement,
 } from '../element/types';
 import type { JSX } from '../runtime/jsx';
 
@@ -17,13 +17,13 @@ export type ReactElement<Definition extends AnyElementDefinition> = React.Forwar
 export type ReactElementProps<Definition extends AnyElementDefinition> =
   Definition extends ElementDefinition<infer Props, infer Events>
     ? Partial<Props> &
-        React.RefAttributes<InferMaverickElement<Definition>> &
-        Omit<React.HTMLAttributes<InferMaverickElement<Definition>>, 'style'> & {
+        React.RefAttributes<InferHostElement<Definition>> &
+        Omit<React.HTMLAttributes<InferHostElement<Definition>>, 'style'> & {
           style?: (React.CSSProperties & { [name: `--${string}`]: string }) | undefined;
           children?: React.ReactNode | undefined;
-          __forwardedRef?: React.Ref<InferMaverickElement<Definition>>;
+          __forwardedRef?: React.Ref<InferHostElement<Definition>>;
         } & ReactElementEventCallbacks<
-          InferMaverickElement<Definition> & EventTarget,
+          InferHostElement<Definition> & EventTarget,
           Events & Omit<JSX.GlobalOnAttributes, keyof GlobalEventHandlersEventMap>
         >
     : never;

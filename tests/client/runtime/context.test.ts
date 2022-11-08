@@ -1,5 +1,5 @@
-import { root, createContext } from 'maverick.js';
 import { computed } from '@maverick-js/observables';
+import { createContext, root } from 'maverick.js';
 
 it('should create context', () => {
   const context = createContext(100);

@@ -1,23 +1,41 @@
 import {
+  createElementInstance,
   createServerElement,
   defineElement,
   defineProp,
   type ElementDeclaration,
+  onAttach,
 } from 'maverick.js/element';
 
+it('should call `onAttach` lifecycle hook', () => {
+  const attach = vi.fn();
+
+  const { instance, host } = setupTestElement({
+    setup: () => {
+      onAttach(attach);
+      return () => null;
+    },
+  });
+
+  host.attachComponent(instance);
+  expect(attach).toBeCalledTimes(1);
+});
+
 it('should render attributes', () => {
-  const { host } = setupTestElement({
+  const { instance, host } = setupTestElement({
     setup: ({ host }) => {
-      host.setAttribute('foo', '1');
-      host.setAttribute('bar', '2');
-      host.setAttribute('baz', '3');
-      host.removeAttribute('baz');
+      onAttach(() => {
+        host.el!.setAttribute('foo', '1');
+        host.el!.setAttribute('bar', '2');
+        host.el!.setAttribute('baz', '3');
+        host.el!.removeAttribute('baz');
+      });
+
       return () => 'Test';
     },
   });
 
-  host.$setup();
-  host.$render();
+  host.attachComponent(instance);
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
@@ -30,22 +48,23 @@ it('should render attributes', () => {
 });
 
 it('should render class list', () => {
-  const { host } = setupTestElement({
+  const { instance, host } = setupTestElement({
     setup: ({ host }) => {
-      host.classList.add('foo');
-      host.classList.add('baz', 'bam', 'doh');
-      host.classList.toggle('boo');
-      host.classList.toggle('bax');
-      host.classList.toggle('bax');
-      host.classList.toggle('hux');
-      host.classList.toggle('hux');
-      host.classList.remove('bam');
+      onAttach(() => {
+        host.el!.classList.add('foo');
+        host.el!.classList.add('baz', 'bam', 'doh');
+        host.el!.classList.toggle('boo');
+        host.el!.classList.toggle('bax');
+        host.el!.classList.toggle('bax');
+        host.el!.classList.toggle('hux');
+        host.el!.classList.toggle('hux');
+        host.el!.classList.remove('bam');
+      });
       return () => 'Test';
     },
   });
 
-  host.$setup();
-  host.$render();
+  host.attachComponent(instance);
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
@@ -57,20 +76,22 @@ it('should render class list', () => {
 });
 
 it('should render styles', () => {
-  const { host } = setupTestElement({
+  const { instance, host } = setupTestElement({
     setup: ({ host }) => {
-      host.style.setProperty('foo', '1');
-      host.style.setProperty('bar', '2');
-      host.style.setProperty('baz', '3');
-      host.style.removeProperty('baz');
-      host.style.setProperty('display', 'content');
-      host.style.setProperty('--hux', 'none');
+      onAttach(() => {
+        host.el!.style.setProperty('foo', '1');
+        host.el!.style.setProperty('bar', '2');
+        host.el!.style.setProperty('baz', '3');
+        host.el!.style.removeProperty('baz');
+        host.el!.style.setProperty('display', 'content');
+        host.el!.style.setProperty('--hux', 'none');
+      });
+
       return () => 'Test';
     },
   });
 
-  host.$setup();
-  host.$render();
+  host.attachComponent(instance);
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
@@ -82,15 +103,14 @@ it('should render styles', () => {
 });
 
 it('should reflect props', () => {
-  const { host } = setupTestElement({
+  const { instance, host } = setupTestElement({
     props: {
       foo: defineProp(10, { reflect: true }),
       bar: defineProp(20, { reflect: true }),
     },
   });
 
-  host.$setup();
-  host.$render();
+  host.attachComponent(instance);
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
@@ -103,17 +123,19 @@ it('should reflect props', () => {
 });
 
 it('should noop dom events api', () => {
-  const { host } = setupTestElement({
+  const { instance, host } = setupTestElement({
     setup({ host }) {
-      host.addEventListener('click', () => {});
-      host.removeEventListener('click', () => {});
-      host.dispatchEvent(new MouseEvent('click'));
-      return null;
+      onAttach(() => {
+        host.el!.addEventListener('click', () => {});
+        host.el!.removeEventListener('click', () => {});
+      });
+
+      return () => null;
     },
   });
 
   expect(() => {
-    host.$setup();
+    host.attachComponent(instance);
   }).not.toThrow();
 });
 
@@ -137,8 +159,11 @@ function setupTestElement(declaration?: Partial<ElementDeclaration>) {
     ...declaration,
   });
 
+  const instance = createElementInstance(definition);
+
   return {
     definition,
+    instance,
     host: new (createServerElement(definition))(),
   };
 }

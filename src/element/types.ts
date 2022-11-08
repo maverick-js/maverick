@@ -1,16 +1,24 @@
 import type { Constructor } from 'type-fest';
 
-import type { ContextMap, JSX, Observable, observable, SubjectRecord } from '../runtime';
+import type {
+  ContextMap,
+  JSX,
+  Observable,
+  observable,
+  ObservableSubject,
+  SubjectRecord,
+} from '../runtime';
 import type { CSS } from './css';
 import type { DOMEventInit } from './event';
+import type { HOST, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
 import type { ElementLifecycleManager } from './lifecycle';
 
 export type AttributeValue = string | null;
 
-export type ElementAttributeConverter<Value = unknown> = Readonly<{
-  from: ((value: AttributeValue) => Value) | false;
-  to?: (value: Value) => AttributeValue;
-}>;
+export type ElementAttributeConverter<Value = unknown> = {
+  readonly from: ((value: AttributeValue) => Value) | false;
+  readonly to?: (value: Value) => AttributeValue;
+};
 
 export type ElementPropDefinition<Value = unknown> = Readonly<
   Parameters<typeof observable<Value>>[1] & {
@@ -54,7 +62,7 @@ export type ElementEventRecord = {
 
 export type ElementMembers = {
   [name: string]: unknown;
-  readonly $render: JSX.Element;
+  readonly $render: () => JSX.Element;
 };
 
 export type ElementCSSVarsBuilder<
@@ -63,31 +71,6 @@ export type ElementCSSVarsBuilder<
 > = (props: Readonly<Props>) => Partial<{
   [P in keyof CSSVars]: CSSVars[P] | Observable<CSSVars[P]>;
 }>;
-
-export interface ElementDispatcher<Events extends ElementEventRecord = ElementEventRecord> {
-  <Type extends keyof Events>(
-    type: Type,
-    detail?: Events[Type]['detail'] | DOMEventInit<Events[Type]['detail']>,
-  ): boolean;
-}
-
-export type ElementSetup<
-  Props extends ElementPropRecord = ElementPropRecord,
-  Events extends ElementEventRecord = ElementEventRecord,
-  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
-  Members extends ElementMembers = ElementMembers,
-> = (context: {
-  host: MaverickHost<Props>;
-  props: Readonly<Props>;
-  dispatch: ElementDispatcher<Events>;
-}) => JSX.Element | Members;
-
-export type ElementSetupContext<Props extends ElementPropRecord = ElementPropRecord> = {
-  props?: Readonly<Props>;
-  context?: ContextMap;
-  children?: Observable<boolean>;
-  onEventDispatch?: (eventType: string) => void;
-};
 
 export type AnyElementDeclaration = ElementDeclaration<any, any, any, any>;
 
@@ -139,8 +122,14 @@ export type ElementDeclaration<
    * return a render function. Optionally, class members (i.e., props and methods) can be returned
    * which are assigned to the custom element.
    */
-  setup?: ElementSetup<Props, Events, CSSVars, Members>;
+  setup?: ElementSetup<Props, Events, Members>;
 }>;
+
+export type ElementSetup<
+  Props extends ElementPropRecord = ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+  Members extends ElementMembers = ElementMembers,
+> = (instance: ElementInstance<Props, Events>) => (() => JSX.Element) | Members;
 
 export type AnyElementDefinition = ElementDefinition<any, any, any, any>;
 
@@ -151,107 +140,125 @@ export type ElementDefinition<
   Members extends ElementMembers = ElementMembers,
 > = Omit<ElementDeclaration<Props, Events, CSSVars, Members>, 'setup'> &
   Readonly<{
+    /** @internal not a real prop, only holds type. */
+    [HOST]?: MaverickElement<Props, Events> & Members;
     /** @internal */
-    __element?: MaverickElement<Props> & Members;
-    /** @internal */
-    setup: (context: {
-      host: MaverickHost<Props>;
-      props: Readonly<Props>;
-      dispatch: ElementDispatcher<Events>;
-      context?: ContextMap;
-    }) => Members;
-    /**
-     * Whether the given `node` was created using this element defintion.
-     */
-    is: (node?: Node | null) => node is MaverickElement<Props> & Members;
+    setup: (instance: ElementInstance<Props, Events>) => Members;
+    /** Whether the given `node` was created using this element defintion. */
+    is: (node?: Node | null) => node is MaverickElement<Props, Events> & Members;
   }>;
 
-export type MaverickElement<Props extends ElementPropRecord = ElementPropRecord> = HTMLElement &
-  Omit<MaverickHost<Props>, '$el'> &
-  ElementLifecycleManager;
-
-export type InferMaverickElement<Definition extends AnyElementDefinition> = NonNullable<
-  Definition['__element']
+export type InferHostElement<Definition extends AnyElementDefinition> = NonNullable<
+  Definition[typeof HOST]
 >;
+
+export type MaverickElement<
+  Props extends ElementPropRecord = ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+> = HTMLElement & HostElement<Props, Events>;
+
+export type HostElement<
+  Props extends ElementPropRecord = ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+> = {
+  [HOST]: boolean;
+  /**
+   * Maverick component instance associated with this element.
+   */
+  readonly instance: ElementInstance<Props, Events> | null;
+  /**
+   * Associate this element with a Maverick component instance.
+   */
+  attachComponent(instance: ElementInstance<Props, Events>): void;
+  /**
+   * The given `handler` is invoked with the type of event (e.g., `my-event`) when this element
+   * dispatches it. Each event type is unique and only passed to the given `handler` once.
+   */
+  onEventDispatch(handler: (eventType: string) => void): void;
+};
 
 export type MaverickElementConstructor<
   Props extends ElementPropRecord = ElementPropRecord,
   Events extends ElementEventRecord = ElementEventRecord,
-  CSSVars extends ElementCSSVarRecord = ElementCSSVarRecord,
   Members extends ElementMembers = ElementMembers,
-> = Constructor<MaverickElement<Props> & Members> & {
+> = Constructor<MaverickElement<Props, Events> & Members> & {
   readonly observedAttributes: string[];
-  readonly $definition: ElementDefinition<Props, Events, CSSVars, Members>;
 };
 
-export type MaverickHost<Props extends ElementPropRecord = ElementPropRecord> = Pick<
-  HTMLElement,
-  | 'getAttribute'
-  | 'setAttribute'
-  | 'hasAttribute'
-  | 'removeAttribute'
-  | 'dispatchEvent'
-  | 'addEventListener'
-  | 'removeEventListener'
-> & {
-  readonly classList: Pick<
-    HTMLElement['classList'],
-    'length' | 'add' | 'contains' | 'remove' | 'replace' | 'toggle' | 'toString'
-  >;
-  readonly style: Pick<
-    HTMLElement['style'],
-    'length' | 'getPropertyValue' | 'removeProperty' | 'setProperty'
-  > & { toString(): string };
+export type ElementInstanceInit<Props extends ElementPropRecord = ElementPropRecord> = {
+  props?: Readonly<Partial<Props>>;
+  context?: ContextMap;
+  children?: Observable<boolean>;
+};
+
+export type AnyElementInstance = ElementInstance<any, any>;
+
+export type ElementInstance<
+  Props extends ElementPropRecord = ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+> = ElementLifecycleManager & {
+  readonly host: {
+    /**
+     * The custom element this component is attached to. This is safe to call server-side with the
+     * limited API listed below.
+     *
+     * **Important:** Only specific DOM APIs are safe to call server-side. This includes:
+     *
+     * - Attributes: `getAttribute`, `setAttribute`, `removeAttribute`, and `hasAttribute`
+     * - Classes: `classList` API
+     * - Styles: `style` API
+     * - Events (noops): `addEventListener`, `removeEventListener`, and `dispatchEvent`
+     */
+    el: MaverickElement<Props, Events> | null;
+    /**
+     * Whether the custom element associated with this component has connected to the DOM. This is
+     * a reactive observable call.
+     */
+    $connected: boolean;
+    /**
+     * Whether the custom element associated with this component has mounted the DOM and rendered
+     * content in its shadow root. This is a reactive observable call.
+     */
+    $mounted: boolean;
+    /**
+     * Whether there is any child nodes in the associated custom element's light DOM. If `false`
+     * you can return fallback content. This is a reactive observable call.
+     */
+    $children: boolean;
+    /** @internal */
+    [PROPS]: {
+      $connected: ObservableSubject<boolean>;
+      $mounted: ObservableSubject<boolean>;
+      $children: Observable<boolean> | ObservableSubject<boolean>;
+    };
+  };
+  /**
+   * Component properties where each value is a readonly observable. Do note destructure this
+   * object because it will result in a loss of reactivity.
+   */
+  readonly props: Props;
+  /**
+   * Facade for dispatching events on the current host element this component is attached to.
+   */
+  readonly dispatch: ElementInstanceDispatcher<Events>;
+  /**
+   * Permanently destroy component instance.
+   */
+  readonly destroy: () => void;
 } & {
   /** @internal */
-  readonly $$props: SubjectRecord<Props>;
-
-  /**
-   * Whether to keep this component alive until it's manually destroyed by calling the `$destroy`
-   * method.
-   *
-   * @defaultValue false
-   */
-  $keepAlive: boolean;
-  /**
-   * The defined tag name. This is normalized to lower-case, use the native `tagName` property
-   * for the browser defined name.
-   */
-  readonly $tagName: string;
-  /**
-   * The DOM element associated with this host. This is `null` server-side and during the setup
-   * call client-side. This is a reactive observable call.
-   */
-  readonly $el: MaverickElement<Props> | null;
-  /**
-   * Whether the current element has connected to the DOM. This is a reactive observable call.
-   */
-  readonly $connected: boolean;
-  /**
-   * Whether the component has connected to the DOM and rendered content in its shadow root at
-   * least once. This is a reactive observable call.
-   */
-  readonly $mounted: boolean;
-  /**
-   * Whether there is any child nodes in the light DOM, if `false` you can return fallback content.
-   * This is a reactive observable call.
-   */
-  readonly $children: boolean;
-  /**
-   * Manually call the setup function when appropriate. The `mk-delegate` attribute must
-   * be present for `setup` to not be immediately called in the constructor.
-   */
-  $setup(context?: ElementSetupContext<Props>): () => void;
-  /**
-   * Permanently destroys the component.
-   */
-  $destroy(): void;
-  /**
-   * Register a callback to be invoked once this element has mounted the DOM.
-   */
-  $onMount(callback: () => unknown): void;
-  /**
-   * Register a callback to be invoked once this element has been destroyed.
-   */
-  $onDestroy(callback: () => unknown): void;
+  [PROPS]: SubjectRecord<Props>;
+  /** @internal */
+  [MEMBERS]?: ElementMembers;
+  /** @internal */
+  [SCOPE]?: () => void;
+  /** @internal */
+  [RENDER]?: () => JSX.Element;
 };
+
+export interface ElementInstanceDispatcher<Events extends ElementEventRecord = ElementEventRecord> {
+  <Type extends keyof Events>(
+    type: Type,
+    detail?: Events[Type]['detail'] | DOMEventInit<Events[Type]['detail']>,
+  ): boolean;
+}

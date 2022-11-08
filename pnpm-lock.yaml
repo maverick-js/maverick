@@ -4,7 +4,7 @@ specifiers:
   '@dprint/formatter': ^0.2.0
   '@dprint/typescript': ^0.71.1
   '@edge-runtime/vm': ^2.0.0
-  '@maverick-js/observables': ^4.7.1
+  '@maverick-js/observables': ^4.8.3
   '@maverick-js/scheduler': ^2.1.0
   '@microsoft/api-extractor': ^7.28.6
   '@rollup/pluginutils': ^4.2.1
@@ -49,7 +49,7 @@ dependencies:
 
 devDependencies:
   '@edge-runtime/vm': 2.0.0
-  '@maverick-js/observables': 4.7.1
+  '@maverick-js/observables': 4.8.3
   '@maverick-js/scheduler': 2.1.0
   '@microsoft/api-extractor': 7.33.2
   '@rollup/pluginutils': 4.2.1
@@ -461,8 +461,8 @@ packages:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
 
-  /@maverick-js/observables/4.7.1:
-    resolution: {integrity: sha512-F2eRoUv8FH0nmNu8fql1aTHdX2WwU4HU4rieAC8ajECK3yPEB54JGWY/+r419qMlE3U/bY0SQ/uftiaVm2Jo4Q==}
+  /@maverick-js/observables/4.8.3:
+    resolution: {integrity: sha512-7Fh9FTPqxXpbt4Ow3fuGdYhHoUuZvTt7kFl0qeM1AvuG8Mn6t5gVQrOxD3YtX5w80uCo6WfIOibp9wu4g2Hukg==}
     dependencies:
       '@maverick-js/scheduler': 2.1.0
     dev: true

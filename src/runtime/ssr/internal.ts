@@ -1,4 +1,6 @@
 import { createServerElement, type ElementDefinition } from '../../element';
+import { createElementInstance } from '../../element/instance';
+import { PROPS } from '../../element/internal';
 import { escape } from '../../utils/html';
 import { unwrapDeep } from '../../utils/obs';
 import { trimTrailingSemicolon } from '../../utils/print';
@@ -49,13 +51,15 @@ export function $$_custom_element(
 
   const hasChildElements = children.replace(/<!(.*?)>/g, '').length > 0;
 
-  host.$setup({
+  const instance = createElementInstance(definition, {
     props,
     children: () => hasChildElements,
   });
 
+  host.attachComponent(instance);
+
   return {
-    [SSR_TEMPLATE]: `<${definition.tagName}${host.attributes}>${host.$render() + children}</${
+    [SSR_TEMPLATE]: `<${definition.tagName}${host.attributes}>${host.render() + children}</${
       definition.tagName
     }>`,
   };

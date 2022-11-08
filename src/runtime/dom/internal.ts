@@ -1,4 +1,5 @@
 import { defineCustomElement, type ElementDefinition, type MaverickElement } from '../../element';
+import { createElementInstance } from '../../element/instance';
 import { attachDeclarativeShadowDOM } from '../../utils/dom';
 import { isArray, isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
@@ -89,7 +90,10 @@ export function $$_setup_custom_element(
   if (definition.shadowRoot) $$_attach_declarative_shadow_dom(element);
 
   const children = computed(() => props?.innerHTML || props?.$children);
-  onDispose(element.$setup({ props, children }));
+  const instance = createElementInstance(definition, { props, children });
+
+  peek(() => element.attachComponent(instance));
+  onDispose(() => instance.destroy());
 
   if (!hydration) {
     if (props?.innerHTML) {

@@ -2,13 +2,13 @@ import { createContext } from 'maverick.js';
 import * as React from 'React';
 import { renderToString } from 'react-dom/server';
 
-import { defineElement, defineProp } from 'maverick.js/element';
-import { createReactElement } from 'maverick.js/react';
+import { defineElement, defineProp, onAttach } from 'maverick.js/element';
+import { createReactElement, useReactContext } from 'maverick.js/react';
 
 it('should render', () => {
   const element = defineElement({
     tagName: 'mk-foo',
-    setup: () => <div>Test</div>,
+    setup: () => () => <div>Test</div>,
   });
 
   const Component = createReactElement(element);
@@ -23,7 +23,7 @@ it('should render shadow dom', () => {
   const element = defineElement({
     tagName: 'mk-foo',
     shadowRoot: true,
-    setup: () => <div>Test</div>,
+    setup: () => () => <div>Test</div>,
   });
 
   const Component = createReactElement(element);
@@ -37,7 +37,7 @@ it('should render shadow dom', () => {
 it('should render with children', () => {
   const element = defineElement({
     tagName: 'mk-foo',
-    setup: () => <div>Test</div>,
+    setup: () => () => <div>Test</div>,
   });
 
   const Component = createReactElement(element);
@@ -56,7 +56,10 @@ it('should render with children', () => {
 it('should notify host of children', () => {
   const element = defineElement({
     tagName: 'mk-foo',
-    setup: ({ host }) => !host.$children && <div>Test</div>,
+    setup:
+      ({ host }) =>
+      () =>
+        !host.$children && <div>Test</div>,
   });
 
   const Component = createReactElement(element);
@@ -70,7 +73,10 @@ it('should notify host of children', () => {
 it('should notify host of _no_ children', () => {
   const element = defineElement({
     tagName: 'mk-foo',
-    setup: ({ host }) => !host.$children && <div>Test</div>,
+    setup:
+      ({ host }) =>
+      () =>
+        !host.$children && <div>Test</div>,
   });
 
   const Component = createReactElement(element);
@@ -85,8 +91,11 @@ it('should render with class', () => {
   const element = defineElement({
     tagName: 'mk-foo',
     setup: ({ host }) => {
-      host.classList.add('bax');
-      return <div>Test</div>;
+      onAttach(() => {
+        host.el!.classList.add('bax');
+      });
+
+      return () => <div>Test</div>;
     },
   });
 
@@ -102,8 +111,11 @@ it('should render with style', () => {
   const element = defineElement({
     tagName: 'mk-foo',
     setup: ({ host }) => {
-      host.style.setProperty('--bar', '10');
-      return null;
+      onAttach(() => {
+        host.el!.style.setProperty('--bar', '10');
+      });
+
+      return () => null;
     },
   });
 
@@ -132,7 +144,10 @@ it('should forward props', () => {
     props: {
       foo: defineProp(10),
     },
-    setup: ({ props }) => <div>{props.foo}</div>,
+    setup:
+      ({ props }) =>
+      () =>
+        <div>{props.foo}</div>,
   });
 
   const Component = createReactElement(element);
@@ -142,7 +157,7 @@ it('should forward props', () => {
   );
 });
 
-it('should forward context map', () => {
+it('should forward context map to maverick element', () => {
   const context = createContext(0);
 
   const elementA = defineElement({
@@ -155,7 +170,7 @@ it('should forward context map', () => {
 
   const elementB = defineElement({
     tagName: 'mk-foo',
-    setup: () => context.get(),
+    setup: () => () => context.get(),
   });
 
   const ComponentA = createReactElement(elementA);
@@ -169,5 +184,34 @@ it('should forward context map', () => {
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
     '"<mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root></shadow-root><div><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root>10</shadow-root></mk-foo></div></mk-foo>"',
+  );
+});
+
+it('should forward context to react element', () => {
+  const context = createContext(0);
+
+  const ParentElement = defineElement({
+    tagName: 'mk-foo',
+    setup: () => {
+      context.set(10);
+      return () => null;
+    },
+  });
+
+  const Parent = createReactElement(ParentElement);
+
+  function Child() {
+    const value = useReactContext(context);
+    return React.createElement('div', { id: 'react' }, value);
+  }
+
+  const Root = React.createElement(
+    'div',
+    {},
+    React.createElement(Parent, null, React.createElement(Child)),
+  );
+
+  expect(renderToString(Root)).toMatchInlineSnapshot(
+    '"<div><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root></shadow-root><div id=\\"react\\">10</div></mk-foo></div>"',
   );
 });

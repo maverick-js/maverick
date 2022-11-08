@@ -106,8 +106,8 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     map: sourcemap
       ? code.generateMap(
           typeof sourcemap === 'boolean'
-            ? { source: filename, file: filename }
-            : { source: filename, ...sourcemap },
+            ? { source: filename, file: filename, hires: true }
+            : { source: filename, hires: true, ...sourcemap },
         )
       : null,
   };

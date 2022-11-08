@@ -1,47 +1,43 @@
-import { effect, getScheduler, observable, root } from '@maverick-js/observables';
+import { effect, getScheduler, isSubject, scope } from '@maverick-js/observables';
 
-import {
-  hydrate,
-  hydration,
-  isDOMElement,
-  render,
-  setAttribute,
-  setStyle,
-  type SubjectRecord,
-} from '../runtime';
+import { hydrate, hydration, isDOMElement, render, setAttribute, setStyle } from '../runtime';
 import { $$_create_element } from '../runtime/dom/internal';
 import { run, runAll } from '../utils/fn';
 import { camelToKebabCase } from '../utils/str';
-import { isBoolean, isFunction, noop } from '../utils/unit';
+import { isBoolean, isFunction } from '../utils/unit';
 import { adoptCSS } from './css';
-import { setupElementProps } from './define-element';
-import { DOMEvent } from './event';
+import { createElementInstance } from './instance';
 import {
   AFTER_UPDATE,
+  ATTACH,
   BEFORE_UPDATE,
   CONNECT,
   DESTROY,
   DISCONNECT,
-  LIFECYCLES,
+  HOST,
+  MEMBERS,
   MOUNT,
+  PROPS,
+  RENDER,
+  SCOPE,
 } from './internal';
-import type { ElementLifecycleCallback, ElementLifecycleManager } from './lifecycle';
+import type { ElementLifecycleCallback } from './lifecycle';
 import type {
   AnyElementDefinition,
   ElementCSSVarRecord,
   ElementDefinition,
   ElementEventRecord,
+  ElementInstance,
+  ElementInstanceInit,
   ElementMembers,
   ElementPropDefinitions,
   ElementPropRecord,
-  ElementSetupContext,
+  HostElement,
   MaverickElement,
   MaverickElementConstructor,
-  MaverickHost,
 } from './types';
 
-const MAVERICK_ELEMENT = Symbol('MAVERICK'),
-  scheduler = getScheduler();
+const scheduler = getScheduler();
 
 export function createHTMLElement<
   Props extends ElementPropRecord,
@@ -50,7 +46,7 @@ export function createHTMLElement<
   Members extends ElementMembers,
 >(
   definition: ElementDefinition<Props, Events, CSSVars, Members>,
-): MaverickElementConstructor<Props, Events, CSSVars, Members> {
+): MaverickElementConstructor<Props, Events, Members> {
   if (__SERVER__) {
     throw Error(
       '[maverick] `createHTMLElement` was called outside of browser - use `createServerElement`',
@@ -58,12 +54,8 @@ export function createHTMLElement<
   }
 
   const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
-  const createId = __DEV__ ? (id: string) => ({ id: `${definition.tagName}.${id}` }) : undefined;
 
-  class MaverickElement
-    extends HTMLElement
-    implements MaverickHost<Props>, ElementLifecycleManager
-  {
+  class MaverickElement extends HTMLElement implements HostElement<Props, Events> {
     /** attr name to prop name map */
     private static _attrMap = new Map<string, string>();
     /** prop name to attr name map */
@@ -73,35 +65,13 @@ export function createHTMLElement<
     /** prop names that should reflect changes to respective attr */
     private static _reflectedProps = new Set<string>();
 
-    static get $definition() {
-      return definition;
-    }
-
     /** @internal */
-    [MAVERICK_ELEMENT] = true;
-    /** @internal */
-    [CONNECT]: ElementLifecycleCallback[] = [];
-    /** @internal */
-    [MOUNT]: ElementLifecycleCallback[] = [];
-    /** @internal */
-    [BEFORE_UPDATE]: ElementLifecycleCallback[] = [];
-    /** @internal */
-    [AFTER_UPDATE]: ElementLifecycleCallback[] = [];
-    /** @internal */
-    [DISCONNECT]: ElementLifecycleCallback[] = [];
-    /** @internal */
-    [DESTROY]: ElementLifecycleCallback[] = [];
+    [HOST] = true;
 
     private _root?: Node;
-    private _setup = false;
     private _destroyed = false;
-    private _props: SubjectRecord = {};
+    private _instance: ElementInstance<Props, Events> | null = null;
     private _onEventDispatch?: (eventType: string) => void;
-
-    private _el = observable<MaverickElement | null>(null);
-    private _children = observable(false, createId?.('$children'));
-    private _connected = observable(false, createId?.('$connected'));
-    private _mounted = observable(false, createId?.('$mounted'));
 
     private get _hydrate() {
       return this.hasAttribute('mk-hydrate');
@@ -111,30 +81,8 @@ export function createHTMLElement<
       return this.hasAttribute('mk-delegate');
     }
 
-    $keepAlive = false;
-
-    get $tagName() {
-      return definition.tagName;
-    }
-
-    get $$props() {
-      return this._props as any;
-    }
-
-    get $children() {
-      return this._children();
-    }
-
-    get $connected() {
-      return this._connected();
-    }
-
-    get $mounted() {
-      return this._mounted();
-    }
-
-    get $el() {
-      return this._el() as any;
+    get instance() {
+      return this._instance;
     }
 
     static get observedAttributes() {
@@ -161,26 +109,29 @@ export function createHTMLElement<
     }
 
     attributeChangedCallback(name, _, newValue) {
-      if (!this._setup) return;
+      if (!this._instance) return;
       const ctor = this.constructor as typeof MaverickElement;
       const propName = ctor._attrMap.get(name)!;
       const from = propDefs[propName]?.converter?.from;
-      if (from) this._props[propName]?.set(from(newValue));
+      if (from) this._instance[PROPS][propName]?.set(from(newValue));
     }
 
     connectedCallback() {
-      if (!this._delegate && !this._setup) {
+      if (!this._delegate && !this._instance) {
         if (definition.parent) {
           defineCustomElement(definition.parent);
           const parent = this.closest(definition.parent.tagName) as MaverickElement;
-          parent.$onMount(() => this.$setup());
+          const onParentMount = (parent[MOUNT] ??= []);
+          onParentMount.push(() =>
+            scope(() => this._attachComponent(), parent.instance![SCOPE]!)(),
+          );
         } else {
-          this.$setup();
+          this._attachComponent();
         }
       }
 
       // Could be called once element is no longer connected.
-      if (!this._setup || !this.isConnected || this._connected()) return;
+      if (!this._instance || !this.isConnected || this._instance.host.$connected) return;
 
       if (this._destroyed) {
         if (__DEV__) {
@@ -190,45 +141,69 @@ export function createHTMLElement<
         return;
       }
 
-      this._connected.set(true);
-
-      this[DISCONNECT].push(
-        ...(this[CONNECT].map(run).filter(isFunction) as ElementLifecycleCallback[]),
+      // Connect
+      this._instance.host[PROPS].$connected.set(true);
+      this._instance[DISCONNECT].push(
+        ...(this._instance[CONNECT].map(run).filter(isFunction) as ElementLifecycleCallback[]),
       );
 
-      if (!this._mounted()) {
-        this._mounted.set(true);
+      // Mount
+      if (!this._instance.host.$mounted) {
+        this._instance.host[PROPS].$mounted.set(true);
 
-        this[DESTROY].push(
-          ...(this[MOUNT].map(run).filter(isFunction) as ElementLifecycleCallback[]),
+        this._instance[DESTROY].push(
+          ...(this._instance[MOUNT].map(run).filter(isFunction) as ElementLifecycleCallback[]),
         );
 
-        this[MOUNT] = [];
-
+        this._instance[MOUNT] = [];
         scheduler.flushSync();
-        this[DESTROY].push(scheduler.onBeforeFlush(() => runAll(this[BEFORE_UPDATE])));
-        this[DESTROY].push(scheduler.onFlush(() => runAll(this[AFTER_UPDATE])));
+
+        if (this[MOUNT]) {
+          runAll(this[MOUNT]);
+          this[MOUNT] = undefined;
+        }
+
+        // Updates
+        this._instance[DESTROY].push(
+          scheduler.onBeforeFlush(() => runAll(this._instance![BEFORE_UPDATE])),
+        );
+        this._instance[DESTROY].push(
+          scheduler.onFlush(() => runAll(this._instance![AFTER_UPDATE])),
+        );
+
+        this._instance[SCOPE] = undefined;
       }
     }
 
     disconnectedCallback() {
-      if (!this._connected() || this._destroyed) return;
+      if (!this._instance?.host.$connected || this._destroyed) return;
 
-      this._connected.set(false);
+      this._instance.host[PROPS].$connected.set(false);
+      runAll(this._instance[DISCONNECT]);
+      this._instance[DISCONNECT] = [];
 
-      runAll(this[DISCONNECT]);
-      this[DISCONNECT] = [];
-
-      if (!this.$keepAlive) {
+      if (!this._delegate) {
         requestAnimationFrame(() => {
-          if (!this.isConnected) this.$destroy();
+          if (!this.isConnected) {
+            this._instance?.destroy();
+            this._destroyed = true;
+          }
         });
       }
     }
 
-    $setup(ctx: ElementSetupContext<Props> = {}): () => void {
-      if (this._setup || this._destroyed) return noop;
-      if (this._delegate) this.$keepAlive = true;
+    attachComponent(instance: ElementInstance<Props, Events>) {
+      if (__DEV__ && this._instance) {
+        console.warn(`[maverick] element \`${definition.tagName}\` already has attached component`);
+      }
+
+      if (__DEV__ && this._destroyed) {
+        console.warn(
+          `[maverick] attempted attaching to destroyed element \`${definition.tagName}\``,
+        );
+      }
+
+      if (this._instance || this._destroyed) return;
 
       const ctor = this.constructor as typeof MaverickElement;
 
@@ -243,120 +218,79 @@ export function createHTMLElement<
         adoptCSS(this._root as ShadowRoot, definition.css);
       }
 
-      const renderer = this._hydrate ? hydrate : render;
-      this[DESTROY].push(
-        renderer(
-          () => {
-            const { $$props, $$setupProps } = setupElementProps(propDefs);
-            this._props = $$props;
+      ctor._resolveAttrs();
+      for (const attrName of ctor._attrMap.keys()) {
+        if (this.hasAttribute(attrName)) {
+          const propName = ctor._attrMap.get(attrName)!;
+          const from = propDefs[propName].converter?.from;
+          if (from) {
+            const attrValue = this.getAttribute(attrName);
+            instance[PROPS][propName]!.set(from(attrValue));
+          }
+        }
+      }
 
-            ctor._resolveAttrs();
-            for (const attrName of ctor._attrMap.keys()) {
-              if (this.hasAttribute(attrName)) {
-                const propName = ctor._attrMap.get(attrName)!;
-                const from = propDefs[propName].converter?.from;
-                if (from) {
-                  const attrValue = this.getAttribute(attrName);
-                  this._props[propName]?.set(from(attrValue));
-                }
-              }
-            }
+      if (definition.cssvars) {
+        const vars = isFunction(definition.cssvars)
+          ? definition.cssvars(instance.props)
+          : definition.cssvars;
 
-            if (ctx.props) {
-              for (const prop of Object.keys(ctx.props)) {
-                $$props[prop]?.set(ctx.props[prop]);
-              }
-            }
+        for (const name of Object.keys(vars)) {
+          setStyle(this, `--${name}`, vars[name]);
+        }
+      }
 
-            if (definition.cssvars) {
-              const vars = isFunction(definition.cssvars)
-                ? definition.cssvars($$setupProps)
-                : definition.cssvars;
-              for (const name of Object.keys(vars)) setStyle(this, `--${name}`, vars[name]);
-            }
+      const $children = instance.host[PROPS].$children;
+      if (!this._delegate && isSubject($children)) {
+        const onMutation = () => $children.set(this.childElementCount > 1);
+        onMutation();
+        const observer = new MutationObserver(() => scheduler.enqueue(onMutation));
+        observer.observe(this, { childList: true });
+        instance[DESTROY].push(() => observer.disconnect());
+      }
 
-            if (ctx.children) {
-              this._children = ctx.children as any;
-            } else {
-              const onMutation = () => this._children.set(this.childNodes.length > 1);
-              onMutation();
-              const observer = new MutationObserver(() => scheduler.enqueue(onMutation));
-              observer.observe(this, { childList: true });
-              this[DESTROY].push(() => observer.disconnect());
-            }
+      Object.defineProperties(this, Object.getOwnPropertyDescriptors(instance[MEMBERS]));
+      instance[MEMBERS] = undefined;
 
-            const dispatch = (type, init) =>
-              this.dispatchEvent(
-                new DOMEvent(type, {
-                  ...definition.events?.[type],
-                  ...(init?.detail ? init : { detail: init }),
-                }),
-              );
+      instance.host.el = this;
+      this._instance = instance;
+      runAll(instance[ATTACH]);
 
-            const members = definition.setup({
-              host: this as any,
-              props: $$setupProps,
-              context: ctx.context,
-              dispatch,
+      if (ctor._reflectedProps.size) {
+        scope(() => {
+          // Reflected props.
+          for (const propName of ctor._reflectedProps) {
+            const attrName = ctor._propMap.get(propName)!;
+            const prop = this._instance![PROPS][propName];
+            const convert = propDefs[propName]!.converter?.to;
+            effect(() => {
+              const propValue = prop();
+              const attrValue = convert?.(propValue) ?? propValue + '';
+              setAttribute(this, attrName, attrValue);
             });
+          }
+        }, instance[SCOPE]!)();
+      }
 
-            Object.defineProperties(this, Object.getOwnPropertyDescriptors(members));
-            this._reflectProps();
+      const renderer = this._hydrate ? hydrate : render;
+      renderer(instance[RENDER]!, {
+        target: this._root,
+        resume: !definition.shadowRoot,
+      });
 
-            if (ctx.onEventDispatch) {
-              for (const eventType of ctor._events) ctx.onEventDispatch(eventType);
-              this._onEventDispatch = ctx.onEventDispatch;
-            }
-
-            return members.$render;
-          },
-          {
-            target: this._root!,
-            resume: !definition.shadowRoot,
-          },
-        ),
-      );
+      instance[DESTROY].push(() => {
+        this._instance = null;
+        this._destroyed = true;
+      });
 
       scheduler.flushSync();
-
-      this._setup = true;
-      this._el.set(this);
       this.connectedCallback();
-
-      return () => this.$destroy();
     }
 
-    $destroy() {
-      if (this._destroyed) return;
-
-      this._mounted.set(false);
-      runAll(this[DESTROY]);
-      scheduler.flushSync();
-
-      this._props = {};
-      for (const name of LIFECYCLES) this[name] = [];
-      this._destroyed = true;
-
-      if (!this._delegate) {
-        this.remove();
-        if (this._root) this._root.textContent = '';
-      }
-    }
-
-    $onMount(callback: () => void) {
-      if (this._mounted()) {
-        callback();
-      } else if (!this._destroyed) {
-        this[MOUNT].push(callback);
-      }
-    }
-
-    $onDestroy(callback: () => void) {
-      if (this._destroyed) {
-        callback();
-      } else {
-        this[DESTROY].push(callback);
-      }
+    onEventDispatch(callback: (eventType: string) => void) {
+      const ctor = this.constructor as typeof MaverickElement;
+      for (const eventType of ctor._events) callback(eventType);
+      this._onEventDispatch = callback;
     }
 
     override dispatchEvent(event: Event): boolean {
@@ -370,27 +304,16 @@ export function createHTMLElement<
       return super.dispatchEvent(event);
     }
 
-    private _reflectProps() {
-      const ctor = this.constructor as typeof MaverickElement;
-      for (const propName of ctor._reflectedProps) {
-        const attrName = ctor._propMap.get(propName)!;
-        const convert = propDefs[propName]!.converter?.to;
-        this[DESTROY].push(
-          effect(() => {
-            const propValue = this._props[propName]();
-            const attrValue = convert?.(propValue) ?? propValue + '';
-            setAttribute(this, attrName, attrValue);
-          }, createId?.(`reflect.${propName}`)),
-        );
-      }
+    private _attachComponent(init?: ElementInstanceInit<Props>) {
+      this.attachComponent(createElementInstance(definition, init));
     }
   }
 
   return MaverickElement as any;
 }
 
-export function isMaverickElement(node?: Node | null): node is MaverickElement {
-  return !!node?.[MAVERICK_ELEMENT];
+export function isHostElement(node?: Node | null): node is MaverickElement {
+  return !!node?.[HOST];
 }
 
 export function defineCustomElement(definition: AnyElementDefinition) {

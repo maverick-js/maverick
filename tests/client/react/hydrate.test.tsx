@@ -12,7 +12,7 @@ it('should hydrate', () => {
   const Parent = (props) => React.createElement('div', { onClick: onReactClick }, props.children);
 
   const { definition, runHydration } = hydrate(
-    { setup: () => <div $on:click={onMaverickClick}></div> },
+    { setup: () => () => <div $on:click={onMaverickClick}></div> },
     (el) => React.createElement(Parent, null, React.createElement(el)),
   );
 

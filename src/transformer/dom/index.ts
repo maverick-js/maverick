@@ -9,7 +9,6 @@ import {
   trimQuotes,
   trimTrailingSemicolon,
 } from '../../utils/print';
-import { isArray } from '../../utils/unit';
 import {
   type AST,
   type AttributeNode,

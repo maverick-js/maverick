@@ -1,4 +1,4 @@
-import { CustomElement, observable, render, tick } from 'maverick.js';
+import { CustomElement, If, observable, render, tick } from 'maverick.js';
 
 import { defineElement } from 'maverick.js/element';
 
@@ -9,10 +9,13 @@ afterEach(() => {
 it('should render custom element', async () => {
   const Button = defineElement({
     tagName: `mk-button-1`,
-    setup:
-      ({ host }) =>
-      () =>
-        !host.$children && <div>Internal</div>,
+    setup: ({ host }) => {
+      return () => (
+        <If condition={!host.$children}>
+          <div>Internal</div>
+        </If>
+      );
+    },
   });
 
   const root = document.createElement('root');
@@ -22,7 +25,10 @@ it('should render custom element', async () => {
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-button-1>
-        <shadow-root />
+        <shadow-root>
+          <!--$$-->
+          <!--/$-->
+        </shadow-root>
         <!--$$-->
         <div>
           Foo
@@ -55,7 +61,10 @@ it('should render custom element', async () => {
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-button-1>
-        <shadow-root />
+        <shadow-root>
+          <!--$$-->
+          <!--/$-->
+        </shadow-root>
         <!--$$-->
         <div>
           Bar

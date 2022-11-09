@@ -1,5 +1,5 @@
-import type { JSX } from '../../runtime/jsx';
 import { isFunction } from '../../utils/unit';
+import type { JSX } from '../jsx';
 import { computed, observable, type Observable, onError, peek } from '../reactivity';
 
 export type ObservableError<T = unknown> = Observable<T | null> & { handled(): void };

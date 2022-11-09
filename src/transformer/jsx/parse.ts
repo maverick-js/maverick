@@ -1,7 +1,7 @@
 import t from 'typescript';
 
 import { onceFn } from '../../utils/fn';
-import { containsObservableCallExpression } from '../../utils/ts';
+import { resolveExpressionChildren } from '../../utils/ts';
 import {
   type AST,
   type ComponentChildren,
@@ -172,21 +172,25 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
 
     const isStaticExpr = expression && isStaticExpression(expression);
     const isStaticValue = !initializer || !!literal || isStaticExpr;
-    const isDynamic =
-      !isStaticValue || (namespace && !STATICABLE_NAMESPACE.has(namespace)) || name === 'innerHTML';
-    const isObservable =
-      !isStaticValue && expression && containsObservableCallExpression(expression);
-
-    const callId =
-      expression && t.isCallExpression(expression) && expression.arguments.length === 0
-        ? expression.expression.getText()
-        : undefined;
 
     const value = !initializer
       ? meta.component || namespace === '$prop'
         ? 'true'
         : ''
       : (literal || expression)!.getText();
+
+    const dynamic =
+      !isStaticValue || (namespace && !STATICABLE_NAMESPACE.has(namespace)) || name === 'innerHTML';
+
+    const { observable, children } =
+      !isStaticValue && expression
+        ? resolveExpressionChildren(expression)
+        : { observable: false, children: undefined };
+
+    const callId =
+      expression && t.isCallExpression(expression) && expression.arguments.length === 0
+        ? expression.expression.getText()
+        : undefined;
 
     if (expression && !isStaticExpr) {
       if (name === '$ref') {
@@ -212,39 +216,29 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
             namespace,
             name,
             value,
-            dynamic: !isStaticValue,
-            observable: isObservable,
+            dynamic,
+            observable,
             callId,
+            children,
           }),
         );
-        if (isDynamic) meta.dynamic?.();
+        if (dynamic) meta.dynamic?.();
       }
     } else {
-      if (hasValidNamespace) {
-        ast.tree.push(
-          createAttributeNode({
-            ref: node,
-            namespace: isValidAttrNamespace(namespace) ? namespace : null,
-            name,
-            value,
-            dynamic: !isStaticValue,
-            observable: isObservable,
-            callId,
-          }),
-        );
+      ast.tree.push(
+        createAttributeNode({
+          ref: node,
+          namespace: isValidAttrNamespace(namespace) ? namespace : null,
+          name,
+          value,
+          dynamic,
+          observable,
+          callId,
+          children,
+        }),
+      );
 
-        if (isDynamic) meta.dynamic?.();
-      } else {
-        ast.tree.push(
-          createAttributeNode({
-            ref: node,
-            namespace: null,
-            name,
-            value,
-            callId,
-          }),
-        );
-      }
+      if (dynamic) meta.dynamic?.();
     }
   }
 }
@@ -285,31 +279,14 @@ function parseExpression(node: t.JsxExpression, ast: AST, meta: JSXNodeMeta) {
 function buildExpressionNode(node: t.JsxExpression, meta: JSXNodeMeta): ExpressionNode {
   const expression = node.expression!,
     isRootCallExpression = t.isCallExpression(expression),
-    isCallable = isRootCallExpression && expression.arguments.length === 0;
-
-  let isObservable = isRootCallExpression,
-    children: AST[] | undefined;
-
-  const parse = (node: t.Node) => {
-    if (!isObservable && (t.isCallExpression(node) || t.isPropertyAccessExpression(node))) {
-      isObservable = true;
-    } else if (isJSXElementNode(node) || t.isJsxFragment(node)) {
-      if (!children) children = [];
-      children!.push(buildAST(node));
-      return;
-    }
-
-    t.forEachChild(node, parse);
-  };
-
-  t.forEachChild(node, parse);
-
-  const isStatic = !isObservable && !children && isStaticExpression(expression);
+    isCallable = isRootCallExpression && expression.arguments.length === 0,
+    { observable, children } = resolveExpressionChildren(expression),
+    isStatic = !observable && !children && isStaticExpression(expression);
 
   return createExpressionNode({
     ref: node,
     children,
-    observable: isObservable,
+    observable,
     root: !meta.parent,
     dynamic: !isStatic,
     value: expression.getText(),

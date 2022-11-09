@@ -1,5 +1,4 @@
-import { For, observable, tick } from 'maverick.js';
-import { render } from 'maverick.js/dom';
+import { For, observable, render, tick } from 'maverick.js';
 
 it('should render non-keyed loop', async () => {
   const source = observable([1, 2, 3]);
@@ -20,160 +19,160 @@ it('should render non-keyed loop', async () => {
   render(() => <Component />, { target: root });
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      <!--$-->
-      1
+    <root>
+      <!--$$-->
+      <span>
+        <!--$-->
+        1
+        <!--/$-->
+        - 
+        0
+      </span>
+      <span>
+        <!--$-->
+        2
+        <!--/$-->
+        - 
+        1
+      </span>
+      <span>
+        <!--$-->
+        3
+        <!--/$-->
+        - 
+        2
+      </span>
       <!--/$-->
-      - 
-      0
-    </span>
-    <span>
-      <!--$-->
-      2
-      <!--/$-->
-      - 
-      1
-    </span>
-    <span>
-      <!--$-->
-      3
-      <!--/$-->
-      - 
-      2
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   // Change
   source.set([2, 3, 4]);
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      <!--$-->
-      2
+    <root>
+      <!--$$-->
+      <span>
+        <!--$-->
+        2
+        <!--/$-->
+        - 
+        0
+      </span>
+      <span>
+        <!--$-->
+        3
+        <!--/$-->
+        - 
+        1
+      </span>
+      <span>
+        <!--$-->
+        4
+        <!--/$-->
+        - 
+        2
+      </span>
       <!--/$-->
-      - 
-      0
-    </span>
-    <span>
-      <!--$-->
-      3
-      <!--/$-->
-      - 
-      1
-    </span>
-    <span>
-      <!--$-->
-      4
-      <!--/$-->
-      - 
-      2
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   // Delete Last
   source.set([2, 3]);
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      <!--$-->
-      2
+    <root>
+      <!--$$-->
+      <span>
+        <!--$-->
+        2
+        <!--/$-->
+        - 
+        0
+      </span>
+      <span>
+        <!--$-->
+        3
+        <!--/$-->
+        - 
+        1
+      </span>
       <!--/$-->
-      - 
-      0
-    </span>
-    <span>
-      <!--$-->
-      3
-      <!--/$-->
-      - 
-      1
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   // Add
   source.set([2, 3, 4, 5]);
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      <!--$-->
-      2
+    <root>
+      <!--$$-->
+      <span>
+        <!--$-->
+        2
+        <!--/$-->
+        - 
+        0
+      </span>
+      <span>
+        <!--$-->
+        3
+        <!--/$-->
+        - 
+        1
+      </span>
+      <span>
+        <!--$-->
+        4
+        <!--/$-->
+        - 
+        2
+      </span>
+      <span>
+        <!--$-->
+        5
+        <!--/$-->
+        - 
+        3
+      </span>
       <!--/$-->
-      - 
-      0
-    </span>
-    <span>
-      <!--$-->
-      3
-      <!--/$-->
-      - 
-      1
-    </span>
-    <span>
-      <!--$-->
-      4
-      <!--/$-->
-      - 
-      2
-    </span>
-    <span>
-      <!--$-->
-      5
-      <!--/$-->
-      - 
-      3
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   // Delete First
   source.set([3, 4, 5]);
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      <!--$-->
-      3
+    <root>
+      <!--$$-->
+      <span>
+        <!--$-->
+        3
+        <!--/$-->
+        - 
+        0
+      </span>
+      <span>
+        <!--$-->
+        4
+        <!--/$-->
+        - 
+        1
+      </span>
+      <span>
+        <!--$-->
+        5
+        <!--/$-->
+        - 
+        2
+      </span>
       <!--/$-->
-      - 
-      0
-    </span>
-    <span>
-      <!--$-->
-      4
-      <!--/$-->
-      - 
-      1
-    </span>
-    <span>
-      <!--$-->
-      5
-      <!--/$-->
-      - 
-      2
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   // Empty
   source.set([]);

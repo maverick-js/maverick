@@ -1,5 +1,5 @@
-import type { JSX } from '../../runtime/jsx';
 import { unwrap } from '../../utils/obs';
+import type { JSX } from '../jsx';
 import { computedKeyedMap, computedMap, type Maybe, type Observable } from '../reactivity';
 
 /**

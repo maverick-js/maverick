@@ -83,7 +83,6 @@ const MARKERS = {
 const NEXT_ELEMENT = createFunctionCall(RUNTIME.nextElement, [ID.walker]);
 const NEXT_MARKER = `${ID.walker}.nextNode()`;
 
-let scoped = true;
 export const dom: ASTSerializer = {
   serialize(ast, ctx) {
     let initRoot = false,
@@ -170,12 +169,10 @@ export const dom: ASTSerializer = {
         ctx.runtime.add(runtimeId);
       },
       addChildren = (children: ComponentChildren[]) => {
-        const prevScoped = scoped;
-        scoped = children.length !== 1 || !isAST(children[0]);
-        const serialized = serializeChildren(dom, children, ctx);
+        const scoped = children.length > 1 || !isAST(children[0]);
+        const serialized = serializeChildren(dom, children, { ...ctx, scoped });
         const hasReturn = scoped || /^(\[|\(|\$\$|\")/.test(serialized);
         props.push(`get $children() { ${hasReturn ? `return ${serialized}` : serialized} }`);
-        scoped = prevScoped;
       },
       insert = (marker: (() => string) | null, value: string) => {
         const beforeId = ctx.hydratable ? null : getNextElementId();
@@ -210,7 +207,7 @@ export const dom: ASTSerializer = {
 
       if (component) {
         if (isAttributeNode(node) && !node.namespace) {
-          props.push(serializeComponentProp(node));
+          props.push(serializeComponentProp(dom, node, ctx));
         } else if (isSpreadNode(node)) {
           props.push('$$SPREAD');
           spreads.unshift(node.value);
@@ -319,10 +316,7 @@ export const dom: ASTSerializer = {
         }
       } else if (isFragmentNode(node)) {
         if (node.children) {
-          const prevScoped = scoped;
-          scoped = true;
-          expressions.push(serializeChildren(dom, node.children, ctx));
-          scoped = prevScoped;
+          expressions.push(serializeChildren(dom, node.children, { ...ctx, scoped: true }));
         } else {
           expressions.push('""');
         }
@@ -389,7 +383,7 @@ export const dom: ASTSerializer = {
             }
 
             if (customElement) {
-              props.push(serializeComponentProp(node));
+              props.push(serializeComponentProp(dom, node, ctx));
             } else if (node.name === 'innerHTML') {
               expressions.push(createFunctionCall(RUNTIME.innerHTML, [currentId, node.value]));
               ctx.runtime.add(RUNTIME.innerHTML);
@@ -473,7 +467,7 @@ export const dom: ASTSerializer = {
         : isFirstNodeFragment
         ? expressions[0]
         : [
-            scoped && `(() => { `,
+            ctx.scoped && `(() => { `,
             locals.serialize(),
             '\n',
             ...expressions.join(';'),
@@ -481,7 +475,7 @@ export const dom: ASTSerializer = {
             '\n',
             '\n',
             `return ${returnId ?? createRootId()}`,
-            scoped && '})()',
+            ctx.scoped && '})()',
           ]
             .filter(Boolean)
             .join('');

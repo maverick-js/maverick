@@ -1,5 +1,4 @@
-import { ForKeyed, observable, tick } from 'maverick.js';
-import { render } from 'maverick.js/dom';
+import { ForKeyed, observable, render, tick } from 'maverick.js';
 
 it('should render keyed loop', async () => {
   const source = observable([{ id: 'a' }, { id: 'b' }, { id: 'c' }]);
@@ -20,32 +19,32 @@ it('should render keyed loop', async () => {
   render(() => <Component />, { target: root });
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      a
-      - 
-      <!--$-->
-      0
+    <root>
+      <!--$$-->
+      <span>
+        a
+        - 
+        <!--$-->
+        0
+        <!--/$-->
+      </span>
+      <span>
+        b
+        - 
+        <!--$-->
+        1
+        <!--/$-->
+      </span>
+      <span>
+        c
+        - 
+        <!--$-->
+        2
+        <!--/$-->
+      </span>
       <!--/$-->
-    </span>
-    <span>
-      b
-      - 
-      <!--$-->
-      1
-      <!--/$-->
-    </span>
-    <span>
-      c
-      - 
-      <!--$-->
-      2
-      <!--/$-->
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   // Change
   source.next((p) => {
@@ -58,128 +57,128 @@ it('should render keyed loop', async () => {
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      b
-      - 
-      <!--$-->
-      0
+    <root>
+      <!--$$-->
+      <span>
+        b
+        - 
+        <!--$-->
+        0
+        <!--/$-->
+      </span>
+      <span>
+        a
+        - 
+        <!--$-->
+        1
+        <!--/$-->
+      </span>
+      <span>
+        c
+        - 
+        <!--$-->
+        2
+        <!--/$-->
+      </span>
       <!--/$-->
-    </span>
-    <span>
-      a
-      - 
-      <!--$-->
-      1
-      <!--/$-->
-    </span>
-    <span>
-      c
-      - 
-      <!--$-->
-      2
-      <!--/$-->
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   // Delete Last
   source.set(source().slice(0, -1));
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      b
-      - 
-      <!--$-->
-      0
+    <root>
+      <!--$$-->
+      <span>
+        b
+        - 
+        <!--$-->
+        0
+        <!--/$-->
+      </span>
+      <span>
+        a
+        - 
+        <!--$-->
+        1
+        <!--/$-->
+      </span>
       <!--/$-->
-    </span>
-    <span>
-      a
-      - 
-      <!--$-->
-      1
-      <!--/$-->
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   // Add
   source.set([...source(), { id: 'd' }, { id: 'e' }]);
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      b
-      - 
-      <!--$-->
-      0
+    <root>
+      <!--$$-->
+      <span>
+        b
+        - 
+        <!--$-->
+        0
+        <!--/$-->
+      </span>
+      <span>
+        a
+        - 
+        <!--$-->
+        1
+        <!--/$-->
+      </span>
+      <span>
+        d
+        - 
+        <!--$-->
+        2
+        <!--/$-->
+      </span>
+      <span>
+        e
+        - 
+        <!--$-->
+        3
+        <!--/$-->
+      </span>
       <!--/$-->
-    </span>
-    <span>
-      a
-      - 
-      <!--$-->
-      1
-      <!--/$-->
-    </span>
-    <span>
-      d
-      - 
-      <!--$-->
-      2
-      <!--/$-->
-    </span>
-    <span>
-      e
-      - 
-      <!--$-->
-      3
-      <!--/$-->
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   // Delete First
   source.set(source().slice(1));
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      a
-      - 
-      <!--$-->
-      0
+    <root>
+      <!--$$-->
+      <span>
+        a
+        - 
+        <!--$-->
+        0
+        <!--/$-->
+      </span>
+      <span>
+        d
+        - 
+        <!--$-->
+        1
+        <!--/$-->
+      </span>
+      <span>
+        e
+        - 
+        <!--$-->
+        2
+        <!--/$-->
+      </span>
       <!--/$-->
-    </span>
-    <span>
-      d
-      - 
-      <!--$-->
-      1
-      <!--/$-->
-    </span>
-    <span>
-      e
-      - 
-      <!--$-->
-      2
-      <!--/$-->
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   // Empty
   source.set([]);

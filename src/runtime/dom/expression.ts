@@ -76,6 +76,7 @@ export function insertExpression(start: StartMarker, value: JSX.Element, isObser
     if (start[TEXT]) {
       start[TEXT].data = value + '';
     } else {
+      if (end) removeNodesBetweenMarkers(start, end);
       if (!hydration) {
         lastChild = document.createTextNode(value + '');
         start.after(lastChild);

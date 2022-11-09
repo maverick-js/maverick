@@ -1,5 +1,5 @@
-import { observable, tick, type ParentComponent } from 'maverick.js';
-import { hydrate } from 'maverick.js/dom';
+import { hydrate, observable, type ParentComponent, tick } from 'maverick.js';
+
 import { element, startMarker, text } from './utils';
 
 it('should hydrate', async () => {

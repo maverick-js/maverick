@@ -1,5 +1,5 @@
-import { observable, tick } from 'maverick.js';
-import { render } from 'maverick.js/dom';
+import { observable, render, tick } from 'maverick.js';
+
 import { Element, Fragment } from './fixtures/primitives';
 import { InputField } from './fixtures/reactivity';
 import { element } from './utils';
@@ -93,21 +93,21 @@ it('should be reactive', async () => {
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <div>
-      <span>
-        Count is 
+    <root>
+      <div>
+        <span>
+          Count is 
+          <!--$-->
+          1
+          <!--/$-->
+        </span>
         <!--$-->
-        1
-        <!--/$-->
-      </span>
-      <!--$-->
-      <input
-        type="number"
-      />
-    </div>
-  </root>
-`);
+        <input
+          type="number"
+        />
+      </div>
+    </root>
+  `);
 
   const getValueTextNode = () => root.querySelector('span')!.childNodes[2];
 
@@ -121,21 +121,21 @@ it('should be reactive', async () => {
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <div>
-      <span>
-        Count is 
+    <root>
+      <div>
+        <span>
+          Count is 
+          <!--$-->
+          2
+          <!--/$-->
+        </span>
         <!--$-->
-        2
-        <!--/$-->
-      </span>
-      <!--$-->
-      <input
-        type="number"
-      />
-    </div>
-  </root>
-`);
+        <input
+          type="number"
+        />
+      </div>
+    </root>
+  `);
 
   // it should re-use existing node.
   expect(getValueTextNode()).toBe(valueText);
@@ -144,21 +144,21 @@ it('should be reactive', async () => {
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <div>
-      <span>
-        Count is 
+    <root>
+      <div>
+        <span>
+          Count is 
+          <!--$-->
+          3
+          <!--/$-->
+        </span>
         <!--$-->
-        3
-        <!--/$-->
-      </span>
-      <!--$-->
-      <input
-        type="number"
-      />
-    </div>
-  </root>
-`);
+        <input
+          type="number"
+        />
+      </div>
+    </root>
+  `);
 });
 
 it('should render observable component', async () => {

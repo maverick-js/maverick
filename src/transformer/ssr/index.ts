@@ -116,7 +116,7 @@ export const ssr: ASTSerializer = {
 
       if (component) {
         if (isAttributeNode(node) && !node.namespace) {
-          props.push(serializeComponentProp(node));
+          props.push(serializeComponentProp(ssr, node, ctx));
         } else if (isSpreadNode(node)) {
           props.push('$$SPREAD');
           spreads.unshift(node.value);
@@ -176,7 +176,7 @@ export const ssr: ASTSerializer = {
               const prop = merger[i];
               if (isAttributeNode(prop)) {
                 if (prop.namespace === '$prop') {
-                  props.push(serializeComponentProp(prop));
+                  props.push(serializeComponentProp(ssr, prop, ctx));
                 } else if (prop.name === '$element') {
                   definition = prop.value;
                 } else {

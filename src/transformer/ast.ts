@@ -120,6 +120,7 @@ export type AttributeNode = {
   dynamic?: boolean;
   observable?: boolean;
   callId?: string;
+  children?: AST[];
 };
 
 export type RefNode = {

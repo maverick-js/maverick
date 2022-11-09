@@ -9,13 +9,7 @@ import {
   trimQuotes,
 } from '../../utils/print';
 import { isArray } from '../../utils/unit';
-import {
-  type AttributeNode,
-  type ComponentChildren,
-  type ExpressionNode,
-  isAST,
-  isTextNode,
-} from '../ast';
+import { AST, type AttributeNode, type ComponentChildren, isAST, isTextNode } from '../ast';
 import type { ASTSerializer, TransformContext } from '../transform';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
 import {
@@ -123,10 +117,27 @@ export function filterDOMElements(children: t.JsxChild[]) {
   ) as JSXElementNode[];
 }
 
-export function serializeComponentProp(node: AttributeNode) {
-  return !node.observable || node.callId
-    ? `${node.name}: ${node.callId ?? node.value}`
-    : `get ${node.name}() { return ${node.value}; }`;
+export function serializeComponentProp(
+  serializer: ASTSerializer,
+  node: AttributeNode,
+  ctx: TransformContext,
+) {
+  if (!node.children && (!node.observable || node.callId)) {
+    return `${node.name}: ${node.callId ?? node.value}`;
+  } else {
+    const scoped = !node.children || node.children.length > 1;
+
+    const serialized = !node.children
+      ? node.value
+      : serializeParentExpression(serializer, node, { ...ctx, scoped }, 0);
+
+    const hasReturn =
+      scoped ||
+      (node.children && node.children[0].root.getStart() > node.ref.getStart()) ||
+      /^(\[|\(|\$\$|\")/.test(serialized);
+
+    return `get ${node.name}() { ${hasReturn ? 'return' : ''} ${serialized}; }`;
+  }
 }
 
 export function serializeChildren(
@@ -159,11 +170,16 @@ export function serializeComponentChildrenProp(
 
 export function serializeParentExpression(
   serializer: ASTSerializer,
-  node: ExpressionNode,
+  node: {
+    value: string;
+    ref: t.Node;
+    children?: AST[];
+  },
   ctx: TransformContext,
+  adjust = 1,
 ) {
   let code = new MagicString(node.value),
-    start = node.ref.getStart() + 1;
+    start = node.ref.getStart() + adjust;
 
   for (const ast of node.children!) {
     code.overwrite(

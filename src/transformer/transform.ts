@@ -26,6 +26,7 @@ export type TransformOptions = {
 };
 
 export type TransformContext = {
+  scoped: boolean;
   globals: Declarations;
   runtime: Set<string>;
   hydratable: boolean;
@@ -59,6 +60,7 @@ export function transform(source: string, options: Partial<TransformOptions> = {
   logTime('Built AST', astStartTime, LogLevel.Info);
 
   const ctx: TransformContext = {
+    scoped: true,
     globals: new Declarations(),
     runtime: new Set(),
     hydratable,

@@ -1,4 +1,4 @@
-import { createContext, getContextMap } from 'maverick.js';
+import { createContext } from 'maverick.js';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';

@@ -54,17 +54,23 @@ export function createHTMLElement<
   }
 
   const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
+  const attrToProp = new Map<string, string>();
+  const propToAttr = new Map<string, string>();
+  const dispatchedEvents = new Set<string>();
+  const reflectedProps = new Set<string>();
+
+  for (const propName of Object.keys(propDefs)) {
+    const def = propDefs[propName];
+    const attr = def.attribute;
+    if (attr !== false) {
+      const attrName = attr ?? camelToKebabCase(propName);
+      attrToProp.set(attrName, propName);
+      propToAttr.set(propName, attrName);
+      if (def.reflect) reflectedProps.add(propName);
+    }
+  }
 
   class MaverickElement extends HTMLElement implements HostElement<Props, Events> {
-    /** attr name to prop name map */
-    private static _attrMap = new Map<string, string>();
-    /** prop name to attr name map */
-    private static _propMap = new Map<string, string>();
-    /** events that were dispatched by this element. */
-    private static _events = new Set<string>();
-    /** prop names that should reflect changes to respective attr */
-    private static _reflectedProps = new Set<string>();
-
     /** @internal */
     [HOST] = true;
 
@@ -86,32 +92,12 @@ export function createHTMLElement<
     }
 
     static get observedAttributes() {
-      this._resolveAttrs();
-      return Array.from(this._attrMap.keys());
-    }
-
-    private static _resolvedAttrs = false;
-    private static _resolveAttrs() {
-      if (this._resolvedAttrs) return;
-
-      for (const propName of Object.keys(propDefs)) {
-        const def = propDefs[propName];
-        const attr = def.attribute;
-        if (attr !== false) {
-          const attrName = attr ?? camelToKebabCase(propName);
-          this._attrMap.set(attrName, propName);
-          this._propMap.set(propName, attrName);
-          if (def.reflect) this._reflectedProps.add(propName);
-        }
-      }
-
-      this._resolvedAttrs = true;
+      return Array.from(attrToProp.keys());
     }
 
     attributeChangedCallback(name, _, newValue) {
       if (!this._instance) return;
-      const ctor = this.constructor as typeof MaverickElement;
-      const propName = ctor._attrMap.get(name)!;
+      const propName = attrToProp.get(name)!;
       const from = propDefs[propName]?.converter?.from;
       if (from) this._instance[PROPS][propName]?.set(from(newValue));
     }
@@ -205,8 +191,6 @@ export function createHTMLElement<
 
       if (this._instance || this._destroyed) return;
 
-      const ctor = this.constructor as typeof MaverickElement;
-
       this._root = definition.shadowRoot
         ? this.shadowRoot ??
           this.attachShadow(
@@ -218,10 +202,9 @@ export function createHTMLElement<
         adoptCSS(this._root as ShadowRoot, definition.css);
       }
 
-      ctor._resolveAttrs();
-      for (const attrName of ctor._attrMap.keys()) {
+      for (const attrName of attrToProp.keys()) {
         if (this.hasAttribute(attrName)) {
-          const propName = ctor._attrMap.get(attrName)!;
+          const propName = attrToProp.get(attrName)!;
           const from = propDefs[propName].converter?.from;
           if (from) {
             const attrValue = this.getAttribute(attrName);
@@ -256,11 +239,11 @@ export function createHTMLElement<
       this._instance = instance;
       runAll(instance[ATTACH]);
 
-      if (ctor._reflectedProps.size) {
+      if (reflectedProps.size) {
         scope(() => {
           // Reflected props.
-          for (const propName of ctor._reflectedProps) {
-            const attrName = ctor._propMap.get(propName)!;
+          for (const propName of reflectedProps) {
+            const attrName = propToAttr.get(propName)!;
             const prop = this._instance![PROPS][propName];
             const convert = propDefs[propName]!.converter?.to;
             effect(() => {
@@ -288,17 +271,14 @@ export function createHTMLElement<
     }
 
     onEventDispatch(callback: (eventType: string) => void) {
-      const ctor = this.constructor as typeof MaverickElement;
-      for (const eventType of ctor._events) callback(eventType);
+      for (const eventType of dispatchedEvents) callback(eventType);
       this._onEventDispatch = callback;
     }
 
     override dispatchEvent(event: Event): boolean {
-      const ctor = this.constructor as typeof MaverickElement;
-
-      if (!ctor._events.has(event.type)) {
+      if (!dispatchedEvents.has(event.type)) {
         this._onEventDispatch?.(event.type);
-        ctor._events.add(event.type);
+        dispatchedEvents.add(event.type);
       }
 
       return super.dispatchEvent(event);

@@ -6,6 +6,7 @@ export * from './components/CustomElement';
 export * from './components/ErrorBoundary';
 export * from './components/For';
 export * from './components/If';
+export * from './components/HostElement';
 export * from './context';
 export * from './dom/render';
 export * from './dom/utils';

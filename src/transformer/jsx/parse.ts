@@ -67,12 +67,14 @@ function parseNode(node: t.Node, ast: AST, meta: JSXNodeMeta) {
 }
 
 function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
-  const tagName = getTagName(node);
-  const isComponent = isComponentTagName(tagName);
-  const isVoid = !isComponent && VOID_ELEMENT_TAGNAME.has(tagName);
-  const isSVG = !isComponent && (tagName === 'svg' || SVG_ELEMENT_TAGNAME.has(tagName));
-  const isSelfClosing = t.isJsxSelfClosingElement(node);
-  const supportsChildren = isSelfClosing || isVoid;
+  const tagName = getTagName(node),
+    isComponent = isComponentTagName(tagName),
+    isHostElement = tagName === 'HostElement',
+    isCustomElement = tagName === 'CustomElement',
+    isVoid = !isComponent && VOID_ELEMENT_TAGNAME.has(tagName),
+    isSVG = !isComponent && (tagName === 'svg' || SVG_ELEMENT_TAGNAME.has(tagName)),
+    isSelfClosing = t.isJsxSelfClosingElement(node),
+    supportsChildren = isSelfClosing || isVoid;
 
   let children = !supportsChildren ? filterEmptyJSXChildNodes(Array.from(node.children)) : [];
 
@@ -81,13 +83,13 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
     children = filterEmptyJSXChildNodes(Array.from(firstChild.children));
   }
 
-  const childCount = children.length;
-  const childElementCount = filterDOMElements(children).length;
-  const hasChildren = childCount > 0;
+  const childCount = children.length,
+    childElementCount = filterDOMElements(children).length,
+    hasChildren = childCount > 0;
 
   // Whether this element contains any dynamic top-level expressions which would require a new marker.
   // For example, a property set or attaching an event listener.
-  let isDynamic = isComponent || tagName === 'CustomElement';
+  let isDynamic = isComponent || isCustomElement || isHostElement;
   const dynamic = onceFn(() => {
     isDynamic = true;
   });
@@ -118,7 +120,7 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   ast.tree.push(createStructuralNode(StructuralNodeType.AttributesEnd));
 
   if (hasChildren) {
-    if (isComponent || tagName === 'CustomElement') {
+    if (isComponent || isCustomElement || isHostElement) {
       const childNodes: ComponentChildren[] = [];
 
       for (const child of children) {
@@ -155,23 +157,21 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
       continue;
     }
 
-    const initializer = attr.initializer;
-    const node = initializer || attr;
-    const literal = initializer && t.isStringLiteral(initializer) ? initializer : undefined;
-    const expression =
-      initializer && t.isJsxExpression(initializer) ? initializer.expression : undefined;
+    const initializer = attr.initializer,
+      node = initializer || attr,
+      literal = initializer && t.isStringLiteral(initializer) ? initializer : undefined,
+      expression =
+        initializer && t.isJsxExpression(initializer) ? initializer.expression : undefined;
 
     if (initializer && isEmptyNode((literal || expression)!)) continue;
 
-    const rawName = attr.name.escapedText as string;
-    const rawNameParts = rawName.split(':');
-
-    const hasValidNamespace = isValidNamespace(rawNameParts[0]);
-    const namespace = hasValidNamespace ? (rawNameParts[0] as JSXNamespace) : null;
-    const name = hasValidNamespace ? rawNameParts[1] : rawName;
-
-    const isStaticExpr = expression && isStaticExpression(expression);
-    const isStaticValue = !initializer || !!literal || isStaticExpr;
+    const rawName = attr.name.escapedText as string,
+      rawNameParts = rawName.split(':'),
+      hasValidNamespace = isValidNamespace(rawNameParts[0]),
+      namespace = hasValidNamespace ? (rawNameParts[0] as JSXNamespace) : null,
+      name = hasValidNamespace ? rawNameParts[1] : rawName,
+      isStaticExpr = expression && isStaticExpression(expression),
+      isStaticValue = !initializer || !!literal || isStaticExpr;
 
     const value = !initializer
       ? meta.component || namespace === '$prop'
@@ -244,8 +244,8 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
 }
 
 function parseFragment(node: t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
-  const childNodes: ComponentChildren[] = [];
-  const children = filterEmptyJSXChildNodes(Array.from(node.children));
+  const childNodes: ComponentChildren[] = [],
+    children = filterEmptyJSXChildNodes(Array.from(node.children));
 
   for (const child of children) {
     if (t.isJsxText(child)) {

@@ -1,4 +1,9 @@
-import { defineCustomElement, type ElementDefinition, type MaverickElement } from '../../element';
+import {
+  defineCustomElement,
+  type ElementDefinition,
+  getElementInstance,
+  type MaverickElement,
+} from '../../element';
 import { createElementInstance } from '../../element/instance';
 import { attachDeclarativeShadowDOM } from '../../utils/dom';
 import { isArray, isFunction } from '../../utils/unit';
@@ -74,6 +79,11 @@ export function $$_next_custom_element(definition: ElementDefinition, walker = h
 export function $$_clone(fragment: DocumentFragment): Element {
   const clone = fragment.cloneNode(true) as DocumentFragment;
   return clone.firstElementChild!;
+}
+
+/** @internal */
+export function $$_host_element() {
+  return getElementInstance()!.host.el!;
 }
 
 /** @internal */

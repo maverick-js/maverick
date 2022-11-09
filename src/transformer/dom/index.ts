@@ -55,6 +55,7 @@ const RUNTIME = {
   nextTemplate: '$$_next_template',
   nextElement: '$$_next_element',
   nextCustomElement: '$$_next_custom_element',
+  hostElement: '$$_host_element',
   createElement: '$$_create_element',
   setupCustomElement: '$$_setup_custom_element',
   insert: '$$_insert',
@@ -91,6 +92,7 @@ export const dom: ASTSerializer = {
       currentId!: string,
       component!: ElementNode | undefined,
       definition!: AttributeNode | undefined,
+      hostElement!: ElementNode | undefined,
       customElement!: ElementNode | undefined,
       templateId: string | undefined,
       returnId: string | undefined,
@@ -184,7 +186,8 @@ export const dom: ASTSerializer = {
         const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;
         expressions.push(createFunctionCall(insertId, [parentId, value, beforeId]));
         ctx.runtime.add(insertId);
-      };
+      },
+      isVirtualElement = () => customElement || hostElement;
 
     const firstNode = ast.tree[0],
       isFirstNodeElement = isElementNode(firstNode),
@@ -195,6 +198,7 @@ export const dom: ASTSerializer = {
       ctx.hydratable &&
       isFirstNodeElement &&
       !firstNode.isComponent &&
+      firstNode.tagName !== 'HostElement' &&
       firstNode.tagName !== 'CustomElement'
     ) {
       template.push(MARKERS.element);
@@ -237,6 +241,8 @@ export const dom: ASTSerializer = {
         }
       } else if (isStructuralNode(node)) {
         if (isAttributesEnd(node)) {
+          if (hostElement) continue;
+
           if (customElement) {
             if (!innerHTML && customElement.children) {
               addChildren(customElement.children);
@@ -292,6 +298,16 @@ export const dom: ASTSerializer = {
         } else if (isChildrenEnd(node)) {
           elementChildIndex = hierarchy.pop()!;
         } else if (isElementEnd(node)) {
+          if (hostElement) {
+            if (hostElement.children) {
+              expressions.push(
+                serializeChildren(dom, hostElement.children, { ...ctx, scoped: true }),
+              );
+            }
+            hostElement = undefined;
+            continue;
+          }
+
           if (customElement) {
             if (!ctx.hydratable) {
               if (initRoot) {
@@ -321,6 +337,13 @@ export const dom: ASTSerializer = {
           expressions.push('""');
         }
       } else if (isElementNode(node)) {
+        if (node.tagName === 'HostElement') {
+          currentId = locals.create('host', RUNTIME.hostElement);
+          ctx.runtime.add(RUNTIME.hostElement);
+          hostElement = node;
+          continue;
+        }
+
         if (isFirstNodeComponent && node == firstNode) {
           component = node;
           continue;
@@ -393,25 +416,25 @@ export const dom: ASTSerializer = {
           } else if (node.namespace === '$class') {
             addAttrExpression(node, RUNTIME.class);
           } else if (node.namespace === '$style') {
-            if (!node.dynamic && !customElement) {
+            if (!node.dynamic && !isVirtualElement()) {
               styles.push(`${node.name}: ${trimQuotes(node.value)}`);
             } else {
               addAttrExpression(node, RUNTIME.style);
             }
           } else if (node.namespace === '$cssvar') {
-            if (!node.dynamic && !customElement) {
+            if (!node.dynamic && !isVirtualElement()) {
               styles.push(`--${node.name}: ${trimQuotes(node.value)}`);
             } else {
               addAttrExpression(node, RUNTIME.cssvar);
             }
           }
-        } else if (!node.dynamic && !customElement) {
+        } else if (!node.dynamic && !isVirtualElement()) {
           if (node.name === 'style') {
             styles.push(trimTrailingSemicolon(trimQuotes(node.value)));
           } else {
             template.push(` ${node.name}="${escape(trimQuotes(node.value), true)}"`);
           }
-        } else if (!customElement || node.name !== '$element') {
+        } else if (!isVirtualElement() || node.name !== '$element') {
           addAttrExpression(node, RUNTIME.attr);
         }
       } else if (isRefNode(node)) {
@@ -429,7 +452,7 @@ export const dom: ASTSerializer = {
         if (!ctx.hydratable) elementChildIndex++;
         template.push(node.value);
       } else if (isExpressionNode(node)) {
-        if (!node.dynamic && !customElement) {
+        if (!node.dynamic && !isVirtualElement()) {
           template.push(encode(trimQuotes(node.value)));
         } else {
           if (!initRoot) createRootId();

@@ -31,7 +31,17 @@ export function createServerElement<
   }
 
   const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
+  const propToAttr = new Map<string, string>();
   const reflectedProps = new Map<string, string>();
+
+  for (const propName of Object.keys(propDefs)) {
+    const def = propDefs[propName];
+    const converter = propDefs[propName].converter?.from;
+    if (def.attribute !== false && converter) {
+      const attrName = def.attribute ?? camelToKebabCase(propName);
+      propToAttr.set(propName, attrName);
+    }
+  }
 
   for (const propName of Object.keys(propDefs)) {
     const def = propDefs[propName];
@@ -68,15 +78,12 @@ export function createServerElement<
         parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
       }
 
-      for (const propName of Object.keys(propDefs)) {
-        const def = propDefs[propName];
-        if (def.attribute !== false) {
-          const attrName = def.attribute ?? camelToKebabCase(propName);
-          const fromAttr = propDefs[propName].converter?.from;
-          if (this.hasAttribute(attrName) && fromAttr) {
-            const attrValue = this.getAttribute(attrName);
-            instance[PROPS][propName]!.set(fromAttr(attrValue));
-          }
+      for (const propName of propToAttr.keys()) {
+        const attrName = propToAttr.get(propName)!;
+        if (this.hasAttribute(attrName)) {
+          const convert = propDefs[propName].converter!.from! as (value: string | null) => any;
+          const attrValue = this.getAttribute(attrName);
+          instance[PROPS][propName]!.set(convert(attrValue));
         }
       }
 

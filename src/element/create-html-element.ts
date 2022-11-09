@@ -205,10 +205,10 @@ export function createHTMLElement<
       for (const attrName of attrToProp.keys()) {
         if (this.hasAttribute(attrName)) {
           const propName = attrToProp.get(attrName)!;
-          const from = propDefs[propName].converter?.from;
-          if (from) {
+          const convert = propDefs[propName].converter?.from;
+          if (convert) {
             const attrValue = this.getAttribute(attrName);
-            instance[PROPS][propName]!.set(from(attrValue));
+            instance[PROPS][propName]!.set(convert(attrValue));
           }
         }
       }

@@ -31,6 +31,13 @@ export function createServerElement<
   }
 
   const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
+  const reflectedProps = new Map<string, string>();
+
+  for (const propName of Object.keys(propDefs)) {
+    const def = propDefs[propName];
+    if (!def.reflect || def.attribute === false) continue;
+    reflectedProps.set(def.attribute ?? camelToKebabCase(propName), propName);
+  }
 
   class MaverickServerElement implements ServerHTMLElement, HostElement<Props, Events> {
     /** @internal */
@@ -87,11 +94,9 @@ export function createServerElement<
       runAll(instance[ATTACH]);
 
       // prop reflection.
-      for (const propName of Object.keys(propDefs)) {
-        const def = propDefs[propName];
-        if (!def.reflect || def.attribute === false) continue;
+      for (const propName of reflectedProps.keys()) {
         const convert = propDefs[propName]!.converter?.to;
-        const attrName = def.attribute ?? camelToKebabCase(propName);
+        const attrName = reflectedProps.get(propName)!;
         const propValue = instance.props[propName];
         setAttribute(this as any, attrName, convert ? convert(propValue) : propValue + '');
       }

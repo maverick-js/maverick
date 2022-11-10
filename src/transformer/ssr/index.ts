@@ -43,6 +43,7 @@ const ID = {
 const RUNTIME = {
   createComponent: '$$_create_component',
   customElement: '$$_custom_element',
+  hostElement: '$$_host_element',
   ssr: '$$_ssr',
   attr: '$$_attr',
   classes: '$$_classes',
@@ -57,6 +58,7 @@ export const ssr: ASTSerializer = {
     let template = '',
       skip = -1,
       merging = false,
+      childrenFragment = false,
       templates: string[] = [],
       parts: string[] = [],
       innerHTML: string | undefined,
@@ -67,6 +69,7 @@ export const ssr: ASTSerializer = {
       spreads: string[] = [],
       elements: ElementNode[] = [],
       component!: ElementNode | undefined,
+      hostElement!: ElementNode | undefined,
       customElement!: ElementNode | undefined,
       commit = (part: string) => {
         parts.push(part);
@@ -102,10 +105,9 @@ export const ssr: ASTSerializer = {
 
     const firstNode = ast.tree[0],
       isFirstNodeElement = isElementNode(firstNode),
-      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent,
-      isFirstNodeFragment = isFragmentNode(firstNode);
+      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
 
-    if (isFirstNodeElement && !firstNode.isComponent) {
+    if (isFirstNodeElement && !firstNode.isComponent && firstNode.tagName !== 'HostElement') {
       template += HYDRATION_MARKER;
     }
 
@@ -199,7 +201,17 @@ export const ssr: ASTSerializer = {
 
             commitAttrs();
 
-            if (customElement) {
+            if (hostElement) {
+              if ($spread.length > 0) {
+                commit(
+                  createFunctionCall(RUNTIME.hostElement, [
+                    $spread.length > 0 ? `[${$spread.join(', ')}]` : null,
+                  ]),
+                );
+
+                ctx.runtime.add(RUNTIME.hostElement);
+              }
+            } else if (customElement) {
               if (!definition) {
                 const ref = customElement.ref;
                 const loc = kleur.bold(
@@ -290,7 +302,9 @@ export const ssr: ASTSerializer = {
           }
 
           merging = false;
-          if (!customElement && element && !element.isVoid) template += '>';
+          if (!customElement && !hostElement && element && !element.isVoid) {
+            template += '>';
+          }
         } else if (isChildrenStart(node)) {
           if (innerHTML) {
             commitInnerHTML(i);
@@ -298,37 +312,52 @@ export const ssr: ASTSerializer = {
             if (element) template += element.isVoid ? ` />` : `</${element.tagName}>`;
           }
         } else if (isElementEnd(node)) {
-          const element = elements.pop();
+          if (hostElement) {
+            if (hostElement.children) {
+              commit(serializeChildren(ssr, hostElement.children, ctx));
+              childrenFragment = true;
+            }
 
-          if (element?.childCount === 0) commitInnerHTML(i);
+            hostElement = undefined;
+          } else {
+            const element = elements.pop();
 
-          if (customElement) {
-            customElement = undefined;
-          } else if (element) {
-            template += element.isVoid ? ` />` : `</${element.tagName}>`;
+            if (element?.childCount === 0) commitInnerHTML(i);
+
+            if (customElement) {
+              customElement = undefined;
+            } else if (element) {
+              template += element.isVoid ? ` />` : `</${element.tagName}>`;
+            }
           }
         }
       } else if (isFragmentNode(node)) {
         if (node.children) {
           commit(serializeChildren(ssr, node.children, ctx));
+          childrenFragment = true;
         }
       } else if (isElementNode(node)) {
         if (node.isComponent) {
           if (i > 0) marker();
           component = node;
         } else {
-          const isCustomElement = node.tagName === 'CustomElement';
+          const isCustomElement = node.tagName === 'CustomElement',
+            isHostElement = node.tagName === 'HostElement',
+            isVirtualElement = isCustomElement || isHostElement;
 
-          if (i > 0 && !isCustomElement && node.dynamic()) marker();
-          merging = isCustomElement || node.spread();
+          if (i > 0 && !isVirtualElement && node.dynamic()) marker();
 
-          if (isCustomElement) {
+          if (isHostElement) {
+            hostElement = node;
+          } else if (isCustomElement) {
             customElement = node;
+            elements.push(node);
           } else {
             template += `<${node.tagName}`;
+            elements.push(node);
           }
 
-          elements.push(node);
+          merging = isVirtualElement || node.spread();
         }
       } else if (isAttributeNode(node)) {
         if (node.namespace) {
@@ -394,7 +423,7 @@ export const ssr: ASTSerializer = {
       templates.push(template);
     }
 
-    if (isFirstNodeComponent || isFirstNodeFragment) {
+    if (isFirstNodeComponent || (childrenFragment && parts.length === 1)) {
       return parts[0];
     } else if (templates.length) {
       const templateId = ctx.globals.create(
@@ -406,7 +435,7 @@ export const ssr: ASTSerializer = {
       return createFunctionCall(RUNTIME.ssr, [templateId, ...parts]);
     }
 
-    return '';
+    return 'null';
   },
 };
 

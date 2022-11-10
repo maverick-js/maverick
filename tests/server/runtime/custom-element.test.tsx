@@ -9,7 +9,7 @@ import {
 } from 'maverick.js/element';
 import { renderToString } from 'maverick.js/ssr';
 
-it('should render custom element', () => {
+it('should render', () => {
   const element = defineElement({
     tagName: 'mk-foo',
     setup: () => () => <div class="foo">Test</div>,
@@ -22,7 +22,7 @@ it('should render custom element', () => {
   );
 });
 
-it('should render custom element with children', () => {
+it('should render with children', () => {
   const element = defineElement({
     tagName: 'mk-foo',
     setup: () => () => <div class="foo">Test</div>,
@@ -39,7 +39,7 @@ it('should render custom element with children', () => {
   );
 });
 
-it('should render custom element with shadow dom', () => {
+it('should render with shadow dom', () => {
   const element = defineElement({
     tagName: 'mk-foo',
     shadowRoot: true,
@@ -86,7 +86,7 @@ it('should render adopted css styles in shadow root template', () => {
   expect(element.render()).toMatchSnapshot();
 });
 
-it('should render custom element with attributes', () => {
+it('should render with attributes', () => {
   const element = defineElement({ tagName: 'mk-foo' });
 
   const result = renderToString(() => (

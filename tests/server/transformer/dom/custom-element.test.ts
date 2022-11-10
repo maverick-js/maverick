@@ -2,7 +2,7 @@ import { transform } from 'maverick.js/transformer';
 
 const t = (code: string) => transform(code).code;
 
-it('should compile custom element', () => {
+it('should compile', () => {
   const result = t(`<CustomElement $element={DEFINITION} />`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_element, $$_setup_custom_element } from \\"maverick.js/dom\\";
@@ -16,7 +16,7 @@ it('should compile custom element', () => {
   `);
 });
 
-it('should compile custom element with children', () => {
+it('should compile with children', () => {
   const result = t(`<CustomElement $element={DEFINITION}><div>{id}</div></CustomElement>`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_element, $$_clone, $$_insert, $$_create_template, $$_setup_custom_element } from \\"maverick.js/dom\\";
@@ -40,7 +40,7 @@ it('should compile custom element with children', () => {
   `);
 });
 
-it('should compile custom element with jsx attributes', () => {
+it('should compile with jsx attributes', () => {
   const result = t(
     `<CustomElement foo={10} $prop:foo={id()} $class:foo={true} $cssvar:foo={10} $on:click={handler} $element={DEFINITION} />`,
   );
@@ -60,7 +60,7 @@ it('should compile custom element with jsx attributes', () => {
   `);
 });
 
-it('should compile child custom element', () => {
+it('should compile as child', () => {
   const result = t(
     `<div><div>Foo</div><CustomElement $prop:foo={props.foo} $element={DEFINITION}>{id()}</CustomElement><div></div></div>`,
   );
@@ -89,7 +89,7 @@ it('should compile child custom element', () => {
   `);
 });
 
-it('shoud compile custom element with inner html', () => {
+it('shoud compile with inner html', () => {
   const result = t(`<CustomElement $prop:innerHTML="<div>Foo</div>" $element={DEFINITION} />`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_element, $$_setup_custom_element } from \\"maverick.js/dom\\";

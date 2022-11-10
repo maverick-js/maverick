@@ -37,11 +37,11 @@ export function HostElement<
     $children?: JSX.Element;
   } & JSX.HTMLElementAttributes<
     MaverickElement<Props, Events> & Members,
-    never,
+    {},
     Events & JSX.EventRecord,
     CSSVars
   >,
-): void {
+): JSX.Element {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;
 }

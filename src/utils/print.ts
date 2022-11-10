@@ -115,6 +115,10 @@ export class Declarations {
     return !!this._count[id];
   }
 
+  delete(id: string) {
+    this.all.delete(id);
+  }
+
   serialize(pure = false) {
     if (this.all.size === 0) return '';
 

@@ -2,22 +2,6 @@ import { transform } from 'maverick.js/transformer';
 
 const t = (code: string) => transform(code, { hydratable: true }).code;
 
-it('should compile innerHTML expression', () => {
-  const result = t(`<div $prop:innerHTML="baz"></div>`);
-  expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_walker, $$_clone, $$_inner_html, $$_create_template } from \\"maverick.js/dom\\";
-
-    const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
-    (() => {
-      const [$$_root, $$_walker] = $$_create_walker($$_templ);
-
-      $$_inner_html($$_root, \\"baz\\");
-
-      return $$_root;
-    })()"
-  `);
-});
-
 it('should compile $prop expression', () => {
   const result = t(`<div $prop:fooBar="baz"></div>`);
   expect(result).toMatchInlineSnapshot(`
@@ -61,6 +45,22 @@ it('should compile observable $prop expression', () => {
 
       $$_prop($$_root, \\"foo\\", id);
       $$_prop($$_root, \\"bar\\", () => props.id);
+
+      return $$_root;
+    })()"
+  `);
+});
+
+it('should compile innerHTML expression', () => {
+  const result = t(`<div $prop:innerHTML="baz"></div>`);
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_clone, $$_inner_html, $$_create_template } from \\"maverick.js/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+    (() => {
+      const [$$_root, $$_walker] = $$_create_walker($$_templ);
+
+      $$_inner_html($$_root, \\"baz\\");
 
       return $$_root;
     })()"

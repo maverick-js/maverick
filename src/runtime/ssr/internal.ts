@@ -1,6 +1,6 @@
 import { createServerElement, type ElementDefinition } from '../../element';
 import { createElementInstance } from '../../element/instance';
-import { PROPS } from '../../element/internal';
+import { getElementInstance, PROPS } from '../../element/internal';
 import { escape } from '../../utils/html';
 import { unwrapDeep } from '../../utils/obs';
 import { trimTrailingSemicolon } from '../../utils/print';
@@ -17,6 +17,29 @@ export function $$_ssr(template: string[], ...parts: unknown[]) {
   }
 
   return { [SSR_TEMPLATE]: result };
+}
+
+/** @internal */
+export function $$_host_element(spreads?: Record<string, unknown>[]) {
+  const host = getElementInstance()!.host.el!;
+
+  if (spreads && spreads.length > 0) {
+    const spread = $$_merge_spreads(spreads);
+
+    for (const [key, value] of spread.attributes) {
+      host.setAttribute(key, value);
+    }
+
+    for (const token of spread.classList) {
+      host.classList.add(token);
+    }
+
+    for (const [key, value] of spread.styles) {
+      host.style.setProperty(key, value);
+    }
+  }
+
+  return '';
 }
 
 /** @internal */

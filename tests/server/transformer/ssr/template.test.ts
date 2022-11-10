@@ -49,6 +49,17 @@ it('should compile fragment', () => {
   `);
 });
 
+it('should compile fragment with dynamic child', () => {
+  const result = t(`<><div id="a"></div><div id={b}></div></>`);
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_ssr, $$_attr } from \\"maverick.js/ssr\\";
+
+    const $$_templ = /* #__PURE__ */ [\\"<!$><div id=\\\\\\"a\\\\\\"></div>\\"],
+      $$_templ_2 = /* #__PURE__ */ [\\"<!$><div\\", \\"></div>\\"];
+    [$$_ssr($$_templ), $$_ssr($$_templ_2, $$_attr(\\"id\\", b))]"
+  `);
+});
+
 it('should compile child fragment', () => {
   const result = t(`<div id="root"><><div id="a"></div><div id="b"></div></></div>`);
   expect(result).toMatchInlineSnapshot(`

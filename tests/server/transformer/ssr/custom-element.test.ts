@@ -2,7 +2,7 @@ import { transform } from 'maverick.js/transformer';
 
 const t = (code: string) => transform(code, { generate: 'ssr' }).code;
 
-it('shoud compile custom element', () => {
+it('shoud compile', () => {
   const result = t(`<CustomElement $element={DEFINITION} />`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_custom_element, $$_ssr } from \\"maverick.js/ssr\\";
@@ -12,7 +12,7 @@ it('shoud compile custom element', () => {
   `);
 });
 
-it('shoud compile custom element with attrs/props', () => {
+it('shoud compile with attrs/props', () => {
   const result = t(
     `<CustomElement foo={10} bar={20} $prop:foo={10} $prop:bar={id()} $element={DEFINITION} />`,
   );
@@ -24,7 +24,7 @@ it('shoud compile custom element with attrs/props', () => {
   `);
 });
 
-it('shoud compile custom element with children', () => {
+it('shoud compile with children', () => {
   const result = t(`<CustomElement $element={DEFINITION}><div>{id}</div></CustomElement>`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_ssr, $$_custom_element } from \\"maverick.js/ssr\\";
@@ -52,7 +52,7 @@ it('shoud compile child custom element', () => {
   `);
 });
 
-it('shoud compile custom element with inner html', () => {
+it('shoud compile with inner html', () => {
   const result = t(
     `<CustomElement $prop:innerHTML="<div>Foo</div>" $element={DEFINITION}><div>Foo</div></CustomElement>`,
   );

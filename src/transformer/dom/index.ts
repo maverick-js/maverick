@@ -43,6 +43,7 @@ const ID = {
   root: '$$_root',
   walker: '$$_walker',
   element: '$$_el',
+  host: '$$_host',
   component: '$$_comp',
   expression: '$$_expr',
 };
@@ -86,9 +87,10 @@ const NEXT_MARKER = `${ID.walker}.nextNode()`;
 
 export const dom: ASTSerializer = {
   serialize(ast, ctx) {
-    let initRoot = false,
+    let skip = -1,
+      initRoot = false,
       innerHTML = false,
-      skip = -1,
+      childrenFragment = false,
       currentId!: string,
       component!: ElementNode | undefined,
       definition!: AttributeNode | undefined,
@@ -191,8 +193,8 @@ export const dom: ASTSerializer = {
 
     const firstNode = ast.tree[0],
       isFirstNodeElement = isElementNode(firstNode),
-      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent,
-      isFirstNodeFragment = isFragmentNode(firstNode);
+      isFirstNodeHostElement = isFirstNodeElement && firstNode.tagName === 'HostElement',
+      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
 
     if (
       ctx.hydratable &&
@@ -299,11 +301,15 @@ export const dom: ASTSerializer = {
           elementChildIndex = hierarchy.pop()!;
         } else if (isElementEnd(node)) {
           if (hostElement) {
+            if (expressions.length === 0) locals.delete(ID.host);
+
             if (hostElement.children) {
               expressions.push(
                 serializeChildren(dom, hostElement.children, { ...ctx, scoped: true }),
               );
+              childrenFragment = true;
             }
+
             hostElement = undefined;
             continue;
           }
@@ -333,12 +339,13 @@ export const dom: ASTSerializer = {
       } else if (isFragmentNode(node)) {
         if (node.children) {
           expressions.push(serializeChildren(dom, node.children, { ...ctx, scoped: true }));
+          childrenFragment = true;
         } else {
           expressions.push('""');
         }
       } else if (isElementNode(node)) {
         if (node.tagName === 'HostElement') {
-          currentId = locals.create('host', RUNTIME.hostElement);
+          currentId = locals.create(ID.host, createFunctionCall(RUNTIME.hostElement));
           ctx.runtime.add(RUNTIME.hostElement);
           hostElement = node;
           continue;
@@ -487,17 +494,23 @@ export const dom: ASTSerializer = {
     if (locals.size > 1 || expressions.length) {
       return isFirstNodeComponent
         ? expressions.join(';')
-        : isFirstNodeFragment
-        ? expressions[0]
+        : childrenFragment && expressions.length === 1
+        ? expressions[expressions.length - 1]
         : [
             ctx.scoped && `(() => { `,
             locals.serialize(),
             '\n',
-            ...expressions.join(';'),
+            ...(childrenFragment ? expressions.slice(0, -1) : expressions).join(';'),
             ';',
             '\n',
             '\n',
-            `return ${returnId ?? createRootId()}`,
+            `return ${
+              isFirstNodeHostElement
+                ? childrenFragment
+                  ? expressions[expressions.length - 1]
+                  : ''
+                : returnId ?? createRootId()
+            }`,
             ctx.scoped && '})()',
           ]
             .filter(Boolean)
@@ -512,7 +525,7 @@ export const dom: ASTSerializer = {
       return createFunctionCall(RUNTIME.clone, [templateId]);
     }
 
-    return '';
+    return 'null';
   },
 };
 

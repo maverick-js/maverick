@@ -2,43 +2,35 @@ import { transform } from 'maverick.js/transformer';
 
 const t = (code: string) => transform(code).code;
 
-it('should compile root expression ', () => {
+it('should compile expression ', () => {
   const result = t(`
 function Component() {
   return id > 10 ? <div>{id}</div> : 20;
 }
   `);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_insert, $$_create_template } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_insert, $$_create_template, $$_peek } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 
     function Component() {
-      return id > 10 ? (() => {
-      const $$_root = $$_clone($$_templ);
+      return id > 10
+      ? $$_peek(() =>
+        (() => {
+          const $$_root = $$_clone($$_templ);
 
-      $$_insert($$_root, id);
+          $$_insert($$_root, id);
 
-      return $$_root;
-    })() : 20;
+          return $$_root;
+        })()
+      )
+      : 20;
     }
       "
   `);
 });
 
-it('should compile property access expression', () => {
-  const result = t(`<Component foo={props.id} />`);
-  expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_component } from \\"maverick.js/dom\\";
-    $$_create_component(Component, {
-      get foo() {
-        return props.id;
-      },
-    })"
-  `);
-});
-
-it('should compile root jsx prop expression', () => {
+it('should compile jsx prop expression', () => {
   const result = t(`<Component foo={<div>Foo</div>} />`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_template, $$_clone, $$_create_component } from \\"maverick.js/dom\\";

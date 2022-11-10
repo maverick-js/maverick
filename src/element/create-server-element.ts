@@ -67,8 +67,8 @@ export function createServerElement<
     }
 
     attachComponent(instance: ElementInstance<Props, Events>) {
-      this.setAttribute('mk-hydrate', '');
-      this.setAttribute('mk-delegate', '');
+      this.setAttribute('mk-h', '');
+      this.setAttribute('mk-d', '');
 
       if (this.hasAttribute('class')) {
         parseClassAttr(this.classList.tokens, this.getAttribute('class')!);

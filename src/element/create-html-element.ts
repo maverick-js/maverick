@@ -80,11 +80,11 @@ export function createHTMLElement<
     private _onEventDispatch?: (eventType: string) => void;
 
     private get _hydrate() {
-      return this.hasAttribute('mk-hydrate');
+      return this.hasAttribute('mk-h');
     }
 
     private get _delegate() {
-      return this.hasAttribute('mk-delegate');
+      return this.hasAttribute('mk-d');
     }
 
     get instance() {
@@ -224,10 +224,10 @@ export function createHTMLElement<
       }
 
       const $children = instance.host[PROPS].$children;
-      if (!this._delegate && isSubject($children)) {
+      if (isSubject($children)) {
         const onMutation = () => $children.set(this.childElementCount > 1);
         onMutation();
-        const observer = new MutationObserver(() => scheduler.enqueue(onMutation));
+        const observer = new MutationObserver(onMutation);
         observer.observe(this, { childList: true });
         instance[DESTROY].push(() => observer.disconnect());
       }

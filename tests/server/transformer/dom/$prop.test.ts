@@ -81,3 +81,19 @@ it('should compile observable $prop expression', () => {
     })()"
   `);
 });
+
+it('should compile property access expression', () => {
+  const result = t(`<div foo={props.id}></div>`);
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_attr, $$_create_template } from \\"maverick.js/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
+    (() => {
+      const $$_root = $$_clone($$_templ);
+
+      $$_attr($$_root, \\"foo\\", () => props.id);
+
+      return $$_root;
+    })()"
+  `);
+});

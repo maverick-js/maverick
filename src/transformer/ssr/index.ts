@@ -410,7 +410,7 @@ export const ssr: ASTSerializer = {
         if (!node.dynamic) {
           template += encode(trimQuotes(node.value));
         } else {
-          marker();
+          if (node !== firstNode) marker();
           const code = !node.children ? node.value : serializeParentExpression(ssr, node, ctx);
           commit(node.callId ?? (node.observable ? `() => ${code}` : code));
         }

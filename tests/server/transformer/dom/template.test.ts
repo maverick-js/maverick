@@ -73,7 +73,7 @@ it('shoud merge duplicate templates', () => {
 <span>Bar</span>
 `);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone } from \\"maverick.js/dom\\";
+    "import { $$_create_template, $$_clone, $$_peek } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_templ,
@@ -86,15 +86,15 @@ it('shoud merge duplicate templates', () => {
       $$_templ_9 = /* #__PURE__ */ $$_templ_7,
       $$_templ_10 = /* #__PURE__ */ $$_create_template(\`<span>Bar</span>\`);
 
-    $$_clone($$_templ)
-    $$_clone($$_templ_2)
-    $$_clone($$_templ_3)
-    $$_clone($$_templ_4)
-    $$_clone($$_templ_5)
-    $$_clone($$_templ_6)
-    $$_clone($$_templ_7)
-    $$_clone($$_templ_8)
-    $$_clone($$_templ_9)
+    $$_clone($$_templ);
+    $$_clone($$_templ_2);
+    $$_clone($$_templ_3);
+    $$_clone($$_templ_4);
+    $$_clone($$_templ_5);
+    $$_clone($$_templ_6);
+    $$_clone($$_templ_7);
+    $$_clone($$_templ_8);
+    $$_clone($$_templ_9);
     $$_clone($$_templ_10)
     "
   `);

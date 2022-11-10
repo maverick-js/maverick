@@ -25,7 +25,7 @@ it('should handle basic setup and destroy', () => {
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-test-1
-        mk-delegate=""
+        mk-d=""
       >
         <shadow-root>
           Test
@@ -360,7 +360,7 @@ it('should wait for parent to mount', async () => {
   });
 
   const parent = document.createElement(Parent.tagName) as MaverickElement;
-  parent.setAttribute('mk-delegate', '');
+  parent.setAttribute('mk-d', '');
 
   const child = document.createElement(Child.tagName) as MaverickElement;
   parent.append(child);
@@ -370,7 +370,7 @@ it('should wait for parent to mount', async () => {
   expect(document.body).toMatchInlineSnapshot(`
   <body>
     <mk-parent-1
-      mk-delegate=""
+      mk-d=""
     >
       <mk-child-1 />
     </mk-parent-1>
@@ -387,7 +387,7 @@ it('should wait for parent to mount', async () => {
   expect(parent.instance?.host.$mounted).toBeTruthy();
   expect(child.instance?.host.$mounted).toBeTruthy();
 
-  parent.removeAttribute('mk-delegate');
+  parent.removeAttribute('mk-d');
   parent.remove();
   await new Promise((res) => window.requestAnimationFrame(res));
 
@@ -431,11 +431,11 @@ function setupTestElement(
     element = document.createElement(`mk-test-${count}`) as MaverickElement & Record<string, any>;
 
   if (hydrate) {
-    element.setAttribute('mk-hydrate', '');
+    element.setAttribute('mk-h', '');
   }
 
   if (delegate) {
-    element.setAttribute('mk-delegate', '');
+    element.setAttribute('mk-d', '');
   }
 
   if (append) {

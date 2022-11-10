@@ -1,4 +1,5 @@
 import { run } from '../../utils/fn';
+import { unwrapDeep } from '../../utils/obs';
 import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import type { JSX } from '../jsx';
 import { effect, isObserved } from '../reactivity';
@@ -23,7 +24,7 @@ export function insertExpression(start: StartMarker, value: JSX.Element, isObser
     let observed = false;
 
     const stop = effect(() => {
-      insertExpression(start, (value as Function)(), true);
+      insertExpression(start, unwrapDeep(value), true);
       observed = isObserved();
     });
 
@@ -31,8 +32,8 @@ export function insertExpression(start: StartMarker, value: JSX.Element, isObser
       const idle = __TEST__ ? run : requestIdleCallback ?? requestAnimationFrame;
       idle(() => {
         stop();
-        start.remove();
         start[END_MARKER]?.remove();
+        start.remove();
       });
     }
 

@@ -15,13 +15,13 @@ it('should render', () => {
   const Root = React.createElement(Component);
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-foo>"',
+    '"<mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-foo>"',
   );
 });
 
 it('should render shadow dom', () => {
   const element = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-2',
     shadowRoot: true,
     setup: () => () => <div>Test</div>,
   });
@@ -30,13 +30,13 @@ it('should render shadow dom', () => {
   const Root = React.createElement(Component);
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><template shadowroot=\\"open\\"><!$><div>Test</div></template></mk-foo>"',
+    '"<mk-foo-2 mk-h=\\"\\" mk-d=\\"\\"><template shadowroot=\\"open\\"><!$><div>Test</div></template></mk-foo-2>"',
   );
 });
 
 it('should render with children', () => {
   const element = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-3',
     setup: () => () => <div>Test</div>,
   });
 
@@ -49,13 +49,13 @@ it('should render with children', () => {
   );
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div>Test</div></shadow-root><div><div>content</div></div></mk-foo>"',
+    '"<mk-foo-3 mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root><div><div>content</div></div></mk-foo-3>"',
   );
 });
 
 it('should notify host of children', () => {
   const element = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-4',
     setup:
       ({ host }) =>
       () =>
@@ -66,13 +66,13 @@ it('should notify host of children', () => {
   const Root = React.createElement(Component, {}, React.createElement('div', {}, 'content'));
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root></shadow-root><div>content</div></mk-foo>"',
+    '"<mk-foo-4 mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root><div>content</div></mk-foo-4>"',
   );
 });
 
 it('should notify host of _no_ children', () => {
   const element = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-5',
     setup:
       ({ host }) =>
       () =>
@@ -83,13 +83,13 @@ it('should notify host of _no_ children', () => {
   const Root = React.createElement(Component, { className: 'foo bar' });
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo class=\\"foo bar\\" mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-foo>"',
+    '"<mk-foo-5 class=\\"foo bar\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-foo-5>"',
   );
 });
 
 it('should render with class', () => {
   const element = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-6',
     setup: ({ host }) => {
       onAttach(() => {
         host.el!.classList.add('bax');
@@ -103,13 +103,13 @@ it('should render with class', () => {
   const Root = React.createElement(Component, { className: 'foo bar' });
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo class=\\"foo bar bax\\" mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-foo>"',
+    '"<mk-foo-6 class=\\"foo bar bax\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-foo-6>"',
   );
 });
 
 it('should render with style', () => {
   const element = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-7',
     setup: ({ host }) => {
       onAttach(() => {
         host.el!.style.setProperty('--bar', '10');
@@ -125,22 +125,22 @@ it('should render with style', () => {
   });
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo style=\\"display:none;background-color:red;--mk-foo:1;--bar:10\\" mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root></shadow-root></mk-foo>"',
+    '"<mk-foo-7 style=\\"display:none;background-color:red;--mk-foo:1;--bar:10\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root></mk-foo-7>"',
   );
 });
 
 it('should forward attributes', () => {
-  const element = defineElement({ tagName: 'mk-foo' });
+  const element = defineElement({ tagName: 'mk-foo-8' });
   const Component = createReactElement(element);
   const Root = React.createElement(Component, { 'aria-label': 'Label' });
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo aria-label=\\"Label\\" mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root></shadow-root></mk-foo>"',
+    '"<mk-foo-8 aria-label=\\"Label\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root></mk-foo-8>"',
   );
 });
 
 it('should forward props', () => {
   const element = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-9',
     props: {
       foo: defineProp(10),
     },
@@ -153,7 +153,7 @@ it('should forward props', () => {
   const Component = createReactElement(element);
   const Root = React.createElement(Component, { foo: 20 });
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div><!$>20</div></shadow-root></mk-foo>"',
+    '"<mk-foo-9 mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div><!$>20</div></shadow-root></mk-foo-9>"',
   );
 });
 
@@ -161,7 +161,7 @@ it('should forward context map to maverick element', () => {
   const context = createContext(0);
 
   const elementA = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-10',
     setup: () => {
       context.set(10);
       return () => null;
@@ -183,7 +183,7 @@ it('should forward context map to maverick element', () => {
   );
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root></shadow-root><div><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root>10</shadow-root></mk-foo></div></mk-foo>"',
+    '"<mk-foo-10 mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root><div><mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root>10</shadow-root></mk-foo></div></mk-foo-10>"',
   );
 });
 
@@ -191,7 +191,7 @@ it('should forward context to react element', () => {
   const context = createContext(0);
 
   const ParentElement = defineElement({
-    tagName: 'mk-foo',
+    tagName: 'mk-foo-11',
     setup: () => {
       context.set(10);
       return () => null;
@@ -212,6 +212,6 @@ it('should forward context to react element', () => {
   );
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<div><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root></shadow-root><div id=\\"react\\">10</div></mk-foo></div>"',
+    '"<div><mk-foo-11 mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root><div id=\\"react\\">10</div></mk-foo-11></div>"',
   );
 });

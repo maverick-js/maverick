@@ -9,7 +9,7 @@ import {
   trimQuotes,
 } from '../../utils/print';
 import { isArray } from '../../utils/unit';
-import { AST, type AttributeNode, type ComponentChildren, isAST, isTextNode } from '../ast';
+import { type AST, type AttributeNode, type ComponentChildren, isAST, isTextNode } from '../ast';
 import type { ASTSerializer, TransformContext } from '../transform';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
 import {
@@ -130,7 +130,7 @@ export function serializeComponentProp(
 
     const serialized = !node.children
       ? node.value
-      : serializeParentExpression(serializer, node, { ...ctx, scoped }, 0);
+      : serializeParentExpression(serializer, node, { ...ctx, scoped });
 
     const hasReturn =
       scoped ||
@@ -177,16 +177,17 @@ export function serializeParentExpression(
     children?: AST[];
   },
   ctx: TransformContext,
-  adjust = 1,
+  hof: string | false = false,
 ) {
   let code = new MagicString(node.value),
-    start = node.ref.getStart() + adjust;
+    start = node.ref.getStart() + (t.isJsxExpression(node.ref) ? 1 : 0);
 
   for (const ast of node.children!) {
+    const expression = serializer.serialize(ast, ctx);
     code.overwrite(
       ast.root.getStart() - start,
       ast.root.getEnd() - start,
-      serializer.serialize(ast, ctx),
+      hof && expression.startsWith('(') ? `${hof}(() => ${expression})` : expression,
     );
   }
 

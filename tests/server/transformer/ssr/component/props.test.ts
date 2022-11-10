@@ -10,7 +10,7 @@ it('should compile component with props', () => {
   `);
 });
 
-it('should compile root jsx prop expression', () => {
+it('should compile jsx prop expression', () => {
   const result = t(`<Component foo={<div>Foo</div>} />`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";

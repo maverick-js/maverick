@@ -72,6 +72,7 @@ it('should compile child fragment', () => {
 
 it('shoud merge duplicate templates', () => {
   const result = t(`
+<>
 <div></div>
 <div></div>
 <div>Foo</div>
@@ -82,6 +83,7 @@ it('shoud merge duplicate templates', () => {
 <span>Foo</span>
 <span>Foo</span>
 <span>Bar</span>
+</>
 `);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_ssr } from \\"maverick.js/ssr\\";
@@ -97,16 +99,18 @@ it('shoud merge duplicate templates', () => {
       $$_templ_9 = /* #__PURE__ */ $$_templ_7,
       $$_templ_10 = /* #__PURE__ */ [\\"<!$><span>Bar</span>\\"];
 
-    $$_ssr($$_templ)
-    $$_ssr($$_templ_2)
-    $$_ssr($$_templ_3)
-    $$_ssr($$_templ_4)
-    $$_ssr($$_templ_5)
-    $$_ssr($$_templ_6)
-    $$_ssr($$_templ_7)
-    $$_ssr($$_templ_8)
-    $$_ssr($$_templ_9)
-    $$_ssr($$_templ_10)
+    [
+      $$_ssr($$_templ),
+      $$_ssr($$_templ_2),
+      $$_ssr($$_templ_3),
+      $$_ssr($$_templ_4),
+      $$_ssr($$_templ_5),
+      $$_ssr($$_templ_6),
+      $$_ssr($$_templ_7),
+      $$_ssr($$_templ_8),
+      $$_ssr($$_templ_9),
+      $$_ssr($$_templ_10),
+    ]
     "
   `);
 });

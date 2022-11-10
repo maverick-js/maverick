@@ -8,10 +8,11 @@ import { createElementInstance } from '../../element/instance';
 import { attachDeclarativeShadowDOM } from '../../utils/dom';
 import { isArray, isFunction } from '../../utils/unit';
 import type { JSX } from '../jsx';
-import { computed, onDispose, peek } from '../reactivity';
+import { onDispose, peek } from '../reactivity';
 import { createMarkerWalker, insertExpression, type StartMarker } from './expression';
 import { hydration } from './render';
 import {
+  createComment,
   createFragment,
   insert,
   listen,
@@ -57,38 +58,27 @@ export function $$_next_element(walker: TreeWalker): Node {
 }
 
 /** @internal */
-export function $$_next_custom_element(definition: ElementDefinition, walker = hydration?.w): Node {
-  defineCustomElement(definition);
-  const { tagName } = definition;
-  if (walker) {
-    const next = walker.nextNode() as Comment;
-    const element = next.nextSibling as Element | null;
-    if (!element || element.localName !== tagName) {
-      const element = $$_create_element(tagName);
-      insertExpression(next, element);
-      return element;
-    } else {
-      return element;
-    }
-  } else {
-    return $$_create_element(tagName);
-  }
-}
-
-/** @internal */
-export function $$_clone(fragment: DocumentFragment): Element {
-  const clone = fragment.cloneNode(true) as DocumentFragment;
-  return clone.firstElementChild!;
-}
-
-/** @internal */
 export function $$_host_element() {
   return getElementInstance()!.host.el!;
 }
 
 /** @internal */
-export function $$_create_element(tagName: string) {
-  return document.createElement(tagName);
+export function $$_next_custom_element(definition: ElementDefinition, walker = hydration?.w): Node {
+  const { tagName } = definition;
+  defineCustomElement(definition);
+
+  let next: Comment | undefined;
+
+  if (walker) {
+    next = walker.nextNode() as Comment;
+    const element = next.nextSibling as Element | null;
+    if (element && element.localName === tagName) return element;
+  }
+
+  const element = $$_create_element(tagName);
+  element.setAttribute('mk-d', '');
+  if (next) insertExpression(next, element);
+  return element;
 }
 
 /** @internal */
@@ -98,24 +88,25 @@ export function $$_setup_custom_element(
   props?: Record<string, any>,
 ) {
   if (definition.shadowRoot) $$_attach_declarative_shadow_dom(element);
-
-  const children = computed(() => props?.innerHTML || props?.$children);
-  const instance = createElementInstance(definition, { props, children });
-
-  peek(() => element.attachComponent(instance));
+  const instance = createElementInstance(definition, { props });
+  element.attachComponent(instance);
   onDispose(() => instance.destroy());
+  if (!props) return;
+  if (props.innerHTML) return $$_inner_html(element, props.innerHTML);
+  const marker = createComment('$$');
+  element.firstChild!.after(marker);
+  insertExpression(marker, props.$children);
+}
 
-  if (!hydration) {
-    if (props?.innerHTML) {
-      observe(props.innerHTML, (innerHTML) => {
-        element.innerHTML += innerHTML;
-      });
-    } else {
-      $$_insert(element, children);
-    }
-  } else {
-    children();
-  }
+/** @internal */
+export function $$_clone(fragment: DocumentFragment): Element {
+  const clone = fragment.cloneNode(true) as DocumentFragment;
+  return clone.firstElementChild!;
+}
+
+/** @internal */
+export function $$_create_element(tagName: string) {
+  return document.createElement(tagName);
 }
 
 /** @internal */
@@ -178,7 +169,7 @@ export function $$_prop(element: Element, name: string, value: unknown) {
 /** @internal */
 export function $$_inner_html(element: Element, value: unknown) {
   observe(value, (value) => {
-    if (!hydration) element.innerHTML = value as string;
+    if (!hydration) element.innerHTML = value + '';
   });
 }
 
@@ -222,3 +213,5 @@ export function $$_listen(target: EventTarget, type: string, handler: unknown, c
     listen(target, type, handler as any, { capture });
   }
 }
+
+export const $$_peek = peek;

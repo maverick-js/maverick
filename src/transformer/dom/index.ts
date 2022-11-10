@@ -74,6 +74,7 @@ const RUNTIME = {
   spread: '$$_spread',
   mergeProps: '$$_merge_props',
   innerHTML: '$$_inner_html',
+  peek: '$$_peek',
 };
 
 const MARKERS = {
@@ -193,6 +194,7 @@ export const dom: ASTSerializer = {
 
     const firstNode = ast.tree[0],
       isFirstNodeElement = isElementNode(firstNode),
+      isFirstNodeExpression = isExpressionNode(firstNode),
       isFirstNodeHostElement = isFirstNodeElement && firstNode.tagName === 'HostElement',
       isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
 
@@ -462,13 +464,19 @@ export const dom: ASTSerializer = {
         if (!node.dynamic && !isVirtualElement()) {
           template.push(encode(trimQuotes(node.value)));
         } else {
-          if (!initRoot) createRootId();
-          if (ctx.hydratable) template.push(MARKERS.expression);
-          const code = !node.children ? node.value : serializeParentExpression(dom, node, ctx);
-          insert(
-            () => locals.create(ID.expression, nextMarker()),
-            node.callId ?? (node.observable ? `() => ${code}` : code),
-          );
+          const shouldInsert = !isFirstNodeExpression || node !== firstNode;
+          if (!initRoot && shouldInsert) createRootId();
+          if (ctx.hydratable && shouldInsert) template.push(MARKERS.expression);
+          const code = !node.children
+            ? node.value
+            : serializeParentExpression(dom, node, ctx, !shouldInsert && RUNTIME.peek);
+          const expression = node.callId ?? (node.observable ? `() => ${code}` : code);
+          if (shouldInsert) {
+            insert(() => locals.create(ID.expression, nextMarker()), expression);
+          } else {
+            expressions.push(expression);
+            ctx.runtime.add(RUNTIME.peek);
+          }
         }
       } else if (isSpreadNode(node)) {
         expressions.push(createFunctionCall(RUNTIME.spread, [currentId, node.value]));
@@ -492,7 +500,7 @@ export const dom: ASTSerializer = {
     }
 
     if (locals.size > 1 || expressions.length) {
-      return isFirstNodeComponent
+      return isFirstNodeComponent || isFirstNodeExpression
         ? expressions.join(';')
         : childrenFragment && expressions.length === 1
         ? expressions[expressions.length - 1]

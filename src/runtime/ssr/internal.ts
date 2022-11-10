@@ -1,6 +1,6 @@
 import { createServerElement, type ElementDefinition } from '../../element';
 import { createElementInstance } from '../../element/instance';
-import { getElementInstance, PROPS } from '../../element/internal';
+import { getElementInstance } from '../../element/internal';
 import { escape } from '../../utils/html';
 import { unwrapDeep } from '../../utils/obs';
 import { trimTrailingSemicolon } from '../../utils/print';
@@ -66,25 +66,21 @@ export function $$_custom_element(
     }
   }
 
-  const children = props?.innerHTML
-    ? resolve(props.innerHTML)
-    : props?.$children
-    ? resolve(props.$children)
-    : '';
-
-  const hasChildElements = children.replace(/<!(.*?)>/g, '').length > 0;
-
-  const instance = createElementInstance(definition, {
-    props,
-    children: () => hasChildElements,
-  });
+  const hasInnerHTML = !!props?.innerHTML,
+    innerHTML = hasInnerHTML ? resolve(props.innerHTML) : null,
+    children = hasInnerHTML ? innerHTML! : resolve(props?.$children),
+    hasChildElements = children.replace(/<!(.*?)>/g, '').length > 0,
+    instance = createElementInstance(definition, {
+      props,
+      children: () => hasChildElements,
+    });
 
   host.attachComponent(instance);
 
   return {
-    [SSR_TEMPLATE]: `<${definition.tagName}${host.attributes}>${host.render() + children}</${
-      definition.tagName
-    }>`,
+    [SSR_TEMPLATE]: `<${definition.tagName}${host.attributes}>${
+      hasInnerHTML ? children : host.render() + children
+    }</${definition.tagName}>`,
   };
 }
 

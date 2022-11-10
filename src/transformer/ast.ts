@@ -95,7 +95,7 @@ export type TextNode = {
 
 export type ExpressionNode = {
   kind: ASTNodeKind.Expression;
-  ref: t.JsxExpression;
+  ref: t.Expression | t.JsxExpression;
   root?: boolean;
   observable?: boolean;
   children?: AST[];

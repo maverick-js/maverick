@@ -45,7 +45,9 @@ export function buildAST(
 ) {
   const ast = createAST(root);
 
-  if (!skipRoot) {
+  if (t.isBinaryExpression(root) || t.isConditionalExpression(root)) {
+    parseExpression(root, ast, meta);
+  } else if (!skipRoot) {
     parseNode(root, ast, { ...meta, parent: undefined });
   } else if (!t.isJsxSelfClosingElement(root)) {
     parseChildren(root, ast, meta);
@@ -272,12 +274,15 @@ function parseChildren(root: t.JsxElement | t.JsxFragment, ast: AST, meta: JSXNo
   for (const child of children) parseNode(child, ast, { parent: meta });
 }
 
-function parseExpression(node: t.JsxExpression, ast: AST, meta: JSXNodeMeta) {
+function parseExpression(node: t.Expression | t.JsxExpression, ast: AST, meta: JSXNodeMeta) {
   ast.tree.push(buildExpressionNode(node, meta));
 }
 
-function buildExpressionNode(node: t.JsxExpression, meta: JSXNodeMeta): ExpressionNode {
-  const expression = node.expression!,
+function buildExpressionNode(
+  node: t.JsxExpression | t.Expression,
+  meta: JSXNodeMeta,
+): ExpressionNode {
+  const expression = t.isJsxExpression(node) ? node.expression! : node,
     isRootCallExpression = t.isCallExpression(expression),
     isCallable = isRootCallExpression && expression.arguments.length === 0,
     { observable, children } = resolveExpressionChildren(expression),

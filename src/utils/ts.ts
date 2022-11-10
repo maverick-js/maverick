@@ -4,6 +4,15 @@ import { type AST } from '../transformer/ast';
 import { buildAST } from '../transformer/jsx/parse';
 import { isJSXElementNode } from '../transformer/jsx/parse-jsx';
 
+export function hasChildType(node: t.Node, check: (child: t.Node) => boolean) {
+  const parse = (child: t.Node) => {
+    if (check(child)) return true;
+    return t.forEachChild(child, parse);
+  };
+
+  return t.forEachChild(node, parse);
+}
+
 export function resolveExpressionChildren(expression: t.Expression) {
   let observable = t.isCallExpression(expression) || t.isPropertyAccessExpression(expression),
     children: AST[] | undefined,

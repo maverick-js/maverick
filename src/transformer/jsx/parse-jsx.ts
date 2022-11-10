@@ -2,6 +2,7 @@ import type MagicString from 'magic-string';
 import t from 'typescript';
 
 import { logTime } from '../../utils/logger';
+import { hasChildType } from '../../utils/ts';
 import type { AST } from '../ast';
 import { buildAST } from './parse';
 
@@ -42,6 +43,17 @@ export function parseJSX(code: MagicString, options: Partial<ParseJSXOptions> = 
         const elements = node.importClause.namedBindings.elements;
         for (const element of elements) imports.add(element.name.text);
       }
+    } else if (t.isBinaryExpression(node) || t.isConditionalExpression(node)) {
+      const hasJSXChild = hasChildType(
+        node,
+        (node) => isJSXElementNode(node) || t.isJsxFragment(node),
+      );
+
+      if (hasJSXChild) {
+        ast.push(buildAST(node, {}));
+      }
+
+      return;
     } else if (isJSXElementNode(node) || t.isJsxFragment(node)) {
       ast.push(buildAST(node, {}));
       return;
@@ -80,7 +92,12 @@ export function isJSXElementNode(node: t.Node): node is JSXElementNode {
 }
 
 export type JSXElementNode = t.JsxElement | t.JsxSelfClosingElement;
-export type JSXRootNode = JSXElementNode | t.JsxFragment;
+
+export type JSXRootNode =
+  | JSXElementNode
+  | t.JsxFragment
+  | t.BinaryExpression
+  | t.ConditionalExpression;
 
 export type JSXNodeMeta = {
   parent?: JSXNodeMeta;

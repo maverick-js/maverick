@@ -57,7 +57,7 @@ function createReactClientElement<Definition extends AnyElementDefinition>(
       this._instance = createElementInstance(definition, {
         props,
         context: this._context,
-        children: this._children,
+        children: () => this._children(),
       });
     }
 
@@ -126,7 +126,7 @@ function createReactClientElement<Definition extends AnyElementDefinition>(
         this.context,
         React.createElement(
           definition.tagName,
-          { ...props, 'mk-delegate': true, suppressHydrationWarning: true },
+          { ...props, 'mk-d': true, suppressHydrationWarning: true },
           React.createElement(ShadowRoot, {
             shadow: definition.shadowRoot,
           }),

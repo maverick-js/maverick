@@ -1,6 +1,6 @@
 import { hydrate, observable, type ParentComponent, tick } from 'maverick.js';
 
-import { element, startMarker, text } from './utils';
+import { element, startMarker, text } from '../utils';
 
 it('should hydrate', async () => {
   const root = element('root');

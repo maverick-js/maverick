@@ -69,8 +69,8 @@ export function createReactServerElement(definition: AnyElementDefinition): any 
         {
           ...$attrs,
           ...Object.fromEntries(host.attributes.tokens),
-          'mk-delegate': '',
-          'mk-hydrate': '',
+          'mk-d': '',
+          'mk-h': '',
         },
         definition.shadowRoot
           ? React.createElement('template', {

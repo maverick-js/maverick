@@ -20,7 +20,7 @@ it('should hydrate', () => {
 
   container.innerHTML = [
     `<div>`,
-    `<${definition.tagName} mk-hydrate="" mk-delegate="">`,
+    `<${definition.tagName} mk-h="" mk-d="">`,
     `<shadow-root>`,
     `<!--$--><div></div>`,
     `</shadow-root>`,

@@ -18,7 +18,7 @@ it('should render', () => {
   const result = renderToString(() => <CustomElement $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root></mk-foo>"',
+    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root></mk-foo>"',
   );
 });
 
@@ -35,7 +35,7 @@ it('should render with children', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root><!$><div>Child</div></mk-foo>"',
+    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root><!$><div>Child</div></mk-foo>"',
   );
 });
 
@@ -55,7 +55,7 @@ it('should render with shadow dom', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><template shadowroot=\\"open\\"><!$><div class=\\"foo\\">Test</div></template><!$><div>Light A</div><!$><div>Light B</div><!$><div>Light C</div></mk-foo>"',
+    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\"><template shadowroot=\\"open\\"><!$><div class=\\"foo\\">Test</div></template><!$><div>Light A</div><!$><div>Light B</div><!$><div>Light C</div></mk-foo>"',
   );
 });
 
@@ -102,7 +102,7 @@ it('should render with attributes', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" mk-hydrate=\\"\\" mk-delegate=\\"\\" class=\\"foo bar\\" style=\\"display: none;--baz: 10;\\"><shadow-root></shadow-root></mk-foo>"',
+    '"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" mk-h=\\"\\" mk-d=\\"\\" class=\\"foo bar\\" style=\\"display: none;--baz: 10;\\"><shadow-root></shadow-root></mk-foo>"',
   );
 });
 
@@ -121,7 +121,7 @@ it('should forward props', () => {
   const result = renderToString(() => <CustomElement $prop:foo={100} $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
+    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
   );
 });
 
@@ -140,7 +140,7 @@ it('should forward attrs to props', () => {
   const result = renderToString(() => <CustomElement foo={100} $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo foo=\\"100\\" mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
+    '"<!$><mk-foo foo=\\"100\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
   );
 });
 
@@ -157,7 +157,7 @@ it('should set inner html', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo-10 mk-hydrate=\\"\\" mk-delegate=\\"\\"><shadow-root><!$><div>Test</div></shadow-root><div>INNER HTML</div></mk-foo-10>"',
+    '"<!$><mk-foo-10 mk-h=\\"\\" mk-d=\\"\\"><div>INNER HTML</div></mk-foo-10>"',
   );
 });
 

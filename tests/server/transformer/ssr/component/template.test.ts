@@ -57,21 +57,3 @@ it('should compile nested components', () => {
     "
   `);
 });
-
-it('should compile root expression ', () => {
-  const result = t(`
-function Component() {
-  return id > 10 ? <div>{id}</div> : 20;
-}
-  `);
-  expect(result).toMatchInlineSnapshot(`
-    "import { $$_ssr } from \\"maverick.js/ssr\\";
-
-    const $$_templ = /* #__PURE__ */ [\\"<!$><div><!$>\\", \\"</div>\\"];
-
-    function Component() {
-      return id > 10 ? $$_ssr($$_templ, id) : 20;
-    }
-      "
-  `);
-});

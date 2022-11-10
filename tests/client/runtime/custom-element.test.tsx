@@ -1,4 +1,4 @@
-import { CustomElement, If, observable, render, tick } from 'maverick.js';
+import { CustomElement, observable, render, tick } from 'maverick.js';
 
 import { defineElement } from 'maverick.js/element';
 
@@ -10,11 +10,7 @@ it('should render custom element', async () => {
   const Button = defineElement({
     tagName: `mk-button-1`,
     setup: ({ host }) => {
-      return () => (
-        <If condition={!host.$children}>
-          <div>Internal</div>
-        </If>
-      );
+      return () => !host.$children && <div>Internal</div>;
     },
   });
 
@@ -22,18 +18,20 @@ it('should render custom element', async () => {
 
   const $children = observable(<div>Foo</div>);
   render(() => <CustomElement $element={Button}>{$children()}</CustomElement>, { target: root });
+
+  await tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-1>
+      <mk-button-1
+        mk-d=""
+      >
         <shadow-root>
           <!--$$-->
           <!--/$-->
         </shadow-root>
-        <!--$$-->
         <div>
           Foo
         </div>
-        <!--/$-->
       </mk-button-1>
     </root>
   `);
@@ -42,16 +40,16 @@ it('should render custom element', async () => {
   await tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-1>
+      <mk-button-1
+        mk-d=""
+      >
         <shadow-root>
           <!--$$-->
-          <div>
-            Internal
-          </div>
           <!--/$-->
         </shadow-root>
-        <!--$$-->
-        <!--/$-->
+        <div>
+          Foo
+        </div>
       </mk-button-1>
     </root>
   `);
@@ -60,16 +58,16 @@ it('should render custom element', async () => {
   await tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-1>
+      <mk-button-1
+        mk-d=""
+      >
         <shadow-root>
           <!--$$-->
           <!--/$-->
         </shadow-root>
-        <!--$$-->
         <div>
-          Bar
+          Foo
         </div>
-        <!--/$-->
       </mk-button-1>
     </root>
   `);
@@ -85,18 +83,18 @@ it('should render custom element with only internal content', () => {
   render(() => <CustomElement $element={Button} />, { target: root });
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <mk-button-2>
-      <shadow-root>
-        <button>
-          Test
-        </button>
-      </shadow-root>
-      <!--$$-->
-      <!--/$-->
-    </mk-button-2>
-  </root>
-`);
+    <root>
+      <mk-button-2
+        mk-d=""
+      >
+        <shadow-root>
+          <button>
+            Test
+          </button>
+        </shadow-root>
+      </mk-button-2>
+    </root>
+  `);
 });
 
 it('should render custom element with only children', () => {
@@ -113,17 +111,17 @@ it('should render custom element with only children', () => {
   );
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <mk-button-3>
-      <shadow-root />
-      <!--$$-->
-      <div>
-        Children
-      </div>
-      <!--/$-->
-    </mk-button-3>
-  </root>
-`);
+    <root>
+      <mk-button-3
+        mk-d=""
+      >
+        <shadow-root />
+        <div>
+          Children
+        </div>
+      </mk-button-3>
+    </root>
+  `);
 });
 
 it('should render custom element with inner html', () => {
@@ -147,8 +145,9 @@ it('should render custom element with inner html', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-4>
-        <shadow-root />
+      <mk-button-4
+        mk-d=""
+      >
         <div>
           INNER HTML
         </div>

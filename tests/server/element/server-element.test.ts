@@ -39,8 +39,8 @@ it('should render attributes', () => {
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
-      "mk-hydrate" => "",
-      "mk-delegate" => "",
+      "mk-h" => "",
+      "mk-d" => "",
       "foo" => "1",
       "bar" => "2",
     }
@@ -68,8 +68,8 @@ it('should render class list', () => {
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
-      "mk-hydrate" => "",
-      "mk-delegate" => "",
+      "mk-h" => "",
+      "mk-d" => "",
       "class" => "foo baz doh boo",
     }
   `);
@@ -95,8 +95,8 @@ it('should render styles', () => {
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
-      "mk-hydrate" => "",
-      "mk-delegate" => "",
+      "mk-h" => "",
+      "mk-d" => "",
       "style" => "foo: 1;bar: 2;display: content;--hux: none;",
     }
   `);
@@ -114,8 +114,8 @@ it('should reflect props', () => {
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
-      "mk-hydrate" => "",
-      "mk-delegate" => "",
+      "mk-h" => "",
+      "mk-d" => "",
       "foo" => "10",
       "bar" => "20",
     }

@@ -17,10 +17,9 @@ it('should render attributes', async () => {
     <root>
       <mk-button-1
         data-foo="1"
+        mk-d=""
       >
         <shadow-root />
-        <!--$$-->
-        <!--/$-->
       </mk-button-1>
     </root>
   `);
@@ -31,10 +30,9 @@ it('should render attributes', async () => {
     <root>
       <mk-button-1
         data-foo="2"
+        mk-d=""
       >
         <shadow-root />
-        <!--$$-->
-        <!--/$-->
       </mk-button-1>
     </root>
   `);
@@ -57,7 +55,9 @@ it('should render children', () => {
   render(() => <CustomElement $element={Button} />, { target: root });
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-2>
+      <mk-button-2
+        mk-d=""
+      >
         <shadow-root>
           <div>
             Foo
@@ -66,8 +66,6 @@ it('should render children', () => {
             Bar
           </div>
         </shadow-root>
-        <!--$$-->
-        <!--/$-->
       </mk-button-2>
     </root>
   `);

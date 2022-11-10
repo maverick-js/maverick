@@ -11,7 +11,7 @@ it('should render', () => {
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-foo-1
-        mk-delegate="true"
+        mk-d="true"
       >
         <shadow-root>
           <div>
@@ -36,7 +36,7 @@ it('should render with children', () => {
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-foo-2
-        mk-delegate="true"
+        mk-d="true"
       >
         <shadow-root>
           <div>
@@ -60,7 +60,7 @@ it('should render with shadow dom', () => {
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-foo-3
-        mk-delegate="true"
+        mk-d="true"
       />
     </div>
   `);
@@ -98,7 +98,7 @@ it('should update', () => {
     <div>
       <button>
         <mk-foo-4
-          mk-delegate="true"
+          mk-d="true"
         >
           <shadow-root>
             <div>
@@ -124,7 +124,7 @@ it('should update', () => {
     <div>
       <button>
         <mk-foo-4
-          mk-delegate="true"
+          mk-d="true"
         >
           <shadow-root>
             <div>
@@ -147,7 +147,7 @@ it('should set attributes', () => {
     <div>
       <mk-foo-5
         aria-label="Label"
-        mk-delegate="true"
+        mk-d="true"
       >
         <shadow-root />
       </mk-foo-5>
@@ -198,12 +198,12 @@ it('should forward context', () => {
   expect(container).toMatchInlineSnapshot(`
   <div>
     <mk-foo-7
-      mk-delegate="true"
+      mk-d="true"
     >
       <shadow-root />
       <div>
         <mk-child-1
-          mk-delegate="true"
+          mk-d="true"
         >
           <shadow-root>
             <div>

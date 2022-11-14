@@ -1,6 +1,6 @@
 {
   "name": "maverick.js",
-  "description": "",
+  "description": "Build functional, reactive, type-safe, lightweight, and fast UI libraries.",
   "license": "MIT",
   "version": "0.0.1",
   "type": "module",

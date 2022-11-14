@@ -4,19 +4,21 @@ import { defineConfig } from 'vite';
 import { vite as maverick } from './src/plugins';
 import { transform } from './src/transformer';
 
-const SERVER = !!process.env.SERVER;
+const NODE = !!process.env.MK_NODE;
+const SERVER = !!process.env.MK_SERVER;
 
 export default defineConfig({
   define: {
     __DEV__: 'true',
     __TEST__: 'true',
-    __SERVER__: SERVER ? 'true' : 'false',
+    __SERVER__: NODE || SERVER ? 'true' : 'false',
   },
   resolve: {
     alias: {
-      'maverick.js/react': '/src/react',
+      'maverick.js/analyze': '/src/analyze',
       'maverick.js/element': '/src/element',
       'maverick.js/dom': '/src/runtime/dom',
+      'maverick.js/react': '/src/react',
       'maverick.js/ssr': '/src/runtime/ssr',
       'maverick.js/transformer': '/src/transformer',
       'maverick.js': '/src/runtime',
@@ -37,13 +39,14 @@ export default defineConfig({
       },
     },
     maverick({
+      include: ['tests/**/*.{jsx,tsx}'],
       hydratable: (id) => (id.includes('hydrate.test') ? true : null),
     }),
   ],
   // https://vitest.dev/config
   test: {
-    include: [`tests/${SERVER ? 'server' : 'client'}/**/*.test.{ts,tsx}`],
+    include: [`tests/${NODE ? 'node' : SERVER ? 'server' : 'client'}/**/*.test.{ts,tsx}`],
     globals: true,
-    environment: SERVER ? 'edge-runtime' : 'jsdom',
+    environment: NODE ? 'node' : SERVER ? 'edge-runtime' : 'jsdom',
   },
 });

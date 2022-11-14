@@ -29,6 +29,9 @@ export function replaceRange(str: string, start: number, end: number, substitute
   return str.substring(0, start) + substitute + str.substring(end);
 }
 
+export const escapeQuotes = (str: string): string =>
+  str.replace(/^"+|"+$/g, '').replace(/^'+|'+$/g, '');
+
 export const normalizeLineBreaks = (str: string): string => str.replace(/\\r/g, '\n');
 
 export function splitLineBreaks(str: string): string[] {

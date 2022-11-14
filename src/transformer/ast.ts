@@ -1,5 +1,5 @@
 import { encode } from 'html-entities';
-import t from 'typescript';
+import ts from 'typescript';
 
 import { trimWhitespace } from '../utils/print';
 import type {
@@ -81,7 +81,7 @@ export type ComponentChildren = AST | TextNode | ExpressionNode;
 
 export type FragmentNode = {
   kind: ASTNodeKind.Fragment;
-  ref: t.JsxFragment;
+  ref: ts.JsxFragment;
   childCount: number;
   childElementCount: number;
   children?: ComponentChildren[];
@@ -89,13 +89,13 @@ export type FragmentNode = {
 
 export type TextNode = {
   kind: ASTNodeKind.Text;
-  ref: t.JsxText;
+  ref: ts.JsxText;
   value: string;
 };
 
 export type ExpressionNode = {
   kind: ASTNodeKind.Expression;
-  ref: t.Expression | t.JsxExpression;
+  ref: ts.Expression | ts.JsxExpression;
   root?: boolean;
   observable?: boolean;
   children?: AST[];
@@ -106,14 +106,14 @@ export type ExpressionNode = {
 
 export type SpreadNode = {
   kind: ASTNodeKind.Spread;
-  ref: t.JsxSpreadAttribute;
+  ref: ts.JsxSpreadAttribute;
   value: string;
 };
 
 export type AttributeNode = {
   kind: ASTNodeKind.Attribute;
   /* Points at attribute when shorthand property (no initializer). */
-  ref: t.JsxAttribute | t.StringLiteral | t.Expression;
+  ref: ts.JsxAttribute | ts.StringLiteral | ts.Expression;
   namespace: JSXAttrNamespace | null;
   name: string;
   value: string;
@@ -125,13 +125,13 @@ export type AttributeNode = {
 
 export type RefNode = {
   kind: ASTNodeKind.Ref;
-  ref: t.Expression;
+  ref: ts.Expression;
   value: string;
 };
 
 export type EventNode = {
   kind: ASTNodeKind.Event;
-  ref: t.Expression;
+  ref: ts.Expression;
   namespace: JSXEventNamespace | null;
   type: string;
   value: string;
@@ -139,7 +139,7 @@ export type EventNode = {
 
 export type DirectiveNode = {
   kind: ASTNodeKind.Directive;
-  ref: t.Expression;
+  ref: ts.Expression;
   name: string;
   value: string;
 };

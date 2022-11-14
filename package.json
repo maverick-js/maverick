@@ -19,8 +19,10 @@
     "format": "prettier src --write --loglevel warn",
     "test:client": "vitest --run",
     "test:client:watch": "vitest --watch",
-    "test:server": "SERVER=true vitest --run",
-    "test:server:watch": "SERVER=true vitest --watch",
+    "test:server": "MK_SERVER=true vitest --run",
+    "test:server:watch": "MK_SERVER=true vitest --watch",
+    "test:node": "MK_NODE=true vitest --run",
+    "test:node:watch": "MK_NODE=true vitest --watch",
     "sandbox:dev": "vite dev sandbox",
     "sandbox:build": "vite build sandbox",
     "sandbox:preview": "vite preview sandbox",
@@ -30,29 +32,31 @@
   "dependencies": {
     "@dprint/formatter": "^0.2.0",
     "@dprint/typescript": "^0.71.1",
+    "globby": "^13.1.2",
     "html-entities": "^2.3.3",
     "magic-string": "^0.26.2",
     "normalize-path": "^3.0.0",
+    "read-pkg-up": "^9.1.0",
     "type-fest": "^2.17.0",
-    "unplugin": "^0.7.2"
+    "unplugin": "^0.7.2",
+    "yargs": "^17.6.2"
   },
   "devDependencies": {
     "@edge-runtime/vm": "^2.0.0",
     "@maverick-js/observables": "^4.8.3",
     "@maverick-js/scheduler": "^2.1.0",
-    "@microsoft/api-extractor": "^7.28.6",
     "@rollup/pluginutils": "^4.2.1",
     "@trivago/prettier-plugin-sort-imports": "^3.4.0",
     "@types/node": "^18.0.3",
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
+    "@types/yargs": "^17.0.13",
     "benchmark": "^2.1.4",
-    "cac": "^6.7.14",
     "esbuild": "^0.14.49",
     "export-size": "^0.5.2",
-    "globby": "^13.1.2",
     "jsdom": "^20.0.0",
     "kleur": "^4.1.5",
+    "lru-cache": "^7.14.1",
     "node-fetch": "^3.2.10",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
@@ -120,10 +124,15 @@
       "node": "./dist/server/react.js",
       "default": "./dist/prod/react.js"
     },
+    "./analyze": {
+      "types": "./analyze.d.ts",
+      "require": "./dist/node/analyze.cjs",
+      "default": "./dist/node/analyze.js"
+    },
     "./plugins": {
       "types": "./plugins.d.ts",
-      "require": "./dist/server/plugins.cjs",
-      "default": "./dist/server/plugins.js"
+      "require": "./dist/node/plugins.cjs",
+      "default": "./dist/node/plugins.js"
     },
     "./cli.js": "./cli.js",
     "./package.json": "./package.json"

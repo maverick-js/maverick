@@ -25,7 +25,6 @@ export function isNil(value: unknown): value is null | undefined {
   return isNull(value) || isUndefined(value);
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function isObject(value: any): value is object {
   return value?.constructor === Object;
 }
@@ -42,7 +41,6 @@ export function isBoolean(value: any): value is boolean {
   return typeof value === 'boolean';
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function isFunction(value: any): value is Function {
   return typeof value === 'function';
 }

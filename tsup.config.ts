@@ -1,8 +1,8 @@
 import { defineConfig, type Options } from 'tsup';
 
-function base({ dev = false, server = false } = {}): Options {
+function base({ dev = false, server = false, node = false } = {}): Options {
   return {
-    format: server ? ['esm', 'cjs'] : 'esm',
+    format: node || server ? ['esm', 'cjs'] : 'esm',
     external: [
       'typescript',
       'rollup',
@@ -19,16 +19,16 @@ function base({ dev = false, server = false } = {}): Options {
     treeshake: true,
     splitting: true,
     tsconfig: 'tsconfig.build.json',
-    target: server ? 'node16' : 'esnext',
-    platform: server ? 'node' : 'browser',
-    outDir: server ? 'dist/server' : dev ? 'dist/dev' : 'dist/prod',
+    target: node || server ? 'node16' : 'esnext',
+    platform: node || server ? 'node' : 'browser',
+    outDir: node ? 'dist/node' : server ? 'dist/server' : dev ? 'dist/dev' : 'dist/prod',
     define: {
       __DEV__: dev ? 'true' : 'false',
-      __SERVER__: server ? 'true' : 'false',
+      __SERVER__: node || server ? 'true' : 'false',
       __TEST__: 'false',
     },
     esbuildOptions(opts) {
-      if (!dev && !server) {
+      if (!dev && !server && !node) {
         opts.mangleProps = /^_/;
       }
 
@@ -60,8 +60,12 @@ export default defineConfig([
     entry: runtimeEntry,
   },
   {
-    ...base({ server: true }),
-    entry: { plugins: './src/plugins/index.ts' },
+    ...base({ node: true }),
+    entry: {
+      analyze: './src/analyze/index.ts',
+      cli: './src/cli/index.ts',
+      plugins: './src/plugins/index.ts',
+    },
     dts: true,
   },
 ]);

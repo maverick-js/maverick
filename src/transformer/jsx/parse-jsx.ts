@@ -1,5 +1,5 @@
 import type MagicString from 'magic-string';
-import t from 'typescript';
+import ts from 'typescript';
 
 import { logTime } from '../../utils/logger';
 import { hasChildType } from '../../utils/ts';
@@ -18,7 +18,7 @@ export function parseJSX(code: MagicString, options: Partial<ParseJSXOptions> = 
   const { filename = '' } = options;
 
   const parseStartTime = process.hrtime();
-  const sourceFile = t.createSourceFile(
+  const sourceFile = ts.createSourceFile(
     filename,
     code.original,
     99,
@@ -30,23 +30,23 @@ export function parseJSX(code: MagicString, options: Partial<ParseJSXOptions> = 
   const ast: AST[] = [];
   const imports = new Set<string>();
 
-  let lastImportNode: t.Node | undefined;
-  const parse = (node: t.Node) => {
-    if (t.isImportDeclaration(node)) {
+  let lastImportNode: ts.Node | undefined;
+  const parse = (node: ts.Node) => {
+    if (ts.isImportDeclaration(node)) {
       lastImportNode = node;
       if (
-        t.isStringLiteral(node.moduleSpecifier) &&
+        ts.isStringLiteral(node.moduleSpecifier) &&
         node.moduleSpecifier.text.startsWith('maverick.js') &&
         node.importClause?.namedBindings &&
-        t.isNamedImports(node.importClause.namedBindings)
+        ts.isNamedImports(node.importClause.namedBindings)
       ) {
         const elements = node.importClause.namedBindings.elements;
         for (const element of elements) imports.add(element.name.text);
       }
-    } else if (t.isBinaryExpression(node) || t.isConditionalExpression(node)) {
+    } else if (ts.isBinaryExpression(node) || ts.isConditionalExpression(node)) {
       const hasJSXChild = hasChildType(
         node,
-        (node) => isJSXElementNode(node) || t.isJsxFragment(node),
+        (node) => isJSXElementNode(node) || ts.isJsxFragment(node),
       );
 
       if (hasJSXChild) {
@@ -54,17 +54,17 @@ export function parseJSX(code: MagicString, options: Partial<ParseJSXOptions> = 
       }
 
       return;
-    } else if (isJSXElementNode(node) || t.isJsxFragment(node)) {
+    } else if (isJSXElementNode(node) || ts.isJsxFragment(node)) {
       ast.push(buildAST(node, {}));
       return;
     } else if (
       imports.size > 0 &&
-      t.isCallExpression(node) &&
-      t.isIdentifier(node.expression) &&
+      ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) &&
       imports.has(node.expression.text) &&
       typeFunctions.has(node.expression.text)
     ) {
-      const isPropAssignment = t.isPropertyAssignment(node.parent);
+      const isPropAssignment = ts.isPropertyAssignment(node.parent);
       const shouldRemoveParent = isPropAssignment && !node.arguments[0];
       const replace = shouldRemoveParent ? node.parent : node;
       code.overwrite(
@@ -75,10 +75,10 @@ export function parseJSX(code: MagicString, options: Partial<ParseJSXOptions> = 
       );
     }
 
-    t.forEachChild(node, parse);
+    ts.forEachChild(node, parse);
   };
 
-  t.forEachChild(sourceFile, parse);
+  ts.forEachChild(sourceFile, parse);
 
   return {
     startPos: lastImportNode?.getEnd() ?? 0,
@@ -87,17 +87,17 @@ export function parseJSX(code: MagicString, options: Partial<ParseJSXOptions> = 
   };
 }
 
-export function isJSXElementNode(node: t.Node): node is JSXElementNode {
-  return t.isJsxElement(node) || t.isJsxSelfClosingElement(node);
+export function isJSXElementNode(node: ts.Node): node is JSXElementNode {
+  return ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node);
 }
 
-export type JSXElementNode = t.JsxElement | t.JsxSelfClosingElement;
+export type JSXElementNode = ts.JsxElement | ts.JsxSelfClosingElement;
 
 export type JSXRootNode =
   | JSXElementNode
-  | t.JsxFragment
-  | t.BinaryExpression
-  | t.ConditionalExpression;
+  | ts.JsxFragment
+  | ts.BinaryExpression
+  | ts.ConditionalExpression;
 
 export type JSXNodeMeta = {
   parent?: JSXNodeMeta;

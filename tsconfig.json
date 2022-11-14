@@ -24,10 +24,11 @@
     "paths": {
       "maverick.js": ["./src/runtime"],
       "maverick.js/*": ["./src/runtime/*"],
+      "maverick.js/analyze": ["./src/analyze"],
       "maverick.js/dom": ["./src/runtime/dom"],
-      "maverick.js/ssr": ["./src/runtime/ssr"],
       "maverick.js/element": ["./src/element"],
       "maverick.js/react": ["./src/react"],
+      "maverick.js/ssr": ["./src/runtime/ssr"],
       "maverick.js/transformer": ["./src/transformer/"]
     },
     "preserveWatchOutput": true,

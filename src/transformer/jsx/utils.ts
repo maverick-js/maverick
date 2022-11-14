@@ -1,6 +1,6 @@
 import { decode } from 'html-entities';
 import MagicString from 'magic-string';
-import t from 'typescript';
+import ts from 'typescript';
 
 import {
   createFunctionCall,
@@ -30,10 +30,10 @@ export function isComponentTagName(tagName: string) {
   );
 }
 
-export function getTagName(node: t.JsxElement | t.JsxSelfClosingElement) {
-  return t.isJsxElement(node)
-    ? ((node.openingElement.tagName as t.Identifier).escapedText as string)
-    : ((node.tagName as t.Identifier).escapedText as string);
+export function getTagName(node: ts.JsxElement | ts.JsxSelfClosingElement) {
+  return ts.isJsxElement(node)
+    ? ((node.openingElement.tagName as ts.Identifier).escapedText as string)
+    : ((node.tagName as ts.Identifier).escapedText as string);
 }
 
 export function isValidAttrNamespace(namespace: any): namespace is JSXAttrNamespace {
@@ -57,63 +57,63 @@ export function toPropertyName(name: string) {
   return name.toLowerCase().replace(/-([a-z])/g, (_, w) => w.toUpperCase());
 }
 
-export function isTrueBoolExpression(node: t.Expression) {
-  return node.kind === t.SyntaxKind.TrueKeyword;
+export function isTrueBoolExpression(node: ts.Expression) {
+  return node.kind === ts.SyntaxKind.TrueKeyword;
 }
 
-export function isFalseBoolExpression(node: t.Expression) {
-  return node.kind === t.SyntaxKind.FalseKeyword;
+export function isFalseBoolExpression(node: ts.Expression) {
+  return node.kind === ts.SyntaxKind.FalseKeyword;
 }
 
-export function isBoolExpression(node: t.Expression) {
+export function isBoolExpression(node: ts.Expression) {
   return isTrueBoolExpression(node) || isFalseBoolExpression(node);
 }
 
-export function isStringExpression(node: t.Expression) {
-  return t.isNoSubstitutionTemplateLiteral(node) || t.isStringLiteral(node);
+export function isStringExpression(node: ts.Expression) {
+  return ts.isNoSubstitutionTemplateLiteral(node) || ts.isStringLiteral(node);
 }
 
-export function isStaticExpression(node: t.Expression) {
+export function isStaticExpression(node: ts.Expression) {
   return (
-    t.isLiteralExpression(node) ||
-    t.isNumericLiteral(node) ||
+    ts.isLiteralExpression(node) ||
+    ts.isNumericLiteral(node) ||
     isStringExpression(node) ||
     isBoolExpression(node)
   );
 }
 
-export function overwrite(code: MagicString, node: t.Node, content: string) {
+export function overwrite(code: MagicString, node: ts.Node, content: string) {
   const start = node.getStart(node.getSourceFile()),
     end = node.getEnd();
 
   code.overwrite(start, end, content);
 }
 
-export function insertAfter(code: MagicString, node: t.Node, content: string) {
+export function insertAfter(code: MagicString, node: ts.Node, content: string) {
   code.appendRight(node.getEnd(), content);
 }
 
-export function isEmptyNode(node: t.Node) {
+export function isEmptyNode(node: ts.Node) {
   const text = trimQuotes(node.getText().trim());
   return text.length === 0 || text === '() => {}';
 }
 
-export function isEmptyExpressionNode(node: t.Node) {
-  return t.isJsxExpression(node) && isEmptyNode(node);
+export function isEmptyExpressionNode(node: ts.Node) {
+  return ts.isJsxExpression(node) && isEmptyNode(node);
 }
 
-export function isEmptyTextNode(node: t.Node) {
-  return t.isJsxText(node) && (isEmptyNode(node) || /^[\r\n]\s*$/.test(node.getText()));
+export function isEmptyTextNode(node: ts.Node) {
+  return ts.isJsxText(node) && (isEmptyNode(node) || /^[\r\n]\s*$/.test(node.getText()));
 }
 
-export function filterEmptyJSXChildNodes(children: t.JsxChild[]) {
+export function filterEmptyJSXChildNodes(children: ts.JsxChild[]) {
   return children.filter((child) => !isEmptyExpressionNode(child) && !isEmptyTextNode(child));
 }
 
-export function filterDOMElements(children: t.JsxChild[]) {
+export function filterDOMElements(children: ts.JsxChild[]) {
   return children.filter(
     (node) =>
-      (t.isJsxText(node) && !isEmptyNode(node)) ||
+      (ts.isJsxText(node) && !isEmptyNode(node)) ||
       (isJSXElementNode(node) && !isComponentTagName(getTagName(node))),
   ) as JSXElementNode[];
 }
@@ -173,14 +173,14 @@ export function serializeParentExpression(
   serializer: ASTSerializer,
   node: {
     value: string;
-    ref: t.Node;
+    ref: ts.Node;
     children?: AST[];
   },
   ctx: TransformContext,
   hof: string | false = false,
 ) {
   let code = new MagicString(node.value),
-    start = node.ref.getStart() + (t.isJsxExpression(node.ref) ? 1 : 0);
+    start = node.ref.getStart() + (ts.isJsxExpression(node.ref) ? 1 : 0);
 
   for (const ast of node.children!) {
     const expression = serializer.serialize(ast, ctx);

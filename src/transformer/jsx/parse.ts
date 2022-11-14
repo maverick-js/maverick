@@ -1,4 +1,4 @@
-import t from 'typescript';
+import ts from 'typescript';
 
 import { onceFn } from '../../utils/fn';
 import { resolveExpressionChildren } from '../../utils/ts';
@@ -45,25 +45,25 @@ export function buildAST(
 ) {
   const ast = createAST(root);
 
-  if (t.isBinaryExpression(root) || t.isConditionalExpression(root)) {
+  if (ts.isBinaryExpression(root) || ts.isConditionalExpression(root)) {
     parseExpression(root, ast, meta);
   } else if (!skipRoot) {
     parseNode(root, ast, { ...meta, parent: undefined });
-  } else if (!t.isJsxSelfClosingElement(root)) {
+  } else if (!ts.isJsxSelfClosingElement(root)) {
     parseChildren(root, ast, meta);
   }
 
   return ast;
 }
 
-function parseNode(node: t.Node, ast: AST, meta: JSXNodeMeta) {
+function parseNode(node: ts.Node, ast: AST, meta: JSXNodeMeta) {
   if (isJSXElementNode(node)) {
     parseElement(node, ast, meta);
-  } else if (t.isJsxFragment(node)) {
+  } else if (ts.isJsxFragment(node)) {
     parseFragment(node, ast, meta);
-  } else if (t.isJsxText(node) && !isEmptyNode(node)) {
+  } else if (ts.isJsxText(node) && !isEmptyNode(node)) {
     ast.tree.push(createTextNode({ ref: node }));
-  } else if (t.isJsxExpression(node) && node.expression && !isEmptyNode(node)) {
+  } else if (ts.isJsxExpression(node) && node.expression && !isEmptyNode(node)) {
     parseExpression(node, ast, meta);
   }
 }
@@ -75,13 +75,13 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
     isCustomElement = tagName === 'CustomElement',
     isVoid = !isComponent && VOID_ELEMENT_TAGNAME.has(tagName),
     isSVG = !isComponent && (tagName === 'svg' || SVG_ELEMENT_TAGNAME.has(tagName)),
-    isSelfClosing = t.isJsxSelfClosingElement(node),
+    isSelfClosing = ts.isJsxSelfClosingElement(node),
     supportsChildren = isSelfClosing || isVoid;
 
   let children = !supportsChildren ? filterEmptyJSXChildNodes(Array.from(node.children)) : [];
 
   const firstChild = children[0];
-  if (!isComponent && firstChild && t.isJsxFragment(firstChild)) {
+  if (!isComponent && firstChild && ts.isJsxFragment(firstChild)) {
     children = filterEmptyJSXChildNodes(Array.from(firstChild.children));
   }
 
@@ -126,9 +126,9 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
       const childNodes: ComponentChildren[] = [];
 
       for (const child of children) {
-        if (t.isJsxText(child)) {
+        if (ts.isJsxText(child)) {
           childNodes.push(createTextNode({ ref: child }));
-        } else if (t.isJsxExpression(child)) {
+        } else if (ts.isJsxExpression(child)) {
           childNodes.push(buildExpressionNode(child, { parent: node }));
         } else {
           childNodes.push(buildAST(child));
@@ -148,11 +148,11 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   ast.tree.push(createStructuralNode(StructuralNodeType.ElementEnd));
 }
 
-function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeMeta) {
-  const attrs = Array.from(attributes.properties) as t.JsxAttribute[];
+function parseElementAttrs(attributes: ts.JsxAttributes, ast: AST, meta: JSXNodeMeta) {
+  const attrs = Array.from(attributes.properties) as ts.JsxAttribute[];
 
   for (const attr of attrs) {
-    if (t.isJsxSpreadAttribute(attr)) {
+    if (ts.isJsxSpreadAttribute(attr)) {
       ast.tree.push(createSpreadNode({ ref: attr }));
       meta.dynamic!();
       meta.spread!();
@@ -161,9 +161,9 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
 
     const initializer = attr.initializer,
       node = initializer || attr,
-      literal = initializer && t.isStringLiteral(initializer) ? initializer : undefined,
+      literal = initializer && ts.isStringLiteral(initializer) ? initializer : undefined,
       expression =
-        initializer && t.isJsxExpression(initializer) ? initializer.expression : undefined;
+        initializer && ts.isJsxExpression(initializer) ? initializer.expression : undefined;
 
     if (initializer && isEmptyNode((literal || expression)!)) continue;
 
@@ -190,7 +190,7 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
         : { observable: false, children: undefined };
 
     const callId =
-      expression && t.isCallExpression(expression) && expression.arguments.length === 0
+      expression && ts.isCallExpression(expression) && expression.arguments.length === 0
         ? expression.expression.getText()
         : undefined;
 
@@ -245,14 +245,14 @@ function parseElementAttrs(attributes: t.JsxAttributes, ast: AST, meta: JSXNodeM
   }
 }
 
-function parseFragment(node: t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
+function parseFragment(node: ts.JsxFragment, ast: AST, meta: JSXNodeMeta) {
   const childNodes: ComponentChildren[] = [],
     children = filterEmptyJSXChildNodes(Array.from(node.children));
 
   for (const child of children) {
-    if (t.isJsxText(child)) {
+    if (ts.isJsxText(child)) {
       childNodes.push(createTextNode({ ref: child }));
-    } else if (t.isJsxExpression(child)) {
+    } else if (ts.isJsxExpression(child)) {
       childNodes.push(buildExpressionNode(child, { parent: node }));
     } else {
       childNodes.push(buildAST(child));
@@ -269,21 +269,21 @@ function parseFragment(node: t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
   );
 }
 
-function parseChildren(root: t.JsxElement | t.JsxFragment, ast: AST, meta: JSXNodeMeta) {
+function parseChildren(root: ts.JsxElement | ts.JsxFragment, ast: AST, meta: JSXNodeMeta) {
   const children = filterEmptyJSXChildNodes(Array.from(root.children));
   for (const child of children) parseNode(child, ast, { parent: meta });
 }
 
-function parseExpression(node: t.Expression | t.JsxExpression, ast: AST, meta: JSXNodeMeta) {
+function parseExpression(node: ts.Expression | ts.JsxExpression, ast: AST, meta: JSXNodeMeta) {
   ast.tree.push(buildExpressionNode(node, meta));
 }
 
 function buildExpressionNode(
-  node: t.JsxExpression | t.Expression,
+  node: ts.JsxExpression | ts.Expression,
   meta: JSXNodeMeta,
 ): ExpressionNode {
-  const expression = t.isJsxExpression(node) ? node.expression! : node,
-    isRootCallExpression = t.isCallExpression(expression),
+  const expression = ts.isJsxExpression(node) ? node.expression! : node,
+    isRootCallExpression = ts.isCallExpression(expression),
     isCallable = isRootCallExpression && expression.arguments.length === 0,
     { observable, children } = resolveExpressionChildren(expression),
     isStatic = !observable && !children && isStaticExpression(expression);

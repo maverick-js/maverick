@@ -1,39 +1,39 @@
-import t from 'typescript';
+import ts from 'typescript';
 
 import { type AST } from '../transformer/ast';
 import { buildAST } from '../transformer/jsx/parse';
 import { isJSXElementNode } from '../transformer/jsx/parse-jsx';
 
-export function hasChildType(node: t.Node, check: (child: t.Node) => boolean) {
-  const parse = (child: t.Node) => {
+export function hasChildType(node: ts.Node, check: (child: ts.Node) => boolean) {
+  const parse = (child: ts.Node) => {
     if (check(child)) return true;
-    return t.forEachChild(child, parse);
+    return ts.forEachChild(child, parse);
   };
 
-  return t.forEachChild(node, parse);
+  return ts.forEachChild(node, parse);
 }
 
-export function resolveExpressionChildren(expression: t.Expression) {
-  let observable = t.isCallExpression(expression) || t.isPropertyAccessExpression(expression),
+export function resolveExpressionChildren(expression: ts.Expression) {
+  let observable = ts.isCallExpression(expression) || ts.isPropertyAccessExpression(expression),
     children: AST[] | undefined,
-    isJSXExpression = !observable && (isJSXElementNode(expression) || t.isJsxFragment(expression));
+    isJSXExpression = !observable && (isJSXElementNode(expression) || ts.isJsxFragment(expression));
 
-  const parse = (node: t.Node) => {
-    if (!observable && (t.isCallExpression(node) || t.isPropertyAccessExpression(node))) {
+  const parse = (node: ts.Node) => {
+    if (!observable && (ts.isCallExpression(node) || ts.isPropertyAccessExpression(node))) {
       observable = true;
-    } else if (isJSXElementNode(node) || t.isJsxFragment(node)) {
+    } else if (isJSXElementNode(node) || ts.isJsxFragment(node)) {
       if (!children) children = [];
       children!.push(buildAST(node));
       return;
     }
 
-    t.forEachChild(node, parse);
+    ts.forEachChild(node, parse);
   };
 
   if (isJSXExpression) {
-    children = [buildAST(expression as t.JsxElement | t.JsxFragment)];
+    children = [buildAST(expression as ts.JsxElement | ts.JsxFragment)];
   } else {
-    t.forEachChild(expression, parse);
+    ts.forEachChild(expression, parse);
   }
 
   return { observable, children };

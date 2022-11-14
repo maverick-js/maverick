@@ -1,7 +1,6 @@
 import type { Constructor } from 'type-fest';
 
 import type { JSX } from '../runtime';
-import type { ElementEventRecord } from './types';
 
 const DOM_EVENT = Symbol('DOM_EVENT');
 
@@ -146,7 +145,7 @@ export function defineEvent<Event>(
   return init as any;
 }
 
-export function defineEvents<EventRecord extends ElementEventRecord>(): EventRecord {
+export function defineEvents<EventRecord extends Record<string, DOMEvent>>(): EventRecord {
   // type macro which is compiled away.
   return null as any;
 }

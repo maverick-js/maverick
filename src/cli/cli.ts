@@ -1,22 +1,27 @@
-import cac from 'cac';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
-import { logStackTrace, mapLogLevelStringToNumber, setGlobalLogLevel } from '../utils/logger';
-import { type AnalyzeCommandConfig, runAnalyzeCommand } from './analyze';
-import { isCLIError } from './cli-error';
+import {
+  type LogLevelName,
+  logStackTrace,
+  mapLogLevelStringToNumber,
+  setGlobalLogLevel,
+} from '../utils/logger';
+import { type AnalyzeCommandConfig, runAnalyzeCommand } from './commands/analyze';
 
 export function cli(): void {
-  cac
+  yargs(hideBin(process.argv))
     .usage('Usage: $0 <command> [glob..] [options]')
     .command<AnalyzeCommandConfig>({
       command: ['analyze [glob..]', '$0 [glob..]'],
       describe: 'Analyzes component metadata.',
       handler: async (config) => {
-        setGlobalLogLevel(mapLogLevelStringToNumber(config.logLevel));
+        setGlobalLogLevel(mapLogLevelStringToNumber(config.logLevel as LogLevelName));
 
         try {
           await runAnalyzeCommand(config);
         } catch (e) {
-          if (isCLIError(e)) {
+          if (e instanceof Error) {
             logStackTrace(e.message, e.stack!);
           } else {
             throw e;
@@ -40,7 +45,7 @@ export function cli(): void {
       alias: 'c',
       string: true,
       describe: 'The path to your configuration file.',
-      default: './maverick.config.ts',
+      default: './analyze.config.ts',
     })
     .option('watch', {
       alias: 'w',

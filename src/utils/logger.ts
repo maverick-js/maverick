@@ -74,7 +74,6 @@ export const log: Logger = (text, level = LogLevel.Info) => {
   if (currentLogLevel < level) return;
 
   if (isFunction(text)) {
-    // eslint-disable-next-line no-param-reassign
     text = text();
   }
 
@@ -134,22 +133,31 @@ const printDiagnostic = (
   endLineNumber: number,
   level: LogLevel,
 ) => {
-  const isMultiLine = endLineNumber - startLineNumber > 0;
-  const codeFrame = buildCodeFrame(sourceText, startLineNumber, endLineNumber);
-
   log(
-    [
-      `\n\n${kleur.bold('MESSAGE')}`,
-      `\n${message}`,
-      `\n${kleur.bold('CODE')}\n`,
-      `${kleur.dim(sourceFilePath)} ${kleur.dim('L:')}${kleur.dim(
-        isMultiLine ? `${startLineNumber}-${endLineNumber}` : startLineNumber,
-      )}\n`,
-      prettifyCodeFrame(codeFrame),
-    ].join('\n'),
+    printDiagnosticOutput(message, sourceFilePath, sourceText, startLineNumber, endLineNumber),
     level,
   );
 };
+
+function printDiagnosticOutput(
+  message: string,
+  sourceFilePath: string,
+  sourceText: string,
+  startLineNumber: number,
+  endLineNumber: number,
+) {
+  const isMultiLine = endLineNumber - startLineNumber > 0;
+  const codeFrame = buildCodeFrame(sourceText, startLineNumber, endLineNumber);
+  return [
+    `\n\n${kleur.bold('MESSAGE')}`,
+    `\n${message}`,
+    `\n${kleur.bold('CODE')}\n`,
+    `${kleur.dim(sourceFilePath)} ${kleur.dim('L:')}${kleur.dim(
+      isMultiLine ? `${startLineNumber}-${endLineNumber}` : startLineNumber,
+    )}\n`,
+    prettifyCodeFrame(codeFrame),
+  ].join('\n');
+}
 
 export type DiagnosticReporterByLine = (
   message: string,
@@ -157,6 +165,8 @@ export type DiagnosticReporterByLine = (
   line: number,
   level?: LogLevel,
 ) => void;
+
+export let testDiagnostics: { message: string; print: string; level: LogLevel }[] = [];
 
 export const reportDiagnosticByLine: DiagnosticReporterByLine = (
   message: string,
@@ -166,7 +176,15 @@ export const reportDiagnosticByLine: DiagnosticReporterByLine = (
 ) => {
   const sourceFilePath = normalizePath(sourceFile.fileName);
   const sourceText = sourceFile.text;
-  printDiagnostic(message, sourceFilePath, sourceText, line, line, level);
+  if (__TEST__) {
+    testDiagnostics.push({
+      message,
+      print: printDiagnosticOutput(message, sourceFilePath, sourceText, line, line),
+      level,
+    });
+  } else {
+    printDiagnostic(message, sourceFilePath, sourceText, line, line, level);
+  }
 };
 
 export type DiagnosticReporterByNode = (message: string, node: Node, level?: LogLevel) => void;
@@ -183,7 +201,21 @@ export const reportDiagnosticByNode: DiagnosticReporterByNode = (
   const posEnd = sourceFile.getLineAndCharacterOfPosition(node.getEnd());
   const startLineNumber = posStart.line + 1;
   const endLineNumber = posEnd.line + 1;
-  printDiagnostic(message, sourceFilePath, sourceText, startLineNumber, endLineNumber, level);
+  if (__TEST__) {
+    testDiagnostics.push({
+      message,
+      print: printDiagnosticOutput(
+        message,
+        sourceFilePath,
+        sourceText,
+        startLineNumber,
+        endLineNumber,
+      ),
+      level,
+    });
+  } else {
+    printDiagnostic(message, sourceFilePath, sourceText, startLineNumber, endLineNumber, level);
+  }
 };
 
 interface CodeFrame {

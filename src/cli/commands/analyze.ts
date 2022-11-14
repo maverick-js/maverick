@@ -1,0 +1,97 @@
+import { existsSync } from 'fs';
+import kleur from 'kleur';
+import ts from 'typescript';
+
+import { type AnalyzePlugin } from '../../analyze/plugins/AnalyzePlugin';
+import { createBuildPlugin } from '../../analyze/plugins/build-plugin';
+import { createDiscoverPlugin } from '../../analyze/plugins/discover-plugin';
+import { runPlugins } from '../../analyze/plugins/lifecycle';
+import { parseGlobs } from '../../analyze/utils/globs';
+import { resolveConfigPaths, resolveCorePkgName } from '../../analyze/utils/resolve';
+import { clearTerminal, log, LogLevel, logTime } from '../../utils/logger';
+import { isArray, isUndefined } from '../../utils/unit';
+import { compileAndWatch, compileOnce, transpileModuleOnce } from '../compile';
+
+export interface AnalyzeCommandConfig extends Record<string, unknown> {
+  pkgName: string;
+  logLevel: string;
+  glob?: string[];
+  globs?: string[];
+  cwd: string;
+  configFile: string;
+  watch: boolean;
+  project: string | null;
+}
+
+async function normalizeConfig(config: AnalyzeCommandConfig) {
+  const cwd = isUndefined(config.cwd) ? process.cwd() : config.cwd;
+  const normalizedConfig = await resolveConfigPaths(cwd, config);
+  normalizedConfig.pkgName = (await resolveCorePkgName(normalizedConfig.cwd))!;
+  return normalizedConfig;
+}
+
+export async function runAnalyzeCommand(analyzeConfig: AnalyzeCommandConfig): Promise<void> {
+  clearTerminal();
+
+  const config = await normalizeConfig(analyzeConfig);
+  const glob: string[] = config.glob ?? [];
+
+  log(config, LogLevel.Verbose);
+
+  let plugins: AnalyzePlugin[] = [];
+
+  if (!existsSync(config.configFile)) {
+    log(
+      `no configuration file could be found at ${kleur.cyan(config.configFile)}`,
+      LogLevel.Verbose,
+    );
+  } else {
+    plugins = (await transpileModuleOnce(config.configFile)) as AnalyzePlugin[];
+  }
+
+  if (!isArray(plugins)) {
+    log(
+      `configuration file must default export an array of plugins, found ${kleur.red(
+        typeof plugins,
+      )}`,
+      LogLevel.Error,
+    );
+    return;
+  }
+
+  plugins.push(createDiscoverPlugin(), createBuildPlugin());
+
+  if (config.watch) {
+    log('watching files for changes...');
+    compileAndWatch(config.project ?? 'tsconfig.json', async (program) => {
+      const filePaths = await parseGlobs(glob);
+      await run(program, plugins, filePaths, true);
+    });
+  } else {
+    const startCompileTime = process.hrtime();
+    const filePaths = await parseGlobs(glob);
+    const program = compileOnce(filePaths, {
+      project: config.project ?? 'tsconfig.json',
+    });
+    logTime(`compiled program`, startCompileTime);
+    await run(program, plugins, filePaths);
+  }
+}
+
+async function run(
+  program: ts.Program,
+  plugins: AnalyzePlugin[],
+  filePaths: string[],
+  watching = false,
+) {
+  const startAnalyzeTime = process.hrtime();
+
+  const result = await runPlugins(program, plugins, filePaths, watching);
+
+  if (result) {
+    const { sourceFiles } = result;
+    const noOfFiles = sourceFiles.length;
+    const noOfFilesText = kleur.green(`${noOfFiles} ${noOfFiles === 1 ? 'file' : 'files'}`);
+    logTime(`analyzed ${noOfFilesText}`, startAnalyzeTime);
+  }
+}

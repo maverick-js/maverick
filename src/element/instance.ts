@@ -1,4 +1,4 @@
-import { getParent, getScheduler, observable, peek, root, scope } from '@maverick-js/observables';
+import { getScheduler, getScope, observable, peek, root, scope } from '@maverick-js/observables';
 import type { Writable } from 'type-fest';
 
 import { setContextMap, type SubjectRecord } from '../runtime';
@@ -124,13 +124,13 @@ export function createElementInstance<
       },
     };
 
-    const $$root = getParent()!;
+    const rootScope = getScope()!;
 
     setElementInstance(instance);
     instance[MEMBERS] = definition.setup(instance);
     setElementInstance(null);
 
-    const render = scope(instance[MEMBERS]!.$render, $$root);
+    const render = scope(instance[MEMBERS]!.$render, rootScope);
     instance[RENDER] = () => {
       setElementInstance(instance);
       const result = peek(render);
@@ -138,7 +138,7 @@ export function createElementInstance<
       return result;
     };
 
-    instance[SCOPE] = $$root;
+    instance[SCOPE] = rootScope;
     return instance;
   });
 }

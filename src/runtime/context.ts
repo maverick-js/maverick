@@ -1,4 +1,4 @@
-import { getContext, getParent, setContext } from '@maverick-js/observables';
+import { getContext, getScope, setContext } from '@maverick-js/observables';
 
 export type Context<T> = {
   id: symbol;
@@ -33,7 +33,7 @@ export function createContext<T>(initialValue: T): Context<T> {
     initial: initialValue,
     get: () => {
       if (__DEV__) {
-        if (!getParent()) {
+        if (!getScope()) {
           throw Error('[maverick] attempting to get context outside `root` or `setup` function');
         }
       }
@@ -43,7 +43,7 @@ export function createContext<T>(initialValue: T): Context<T> {
     },
     set: (value) => {
       if (__DEV__) {
-        if (!getParent()) {
+        if (!getScope()) {
           throw Error('[maverick] attempting to set context outside `root` or `setup` function');
         }
       }

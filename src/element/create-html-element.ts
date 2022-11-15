@@ -218,8 +218,12 @@ export function createHTMLElement<
           ? definition.cssvars(instance.props)
           : definition.cssvars;
 
+        const style = getComputedStyle(this);
         for (const name of Object.keys(vars)) {
-          setStyle(this, `--${name}`, vars[name]);
+          const varName = `--${name}`;
+          if (isFunction(vars[name]) || !style.getPropertyValue(varName)) {
+            setStyle(this, varName, vars[name]);
+          }
         }
       }
 

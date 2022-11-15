@@ -92,7 +92,9 @@ export function createServerElement<
           ? definition.cssvars(instance.props)
           : definition.cssvars;
         for (const name of Object.keys(vars)) {
-          setStyle(this, `--${name}`, vars[name]);
+          if (isFunction(vars[name]) || !this.style.tokens.has(name)) {
+            setStyle(this, `--${name}`, vars[name]);
+          }
         }
       }
 

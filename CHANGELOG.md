@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/maverick-js/maverick/compare/v0.0.2...v0.0.3) (2022-11-16)
+
+
+### Features
+
+* bump `@maverick-js/observables` to `4.8.4` ([8fea7cc](https://github.com/maverick-js/maverick/commit/8fea7cc5001bf6038c2a92d8f0535ab82115f3b5))
+
+
+### Bug Fixes
+
+* deprecated `getParent` -> `getScope` ([34e9b44](https://github.com/maverick-js/maverick/commit/34e9b44aadfa69fc56597f2ef75cb0db5d521774))
+* **element:** only initialize cssvars if not set ([12fd15c](https://github.com/maverick-js/maverick/commit/12fd15c0f07a3f0fed289cb985b0073646aaff7c))
+* faulty fragment hydration ([2326d9d](https://github.com/maverick-js/maverick/commit/2326d9da6ed48c831339aa795180538842ca2899))
+
 ### 0.0.2 (2022-11-14)
 
 

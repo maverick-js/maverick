@@ -4,7 +4,7 @@ specifiers:
   '@dprint/formatter': ^0.2.0
   '@dprint/typescript': ^0.71.1
   '@edge-runtime/vm': ^2.0.0
-  '@maverick-js/observables': ^4.8.4
+  '@maverick-js/observables': ^4.8.5
   '@maverick-js/scheduler': ^2.1.0
   '@rollup/pluginutils': ^4.2.1
   '@trivago/prettier-plugin-sort-imports': ^3.4.0
@@ -54,7 +54,7 @@ dependencies:
 
 devDependencies:
   '@edge-runtime/vm': 2.0.0
-  '@maverick-js/observables': 4.8.4
+  '@maverick-js/observables': 4.8.5
   '@maverick-js/scheduler': 2.1.0
   '@rollup/pluginutils': 4.2.1
   '@trivago/prettier-plugin-sort-imports': 3.4.0_prettier@2.7.1
@@ -462,8 +462,8 @@ packages:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
 
-  /@maverick-js/observables/4.8.4:
-    resolution: {integrity: sha512-SUUW6AbXWmBUclsbHC8x3dzYRJuJ6xeuYpd9/6hSN2y2r6Le3rklFZyT6uiHOJ37hrh6qhkBrer1larnL3vogg==}
+  /@maverick-js/observables/4.8.5:
+    resolution: {integrity: sha512-NfgFZAEbHqxQUBptDHx27PCv3JpC34Ww5ynGjiXgGpl2snm4XibURzRuc9EjR3+jtTkmcAcKCmLdf8g8nc6dpg==}
     dependencies:
       '@maverick-js/scheduler': 2.1.0
     dev: true

@@ -40,7 +40,7 @@ export default defineConfig({
     },
     maverick({
       include: ['tests/**/*.{jsx,tsx}'],
-      hydratable: (id) => (id.includes('hydrate.test') ? true : null),
+      hydratable: (id) => (id.includes('hydrate') ? true : null),
     }),
   ],
   // https://vitest.dev/config

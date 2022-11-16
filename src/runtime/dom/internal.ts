@@ -189,6 +189,12 @@ export function $$_cssvar(element: HTMLElement, name: string, value: unknown) {
 }
 
 /** @internal */
+export function $$_next_expression(value: any) {
+  if (hydration) insertExpression(hydration.w.nextNode() as StartMarker, value);
+  return value;
+}
+
+/** @internal */
 export function $$_spread(element: Element, props: Record<string, unknown>) {
   const keys = Object.keys(props);
   for (let i = 0; i < keys.length; i++) {

@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@edge-runtime/vm": "^2.0.0",
-    "@maverick-js/observables": "^4.8.4",
+    "@maverick-js/observables": "^4.8.5",
     "@maverick-js/scheduler": "^2.1.0",
     "@rollup/pluginutils": "^4.2.1",
     "@trivago/prettier-plugin-sort-imports": "^3.4.0",

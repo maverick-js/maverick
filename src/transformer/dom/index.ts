@@ -55,6 +55,7 @@ const RUNTIME = {
   createWalker: '$$_create_walker',
   nextTemplate: '$$_next_template',
   nextElement: '$$_next_element',
+  nextExpression: '$$_next_expression',
   nextCustomElement: '$$_next_custom_element',
   hostElement: '$$_host_element',
   createElement: '$$_create_element',
@@ -77,7 +78,7 @@ const RUNTIME = {
   peek: '$$_peek',
 };
 
-const MARKERS = {
+const MARKER = {
   component: '<!$>',
   element: '<!$>',
   expression: '<!$>',
@@ -87,6 +88,7 @@ const NEXT_ELEMENT = createFunctionCall(RUNTIME.nextElement, [ID.walker]);
 const NEXT_MARKER = `${ID.walker}.nextNode()`;
 
 export const dom: ASTSerializer = {
+  name: 'dom',
   serialize(ast, ctx) {
     let skip = -1,
       initRoot = false,
@@ -175,7 +177,7 @@ export const dom: ASTSerializer = {
       },
       addChildren = (children: ComponentChildren[]) => {
         const scoped = children.length > 1 || !isAST(children[0]);
-        const serialized = serializeChildren(dom, children, { ...ctx, scoped });
+        const serialized = serializeChildren(dom, children, { ...ctx, scoped }, true);
         const hasReturn = scoped || /^(\[|\(|\$\$|\")/.test(serialized);
         props.push(`get $children() { ${hasReturn ? `return ${serialized}` : serialized} }`);
       },
@@ -205,7 +207,7 @@ export const dom: ASTSerializer = {
       firstNode.tagName !== 'HostElement' &&
       firstNode.tagName !== 'CustomElement'
     ) {
-      template.push(MARKERS.element);
+      template.push(MARKER.element);
     }
 
     for (let i = 0; i < ast.tree.length; i++) {
@@ -340,7 +342,14 @@ export const dom: ASTSerializer = {
         }
       } else if (isFragmentNode(node)) {
         if (node.children) {
-          expressions.push(serializeChildren(dom, node.children, { ...ctx, scoped: true }));
+          expressions.push(
+            serializeChildren(dom, node.children, {
+              ...ctx,
+              scoped: true,
+              fragment: true,
+            }),
+          );
+
           childrenFragment = true;
         } else {
           expressions.push('""');
@@ -400,7 +409,7 @@ export const dom: ASTSerializer = {
         }
 
         if (ctx.hydratable && i > 0 && dynamic) {
-          template.push(MARKERS.element);
+          template.push(MARKER.element);
         }
 
         if (isElement) {
@@ -466,13 +475,16 @@ export const dom: ASTSerializer = {
         } else {
           const shouldInsert = !isFirstNodeExpression || node !== firstNode;
           if (!initRoot && shouldInsert) createRootId();
-          if (ctx.hydratable && shouldInsert) template.push(MARKERS.expression);
+          if (ctx.hydratable && shouldInsert) template.push(MARKER.expression);
           const code = !node.children
             ? node.value
             : serializeParentExpression(dom, node, ctx, !shouldInsert && RUNTIME.peek);
           const expression = node.callId ?? (node.observable ? `() => ${code}` : code);
           if (shouldInsert) {
             insert(() => locals.create(ID.expression, nextMarker()), expression);
+          } else if (ctx.fragment && ctx.hydratable) {
+            expressions.push(createFunctionCall(RUNTIME.nextExpression, [expression]));
+            ctx.runtime.add(RUNTIME.nextExpression);
           } else {
             expressions.push(expression);
             ctx.runtime.add(RUNTIME.peek);

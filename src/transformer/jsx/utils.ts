@@ -9,7 +9,14 @@ import {
   trimQuotes,
 } from '../../utils/print';
 import { isArray } from '../../utils/unit';
-import { type AST, type AttributeNode, type ComponentChildren, isAST, isTextNode } from '../ast';
+import {
+  type AST,
+  type AttributeNode,
+  type ComponentChildren,
+  createAST,
+  isAST,
+  isTextNode,
+} from '../ast';
 import type { ASTSerializer, TransformContext } from '../transform';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
 import {
@@ -145,6 +152,7 @@ export function serializeChildren(
   serializer: ASTSerializer,
   children: ComponentChildren[],
   ctx: TransformContext,
+  component = false,
 ) {
   const serialized = children.map((child) => {
     if (isAST(child)) {
@@ -152,7 +160,16 @@ export function serializeChildren(
     } else if (isTextNode(child)) {
       return createStringLiteral(escapeDoubleQuotes(decode(child.value)));
     } else {
-      return child.children ? serializeParentExpression(serializer, child, ctx) : child.value;
+      let ast =
+        !component && (serializer.name === 'ssr' || ctx.hydratable)
+          ? createAST(child.ref as any)
+          : null;
+      if (ast) ast.tree.push(child);
+      return child.children
+        ? serializeParentExpression(serializer, child, ctx)
+        : ast
+        ? serializer.serialize(ast, ctx)
+        : child.value;
     }
   });
 
@@ -166,7 +183,7 @@ export function serializeComponentChildrenProp(
   children: ComponentChildren[],
   ctx: TransformContext,
 ) {
-  return `get $children() { return ${serializeChildren(serializer, children, ctx)} }`;
+  return `get $children() { return ${serializeChildren(serializer, children, ctx, true)} }`;
 }
 
 export function serializeParentExpression(

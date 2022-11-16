@@ -54,6 +54,7 @@ const RUNTIME = {
 };
 
 export const ssr: ASTSerializer = {
+  name: 'ssr',
   serialize(ast, ctx) {
     let template = '',
       skip = -1,
@@ -333,7 +334,13 @@ export const ssr: ASTSerializer = {
         }
       } else if (isFragmentNode(node)) {
         if (node.children) {
-          commit(serializeChildren(ssr, node.children, ctx));
+          commit(
+            serializeChildren(ssr, node.children, {
+              ...ctx,
+              fragment: true,
+            }),
+          );
+
           childrenFragment = true;
         }
       } else if (isElementNode(node)) {
@@ -410,7 +417,7 @@ export const ssr: ASTSerializer = {
         if (!node.dynamic) {
           template += encode(trimQuotes(node.value));
         } else {
-          if (node !== firstNode) marker();
+          if (node !== firstNode || ctx.fragment) marker();
           const code = !node.children ? node.value : serializeParentExpression(ssr, node, ctx);
           commit(node.callId ?? (node.observable ? `() => ${code}` : code));
         }

@@ -43,36 +43,6 @@ it('should compile component with props and children', () => {
   `);
 });
 
-it('should compile component child fragment', () => {
-  const result = t(
-    `
-<Component>
-  <>
-  <div id="foo">{id()}</div>
-  <div id="bar">{id()}</div>
-  {id}
-  <div></div>
-  {id}
-  </>
-</Component>
-`,
-  );
-  expect(result).toMatchInlineSnapshot(`
-    "import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
-
-    const $$_templ = /* #__PURE__ */ [\\"<!$><div id=\\\\\\"foo\\\\\\"><!$>\\", \\"</div>\\"],
-      $$_templ_2 = /* #__PURE__ */ [\\"<!$><div id=\\\\\\"bar\\\\\\"><!$>\\", \\"</div>\\"],
-      $$_templ_3 = /* #__PURE__ */ [\\"<!$><div></div>\\"];
-
-    $$_create_component(Component, {
-      get $children() {
-        return [$$_ssr($$_templ, id), $$_ssr($$_templ_2, id), id, $$_ssr($$_templ_3), id];
-      },
-    })
-    "
-  `);
-});
-
 it('should insert multiple child components', () => {
   const result = t(`
 <div>
@@ -80,25 +50,6 @@ it('should insert multiple child components', () => {
   <Component />
   <div>Foo</div>
   <Component />
-</div>`);
-  expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_component, $$_ssr } from \\"maverick.js/ssr\\";
-
-    const $$_templ = /* #__PURE__ */ [\\"<!$><div><!$>\\", \\"<!$>\\", \\"<div>Foo</div><!$>\\", \\"</div>\\"];
-
-    $$_ssr($$_templ, $$_create_component(Component), $$_create_component(Component), $$_create_component(Component))"
-  `);
-});
-
-it('should insert fragmented child components', () => {
-  const result = t(`
-<div>
-  <>
-    <Component />
-    <Component />
-    <div>Foo</div>
-    <Component />
-  </>
 </div>`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_component, $$_ssr } from \\"maverick.js/ssr\\";

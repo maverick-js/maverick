@@ -27,12 +27,14 @@ export type TransformOptions = {
 
 export type TransformContext = {
   scoped: boolean;
+  fragment?: boolean;
   globals: Declarations;
   runtime: Set<string>;
   hydratable: boolean;
 };
 
 export type ASTSerializer = {
+  name: string;
   serialize(ast: AST, context: TransformContext): string;
 };
 

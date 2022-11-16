@@ -50,11 +50,11 @@ export function insertExpression(start: StartMarker, value: JSX.Element, isObser
     // This won't exist yet when hydrating so nodes will stay intact.
     if (end) removeNodesBetweenMarkers(start, end);
 
-    const flattened = value.flat(10);
+    const flattened = value.flat(10).filter((v) => v || v === '' || v === 0);
     const hasChildren = flattened.length > 0;
 
     if (hydration && hasChildren) {
-      lastChild = getLastNode(start, flattened.length);
+      lastChild = resolveLastNode(start, flattened.length);
     } else if (hasChildren) {
       const fragment = createFragment();
       for (let i = 0; i < flattened.length; i++) {
@@ -120,8 +120,23 @@ function removeNodesBetweenMarkers(start: Node, end: Node) {
   start[TEXT] = null;
 }
 
-function getLastNode(start: StartMarker, nodesCount: number) {
-  return start.parentElement!.childNodes[getNodeIndex(start) + nodesCount];
+function resolveLastNode(start: StartMarker, nodesCount: number) {
+  let index = getNodeIndex(start),
+    stop = nodesCount,
+    childNodes = start.parentElement!.childNodes;
+
+  while (index < stop && index < childNodes.length) {
+    index++;
+    if (childNodes[index].nodeType === 8) stop++;
+  }
+
+  let next = childNodes[index + 1];
+  while (next?.nodeType === 8 && next.textContent === '/$') {
+    index++;
+    next = childNodes[index + 1];
+  }
+
+  return childNodes[index];
 }
 
 export type MarkerWalker = TreeWalker;

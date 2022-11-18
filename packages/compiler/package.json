@@ -4,6 +4,7 @@
   "license": "MIT",
   "version": "0.0.4",
   "type": "module",
+  "module": "./dist/index.js",
   "files": [
     "dist/",
     "cli.js",

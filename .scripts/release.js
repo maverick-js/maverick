@@ -10,21 +10,14 @@ import { fileURLToPath } from 'url';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 const args = minimist(process.argv.slice(2));
 const isDryRun = args.dry;
 const skippedPackages = [];
 const currentVersion = require('../package.json').version;
-
-if (isDryRun) console.log(kleur.cyan('\n☂️  Running in dry mode...\n'));
-
 const packagesDir = fs.readdirSync(path.resolve(__dirname, '../packages'));
-
 const packages = packagesDir.filter((p) => !p.startsWith('.'));
-
 const preId =
   args.preid || (semver.prerelease(currentVersion) && semver.prerelease(currentVersion)?.[0]);
-
 const versionIncrements = [
   'patch',
   'minor',
@@ -166,7 +159,7 @@ function updatePackageDeps(pkg, depType, version) {
   const deps = pkg[depType];
   if (!deps) return;
   Object.keys(deps).forEach((dep) => {
-    if (dep.startsWith('@maverick-js') && packages.includes(dep.replace(/^@maverick-js\//, ''))) {
+    if (/^@?maverick/.test(dep) && packages.includes(dep.replace(/^@?maverick(\.js|-js)\//, ''))) {
       const color = version === 'workspace:*' ? 'cyan' : 'yellow';
       console.log(kleur[color](`🦠 ${pkg.name} -> ${depType} -> ${dep}@${version}`));
       deps[dep] = version;
@@ -205,6 +198,8 @@ async function publishPackage(pkgName, version, runIfNotDry) {
     }
   }
 }
+
+if (isDryRun) console.log(kleur.cyan('\n☂️  Running in dry mode...\n'));
 
 main().catch((err) => {
   console.error(err);

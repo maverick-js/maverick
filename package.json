@@ -21,7 +21,7 @@
     "test:server": "pnpm -F maverick.js test:server",
     "test:server:watch": "pnpm -F maverick.js test:server:watch",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
-    "release": "pnpm build && pnpm build:compiler && pnpm test:compiler && pnpm test:client && pnpm test:server && node ./.scripts/release.js"
+    "release": "pnpm build && pnpm build:compiler && node ./.scripts/release.js"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^3.4.0",

@@ -4,7 +4,7 @@
   "license": "MIT",
   "version": "0.0.5",
   "type": "module",
-  "module": "dist/prod/index.js",
+  "module": "dist/prod/runtime.js",
   "sideEffects": false,
   "files": [
     "dist/",

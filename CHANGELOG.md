@@ -1,3 +1,12 @@
+## [0.0.5](https://github.com/maverick-js/maverick/compare/v0.0.4...v0.0.5) (2022-11-18)
+
+
+### Bug Fixes
+
+* incorrect module entry points ([8601408](https://github.com/maverick-js/maverick/commit/8601408480b3c319e72ecf9685941e9c71c0fe2f))
+
+
+
 ## [0.0.4](https://github.com/maverick-js/maverick/compare/v0.0.3...v0.0.4) (2022-11-18)
 
 

@@ -1,0 +1,78 @@
+{
+  "name": "@maverick-js/compiler",
+  "description": "Maverick toolchain including the analyzer and compiler.",
+  "license": "MIT",
+  "version": "0.0.3",
+  "type": "module",
+  "files": [
+    "dist/",
+    "cli.js",
+    "*.d.ts"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "bin": {
+    "maverick": "cli.js"
+  },
+  "contributors": [
+    "Rahim Alwer <rahim.alwer@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maverick-js/maverick.git",
+    "directory": "packages/compiler"
+  },
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
+  },
+  "scripts": {
+    "dev": "pnpm run build --watch",
+    "build": "rimraf dist && tsup",
+    "format": "prettier src --write --loglevel warn",
+    "test": "vitest --run",
+    "test:watch": "vitest --watch"
+  },
+  "dependencies": {
+    "@dprint/formatter": "^0.2.0",
+    "@dprint/typescript": "^0.71.1",
+    "globby": "^13.1.2",
+    "html-entities": "^2.3.3",
+    "kleur": "^4.1.5",
+    "lru-cache": "^7.14.1",
+    "magic-string": "^0.26.2",
+    "normalize-path": "^3.0.0",
+    "read-pkg-up": "^9.1.0",
+    "@rollup/pluginutils": "^5.0.0",
+    "unplugin": "^0.7.2",
+    "yargs": "^17.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.3",
+    "@types/yargs": "^17.0.13",
+    "esbuild": "^0.14.49",
+    "jsdom": "^20.0.0",
+    "rimraf": "^3.0.2",
+    "tsup": "^6.2.3",
+    "typescript": "^4.8.0",
+    "vite": "^3.2.3",
+    "vitest": "^0.25.1"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./analyze": {
+      "types": "./analyze.d.ts",
+      "require": "./dist/analyze.cjs",
+      "default": "./dist/analyze.js"
+    },
+    "./cli.js": "./cli.js",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

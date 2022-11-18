@@ -1,0 +1,110 @@
+{
+  "name": "maverick.js",
+  "description": "Build functional, reactive, type-safe, lightweight, and fast UI libraries.",
+  "license": "MIT",
+  "version": "0.0.3",
+  "type": "module",
+  "module": "dist/runtime/prod/index.js",
+  "sideEffects": false,
+  "files": [
+    "dist/",
+    "*.d.ts"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "contributors": [
+    "Rahim Alwer <rahim.alwer@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maverick-js/maverick.git",
+    "directory": "packages/maverick"
+  },
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
+  },
+  "scripts": {
+    "dev": "pnpm run build --watch",
+    "build": "rimraf dist && tsup",
+    "test": "pnpm test:client && pnpm test:server",
+    "format": "prettier src --write --loglevel warn",
+    "test:client": "vitest --run",
+    "test:client:watch": "vitest --watch",
+    "test:server": "SERVER=true vitest --run",
+    "test:server:watch": "SERVER=true vitest --watch"
+  },
+  "dependencies": {
+    "type-fest": "^2.17.0"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^2.0.0",
+    "@maverick-js/compiler": "workspace:*",
+    "@maverick-js/observables": "^4.8.5",
+    "@maverick-js/scheduler": "^2.1.0",
+    "@types/node": "^18.0.3",
+    "@types/react": "^18.0.24",
+    "@types/react-dom": "^18.0.8",
+    "benchmark": "^2.1.4",
+    "jsdom": "^20.0.0",
+    "node-fetch": "^3.2.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^3.0.2",
+    "tsup": "^6.2.3",
+    "typescript": "^4.8.5",
+    "vite": "^3.2.3",
+    "vitest": "^0.25.1"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "development": "./dist/dev/runtime.js",
+      "test": "./dist/dev/runtime.js",
+      "require": "./dist/server/runtime.cjs",
+      "deno": "./dist/server/runtime.js",
+      "node": "./dist/server/runtime.js",
+      "default": "./dist/prod/runtime.js"
+    },
+    "./dom": {
+      "types": "./dom.d.ts",
+      "development": "./dist/dev/dom.js",
+      "test": "./dist/dev/dom.js",
+      "require": "./dist/server/dom.cjs",
+      "deno": "./dist/server/dom.js",
+      "node": "./dist/server/dom.js",
+      "default": "./dist/prod/dom.js"
+    },
+    "./ssr": {
+      "types": "./ssr.d.ts",
+      "development": "./dist/dev/ssr.js",
+      "test": "./dist/dev/ssr.js",
+      "require": "./dist/server/ssr.cjs",
+      "deno": "./dist/server/ssr.js",
+      "node": "./dist/server/ssr.js",
+      "default": "./dist/prod/ssr.js"
+    },
+    "./element": {
+      "types": "./element.d.ts",
+      "development": "./dist/dev/element.js",
+      "test": "./dist/dev/element.js",
+      "require": "./dist/server/element.cjs",
+      "deno": "./dist/server/element.js",
+      "node": "./dist/server/element.js",
+      "default": "./dist/prod/element.js"
+    },
+    "./react": {
+      "types": "./react.d.ts",
+      "development": "./dist/dev/react.js",
+      "test": "./dist/dev/react.js",
+      "require": "./dist/server/react.cjs",
+      "deno": "./dist/server/react.js",
+      "node": "./dist/server/react.js",
+      "default": "./dist/prod/react.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

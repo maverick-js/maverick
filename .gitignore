@@ -1,9 +1,6 @@
 dist/
-
 types/
-/plugins/
-.tsbuildinfo
-
+packages/*/plugins/
 sandbox/
 
 *~

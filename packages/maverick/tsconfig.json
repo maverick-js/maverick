@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es2020"],
+    "jsx": "preserve",
+    "jsxImportSource": "maverick.js",
+    "paths": {
+      "maverick.js": ["./src/runtime"],
+      "maverick.js/*": ["./src/runtime/*"],
+      "maverick.js/dom": ["./src/runtime/dom"],
+      "maverick.js/element": ["./src/element"],
+      "maverick.js/react": ["./src/react"],
+      "maverick.js/ssr": ["./src/runtime/ssr"]
+    },
+    "types": ["@types/node", "vitest/globals"]
+  },
+  "include": ["src", "tests"],
+  "exclude": ["dist", "node_modules", "*.d.ts"]
+}

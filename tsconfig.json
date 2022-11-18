@@ -11,9 +11,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
-    "jsx": "preserve",
-    "jsxImportSource": "maverick.js",
-    "lib": ["dom", "dom.iterable", "es2020"],
+    "lib": ["es2020"],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmit": false,
@@ -21,25 +19,13 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noUnusedParameters": false,
-    "paths": {
-      "maverick.js": ["./src/runtime"],
-      "maverick.js/*": ["./src/runtime/*"],
-      "maverick.js/analyze": ["./src/analyze"],
-      "maverick.js/dom": ["./src/runtime/dom"],
-      "maverick.js/element": ["./src/element"],
-      "maverick.js/react": ["./src/react"],
-      "maverick.js/ssr": ["./src/runtime/ssr"],
-      "maverick.js/transformer": ["./src/transformer/"]
-    },
     "preserveWatchOutput": true,
     "skipLibCheck": true,
     "sourceMap": false,
     "strict": true,
     "target": "es2020",
     "tsBuildInfoFile": ".tsbuildinfo",
-    "types": ["@types/node", "vitest/globals"],
     "useDefineForClassFields": false
   },
-  "include": ["src", "tests"],
-  "exclude": ["dist", "node_modules", "*.d.ts"]
+  "exclude": ["node_modules", "packages/*/dist", "packages/*/*.d.ts"]
 }

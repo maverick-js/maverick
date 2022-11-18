@@ -1,3 +1,12 @@
+## [0.0.6](https://github.com/maverick-js/maverick/compare/v0.0.5...v0.0.6) (2022-11-18)
+
+
+### Bug Fixes
+
+* point module entry point at runtime ([3701681](https://github.com/maverick-js/maverick/commit/370168164f898b21be3ecb2066afe51db459325f))
+
+
+
 ## [0.0.5](https://github.com/maverick-js/maverick/compare/v0.0.4...v0.0.5) (2022-11-18)
 
 

@@ -1,3 +1,12 @@
+## [0.0.4](https://github.com/maverick-js/maverick/compare/v0.0.3...v0.0.4) (2022-11-18)
+
+
+### Features
+
+* move compiler to `@maverick-js/compiler` ([366ed68](https://github.com/maverick-js/maverick/commit/366ed682f6f7a5a290f94a1411c8c5b3cdcd6146))
+
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.

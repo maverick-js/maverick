@@ -1,3 +1,12 @@
+# [0.1.0](https://github.com/maverick-js/maverick/compare/v0.0.6...v0.1.0) (2022-11-19)
+
+
+### Features
+
+* new standard library `maverick.js/std` ([51a3a1d](https://github.com/maverick-js/maverick/commit/51a3a1dcf59a6c6d1b7b5681029aecba26756a23))
+
+
+
 ## [0.0.6](https://github.com/maverick-js/maverick/compare/v0.0.5...v0.0.6) (2022-11-18)
 
 

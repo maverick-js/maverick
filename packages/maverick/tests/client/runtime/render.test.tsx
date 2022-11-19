@@ -96,7 +96,7 @@ it('should be reactive', async () => {
     <root>
       <div>
         <span>
-          Count is 
+          Count is
           <!--$-->
           1
           <!--/$-->
@@ -124,7 +124,7 @@ it('should be reactive', async () => {
     <root>
       <div>
         <span>
-          Count is 
+          Count is
           <!--$-->
           2
           <!--/$-->
@@ -147,7 +147,7 @@ it('should be reactive', async () => {
     <root>
       <div>
         <span>
-          Count is 
+          Count is
           <!--$-->
           3
           <!--/$-->

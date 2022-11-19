@@ -24,7 +24,7 @@ export type ReactElementProps<Definition extends AnyElementDefinition> =
           __forwardedRef?: React.Ref<InferHostElement<Definition>>;
         } & ReactElementEventCallbacks<
           InferHostElement<Definition> & EventTarget,
-          Events & Omit<JSX.GlobalOnAttributes, keyof GlobalEventHandlersEventMap>
+          Events & Omit<MaverickOnAttributes, keyof GlobalEventHandlersEventMap>
         >
     : never;
 

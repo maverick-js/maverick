@@ -6,60 +6,48 @@ import type { Observable } from './reactivity';
 type DOMElement = Element;
 type DOMEvent = Event;
 
-export namespace JSX {
-  /**
-   * -------------------------------------------------------------------------------------------
-   * Globals
-   * -------------------------------------------------------------------------------------------
-   */
-
+declare global {
   /**
    * Store all global css variables in this record so `$cssvar` types can be inferred.
    *
    * @example
    * ```ts
-   * declare module "maverick.js" {
-   *   namespace JSX {
-   *     interface GlobalCSSVarAttributes {
-   *       foo: string;
-   *     }
+   * declare global {
+   *   interface MaverickCSSVarAttributes {
+   *     foo: string;
    *   }
    * }
    * ```
    */
-  export interface GlobalCSSVarAttributes extends CSSRecord {}
+  interface MaverickCSSVarAttributes extends JSX.CSSRecord {}
 
   /**
    * Store all global events in this record so global `$on` types can be inferred.
    *
    * @example
    * ```ts
-   * declare module "maverick.js" {
-   *   namespace JSX {
-   *     interface GlobalOnAttributes {
-   *       foo: DOMEvent<number>;
-   *     }
+   * declare global {
+   *   interface MaverickOnAttributes {
+   *     foo: DOMEvent<number>;
    *   }
    * }
    * ```
    */
-  export interface GlobalOnAttributes extends GlobalEventHandlersEventMap {}
+  interface MaverickOnAttributes extends GlobalEventHandlersEventMap {}
 
   /**
    * Store all global directives in this record so global `$use` types can be inferred.
    *
    * @example
    * ```ts
-   * declare module "maverick.js" {
-   *   namespace JSX {
-   *     interface GlobalUseAttributes {
-   *       foo: Directive<HTMLElement, [arg1, arg2, ...]>;
-   *     }
+   * declare global {
+   *   interface MaverickUseAttributes {
+   *     foo: Directive<HTMLElement, [arg1, arg2, ...]>;
    *   }
    * }
    * ```
    */
-  export interface GlobalUseAttributes extends DirectiveRecord {}
+  interface MaverickUseAttributes extends JSX.DirectiveRecord {}
 
   /**
    * Store all events in this record so they can be used to infer event type mappings. Types in
@@ -68,16 +56,14 @@ export namespace JSX {
    *
    * @example
    * ```ts
-   * declare module "maverick.js" {
-   *   namespace JSX {
-   *     interface GlobalEventsRecord {
-   *       foo: DOMEvent<string>;
-   *     }
+   * declare global {
+   *   interface MaverickEventRecord {
+   *     foo: DOMEvent<string>;
    *   }
    * }
    * ```
    */
-  export interface GlobalEventRecord extends GlobalOnAttributes {}
+  interface MaverickEventRecord extends MaverickOnAttributes {}
 
   /**
    * Contains a mapping of global event types to their respective event init type. Maverick and
@@ -86,16 +72,14 @@ export namespace JSX {
    *
    * @example
    * ```ts
-   * declare module "maverick.js" {
-   *   namespace JSX {
-   *     interface GlobalEventInitRecord {
-   *       foo: FooEventInit;
-   *     }
+   * declare global {
+   *   interface MaverickEventInitRecord {
+   *     foo: FooEventInit;
    *   }
    * }
    * ```
    */
-  export interface GlobalEventInitRecord {
+  interface MaverickEventInitRecord {
     abort: UIEventInit;
     animationcancel: AnimationEventInit;
     animationend: AnimationEventInit;
@@ -192,7 +176,9 @@ export namespace JSX {
     webkittransitionend: EventInit;
     wheel: WheelEventInit;
   }
+}
 
+export namespace JSX {
   /**
    * -------------------------------------------------------------------------------------------
    * Primitives
@@ -315,9 +301,9 @@ export namespace JSX {
    * All global events with the event `currentTarget` set to the given generic `Target`.
    */
   export type TargetedGlobalEvents<Target extends EventTarget> = {
-    [EventType in keyof GlobalOnAttributes]: TargetedEventHandler<
+    [EventType in keyof MaverickOnAttributes]: TargetedEventHandler<
       Target,
-      GlobalOnAttributes[EventType]
+      MaverickOnAttributes[EventType]
     >;
   };
 
@@ -487,9 +473,9 @@ export namespace JSX {
       OnAttributes<Element, Events> &
       CSSVarAttributes<CSSVars> &
       // Globals
-      CSSVarAttributes<GlobalCSSVarAttributes> &
-      OnAttributes<Element, GlobalOnAttributes & EventRecord> &
-      UseAttributes<GlobalUseAttributes>;
+      CSSVarAttributes<MaverickCSSVarAttributes> &
+      OnAttributes<Element, MaverickOnAttributes & EventRecord> &
+      UseAttributes<MaverickUseAttributes>;
 
   export type HTMLMarqueeElement = HTMLElement & HTMLMarqueeElementProperties;
 

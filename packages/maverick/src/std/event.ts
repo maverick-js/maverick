@@ -57,10 +57,10 @@ export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {
 /**
  * Whether the given `event` is of the given `type`.
  */
-export function isEventType<Type extends keyof JSX.GlobalEventRecord>(
+export function isEventType<Type extends keyof MaverickEventRecord>(
   event: Event,
   type: Type,
-): event is JSX.GlobalEventRecord[Type] {
+): event is MaverickEventRecord[Type] {
   return event.type === type;
 }
 
@@ -111,7 +111,7 @@ export function walkTriggerEventChain<T>(
 export function findTriggerEvent<Type extends string>(
   event: Event,
   type: Type,
-): (Type extends keyof JSX.GlobalEventRecord ? JSX.GlobalEventRecord[Type] : Event) | undefined {
+): (Type extends keyof MaverickEventRecord ? MaverickEventRecord[Type] : Event) | undefined {
   return walkTriggerEventChain(event, (e) => e.type === type)?.[0] as any;
 }
 
@@ -185,7 +185,7 @@ export function listen<Target extends EventTarget, EventType extends string>(
   type: EventType,
   handler: JSX.TargetedEventHandler<
     Target,
-    EventType extends keyof JSX.GlobalEventRecord ? JSX.GlobalEventRecord[EventType] : Event
+    EventType extends keyof MaverickEventRecord ? MaverickEventRecord[EventType] : Event
   >,
   options?: AddEventListenerOptions | boolean,
 ) {

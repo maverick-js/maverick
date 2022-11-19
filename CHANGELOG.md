@@ -1,3 +1,12 @@
+## [0.2.1](https://github.com/maverick-js/maverick/compare/v0.2.0...v0.2.1) (2022-11-19)
+
+
+### Bug Fixes
+
+* move global types out of `JSX` namespace ([8779841](https://github.com/maverick-js/maverick/commit/8779841edf5a56708f8e66fa1bf5dea7599c0d49))
+
+
+
 # [0.2.0](https://github.com/maverick-js/maverick/compare/v0.1.1...v0.2.0) (2022-11-19)
 
 

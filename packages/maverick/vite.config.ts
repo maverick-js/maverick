@@ -16,6 +16,7 @@ export default defineConfig({
       'maverick.js/dom': '/src/runtime/dom',
       'maverick.js/react': '/src/react',
       'maverick.js/ssr': '/src/runtime/ssr',
+      'maverick.js/std': '/src/std',
       'maverick.js': '/src/runtime',
     },
   },

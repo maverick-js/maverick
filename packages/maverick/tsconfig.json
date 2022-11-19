@@ -10,7 +10,8 @@
       "maverick.js/dom": ["./src/runtime/dom"],
       "maverick.js/element": ["./src/element"],
       "maverick.js/react": ["./src/react"],
-      "maverick.js/ssr": ["./src/runtime/ssr"]
+      "maverick.js/ssr": ["./src/runtime/ssr"],
+      "maverick.js/std": ["./src/std"]
     },
     "types": ["@types/node", "vitest/globals"]
   },

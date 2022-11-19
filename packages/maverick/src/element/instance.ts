@@ -2,8 +2,8 @@ import { getScheduler, getScope, observable, peek, root, scope } from '@maverick
 import type { Writable } from 'type-fest';
 
 import { setContextMap, type SubjectRecord } from '../runtime';
-import { runAll } from '../utils/fn';
-import { DOMEvent } from './event';
+import { DOMEvent } from '../std/event';
+import { runAll } from '../std/fn';
 import {
   AFTER_UPDATE,
   ATTACH,

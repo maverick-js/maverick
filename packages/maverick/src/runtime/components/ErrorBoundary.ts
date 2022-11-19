@@ -1,4 +1,4 @@
-import { isFunction } from '../../utils/unit';
+import { isFunction } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { computed, observable, type Observable, onError, peek } from '../reactivity';
 

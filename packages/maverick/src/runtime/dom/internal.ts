@@ -5,18 +5,12 @@ import {
   type MaverickElement,
 } from '../../element';
 import { createElementInstance } from '../../element/instance';
-import { attachDeclarativeShadowDOM } from '../../utils/dom';
-import {
-  createComment,
-  createFragment,
-  listen,
-  setAttribute,
-  setStyle,
-  toggleClass,
-} from '../../utils/dom';
-import { mergeProperties } from '../../utils/object';
-import { observe } from '../../utils/observable';
-import { isArray, isFunction } from '../../utils/unit';
+import { attachDeclarativeShadowDOM } from '../../std/dom';
+import { createComment, createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
+import { listen } from '../../std/event';
+import { mergeProperties } from '../../std/object';
+import { observe } from '../../std/observable';
+import { isArray, isFunction } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { onDispose, peek } from '../reactivity';
 import { createMarkerWalker, insert, insertExpression, type StartMarker } from './insert';

@@ -1,10 +1,9 @@
 import type { Constructor } from 'type-fest';
 
-import type { JSX } from '../runtime';
+import { type JSX, onDispose } from '../runtime';
 
-const DOM_EVENT = Symbol('DOM_EVENT');
-
-const DOMEventBase: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event;
+const DOM_EVENT = Symbol('DOM_EVENT'),
+  DOMEventBase: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event;
 
 export type DOMEventInit<Detail = unknown> = EventInit & {
   readonly detail?: Detail;
@@ -175,3 +174,52 @@ export type InferEventInit<Init> = Init extends Constructor<DOMEvent>
   : Init extends DOMEventInit
   ? Init
   : EventInit;
+
+/**
+ * Adds an event listener for the given `type`.
+ *
+ * This function is safe to use on the server.
+ */
+export function listen<Target extends EventTarget, EventType extends string>(
+  target: Target,
+  type: EventType,
+  handler: JSX.TargetedEventHandler<
+    Target,
+    EventType extends keyof JSX.GlobalEventRecord ? JSX.GlobalEventRecord[EventType] : Event
+  >,
+  options?: AddEventListenerOptions | boolean,
+) {
+  if (__SERVER__) return;
+  target.addEventListener(type, handler as any, options);
+  onDispose(() => {
+    target.removeEventListener(type, handler as any, options);
+  });
+}
+
+export function isPointerEvent(event: Event | undefined): event is PointerEvent {
+  return !!event?.type.startsWith('pointer');
+}
+
+export function isTouchEvent(event: Event | undefined): event is TouchEvent {
+  return !!event?.type.startsWith('touch');
+}
+
+export function isMouseEvent(event: Event | undefined): event is MouseEvent {
+  return /^(click|mouse)/.test(event?.type ?? '');
+}
+
+export function isKeyboardEvent(event: Event | undefined): event is KeyboardEvent {
+  return !!event?.type.startsWith('key');
+}
+
+export function wasEnterKeyPressed(event: Event | undefined) {
+  return isKeyboardEvent(event) && event.key === 'Enter';
+}
+
+export function wasEscapeKeyPressed(event: Event | undefined) {
+  return isKeyboardEvent(event) && event.key === 'Escape';
+}
+
+export function isKeyboardClick(event: Event | undefined) {
+  return isKeyboardEvent(event) && (event.key === 'Enter' || event.key === ' ');
+}

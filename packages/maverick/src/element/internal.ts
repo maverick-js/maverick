@@ -1,6 +1,6 @@
 import { scope } from '@maverick-js/observables';
 
-import { isNull } from '../utils/unit';
+import { isNull } from '../std/unit';
 import type { ElementLifecycleCallback, ElementLifecycleManager } from './lifecycle';
 import type { AnyElementInstance } from './types';
 

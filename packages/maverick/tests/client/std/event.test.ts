@@ -1,10 +1,10 @@
 import {
   appendTriggerEvent,
+  DOMEvent,
   findTriggerEvent,
   isDOMEvent,
-  DOMEvent,
   walkTriggerEventChain,
-} from 'maverick.js/element';
+} from 'maverick.js/std';
 
 it('should identify dom event', () => {
   expect(isDOMEvent(undefined)).toBeFalsy();

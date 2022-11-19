@@ -1,6 +1,4 @@
 import type { ServerHTMLElement } from '../element/create-server-element';
-import { onDispose } from '../runtime';
-import type { JSX } from '../runtime/jsx';
 import { observe } from './observable';
 
 export function isDOMNode(node: any): node is Node {
@@ -21,27 +19,6 @@ export function createFragment() {
 
 export function createComment(data: string) {
   return document.createComment(data);
-}
-
-/**
- * Adds an event listener for the given `type`.
- *
- * This function is safe to use on the server.
- */
-export function listen<Target extends EventTarget, EventType extends string>(
-  target: Target,
-  type: EventType,
-  handler: JSX.TargetedEventHandler<
-    Target,
-    EventType extends keyof JSX.GlobalEventRecord ? JSX.GlobalEventRecord[EventType] : Event
-  >,
-  options?: AddEventListenerOptions | boolean,
-) {
-  if (__SERVER__) return;
-  target.addEventListener(type, handler as any, options);
-  onDispose(() => {
-    target.removeEventListener(type, handler as any, options);
-  });
 }
 
 /**
@@ -98,14 +75,6 @@ export function toggleClass(host: Element | ServerHTMLElement, name: string, val
   });
 }
 
-export function attachDeclarativeShadowDOM(element: HTMLElement) {
-  const template = element.firstChild as HTMLTemplateElement;
-  const mode = template.getAttribute('shadowroot')! as 'open' | 'closed';
-  const shadowRoot = (template.parentNode as HTMLElement).attachShadow({ mode });
-  shadowRoot.appendChild(template.content);
-  template.remove();
-}
-
 /**
  * Returns elements assigned to the given slot in the shadow root. Filters out all nodes
  * which are not an element.
@@ -118,4 +87,12 @@ export function getSlottedChildren(el: HTMLElement, name?: string): Element[] {
   const slot = el.shadowRoot?.querySelector(selector) as HTMLSlotElement | null;
   const childNodes = slot?.assignedNodes({ flatten: true }) ?? [];
   return Array.prototype.filter.call(childNodes, (node) => node.nodeType == 1);
+}
+
+export function attachDeclarativeShadowDOM(element: HTMLElement) {
+  const template = element.firstChild as HTMLTemplateElement;
+  const mode = template.getAttribute('shadowroot')! as 'open' | 'closed';
+  const shadowRoot = (template.parentNode as HTMLElement).attachShadow({ mode });
+  shadowRoot.appendChild(template.content);
+  template.remove();
 }

@@ -1,7 +1,7 @@
-import { createComment, createFragment, isDOMNode } from '../../utils/dom';
-import { run } from '../../utils/fn';
-import { unwrapDeep } from '../../utils/observable';
-import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
+import { createComment, createFragment, isDOMNode } from '../../std/dom';
+import { run } from '../../std/fn';
+import { unwrapDeep } from '../../std/observable';
+import { isArray, isFunction, isNumber, isString } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { effect, isObserved } from '../reactivity';
 import { hydration } from './render';

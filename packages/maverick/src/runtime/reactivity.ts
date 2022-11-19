@@ -1,6 +1,6 @@
 import { effect as $effect, type Effect, type StopEffect } from '@maverick-js/observables';
 
-import { noop } from '../utils/unit';
+import { noop } from '../std/unit';
 
 /**
  * Invokes the given function each time any of the observables that are read inside are updated

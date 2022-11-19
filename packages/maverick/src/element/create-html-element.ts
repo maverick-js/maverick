@@ -2,10 +2,10 @@ import { effect, getScheduler, isSubject, scope } from '@maverick-js/observables
 
 import { hydrate, hydration, render } from '../runtime';
 import { $$_create_element } from '../runtime/dom/internal';
-import { isDOMElement, setAttribute, setStyle } from '../utils/dom';
-import { run, runAll } from '../utils/fn';
-import { camelToKebabCase } from '../utils/string';
-import { isBoolean, isFunction } from '../utils/unit';
+import { isDOMElement, setAttribute, setStyle } from '../std/dom';
+import { run, runAll } from '../std/fn';
+import { camelToKebabCase } from '../std/string';
+import { isBoolean, isFunction } from '../std/unit';
 import { adoptCSS } from './css';
 import { createElementInstance } from './instance';
 import {

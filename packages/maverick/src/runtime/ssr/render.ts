@@ -1,5 +1,5 @@
-import { escape } from '../../utils/html';
-import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
+import { escape } from '../../std/html';
+import { isArray, isFunction, isNumber, isString } from '../../std/unit';
 import { root as $root } from '../reactivity';
 
 export function renderToString<T>(root: () => T) {

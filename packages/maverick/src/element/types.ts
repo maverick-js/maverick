@@ -8,8 +8,8 @@ import type {
   ObservableSubject,
   SubjectRecord,
 } from '../runtime';
+import type { DOMEventInit } from '../std/event';
 import type { CSS } from './css';
-import type { DOMEventInit } from './event';
 import type { HOST, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
 import type { ElementLifecycleManager } from './lifecycle';
 

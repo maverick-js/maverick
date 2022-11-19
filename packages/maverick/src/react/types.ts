@@ -1,7 +1,6 @@
 import type * as React from 'react';
 import type { PascalCase } from 'type-fest';
 
-import type { DOMEvent, InferEventInit } from '../element/event';
 import type {
   AnyElementDefinition,
   ElementDefinition,
@@ -9,6 +8,7 @@ import type {
   InferHostElement,
 } from '../element/types';
 import type { JSX } from '../runtime/jsx';
+import type { DOMEvent, InferEventInit } from '../std/event';
 
 export type ReactElement<Definition extends AnyElementDefinition> = React.ForwardRefExoticComponent<
   ReactElementProps<Definition>

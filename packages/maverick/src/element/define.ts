@@ -1,4 +1,4 @@
-import { isFunction } from '../utils/unit';
+import { isFunction } from '../std/unit';
 import { isHostElement } from './create-html-element';
 import type {
   ElementCSSVarRecord,

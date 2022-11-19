@@ -1,10 +1,10 @@
 import { getScheduler, renderToString } from '../runtime';
 import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
-import { setAttribute, setStyle } from '../utils/dom';
-import { runAll } from '../utils/fn';
-import { escape } from '../utils/html';
-import { camelToKebabCase } from '../utils/string';
-import { isBoolean, isFunction } from '../utils/unit';
+import { setAttribute, setStyle } from '../std/dom';
+import { runAll } from '../std/fn';
+import { escape } from '../std/html';
+import { camelToKebabCase } from '../std/string';
+import { isBoolean, isFunction } from '../std/unit';
 import { ATTACH, HOST, PROPS, RENDER } from './internal';
 import type {
   AnyElementDefinition,

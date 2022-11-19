@@ -1,10 +1,10 @@
 import { createServerElement, type ElementDefinition } from '../../element';
 import { createElementInstance } from '../../element/instance';
 import { getElementInstance } from '../../element/internal';
-import { escape } from '../../utils/html';
-import { unwrapDeep } from '../../utils/observable';
-import { trimTrailingSemicolon } from '../../utils/string';
-import { isFunction, isNull, isString } from '../../utils/unit';
+import { escape } from '../../std/html';
+import { unwrapDeep } from '../../std/observable';
+import { trimTrailingSemicolon } from '../../std/string';
+import { isFunction, isNull, isString } from '../../std/unit';
 import { injectHTML, resolve, SSR_TEMPLATE } from './render';
 
 /** @internal */

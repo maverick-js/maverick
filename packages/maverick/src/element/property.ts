@@ -1,4 +1,4 @@
-import { isArray } from '../utils/unit';
+import { isArray } from '../std/unit';
 import type { ElementAttributeConverter, ElementPropDefinition } from './types';
 
 export function defineProp<T>(

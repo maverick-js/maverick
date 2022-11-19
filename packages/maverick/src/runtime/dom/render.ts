@@ -1,8 +1,8 @@
-import { unwrapDeep } from '../../utils/obs';
+import { unwrapDeep } from '../../utils/observable';
 import type { JSX } from '../jsx';
 import { root as createRoot, type Dispose } from '../reactivity';
-import { createMarkerWalker, type MarkerWalker } from './expression';
-import { insert } from './utils';
+import { createMarkerWalker, type MarkerWalker } from './insert';
+import { insert } from './insert';
 
 export let hydration: HydrationContext | null = null;
 

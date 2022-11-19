@@ -102,6 +102,15 @@
       "node": "./dist/server/react.js",
       "default": "./dist/prod/react.js"
     },
+    "./std": {
+      "types": "./std.d.ts",
+      "development": "./dist/dev/std.js",
+      "test": "./dist/dev/std.js",
+      "require": "./dist/server/std.cjs",
+      "deno": "./dist/server/std.js",
+      "node": "./dist/server/std.js",
+      "default": "./dist/prod/std.js"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {

@@ -1,4 +1,5 @@
 import { observable, root, tick } from 'maverick.js';
+
 import {
   $$_attr,
   $$_class,
@@ -14,9 +15,9 @@ import {
   $$_ref,
   $$_spread,
   $$_style,
-  insert,
 } from 'maverick.js/dom';
-import { createMarkerWalker, insertExpression } from 'maverick.js/dom/expression';
+import { createMarkerWalker, insert, insertExpression } from 'maverick.js/dom/insert';
+
 import { element, endMarker, startMarker } from './utils';
 
 it('should create template', () => {

@@ -35,3 +35,11 @@ export function isFunction(value: any): value is Function {
 export function isArray(value: unknown): value is unknown[] {
   return Array.isArray(value);
 }
+
+export function createRegex(regex: string | RegExp) {
+  return isString(regex) ? new RegExp(regex) : regex;
+}
+
+export function isWindow(value: unknown): value is Window {
+  return value === window;
+}

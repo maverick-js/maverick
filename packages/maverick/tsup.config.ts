@@ -31,6 +31,7 @@ const entry = {
   ssr: './src/runtime/ssr/index.ts',
   element: './src/element/index.ts',
   react: './src/react/index.ts',
+  std: './src/std.ts',
 };
 
 export default defineConfig([

@@ -1,10 +1,10 @@
+import { createComment, createFragment, isDOMNode } from '../../utils/dom';
 import { run } from '../../utils/fn';
-import { unwrapDeep } from '../../utils/obs';
+import { unwrapDeep } from '../../utils/observable';
 import { isArray, isFunction, isNumber, isString } from '../../utils/unit';
 import type { JSX } from '../jsx';
 import { effect, isObserved } from '../reactivity';
 import { hydration } from './render';
-import { createComment, createFragment, insert, isDOMNode } from './utils';
 
 const TEXT = Symbol();
 const END_MARKER = Symbol();
@@ -18,6 +18,17 @@ export type StartMarker = Comment & {
 
 // <!--/$-->
 export type EndMarker = Comment;
+
+export function insert(
+  parent: Node | DocumentFragment,
+  value: JSX.Element,
+  before: Node | null = null,
+) {
+  const marker = createComment('$$');
+  if (before === null) parent.appendChild(marker);
+  else parent.insertBefore(marker, before);
+  insertExpression(marker, value);
+}
 
 export function insertExpression(start: StartMarker, value: JSX.Element, isObservable = false) {
   if (isFunction(value)) {

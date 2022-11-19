@@ -7,7 +7,7 @@ import { PROPS } from '../element/internal';
 import type { AnyElementDefinition, AnyElementInstance, MaverickElement } from '../element/types';
 import { ContextMap } from '../runtime';
 import { $$_attach_declarative_shadow_dom } from '../runtime/dom';
-import { kebabToPascalCase } from '../utils/str';
+import { kebabToPascalCase } from '../utils/string';
 import { createReactServerElement } from './create-react-server-element';
 import type { ReactElement, ReactElementProps } from './types';
 import { ReactContextMap } from './use-react-context';

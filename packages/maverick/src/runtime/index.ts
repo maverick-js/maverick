@@ -8,7 +8,6 @@ export * from './components/For';
 export * from './components/HostElement';
 export * from './context';
 export * from './dom/render';
-export * from './dom/utils';
 export { renderToString } from './ssr';
 export { observable as $, computed as $$ };
 export type { JSX } from './jsx';

@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { createServerElement } from '../element/create-server-element';
 import { createElementInstance } from '../element/instance';
 import type { AnyElementDefinition } from '../element/types';
-import { kebabToCamelCase } from '../utils/str';
+import { kebabToCamelCase } from '../utils/string';
 import { ReactContextMap } from './use-react-context';
 import { WithContextMap } from './utils';
 

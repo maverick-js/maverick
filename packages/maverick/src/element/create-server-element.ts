@@ -1,8 +1,9 @@
-import { getScheduler, renderToString, setAttribute, setStyle } from '../runtime';
+import { getScheduler, renderToString } from '../runtime';
 import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
+import { setAttribute, setStyle } from '../utils/dom';
 import { runAll } from '../utils/fn';
 import { escape } from '../utils/html';
-import { camelToKebabCase } from '../utils/str';
+import { camelToKebabCase } from '../utils/string';
 import { isBoolean, isFunction } from '../utils/unit';
 import { ATTACH, HOST, PROPS, RENDER } from './internal';
 import type {

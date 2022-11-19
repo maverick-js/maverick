@@ -6,22 +6,21 @@ import {
 } from '../../element';
 import { createElementInstance } from '../../element/instance';
 import { attachDeclarativeShadowDOM } from '../../utils/dom';
-import { isArray, isFunction } from '../../utils/unit';
-import type { JSX } from '../jsx';
-import { onDispose, peek } from '../reactivity';
-import { createMarkerWalker, insertExpression, type StartMarker } from './expression';
-import { hydration } from './render';
 import {
   createComment,
   createFragment,
-  insert,
   listen,
-  mergeProperties,
-  observe,
   setAttribute,
   setStyle,
   toggleClass,
-} from './utils';
+} from '../../utils/dom';
+import { mergeProperties } from '../../utils/object';
+import { observe } from '../../utils/observable';
+import { isArray, isFunction } from '../../utils/unit';
+import type { JSX } from '../jsx';
+import { onDispose, peek } from '../reactivity';
+import { createMarkerWalker, insert, insertExpression, type StartMarker } from './insert';
+import { hydration } from './render';
 
 /** @internal */
 export function $$_create_template(html: string) {
@@ -209,15 +208,13 @@ export function $$_spread(element: Element, props: Record<string, unknown>) {
 
 /** @internal */
 export function $$_merge_props(...sources: Record<string, unknown>[]) {
-  // @ts-expect-error
+  // @ts-expect-error - unknown rest length.
   return mergeProperties(...sources);
 }
 
 /** @internal */
 export function $$_listen(target: EventTarget, type: string, handler: unknown, capture = false) {
-  if (isFunction(handler)) {
-    listen(target, type, handler as any, { capture });
-  }
+  if (isFunction(handler)) listen(target, type, handler as any, { capture });
 }
 
 export const $$_peek = peek;

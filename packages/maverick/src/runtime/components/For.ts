@@ -1,4 +1,4 @@
-import { unwrap } from '../../utils/obs';
+import { unwrap } from '../../utils/observable';
 import type { JSX } from '../jsx';
 import { computedKeyedMap, computedMap, type Maybe, type Observable } from '../reactivity';
 

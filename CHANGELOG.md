@@ -1,3 +1,12 @@
+## [0.1.1](https://github.com/maverick-js/maverick/compare/v0.1.0...v0.1.1) (2022-11-19)
+
+
+### Bug Fixes
+
+* move `DOMEvent` to `std` lib ([9cc1363](https://github.com/maverick-js/maverick/commit/9cc136357a64aadf04e8fd0363926894c8a2b83e))
+
+
+
 # [0.1.0](https://github.com/maverick-js/maverick/compare/v0.0.6...v0.1.0) (2022-11-19)
 
 

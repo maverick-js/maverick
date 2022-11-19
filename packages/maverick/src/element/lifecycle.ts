@@ -8,17 +8,18 @@ import {
   DISCONNECT,
   MOUNT,
 } from './internal';
+import { MaverickElement } from './types';
 
-export type ElementLifecycleCallback = () => any;
+export type ElementLifecycleCallback = (host: MaverickElement) => any;
 
 export type ElementLifecycleManager = {
-  [ATTACH]: ElementLifecycleCallback[];
-  [CONNECT]: ElementLifecycleCallback[];
-  [MOUNT]: ElementLifecycleCallback[];
-  [BEFORE_UPDATE]: ElementLifecycleCallback[];
-  [AFTER_UPDATE]: ElementLifecycleCallback[];
-  [DISCONNECT]: ElementLifecycleCallback[];
-  [DESTROY]: ElementLifecycleCallback[];
+  [ATTACH]: (() => any)[];
+  [CONNECT]: (() => any)[];
+  [MOUNT]: (() => any)[];
+  [BEFORE_UPDATE]: (() => any)[];
+  [AFTER_UPDATE]: (() => any)[];
+  [DISCONNECT]: (() => any)[];
+  [DESTROY]: (() => any)[];
 };
 
 /**

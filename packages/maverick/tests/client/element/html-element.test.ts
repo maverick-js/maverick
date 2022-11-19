@@ -86,9 +86,11 @@ it('should call connect lifecycle hook', () => {
 
   const { instance, element } = setupTestElement({
     setup({ host }) {
-      onAttach(() => {
+      onAttach((__host) => {
         attach();
+        expect(__host).toBeDefined();
         expect(host.el).toBeDefined();
+        expect(__host).toEqual(host.el);
       });
       return () => null;
     },
@@ -116,12 +118,14 @@ it('should call connect lifecycle hook', () => {
 
   expect(instance.host.$connected).toBeTruthy();
   expect(connect).toHaveBeenCalledTimes(1);
+  expect(connect).toHaveBeenCalledWith(element);
   expect(disconnect).not.toHaveBeenCalled();
 
   element.remove();
   expect(instance.host.$connected).toBeFalsy();
   expect(connect).toHaveBeenCalledTimes(1);
   expect(disconnect).toHaveBeenCalledTimes(1);
+  expect(disconnect).toHaveBeenCalledWith(element);
 });
 
 it('should call mount lifecycle hook', () => {
@@ -141,12 +145,14 @@ it('should call mount lifecycle hook', () => {
   element.attachComponent(instance);
   expect(instance.host.$mounted).toBeTruthy();
   expect(mount).toHaveBeenCalledTimes(1);
+  expect(mount).toHaveBeenCalledWith(element);
   expect(destroy).not.toHaveBeenCalled();
 
   instance.destroy();
   expect(instance.host.$mounted).toBeFalsy();
   expect(mount).toHaveBeenCalledTimes(1);
   expect(destroy).toHaveBeenCalledTimes(1);
+  expect(destroy).toHaveBeenCalledWith(element);
 });
 
 it('should call update hooks', async () => {
@@ -161,12 +167,12 @@ it('should call update hooks', async () => {
       foo: defineProp(10),
     },
     setup() {
-      onBeforeUpdate(() => {
-        beforeUpdate();
+      onBeforeUpdate((host) => {
+        beforeUpdate(host);
         beforeCalledAt = performance.now();
       });
-      onAfterUpdate(() => {
-        afterUpdate();
+      onAfterUpdate((host) => {
+        afterUpdate(host);
         afterCalledAt = performance.now();
       });
       return () => null;
@@ -184,6 +190,8 @@ it('should call update hooks', async () => {
   await tick();
   expect(beforeUpdate).toHaveBeenCalled();
   expect(afterUpdate).toHaveBeenCalled();
+  expect(beforeUpdate).toHaveBeenCalledWith(element);
+  expect(afterUpdate).toHaveBeenCalledWith(element);
 
   expect(beforeCalledAt < afterCalledAt).toBeTruthy();
 });
@@ -205,6 +213,7 @@ it('should call disconnect lifecycle hook', () => {
 
   element.remove();
   expect(disconnect).toHaveBeenCalledTimes(1);
+  expect(disconnect).toHaveBeenCalledWith(element);
 });
 
 it('should call destroy lifecycle hook', () => {
@@ -227,6 +236,7 @@ it('should call destroy lifecycle hook', () => {
 
   instance.destroy();
   expect(destroy).toHaveBeenCalledTimes(1);
+  expect(destroy).toHaveBeenCalledWith(element);
 });
 
 it('should throw if lifecycle hook called outside setup', () => {

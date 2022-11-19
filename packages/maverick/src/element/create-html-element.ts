@@ -104,7 +104,9 @@ export function createHTMLElement<
     }
 
     connectedCallback() {
-      if (!this._delegate && !this._instance) {
+      const instance = this._instance;
+
+      if (!this._delegate && !instance) {
         if (definition.parent) {
           defineCustomElement(definition.parent);
           const parent = this.closest(definition.parent.tagName) as MaverickElement;
@@ -118,7 +120,7 @@ export function createHTMLElement<
       }
 
       // Could be called once element is no longer connected.
-      if (!this._instance || !this.isConnected || this._instance.host.$connected) return;
+      if (!instance || !this.isConnected || instance.host.$connected) return;
 
       if (this._destroyed) {
         if (__DEV__) {
@@ -129,20 +131,29 @@ export function createHTMLElement<
       }
 
       // Connect
-      this._instance.host[PROPS].$connected.set(true);
-      this._instance[DISCONNECT].push(
-        ...(this._instance[CONNECT].map(run).filter(isFunction) as ElementLifecycleCallback[]),
+      instance.host[PROPS].$connected.set(true);
+
+      const disconnectCallbacks = instance[CONNECT].map(run).filter(
+        isFunction,
+      ) as ElementLifecycleCallback[];
+
+      instance[DISCONNECT].push(
+        ...disconnectCallbacks.map((cb) => scope(() => cb(this as any), instance[SCOPE])),
       );
 
       // Mount
-      if (!this._instance.host.$mounted) {
-        this._instance.host[PROPS].$mounted.set(true);
+      if (!instance.host.$mounted) {
+        instance.host[PROPS].$mounted.set(true);
 
-        this._instance[DESTROY].push(
-          ...(this._instance[MOUNT].map(run).filter(isFunction) as ElementLifecycleCallback[]),
+        const destroyCallbacks = instance[MOUNT].map(run).filter(
+          isFunction,
+        ) as ElementLifecycleCallback[];
+
+        instance[DESTROY].push(
+          ...destroyCallbacks.map((cb) => scope(() => cb(this as any), instance[SCOPE])),
         );
 
-        this._instance[MOUNT] = [];
+        instance[MOUNT] = [];
         scheduler.flushSync();
 
         if (this[MOUNT]) {
@@ -151,28 +162,26 @@ export function createHTMLElement<
         }
 
         // Updates
-        this._instance[DESTROY].push(
-          scheduler.onBeforeFlush(() => runAll(this._instance![BEFORE_UPDATE])),
-        );
-        this._instance[DESTROY].push(
-          scheduler.onFlush(() => runAll(this._instance![AFTER_UPDATE])),
-        );
+        instance[DESTROY].push(scheduler.onBeforeFlush(() => runAll(instance[BEFORE_UPDATE])));
+        instance[DESTROY].push(scheduler.onFlush(() => runAll(instance[AFTER_UPDATE])));
 
-        this._instance[SCOPE] = undefined;
+        instance[SCOPE] = undefined;
       }
     }
 
     disconnectedCallback() {
-      if (!this._instance?.host.$connected || this._destroyed) return;
+      const instance = this._instance;
 
-      this._instance.host[PROPS].$connected.set(false);
-      runAll(this._instance[DISCONNECT]);
-      this._instance[DISCONNECT] = [];
+      if (!instance?.host.$connected || this._destroyed) return;
+
+      instance.host[PROPS].$connected.set(false);
+      runAll(instance[DISCONNECT]);
+      instance[DISCONNECT] = [];
 
       if (!this._delegate) {
         requestAnimationFrame(() => {
           if (!this.isConnected) {
-            this._instance?.destroy();
+            instance?.destroy();
             this._destroyed = true;
           }
         });
@@ -249,7 +258,7 @@ export function createHTMLElement<
           // Reflected props.
           for (const propName of reflectedProps) {
             const attrName = propToAttr.get(propName)!;
-            const prop = this._instance![PROPS][propName];
+            const prop = instance![PROPS][propName];
             const convert = propDefs[propName]!.converter?.to;
             effect(() => {
               const propValue = prop();

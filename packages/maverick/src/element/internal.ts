@@ -59,6 +59,6 @@ export function createLifecycleMethod(type: keyof ElementLifecycleManager) {
       return;
     }
 
-    instance[type].push(scope(callback));
+    instance[type].push(scope(() => callback(instance.host.el!)));
   };
 }

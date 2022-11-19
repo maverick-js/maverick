@@ -1,3 +1,12 @@
+# [0.2.0](https://github.com/maverick-js/maverick/compare/v0.1.1...v0.2.0) (2022-11-19)
+
+
+### Features
+
+* pass host element to lifecycle callbacks ([aab03af](https://github.com/maverick-js/maverick/commit/aab03afa0f3c9746fe116e7d95749f50b365f153))
+
+
+
 ## [0.1.1](https://github.com/maverick-js/maverick/compare/v0.1.0...v0.1.1) (2022-11-19)
 
 

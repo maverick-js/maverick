@@ -1,3 +1,12 @@
+## [0.4.1](https://github.com/maverick-js/maverick/compare/v0.4.0...v0.4.1) (2022-11-20)
+
+
+### Bug Fixes
+
+* typo in `useHost` error ([78ddf6a](https://github.com/maverick-js/maverick/commit/78ddf6aac724d267832a1137a3d1a810e2aae71f))
+
+
+
 # [0.4.0](https://github.com/maverick-js/maverick/compare/v0.3.0...v0.4.0) (2022-11-20)
 
 

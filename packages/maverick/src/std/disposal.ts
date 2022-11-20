@@ -1,7 +1,7 @@
 import { onDispose } from '../runtime';
 
 export type DisposalBin = {
-  add(...callbacks: (() => unknown[])[]): void;
+  add(...callbacks: (() => any)[]): void;
   empty(): void;
 };
 

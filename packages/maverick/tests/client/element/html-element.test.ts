@@ -1,4 +1,4 @@
-import { tick } from '@maverick-js/observables';
+import { getScope, onDispose, tick } from '@maverick-js/observables';
 import { createContext } from 'maverick.js';
 
 import {
@@ -126,6 +126,45 @@ it('should call connect lifecycle hook', () => {
   expect(connect).toHaveBeenCalledTimes(1);
   expect(disconnect).toHaveBeenCalledTimes(1);
   expect(disconnect).toHaveBeenCalledWith(element);
+});
+
+it('should scope connect/disconnect lifecycle hooks', () => {
+  const connect = vi.fn();
+  const disconnect = vi.fn();
+  const dispose = vi.fn();
+  const context = createContext(0);
+
+  const { instance, element } = setupTestElement({
+    setup() {
+      context.set(1);
+
+      onConnect((host) => {
+        const connectScope = getScope();
+        expect(connectScope).toBeDefined();
+        expect(context.get()).toBe(1);
+
+        connect(host);
+        onDispose(dispose);
+
+        return () => {
+          const disconnectScope = getScope();
+          expect(disconnectScope).toBeDefined();
+          expect(disconnectScope).toBe(connectScope);
+          expect(context.get()).toBe(1);
+          disconnect();
+        };
+      });
+
+      return () => null;
+    },
+  });
+
+  element.attachComponent(instance);
+  element.remove();
+
+  expect(connect).toHaveBeenCalledTimes(1);
+  expect(dispose).toHaveBeenCalledTimes(1);
+  expect(disconnect).toHaveBeenCalledTimes(1);
 });
 
 it('should call mount lifecycle hook', () => {

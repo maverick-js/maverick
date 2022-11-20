@@ -3,9 +3,9 @@ import {
   ATTACH,
   BEFORE_UPDATE,
   CONNECT,
-  createLifecycleMethod,
   DESTROY,
   DISCONNECT,
+  getElementInstance,
   MOUNT,
 } from './internal';
 import { MaverickElement } from './types';
@@ -78,3 +78,20 @@ export const onDisconnect = createLifecycleMethod(DISCONNECT);
  * - This hook will only run once.
  */
 export const onDestroy = createLifecycleMethod(DESTROY);
+
+function createLifecycleMethod(type: keyof ElementLifecycleManager) {
+  const isConnect = type === CONNECT;
+  return (callback: ElementLifecycleCallback) => {
+    if (__SERVER__ && type !== ATTACH) return;
+
+    const instance = getElementInstance();
+
+    if (!instance) {
+      if (__DEV__) throw Error('[maverick] lifecycle hook called outside of element setup');
+      return;
+    }
+
+    const hook = () => callback(instance.host.el!);
+    instance[type].push(isConnect ? hook : () => instance.run(hook));
+  };
+}

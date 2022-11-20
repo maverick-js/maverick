@@ -1,9 +1,9 @@
-import { effect, getScheduler, isSubject, scope } from '@maverick-js/observables';
+import { effect, getScheduler, isSubject, root } from '@maverick-js/observables';
 
-import { hydrate, hydration, render } from '../runtime';
+import { createScopedRunner, hydrate, hydration, render } from '../runtime';
 import { $$_create_element } from '../runtime/dom/internal';
 import { isDOMElement, setAttribute, setStyle } from '../std/dom';
-import { run, runAll } from '../std/fn';
+import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
 import { isBoolean, isFunction } from '../std/unit';
 import { adoptCSS } from './css';
@@ -20,9 +20,7 @@ import {
   MOUNT,
   PROPS,
   RENDER,
-  SCOPE,
 } from './internal';
-import type { ElementLifecycleCallback } from './lifecycle';
 import type {
   AnyElementDefinition,
   ElementCSSVarRecord,
@@ -79,6 +77,8 @@ export function createHTMLElement<
     private _destroyed = false;
     private _instance: ElementInstance<Props, Events> | null = null;
     private _onEventDispatch?: (eventType: string) => void;
+    /** Dynamic disconnect callbacks returned from `onConnect` */
+    private _disconnectCallbacks: (() => void)[] = [];
 
     private get _hydrate() {
       return this.hasAttribute('mk-h');
@@ -111,9 +111,7 @@ export function createHTMLElement<
           defineCustomElement(definition.parent);
           const parent = this.closest(definition.parent.tagName) as MaverickElement;
           const onParentMount = (parent[MOUNT] ??= []);
-          onParentMount.push(() =>
-            scope(() => this._attachComponent(), parent.instance![SCOPE]!)(),
-          );
+          onParentMount.push(() => parent.instance!.run(() => this._attachComponent()));
         } else {
           this._attachComponent();
         }
@@ -133,25 +131,33 @@ export function createHTMLElement<
       // Connect
       instance.host[PROPS].$connected.set(true);
 
-      const disconnectCallbacks = instance[CONNECT].map(run).filter(
-        isFunction,
-      ) as ElementLifecycleCallback[];
+      if (instance[CONNECT].length) {
+        instance.run(() => {
+          root((dispose) => {
+            const run = createScopedRunner();
 
-      instance[DISCONNECT].push(
-        ...disconnectCallbacks.map((cb) => scope(() => cb(this as any), instance[SCOPE])),
-      );
+            for (const connectCallback of instance[CONNECT]) {
+              const disconnectCallback = connectCallback();
+              if (isFunction(disconnectCallback)) {
+                this._disconnectCallbacks.push(() => run(() => disconnectCallback(this)));
+              }
+            }
+
+            this._disconnectCallbacks.push(dispose);
+          });
+        });
+      }
 
       // Mount
       if (!instance.host.$mounted) {
         instance.host[PROPS].$mounted.set(true);
 
-        const destroyCallbacks = instance[MOUNT].map(run).filter(
-          isFunction,
-        ) as ElementLifecycleCallback[];
-
-        instance[DESTROY].push(
-          ...destroyCallbacks.map((cb) => scope(() => cb(this as any), instance[SCOPE])),
-        );
+        for (const mountCallback of instance[MOUNT]) {
+          const destroyCallback = mountCallback();
+          if (isFunction(destroyCallback)) {
+            instance[DESTROY].push(() => instance.run(() => destroyCallback(this)));
+          }
+        }
 
         instance[MOUNT] = [];
         scheduler.flushSync();
@@ -164,8 +170,6 @@ export function createHTMLElement<
         // Updates
         instance[DESTROY].push(scheduler.onBeforeFlush(() => runAll(instance[BEFORE_UPDATE])));
         instance[DESTROY].push(scheduler.onFlush(() => runAll(instance[AFTER_UPDATE])));
-
-        instance[SCOPE] = undefined;
       }
     }
 
@@ -176,7 +180,9 @@ export function createHTMLElement<
 
       instance.host[PROPS].$connected.set(false);
       runAll(instance[DISCONNECT]);
-      instance[DISCONNECT] = [];
+      runAll(this._disconnectCallbacks);
+      this._disconnectCallbacks = [];
+      scheduler.flushSync();
 
       if (!this._delegate) {
         requestAnimationFrame(() => {
@@ -254,7 +260,7 @@ export function createHTMLElement<
       runAll(instance[ATTACH]);
 
       if (reflectedProps.size) {
-        scope(() => {
+        instance.run(() => {
           // Reflected props.
           for (const propName of reflectedProps) {
             const attrName = propToAttr.get(propName)!;
@@ -266,7 +272,7 @@ export function createHTMLElement<
               setAttribute(this, attrName, attrValue);
             });
           }
-        }, instance[SCOPE]!)();
+        });
       }
 
       const renderer = this._hydrate ? hydrate : render;

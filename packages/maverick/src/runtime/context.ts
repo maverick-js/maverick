@@ -7,7 +7,7 @@ export type Context<T> = {
   set(value: T): void;
 };
 
-const CONTEXT_MAP = Symbol();
+const CONTEXT_MAP = Symbol(__DEV__ ? 'CONTEXT_MAP' : 0);
 
 export type ContextMap = Map<string | symbol, any>;
 

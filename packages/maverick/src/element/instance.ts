@@ -1,7 +1,7 @@
 import { getScheduler, getScope, observable, peek, root, scope } from '@maverick-js/observables';
 import type { Writable } from 'type-fest';
 
-import { setContextMap, type SubjectRecord } from '../runtime';
+import { createScopedRunner, setContextMap, type SubjectRecord } from '../runtime';
 import { DOMEvent } from '../std/event';
 import { runAll } from '../std/fn';
 import {
@@ -16,7 +16,6 @@ import {
   MOUNT,
   PROPS,
   RENDER,
-  SCOPE,
   setElementInstance,
 } from './internal';
 import type {
@@ -116,21 +115,19 @@ export function createElementInstance<
         }
 
         instance[MEMBERS] = undefined;
-        instance[SCOPE] = undefined;
         instance[RENDER] = undefined;
 
         host.el = null;
         destroyed = true;
       },
+      run: createScopedRunner(),
     };
-
-    const rootScope = getScope()!;
 
     setElementInstance(instance);
     instance[MEMBERS] = definition.setup(instance);
     setElementInstance(null);
 
-    const render = scope(instance[MEMBERS]!.$render, rootScope);
+    const render = scope(instance[MEMBERS]!.$render);
     instance[RENDER] = () => {
       setElementInstance(instance);
       const result = peek(render);
@@ -138,7 +135,6 @@ export function createElementInstance<
       return result;
     };
 
-    instance[SCOPE] = rootScope;
     return instance;
   });
 }

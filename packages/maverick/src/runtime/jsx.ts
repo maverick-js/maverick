@@ -52,7 +52,7 @@ declare global {
   /**
    * Store all events in this record so they can be used to infer event type mappings. Types in
    * this record will _not_ be valid `$on` JSX attribute types. However, types in the
-   * `GlobalOnAttributes` record will show up in this type.
+   * `MaverickOnAttributes` record will show up in this type.
    *
    * @example
    * ```ts

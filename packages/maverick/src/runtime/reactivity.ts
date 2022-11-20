@@ -1,4 +1,4 @@
-import { effect as $effect, type Effect, type StopEffect } from '@maverick-js/observables';
+import { effect as $effect, type Effect, scope, type StopEffect } from '@maverick-js/observables';
 
 import { noop } from '../std/unit';
 
@@ -11,6 +11,20 @@ import { noop } from '../std/unit';
 export function effect(fn: Effect, opts?: { id?: string }): StopEffect {
   if (__SERVER__) return noop;
   return $effect(fn, opts);
+}
+
+/**
+ * Creates a runner that executes functions in the current lexical scope.
+ */
+export function createScopedRunner() {
+  let currentFn: (() => any) | undefined;
+  const run = scope(() => currentFn?.());
+  return <T>(fn: () => T) => {
+    currentFn = fn;
+    const result = run();
+    currentFn = undefined;
+    return result;
+  };
 }
 
 export * from '@maverick-js/observables';

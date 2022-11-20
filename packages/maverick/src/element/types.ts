@@ -10,7 +10,7 @@ import type {
 } from '../runtime';
 import type { DOMEventInit } from '../std/event';
 import type { CSS } from './css';
-import type { HOST, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
+import type { HOST, MEMBERS, PROPS, RENDER } from './internal';
 import type { ElementLifecycleManager } from './lifecycle';
 
 export type AttributeValue = string | null;
@@ -245,13 +245,15 @@ export type ElementInstance<
    * Permanently destroy component instance.
    */
   readonly destroy: () => void;
+  /**
+   * Runs given function inside instance scope.
+   */
+  readonly run: <T>(fn: () => T) => T;
 } & {
   /** @internal */
   [PROPS]: SubjectRecord<Props>;
   /** @internal */
   [MEMBERS]?: ElementMembers;
-  /** @internal */
-  [SCOPE]?: () => void;
   /** @internal */
   [RENDER]?: () => JSX.Element;
 };

@@ -56,8 +56,8 @@ it('should forward context map', () => {
   const definition = defineElement({
     tagName: 'mk-foo-3',
     setup() {
-      expect(foo.get()).toBe(20);
-      expect(bar.get()).toBe(10);
+      expect(foo()).toBe(20);
+      expect(bar()).toBe(10);
       return () => null;
     },
   });

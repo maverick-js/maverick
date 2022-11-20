@@ -173,7 +173,7 @@ it('should forward context', () => {
 
   let value = 0;
   function Component() {
-    value = context.get();
+    value = context();
     return <div>{value}</div>;
   }
 

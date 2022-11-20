@@ -93,7 +93,7 @@ it('should call connect lifecycle hook', () => {
         expect(__host).toBeDefined();
         expect(host.el).toBeDefined();
         expect(__host).toEqual(host.el);
-        expect(context.get()).toBe(1);
+        expect(context()).toBe(1);
       });
       return () => null;
     },
@@ -144,7 +144,7 @@ it('should scope connect/disconnect lifecycle hooks', () => {
       onConnect((host) => {
         const connectScope = getScope();
         expect(connectScope).toBeDefined();
-        expect(context.get()).toBe(1);
+        expect(context()).toBe(1);
 
         connect(host);
         onDispose(dispose);
@@ -153,7 +153,7 @@ it('should scope connect/disconnect lifecycle hooks', () => {
           const disconnectScope = getScope();
           expect(disconnectScope).toBeDefined();
           expect(disconnectScope).toBe(connectScope);
-          expect(context.get()).toBe(1);
+          expect(context()).toBe(1);
           disconnect();
         };
       });
@@ -332,7 +332,7 @@ it('should call disconnect lifecycle hook', () => {
       context.set(1);
 
       onDisconnect((host) => {
-        expect(context.get()).toBe(1);
+        expect(context()).toBe(1);
         disconnect(host);
       });
 
@@ -358,7 +358,7 @@ it('should call destroy lifecycle hook', () => {
     setup() {
       context.set(1);
       onDestroy((host) => {
-        expect(context.get()).toBe(1);
+        expect(context()).toBe(1);
         destroy(host);
       });
       return () => null;
@@ -503,7 +503,7 @@ it('should wait for parent to mount', async () => {
     tagName: `mk-child-1`,
     parent: Parent,
     setup() {
-      expect(context.get()).toBe(1);
+      expect(context()).toBe(1);
       return () => null;
     },
   });

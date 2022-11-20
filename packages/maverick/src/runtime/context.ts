@@ -3,8 +3,9 @@ import { getContext, getScope, setContext } from '@maverick-js/observables';
 export type Context<T> = {
   id: symbol;
   initial: T;
-  get(): T;
+  (): T;
   set(value: T): void;
+  next(next: (prevValue: T) => T): void;
 };
 
 const CONTEXT_MAP = Symbol(__DEV__ ? 'CONTEXT_MAP' : 0);
@@ -27,28 +28,30 @@ export function setContextMap(map: ContextMap) {
 }
 
 export function createContext<T>(initialValue: T): Context<T> {
-  const id = Symbol();
-  return {
-    id,
-    initial: initialValue,
-    get: () => {
-      if (__DEV__) {
-        if (!getScope()) {
-          throw Error('[maverick] attempting to get context outside `root` or `setup` function');
-        }
-      }
+  let id = Symbol(__DEV__ ? 'CONTEXT' : 0);
 
-      const map = getContextMap();
-      return map.has(id) ? map.get(id) : initialValue;
-    },
-    set: (value) => {
-      if (__DEV__) {
-        if (!getScope()) {
-          throw Error('[maverick] attempting to set context outside `root` or `setup` function');
-        }
+  const context: Context<T> = () => {
+    if (__DEV__) {
+      if (!getScope()) {
+        throw Error('[maverick] attempting to get context outside `root` or `setup` function');
       }
+    }
 
-      getContextMap().set(id, value);
-    },
+    const map = getContextMap();
+    return map.has(id) ? map.get(id) : initialValue;
   };
+
+  context.id = id;
+  context.initial = initialValue;
+  context.set = (value) => {
+    if (__DEV__) {
+      if (!getScope()) {
+        throw Error('[maverick] attempting to set context outside `root` or `setup` function');
+      }
+    }
+
+    getContextMap().set(id, value);
+  };
+  context.next = (next) => context.set(next(context()));
+  return context;
 }

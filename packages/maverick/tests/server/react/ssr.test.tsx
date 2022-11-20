@@ -170,7 +170,7 @@ it('should forward context map to maverick element', () => {
 
   const elementB = defineElement({
     tagName: 'mk-foo',
-    setup: () => () => context.get(),
+    setup: () => () => context(),
   });
 
   const ComponentA = createReactElement(elementA);

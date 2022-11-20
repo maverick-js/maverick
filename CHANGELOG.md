@@ -1,3 +1,12 @@
+## [0.2.3](https://github.com/maverick-js/maverick/compare/v0.2.2...v0.2.3) (2022-11-20)
+
+
+### Bug Fixes
+
+* resolve maverick dep package types ([d166454](https://github.com/maverick-js/maverick/commit/d1664541b76af3ecc2d91eee6bb2b7017454411e))
+
+
+
 ## [0.2.2](https://github.com/maverick-js/maverick/compare/v0.2.1...v0.2.2) (2022-11-20)
 
 

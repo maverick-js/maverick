@@ -1,3 +1,5 @@
+import { onDispose } from '../runtime';
+
 export type DisposalBin = {
   add(...callbacks: (() => unknown[])[]): void;
   empty(): void;
@@ -27,4 +29,13 @@ export function createDisposalBin(): DisposalBin {
       disposal.clear();
     },
   };
+}
+
+/**
+ * Creates and return a `DisposalBin`. This bin is emptied if the parent scope is disposed of.
+ */
+export function useDisposalBin() {
+  const disposal = createDisposalBin();
+  onDispose(disposal.empty);
+  return disposal;
 }

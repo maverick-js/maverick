@@ -49,6 +49,29 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
 }
 
 /**
+ * Creates and returns a `DOMEvent`. This function is typed to matched all events declared
+ * on the global `MaverickEventRecord`. You can extend it like so:
+ *
+ * ```ts
+ * declare global {
+ *   interface MaverickEventRecord {
+ *     foo: DOMEvent<number>;
+ *   }
+ * }
+ * ```
+ */
+export function createEvent<EventType extends keyof MaverickEventRecord>(
+  type: EventType,
+  init?: InferEventInit<EventType>,
+): EventType extends keyof MaverickEventRecord
+  ? MaverickEventRecord[EventType] extends DOMEvent
+    ? MaverickEventRecord[EventType]
+    : DOMEvent<InferEventDetail<EventType>>
+  : DOMEvent<InferEventDetail<EventType>> {
+  return new DOMEvent(type, init) as any;
+}
+
+/**
  * Whether the given `event` is a Maverick DOM Event class.
  */
 export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {
@@ -162,19 +185,37 @@ function defineEventProperty<T extends keyof DOMEvent>(
   });
 }
 
-export type InferEventDetail<Event> = Event extends DOMEvent<infer Detail>
+export type InferEventDetail<T> = T extends string
+  ? T extends keyof MaverickEventInitRecord
+    ? MaverickEventInitRecord[T] extends DOMEventInit<infer Detail>
+      ? Detail
+      : never
+    : T extends keyof MaverickEventRecord
+    ? MaverickEventRecord[T] extends DOMEvent<infer Detail>
+      ? Detail
+      : never
+    : never
+  : T extends DOMEventInit<infer Detail>
   ? Detail
-  : Event extends CustomEvent<infer Detail>
+  : T extends DOMEvent<infer Detail>
+  ? Detail
+  : T extends CustomEvent<infer Detail>
   ? Detail
   : never;
 
-export type InferEventInit<Init> = Init extends Constructor<DOMEvent>
-  ? DOMEventInit<InferEventDetail<InstanceType<Init>>>
-  : Init extends DOMEvent
-  ? DOMEventInit<InferEventDetail<Init>>
-  : Init extends DOMEventInit
-  ? Init
-  : EventInit;
+export type InferEventInit<T> = T extends string
+  ? T extends keyof MaverickEventInitRecord
+    ? MaverickEventInitRecord[T]
+    : T extends keyof MaverickEventRecord
+    ? InferEventInit<MaverickEventRecord[T]>
+    : DOMEventInit<unknown>
+  : T extends Constructor<DOMEvent>
+  ? DOMEventInit<InferEventDetail<InstanceType<T>>>
+  : T extends DOMEvent
+  ? DOMEventInit<InferEventDetail<T>>
+  : T extends DOMEventInit
+  ? T
+  : DOMEventInit<unknown>;
 
 export type RemoveEventListener = () => void;
 

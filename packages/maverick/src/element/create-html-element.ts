@@ -137,7 +137,7 @@ export function createHTMLElement<
             const run = createScopedRunner();
 
             for (const connectCallback of instance[CONNECT]) {
-              const disconnectCallback = connectCallback();
+              const disconnectCallback = run(connectCallback);
               if (isFunction(disconnectCallback)) {
                 this._disconnectCallbacks.push(() => run(() => disconnectCallback(this)));
               }

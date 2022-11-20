@@ -1,4 +1,4 @@
-import { getScope, onDispose, tick } from '@maverick-js/observables';
+import { getScope, onDispose, onError, tick } from '@maverick-js/observables';
 import { createContext } from 'maverick.js';
 
 import {
@@ -83,14 +83,17 @@ it('should reflect props', async () => {
 
 it('should call connect lifecycle hook', () => {
   const attach = vi.fn();
+  const context = createContext(0);
 
   const { instance, element } = setupTestElement({
     setup({ host }) {
+      context.set(1);
       onAttach((__host) => {
         attach();
         expect(__host).toBeDefined();
         expect(host.el).toBeDefined();
         expect(__host).toEqual(host.el);
+        expect(context.get()).toBe(1);
       });
       return () => null;
     },
@@ -194,6 +197,91 @@ it('should call mount lifecycle hook', () => {
   expect(destroy).toHaveBeenCalledWith(element);
 });
 
+it('should handle errors thrown in lifecycle hooks', async () => {
+  const attachError = Error(),
+    connectError = Error(),
+    mountError = Error(),
+    beforeUpdateError = Error(),
+    afterUpdateError = Error(),
+    destroyError = Error();
+
+  const nextAttach = vi.fn(),
+    nextConnect = vi.fn(),
+    nextMount = vi.fn(),
+    nextBeforeUpdate = vi.fn(),
+    nextAfterUpdate = vi.fn(),
+    nextDestroy = vi.fn();
+
+  const errorHandler = vi.fn();
+
+  const { instance, element } = setupTestElement({
+    setup() {
+      onError(errorHandler);
+
+      onAttach(() => {
+        throw attachError;
+      });
+      onAttach(nextAttach);
+
+      onConnect(() => {
+        throw connectError;
+      });
+      onConnect(nextConnect);
+
+      onMount(() => {
+        throw mountError;
+      });
+      onMount(nextMount);
+
+      onBeforeUpdate(() => {
+        throw beforeUpdateError;
+      });
+      onBeforeUpdate(nextBeforeUpdate);
+
+      onAfterUpdate(() => {
+        throw afterUpdateError;
+      });
+      onAfterUpdate(nextAfterUpdate);
+
+      onDestroy(() => {
+        throw destroyError;
+      });
+      onDestroy(nextDestroy);
+
+      return () => null;
+    },
+  });
+
+  expect(errorHandler).not.toHaveBeenCalled();
+  expect(nextAttach).not.toHaveBeenCalled();
+  expect(nextConnect).not.toHaveBeenCalled();
+  expect(nextMount).not.toHaveBeenCalled();
+  expect(nextBeforeUpdate).not.toHaveBeenCalled();
+  expect(nextAfterUpdate).not.toHaveBeenCalled();
+  expect(nextDestroy).not.toHaveBeenCalled();
+
+  element.attachComponent(instance);
+  expect(errorHandler).toHaveBeenCalledTimes(3);
+  expect(errorHandler).toHaveBeenCalledWith(attachError);
+  expect(errorHandler).toHaveBeenCalledWith(connectError);
+  expect(errorHandler).toHaveBeenCalledWith(mountError);
+  expect(nextAttach).toHaveBeenCalledTimes(1);
+  expect(nextConnect).toHaveBeenCalledTimes(1);
+  expect(nextMount).toHaveBeenCalledTimes(1);
+
+  await tick();
+  expect(errorHandler).toHaveBeenCalledTimes(5);
+  expect(errorHandler).toHaveBeenCalledWith(beforeUpdateError);
+  expect(errorHandler).toHaveBeenCalledWith(afterUpdateError);
+  expect(nextBeforeUpdate).toHaveBeenCalledTimes(1);
+  expect(nextAfterUpdate).toHaveBeenCalledTimes(1);
+
+  instance.destroy();
+  expect(errorHandler).toHaveBeenCalledTimes(6);
+  expect(errorHandler).toHaveBeenCalledWith(destroyError);
+  expect(nextDestroy).toHaveBeenCalledTimes(1);
+});
+
 it('should call update hooks', async () => {
   const beforeUpdate = vi.fn();
   const afterUpdate = vi.fn();
@@ -237,10 +325,17 @@ it('should call update hooks', async () => {
 
 it('should call disconnect lifecycle hook', () => {
   const disconnect = vi.fn();
+  const context = createContext(0);
 
   const { instance, element } = setupTestElement({
     setup() {
-      onDisconnect(disconnect);
+      context.set(1);
+
+      onDisconnect((host) => {
+        expect(context.get()).toBe(1);
+        disconnect(host);
+      });
+
       return () => null;
     },
   });
@@ -257,10 +352,15 @@ it('should call disconnect lifecycle hook', () => {
 
 it('should call destroy lifecycle hook', () => {
   const destroy = vi.fn();
+  const context = createContext(0);
 
   const { instance, element } = setupTestElement({
     setup() {
-      onDestroy(destroy);
+      context.set(1);
+      onDestroy((host) => {
+        expect(context.get()).toBe(1);
+        destroy(host);
+      });
       return () => null;
     },
   });

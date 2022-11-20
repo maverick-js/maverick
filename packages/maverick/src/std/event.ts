@@ -1,6 +1,7 @@
 import type { Constructor } from 'type-fest';
 
 import { type JSX, onDispose } from '../runtime';
+import { noop } from './unit';
 
 const DOM_EVENT = Symbol('DOM_EVENT'),
   DOMEventBase: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event;
@@ -176,9 +177,11 @@ export type InferEventInit<Init> = Init extends Constructor<DOMEvent>
   : EventInit;
 
 /**
- * Adds an event listener for the given `type`.
+ * Adds an event listener for the given `type` and returns a function which can be invoked to
+ * remove the event listener.
  *
- * This function is safe to use on the server.
+ * - The listener is removed if the current scope is disposed.
+ * - This function is safe to use on the server (noop).
  */
 export function listen<Target extends EventTarget, EventType extends string>(
   target: Target,
@@ -189,11 +192,11 @@ export function listen<Target extends EventTarget, EventType extends string>(
   >,
   options?: AddEventListenerOptions | boolean,
 ) {
-  if (__SERVER__) return;
+  if (__SERVER__) return noop;
   target.addEventListener(type, handler as any, options);
-  onDispose(() => {
-    target.removeEventListener(type, handler as any, options);
-  });
+  const off = () => target.removeEventListener(type, handler as any, options);
+  onDispose(off);
+  return off;
 }
 
 export function isPointerEvent(event: Event | undefined): event is PointerEvent {

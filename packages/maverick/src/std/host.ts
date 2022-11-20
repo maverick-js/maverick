@@ -1,5 +1,5 @@
 import { getElementInstance } from '../element/internal';
-import { ElementEventRecord, type ElementInstanceHost, ElementPropRecord } from '../element/types';
+import type { ElementEventRecord, ElementInstanceHost, ElementPropRecord } from '../element/types';
 
 export function useHost<
   Props extends ElementPropRecord = ElementPropRecord,
@@ -10,8 +10,8 @@ export function useHost<
   if (!instance) {
     throw Error(
       __DEV__
-        ? '[maverick] called `useHostElement` outside of root or setup function'
-        : '[maverick] useHostElement',
+        ? '[maverick] called `useHost` outside of root or setup function'
+        : '[maverick] useHost',
     );
   }
 

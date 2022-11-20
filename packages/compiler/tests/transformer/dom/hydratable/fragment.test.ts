@@ -25,18 +25,22 @@ it('should compile child fragment', () => {
 
 it('should compile fragment with jsx expressions', () => {
   const result = t(
-    `<><div id="a"></div>{false && <div>Ignore</div>}<div>B</div>{$id()}{$id() + 2}</>`,
+    `<><div id="a"></div>{false && <div>Ignore</div>}<div>B</div>{"foo"}{10 + 20}{$id}{$id()}{$id() + 2}</>`,
   );
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_template, $$_next_template, $$_next_expression } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div id=\\"a\\"></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<!$><div>Ignore</div>\`),
-      $$_templ_3 = /* #__PURE__ */ $$_create_template(\`<!$><div>B</div>\`);
+      $$_templ_3 = /* #__PURE__ */ $$_create_template(\`<!$><div>B</div>\`),
+      $$_templ_4 = /* #__PURE__ */ $$_create_template(\`foo\`);
     [
       $$_next_template($$_templ),
       false && $$_next_template($$_templ_2),
       $$_next_template($$_templ_3),
+      $$_next_template($$_templ_4),
+      10 + 20,
+      $id,
       $$_next_expression($id),
       $$_next_expression(() => $id() + 2),
     ]"

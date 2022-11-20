@@ -483,8 +483,12 @@ export const dom: ASTSerializer = {
           if (shouldInsert) {
             insert(() => locals.create(ID.expression, nextMarker()), expression);
           } else if (ctx.fragment && ctx.hydratable) {
-            expressions.push(createFunctionCall(RUNTIME.nextExpression, [expression]));
-            ctx.runtime.add(RUNTIME.nextExpression);
+            if (!node.observable) {
+              expressions.push(expression);
+            } else {
+              expressions.push(createFunctionCall(RUNTIME.nextExpression, [expression]));
+              ctx.runtime.add(RUNTIME.nextExpression);
+            }
           } else {
             expressions.push(expression);
             ctx.runtime.add(RUNTIME.peek);

@@ -1,3 +1,13 @@
+## [0.4.2](https://github.com/maverick-js/maverick/compare/v0.4.1...v0.4.2) (2022-11-20)
+
+
+### Bug Fixes
+
+* incorrect `DisposalBin.add` method argument ([a7fc65f](https://github.com/maverick-js/maverick/commit/a7fc65f2d5de565af336b2ec661f7f867f3ace64))
+* specify `listen` function return type ([596d92e](https://github.com/maverick-js/maverick/commit/596d92e27e68bfcf927c3c72c8e8962e585fd2d7))
+
+
+
 ## [0.4.1](https://github.com/maverick-js/maverick/compare/v0.4.0...v0.4.1) (2022-11-20)
 
 

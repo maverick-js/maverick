@@ -257,7 +257,13 @@ export function createHTMLElement<
 
       instance.host.el = this;
       this._instance = instance;
-      runAll(instance[ATTACH]);
+
+      for (const attachCallback of instance[ATTACH]) {
+        const destroyCallback = attachCallback();
+        if (isFunction(destroyCallback)) {
+          instance[DESTROY].push(() => instance.run(() => destroyCallback(this)));
+        }
+      }
 
       if (reflectedProps.size) {
         instance.run(() => {

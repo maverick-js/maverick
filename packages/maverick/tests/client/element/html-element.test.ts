@@ -82,18 +82,19 @@ it('should reflect props', async () => {
 });
 
 it('should call connect lifecycle hook', () => {
-  const attach = vi.fn();
+  const destroy = vi.fn();
+  const attach = vi.fn().mockReturnValue(destroy);
   const context = createContext(0);
 
   const { instance, element } = setupTestElement({
     setup({ host }) {
       context.set(1);
       onAttach((__host) => {
-        attach();
         expect(__host).toBeDefined();
         expect(host.el).toBeDefined();
         expect(__host).toEqual(host.el);
         expect(context()).toBe(1);
+        return attach();
       });
       return () => null;
     },
@@ -101,6 +102,9 @@ it('should call connect lifecycle hook', () => {
 
   element.attachComponent(instance);
   expect(attach).toBeCalledTimes(1);
+
+  instance.destroy();
+  expect(destroy).toHaveBeenCalledTimes(1);
 });
 
 it('should call connect lifecycle hook', () => {

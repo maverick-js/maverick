@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/maverick-js/maverick/compare/v0.2.4...v0.3.0) (2022-11-20)
+
+
+### Features
+
+* `onAttach` can return destroy callback ([5efa79a](https://github.com/maverick-js/maverick/commit/5efa79a01d64b24ae696444b83c378a41ec8066c))
+
+
+
 ## [0.2.4](https://github.com/maverick-js/maverick/compare/v0.2.3...v0.2.4) (2022-11-20)
 
 

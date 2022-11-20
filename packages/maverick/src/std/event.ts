@@ -176,6 +176,8 @@ export type InferEventInit<Init> = Init extends Constructor<DOMEvent>
   ? Init
   : EventInit;
 
+export type RemoveEventListener = () => void;
+
 /**
  * Adds an event listener for the given `type` and returns a function which can be invoked to
  * remove the event listener.
@@ -191,7 +193,7 @@ export function listen<Target extends EventTarget, EventType extends string>(
     EventType extends keyof MaverickEventRecord ? MaverickEventRecord[EventType] : Event
   >,
   options?: AddEventListenerOptions | boolean,
-) {
+): RemoveEventListener {
   if (__SERVER__) return noop;
   target.addEventListener(type, handler as any, options);
   const off = () => target.removeEventListener(type, handler as any, options);

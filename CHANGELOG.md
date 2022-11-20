@@ -1,3 +1,18 @@
+# [0.4.0](https://github.com/maverick-js/maverick/compare/v0.3.0...v0.4.0) (2022-11-20)
+
+
+### Bug Fixes
+
+* `listen` returns remove listener function ([2a38333](https://github.com/maverick-js/maverick/commit/2a38333e10e0d47377b726474f75d568dde9d657))
+
+
+### Features
+
+* new `useDisposalBin` hook ([a68bb3a](https://github.com/maverick-js/maverick/commit/a68bb3a92bf8b129e2512b2eef541bc1cf4a264b))
+* new `useHost` hook ([08f5f4f](https://github.com/maverick-js/maverick/commit/08f5f4fd23ffb0d85bd81783da5949280e20007b))
+
+
+
 # [0.3.0](https://github.com/maverick-js/maverick/compare/v0.2.4...v0.3.0) (2022-11-20)
 
 

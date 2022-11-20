@@ -127,7 +127,8 @@ export function createElementInstance<
     instance[MEMBERS] = definition.setup(instance);
     setElementInstance(null);
 
-    const render = scope(instance[MEMBERS]!.$render);
+    const $render = instance[MEMBERS]!.$render;
+    const render = $render ? scope($render) : () => null;
     instance[RENDER] = () => {
       setElementInstance(instance);
       const result = peek(render);

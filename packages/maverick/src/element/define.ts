@@ -21,7 +21,7 @@ export function defineElement<
   const definition: ElementDefinition<Props, Events, CSSVars, Members> = {
     ...declaration,
     setup(instance) {
-      const setup = declaration.setup?.(instance) ?? { $render: () => null };
+      const setup = declaration.setup?.(instance) ?? {};
       return (isFunction(setup) ? { $render: setup } : setup) as Members;
     },
     is: __SERVER__

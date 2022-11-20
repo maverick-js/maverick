@@ -122,7 +122,11 @@ export function createHTMLElement<
 
       if (this._destroyed) {
         if (__DEV__) {
-          throw Error('[maverick] attempting to connect an element that has been destroyed');
+          throw Error(
+            __DEV__
+              ? '[maverick] attempting to connect an element that has been destroyed'
+              : '[maverick] bad connect',
+          );
         }
 
         return;

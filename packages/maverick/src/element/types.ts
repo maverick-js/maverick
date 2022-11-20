@@ -62,7 +62,7 @@ export type ElementEventRecord = {
 
 export type ElementMembers = {
   [name: string]: unknown;
-  readonly $render: () => JSX.Element;
+  $render?: () => JSX.Element;
 };
 
 export type ElementCSSVarsBuilder<
@@ -197,34 +197,7 @@ export type ElementInstance<
   Props extends ElementPropRecord = ElementPropRecord,
   Events extends ElementEventRecord = ElementEventRecord,
 > = ElementLifecycleManager & {
-  readonly host: {
-    /**
-     * The custom element this component is attached to. This is safe to call server-side with the
-     * limited API listed below.
-     *
-     * **Important:** Only specific DOM APIs are safe to call server-side. This includes:
-     *
-     * - Attributes: `getAttribute`, `setAttribute`, `removeAttribute`, and `hasAttribute`
-     * - Classes: `classList` API
-     * - Styles: `style` API
-     * - Events (noops): `addEventListener`, `removeEventListener`, and `dispatchEvent`
-     */
-    el: MaverickElement<Props, Events> | null;
-    /**
-     * Whether the custom element associated with this component has connected to the DOM. This is
-     * a reactive observable call.
-     */
-    $connected: boolean;
-    /**
-     * Whether the custom element associated with this component has mounted the DOM and rendered
-     * content in its shadow root. This is a reactive observable call.
-     */
-    $mounted: boolean;
-    /**
-     * Whether there is any child nodes in the associated custom element's light DOM. If `false`
-     * you can return fallback content. This is a reactive observable call.
-     */
-    $children: boolean;
+  readonly host: ElementInstanceHost<Props, Events> & {
     /** @internal */
     [PROPS]: {
       $connected: ObservableSubject<boolean>;
@@ -256,6 +229,39 @@ export type ElementInstance<
   [MEMBERS]?: ElementMembers;
   /** @internal */
   [RENDER]?: () => JSX.Element;
+};
+
+export type ElementInstanceHost<
+  Props extends ElementPropRecord = ElementPropRecord,
+  Events extends ElementEventRecord = ElementEventRecord,
+> = {
+  /**
+   * The custom element this component is attached to. This is safe to call server-side with the
+   * limited API listed below.
+   *
+   * **Important:** Only specific DOM APIs are safe to call server-side. This includes:
+   *
+   * - Attributes: `getAttribute`, `setAttribute`, `removeAttribute`, and `hasAttribute`
+   * - Classes: `classList` API
+   * - Styles: `style` API
+   * - Events (noops): `addEventListener`, `removeEventListener`, and `dispatchEvent`
+   */
+  el: MaverickElement<Props, Events> | null;
+  /**
+   * Whether the custom element associated with this component has connected to the DOM. This is
+   * a reactive observable call.
+   */
+  $connected: boolean;
+  /**
+   * Whether the custom element associated with this component has mounted the DOM and rendered
+   * content in its shadow root. This is a reactive observable call.
+   */
+  $mounted: boolean;
+  /**
+   * Whether there is any child nodes in the associated custom element's light DOM. If `false`
+   * you can return fallback content. This is a reactive observable call.
+   */
+  $children: boolean;
 };
 
 export interface ElementInstanceDispatcher<Events extends ElementEventRecord = ElementEventRecord> {

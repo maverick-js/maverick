@@ -33,7 +33,11 @@ export function createContext<T>(initialValue: T): Context<T> {
   const context: Context<T> = () => {
     if (__DEV__) {
       if (!getScope()) {
-        throw Error('[maverick] attempting to get context outside `root` or `setup` function');
+        throw Error(
+          __DEV__
+            ? '[maverick] attempting to get context outside `root` or `setup` function'
+            : '[maverick] context',
+        );
       }
     }
 
@@ -46,7 +50,11 @@ export function createContext<T>(initialValue: T): Context<T> {
   context.set = (value) => {
     if (__DEV__) {
       if (!getScope()) {
-        throw Error('[maverick] attempting to set context outside `root` or `setup` function');
+        throw Error(
+          __DEV__
+            ? '[maverick] attempting to set context outside `root` or `setup` function'
+            : '[maverick] context.set',
+        );
       }
     }
 

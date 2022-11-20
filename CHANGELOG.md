@@ -1,3 +1,13 @@
+## [0.2.2](https://github.com/maverick-js/maverick/compare/v0.2.1...v0.2.2) (2022-11-20)
+
+
+### Bug Fixes
+
+* do not hydrate static expressions ([ee3499d](https://github.com/maverick-js/maverick/commit/ee3499d3ff7a16d7c8f327f440d6c8afdb91140a))
+* run `onConnect` in disposable scope ([8bcc515](https://github.com/maverick-js/maverick/commit/8bcc515c46f2da3b94c0bf82cf518e295ffcde9f))
+
+
+
 ## [0.2.1](https://github.com/maverick-js/maverick/compare/v0.2.0...v0.2.1) (2022-11-19)
 
 

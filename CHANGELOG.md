@@ -1,3 +1,13 @@
+## [0.2.4](https://github.com/maverick-js/maverick/compare/v0.2.3...v0.2.4) (2022-11-20)
+
+
+### Bug Fixes
+
+* `context.get()` -> `context()` ([a95d1d1](https://github.com/maverick-js/maverick/commit/a95d1d14a181e50d60e23155d24076b7ea13646a))
+* isolate lifecycle hook errors ([5201e5c](https://github.com/maverick-js/maverick/commit/5201e5c904f0c22ade1e3818470e91aba974048d))
+
+
+
 ## [0.2.3](https://github.com/maverick-js/maverick/compare/v0.2.2...v0.2.3) (2022-11-20)
 
 

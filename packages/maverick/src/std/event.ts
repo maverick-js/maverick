@@ -87,9 +87,9 @@ export function dispatchEvent<EventType extends keyof MaverickEventRecord>(
   target: EventTarget | null,
   type: EventType,
   init?: InferEventInit<EventType>,
-): void {
-  if (__SERVER__) return;
-  target?.dispatchEvent(new DOMEvent(type, init));
+): boolean {
+  if (__SERVER__) return false;
+  return target?.dispatchEvent(new DOMEvent(type, init)) ?? false;
 }
 
 /**

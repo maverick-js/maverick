@@ -1,3 +1,18 @@
+## [0.4.3](https://github.com/maverick-js/maverick/compare/v0.4.2...v0.4.3) (2022-11-21)
+
+
+### Bug Fixes
+
+* move `defineEvent` to element lib ([b0aa494](https://github.com/maverick-js/maverick/commit/b0aa4942cda3c9f949732343280fc289bed5af9a))
+* rename `listen` -> `listenEvent` ([c7b9b5f](https://github.com/maverick-js/maverick/commit/c7b9b5faf57f6e5d125df000b8f4b913ef8b3ba9))
+
+
+### Features
+
+* new `createEvent` in std lib ([b5a00e7](https://github.com/maverick-js/maverick/commit/b5a00e732bc8183d24055df97d42d08fc1264091))
+
+
+
 ## [0.4.2](https://github.com/maverick-js/maverick/compare/v0.4.1...v0.4.2) (2022-11-20)
 
 

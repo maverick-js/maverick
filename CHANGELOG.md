@@ -1,3 +1,12 @@
+# [0.5.0](https://github.com/maverick-js/maverick/compare/v0.4.3...v0.5.0) (2022-11-21)
+
+
+### Features
+
+* new `dispatchEvent` in std lib ([18bb9f5](https://github.com/maverick-js/maverick/commit/18bb9f50e183e524a79703881482e0e61429f6e3))
+
+
+
 ## [0.4.3](https://github.com/maverick-js/maverick/compare/v0.4.2...v0.4.3) (2022-11-21)
 
 

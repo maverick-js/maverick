@@ -215,7 +215,7 @@ export type RemoveEventListener = () => void;
  * - The listener is removed if the current scope is disposed.
  * - This function is safe to use on the server (noop).
  */
-export function listen<Target extends EventTarget, EventType extends string>(
+export function listenEvent<Target extends EventTarget, EventType extends string>(
   target: Target,
   type: EventType,
   handler: JSX.TargetedEventHandler<

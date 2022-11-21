@@ -7,7 +7,7 @@ import {
 import { createElementInstance } from '../../element/instance';
 import { attachDeclarativeShadowDOM } from '../../std/dom';
 import { createComment, createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
-import { listen } from '../../std/event';
+import { listenEvent } from '../../std/event';
 import { mergeProperties } from '../../std/object';
 import { observe } from '../../std/observable';
 import { isArray, isFunction } from '../../std/unit';
@@ -208,7 +208,7 @@ export function $$_merge_props(...sources: Record<string, unknown>[]) {
 
 /** @internal */
 export function $$_listen(target: EventTarget, type: string, handler: unknown, capture = false) {
-  if (isFunction(handler)) listen(target, type, handler as any, { capture });
+  if (isFunction(handler)) listenEvent(target, type, handler as any, { capture });
 }
 
 export const $$_peek = peek;

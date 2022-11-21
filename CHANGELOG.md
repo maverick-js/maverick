@@ -1,3 +1,12 @@
+## [0.5.1](https://github.com/maverick-js/maverick/compare/v0.5.0...v0.5.1) (2022-11-21)
+
+
+### Bug Fixes
+
+* `dispatchEvent` should return `boolean` ([c0a4da3](https://github.com/maverick-js/maverick/commit/c0a4da3b8307c91e8ec2d52a964b98130d6c8ce5))
+
+
+
 # [0.5.0](https://github.com/maverick-js/maverick/compare/v0.4.3...v0.5.0) (2022-11-21)
 
 

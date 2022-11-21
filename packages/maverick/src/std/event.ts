@@ -72,6 +72,27 @@ export function createEvent<EventType extends keyof MaverickEventRecord>(
 }
 
 /**
+ * Creates a `DOMEvent` and dispatches it from the given `target`. This function is typed to
+ * matched all events declared on the global `MaverickEventRecord`. You can extend it like so:
+ *
+ * ```ts
+ * declare global {
+ *   interface MaverickEventRecord {
+ *     foo: DOMEvent<number>;
+ *   }
+ * }
+ * ```
+ */
+export function dispatchEvent<EventType extends keyof MaverickEventRecord>(
+  target: EventTarget | null,
+  type: EventType,
+  init?: InferEventInit<EventType>,
+): void {
+  if (__SERVER__) return;
+  target?.dispatchEvent(new DOMEvent(type, init));
+}
+
+/**
  * Whether the given `event` is a Maverick DOM Event class.
  */
 export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {

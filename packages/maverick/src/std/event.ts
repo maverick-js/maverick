@@ -162,17 +162,6 @@ export function appendTriggerEvent(event: DOMEvent, triggerEvent?: Event) {
   defineEventProperty(origin, 'triggerEvent', () => triggerEvent);
 }
 
-export function defineEvent<Event>(
-  init?: InferEventInit<Event>,
-): Event extends DOMEvent ? Event : InferEventInit<Event> {
-  return init as any;
-}
-
-export function defineEvents<EventRecord extends Record<string, DOMEvent>>(): EventRecord {
-  // type macro which is compiled away.
-  return null as any;
-}
-
 function defineEventProperty<T extends keyof DOMEvent>(
   event: DOMEvent,
   prop: T,
@@ -189,19 +178,19 @@ export type InferEventDetail<T> = T extends string
   ? T extends keyof MaverickEventInitRecord
     ? MaverickEventInitRecord[T] extends DOMEventInit<infer Detail>
       ? Detail
-      : never
+      : unknown
     : T extends keyof MaverickEventRecord
     ? MaverickEventRecord[T] extends DOMEvent<infer Detail>
       ? Detail
-      : never
-    : never
+      : unknown
+    : unknown
   : T extends DOMEventInit<infer Detail>
   ? Detail
   : T extends DOMEvent<infer Detail>
   ? Detail
   : T extends CustomEvent<infer Detail>
   ? Detail
-  : never;
+  : unknown;
 
 export type InferEventInit<T> = T extends string
   ? T extends keyof MaverickEventInitRecord

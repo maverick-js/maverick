@@ -49,7 +49,7 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
 }
 
 /**
- * Creates and returns a `DOMEvent`. This function is typed to matched all events declared
+ * Creates and returns a `DOMEvent`. This function is typed to match all events declared
  * on the global `MaverickEventRecord`. You can extend it like so:
  *
  * ```ts
@@ -73,7 +73,7 @@ export function createEvent<EventType extends keyof MaverickEventRecord>(
 
 /**
  * Creates a `DOMEvent` and dispatches it from the given `target`. This function is typed to
- * matched all events declared on the global `MaverickEventRecord`. You can extend it like so:
+ * match all events declared on the global `MaverickEventRecord`. You can extend it like so:
  *
  * ```ts
  * declare global {

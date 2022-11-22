@@ -1,6 +1,8 @@
-import { CustomElement, observable, render, tick } from 'maverick.js';
+import { createContext, CustomElement, observable, render, tick } from 'maverick.js';
 
 import { defineElement } from 'maverick.js/element';
+
+import { isKeyboardClick } from '../../../src/std/event';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -168,4 +170,45 @@ it('should render custom element with shadow dom', () => {
 
   const shadowRoot = (root.firstChild as HTMLElement).shadowRoot;
   expect(shadowRoot?.innerHTML).toMatchInlineSnapshot('"<button>Test</button>"');
+});
+
+it('should forward context to another custom element', async () => {
+  const context = createContext(0);
+  const contextB = createContext(0);
+
+  function Component() {
+    contextB.set(1);
+    expect(context()).toBe(1);
+    return null;
+  }
+
+  const Parent = defineElement({
+    tagName: `mk-parent`,
+    setup: () => {
+      context.set(1);
+      return () => <Component />;
+    },
+  });
+
+  const Child = defineElement({
+    tagName: `mk-child`,
+    setup: () => {
+      expect(context()).toBe(1);
+      expect(contextB()).toBe(0);
+      return () => null;
+    },
+  });
+
+  const root = document.createElement('root');
+
+  render(
+    () => (
+      <CustomElement $element={Parent}>
+        <CustomElement $element={Child} />
+      </CustomElement>
+    ),
+    { target: root },
+  );
+
+  await tick();
 });

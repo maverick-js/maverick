@@ -1,7 +1,7 @@
-import { getScheduler, getScope, observable, peek, root, scope } from '@maverick-js/observables';
+import { getScheduler, observable, peek, root, scope } from '@maverick-js/observables';
 import type { Writable } from 'type-fest';
 
-import { createScopedRunner, setContextMap, type SubjectRecord } from '../runtime';
+import { createScopedRunner, getContextMap, setContextMap, type SubjectRecord } from '../runtime';
 import { DOMEvent } from '../std/event';
 import { runAll } from '../std/fn';
 import {
@@ -128,7 +128,14 @@ export function createElementInstance<
     setElementInstance(null);
 
     const $render = instance[MEMBERS]!.$render;
-    const render = $render ? scope($render) : () => null;
+    const render = $render
+      ? root(() => {
+          // Create a new root context map to prevent children from overwriting flat context tree.
+          setContextMap(new Map(getContextMap()));
+          return scope($render);
+        })
+      : () => null;
+
     instance[RENDER] = () => {
       setElementInstance(instance);
       const result = peek(render);

@@ -321,17 +321,16 @@ export function createHTMLElement<
       while (node) {
         if (node.nodeType === 1 && (node as Element).localName.startsWith(prefix)) {
           const dep = node as MaverickElement;
-          deps.push(dep);
           whenDepsMounted.push(
             customElements.whenDefined(dep.localName).then(() => {
-              if (dep[MOUNTED]) return;
-              return new Promise((res) => (dep[MOUNT] ??= []).push(res));
+              if (!dep[HOST]) return;
+              deps.push(dep);
+              return dep[MOUNTED] || new Promise((res) => (dep[MOUNT] ??= []).push(res));
             }),
           );
         }
 
-        // Walk up flattened DOM tree
-        node = node.nodeType === 11 && node instanceof ShadowRoot ? node.host : node.parentNode;
+        node = node.parentNode;
       }
 
       this._pendingSetup = true;
@@ -340,9 +339,9 @@ export function createHTMLElement<
         if (!this.isConnected) return;
 
         let run = () => this._attachComponent();
-        for (const parent of deps) {
+        for (const dep of deps) {
           const next = run;
-          run = () => parent.instance!.run(next);
+          run = () => dep.instance!.run(next);
         }
 
         run();

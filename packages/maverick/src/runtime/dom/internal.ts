@@ -88,7 +88,7 @@ export function $$_setup_custom_element(
   if (props.innerHTML) return $$_inner_html(element, props.innerHTML);
   const marker = createComment('$$');
   element.firstChild!.after(marker);
-  insertExpression(marker, props.$children);
+  instance.run(() => insertExpression(marker, props.$children));
 }
 
 /** @internal */

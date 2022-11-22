@@ -1,3 +1,12 @@
+## [0.5.3](https://github.com/maverick-js/maverick/compare/v0.5.2...v0.5.3) (2022-11-22)
+
+
+### Bug Fixes
+
+* push custom element deps in correct order ([0c8ad01](https://github.com/maverick-js/maverick/commit/0c8ad0191fb7cefc63817f0fa6a14bedf4ed790a))
+
+
+
 ## [0.5.2](https://github.com/maverick-js/maverick/compare/v0.5.1...v0.5.2) (2022-11-22)
 
 

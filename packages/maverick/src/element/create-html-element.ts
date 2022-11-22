@@ -321,10 +321,9 @@ export function createHTMLElement<
       while (node) {
         if (node.nodeType === 1 && (node as Element).localName.startsWith(prefix)) {
           const dep = node as MaverickElement;
+          deps.push(dep);
           whenDepsMounted.push(
             customElements.whenDefined(dep.localName).then(() => {
-              if (!dep[HOST]) return;
-              deps.push(dep);
               return dep[MOUNTED] || new Promise((res) => (dep[MOUNT] ??= []).push(res));
             }),
           );

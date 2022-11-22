@@ -1,3 +1,13 @@
+## [0.5.2](https://github.com/maverick-js/maverick/compare/v0.5.1...v0.5.2) (2022-11-22)
+
+
+### Bug Fixes
+
+* auto handle in-order rendering of custom elements ([efb02de](https://github.com/maverick-js/maverick/commit/efb02deedeaae3ede13acdc1accb2612301519ee))
+* forward context map to light dom children ([1e09088](https://github.com/maverick-js/maverick/commit/1e09088d7649f255c383c1f8abb3818ee79656ae))
+
+
+
 ## [0.5.1](https://github.com/maverick-js/maverick/compare/v0.5.0...v0.5.1) (2022-11-21)
 
 

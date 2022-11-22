@@ -126,5 +126,4 @@ export interface ComponentMeta extends Record<string, unknown> {
   cssparts?: CSSPartMeta[];
   slots?: SlotMeta[];
   members?: MembersMeta;
-  parent?: string;
 }

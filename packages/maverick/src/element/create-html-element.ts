@@ -36,7 +36,8 @@ import type {
   MaverickElementConstructor,
 } from './types';
 
-const scheduler = getScheduler();
+const scheduler = getScheduler(),
+  MOUNTED = Symbol(__DEV__ ? 'MOUNTED' : 0);
 
 export function createHTMLElement<
   Props extends ElementPropRecord,
@@ -106,16 +107,8 @@ export function createHTMLElement<
     connectedCallback() {
       const instance = this._instance;
 
-      if (!this._delegate && !instance) {
-        if (definition.parent) {
-          defineCustomElement(definition.parent);
-          const parent = this.closest(definition.parent.tagName) as MaverickElement;
-          const onParentMount = (parent[MOUNT] ??= []);
-          onParentMount.push(() => parent.instance!.run(() => this._attachComponent()));
-        } else {
-          this._attachComponent();
-        }
-      }
+      // If no host framework is available which generally occurs loading over a CDN.
+      if (!this._delegate && !instance) return this._nonDelegateSetup();
 
       // Could be called once element is no longer connected.
       if (!instance || !this.isConnected || instance.host.$connected) return;
@@ -174,6 +167,8 @@ export function createHTMLElement<
         // Updates
         instance[DESTROY].push(scheduler.onBeforeFlush(() => runAll(instance[BEFORE_UPDATE])));
         instance[DESTROY].push(scheduler.onFlush(() => runAll(instance[AFTER_UPDATE])));
+
+        this[MOUNTED] = true;
       }
     }
 
@@ -312,6 +307,46 @@ export function createHTMLElement<
       }
 
       return super.dispatchEvent(event);
+    }
+
+    private _pendingSetup = false;
+    private _nonDelegateSetup() {
+      if (this._pendingSetup) return;
+
+      const prefix = definition.tagName.split('-', 1)[0] + '-',
+        deps: MaverickElement[] = [],
+        whenDepsMounted: Promise<void>[] = [];
+
+      let node: Node | null = this.parentNode;
+      while (node) {
+        if (node.nodeType === 1 && (node as Element).localName.startsWith(prefix)) {
+          const dep = node as MaverickElement;
+          deps.push(dep);
+          whenDepsMounted.push(
+            customElements.whenDefined(dep.localName).then(() => {
+              if (dep[MOUNTED]) return;
+              return new Promise((res) => (dep[MOUNT] ??= []).push(res));
+            }),
+          );
+        }
+
+        // Walk up flattened DOM tree
+        node = node.nodeType === 11 && node instanceof ShadowRoot ? node.host : node.parentNode;
+      }
+
+      this._pendingSetup = true;
+      Promise.all(whenDepsMounted).then(() => {
+        this._pendingSetup = false;
+        if (!this.isConnected) return;
+
+        let run = () => this._attachComponent();
+        for (const parent of deps) {
+          const next = run;
+          run = () => parent.instance!.run(next);
+        }
+
+        run();
+      });
     }
 
     private _attachComponent(init?: ElementInstanceInit<Props>) {

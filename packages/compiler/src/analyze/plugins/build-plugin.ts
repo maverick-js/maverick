@@ -38,7 +38,6 @@ export function buildComponentMeta(
     tagname: def.tagName,
     file: buildFileMeta(def.statement),
     shadow: buildShadowRootMeta(checker, def.declaration),
-    parent: resolveParentName(def.declaration),
     docs: getDocs(checker, identifier),
     doctags,
     props: buildPropsMeta(checker, def.declaration),
@@ -54,11 +53,4 @@ function buildShadowRootMeta(checker: ts.TypeChecker, declaration: ts.ObjectLite
   const prop = findPropertyAssignment(declaration, 'shadowRoot');
   const value = prop && getValueNode(checker, prop);
   return value && value?.kind !== ts.SyntaxKind.FalseKeyword;
-}
-
-function resolveParentName(declaration: ts.ObjectLiteralExpression) {
-  const value = findPropertyAssignment(declaration, 'parent');
-  return value && ts.isPropertyAssignment(value) && ts.isIdentifier(value.initializer)
-    ? (value.initializer.escapedText as string)
-    : undefined;
 }

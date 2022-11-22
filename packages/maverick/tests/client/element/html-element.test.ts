@@ -492,62 +492,6 @@ it('should render css vars builder', async () => {
 `);
 });
 
-it('should wait for parent to mount', async () => {
-  const context = createContext(0);
-
-  const Parent = defineElement({
-    tagName: `mk-parent-1`,
-    setup() {
-      context.set(1);
-      return () => null;
-    },
-  });
-
-  const Child = defineElement({
-    tagName: `mk-child-1`,
-    parent: Parent,
-    setup() {
-      expect(context()).toBe(1);
-      return () => null;
-    },
-  });
-
-  const parent = document.createElement(Parent.tagName) as MaverickElement;
-  parent.setAttribute('mk-d', '');
-
-  const child = document.createElement(Child.tagName) as MaverickElement;
-  parent.append(child);
-
-  document.body.append(parent);
-
-  expect(document.body).toMatchInlineSnapshot(`
-  <body>
-    <mk-parent-1
-      mk-d=""
-    >
-      <mk-child-1 />
-    </mk-parent-1>
-  </body>
-`);
-
-  defineCustomElement(Child);
-  expect(child.instance?.host.$mounted).toBeFalsy();
-
-  await new Promise((res) => window.requestAnimationFrame(res));
-  expect(child.instance?.host.$mounted).toBeFalsy();
-
-  parent.attachComponent(createElementInstance(Parent));
-  expect(parent.instance?.host.$mounted).toBeTruthy();
-  expect(child.instance?.host.$mounted).toBeTruthy();
-
-  parent.removeAttribute('mk-d');
-  parent.remove();
-  await new Promise((res) => window.requestAnimationFrame(res));
-
-  expect(parent.instance).toBeNull();
-  expect(child.instance).toBeNull();
-});
-
 afterEach(() => {
   document.body.innerHTML = '';
 });

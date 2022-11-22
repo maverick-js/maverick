@@ -122,8 +122,7 @@ export const HuxElement = defineElement({
 });
 
 export const LuxElement = defineElement({
-  tagName: 'mk-hux',
-  parent: HuxElement,
+  tagName: 'mk-lux',
   props: {
     foo: { initial: 0 },
   },

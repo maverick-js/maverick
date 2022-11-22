@@ -364,12 +364,11 @@
   {
     "name": "LuxElement",
     "tagname": {
-      "name": "mk-hux"
+      "name": "mk-lux"
     },
     "file": {
       "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/compiler/tests/analyze/fixtures.ts"
     },
-    "parent": "HuxElement",
     "props": [
       {
         "name": "foo",

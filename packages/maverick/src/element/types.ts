@@ -109,15 +109,6 @@ export type ElementDeclaration<
    */
   events?: Partial<Events>;
   /**
-   * A parent element definition. Custom Elements are islands and have no knowledge about each
-   * other. When no host framework is available to ensure components are rendered in the correct
-   * order (e.g., loading components out of order over a CDN), this field can be used to ensure
-   * this component will only run it's setup function _after_ the parent is defined, connected,
-   * and has also run it's respective setup function. In other words, wait for the given parent
-   * element to be mounted.
-   */
-  parent?: ElementDefinition<any, any, any, any>;
-  /**
    * The setup function is run once the custom element is ready to render. This function must
    * return a render function. Optionally, class members (i.e., props and methods) can be returned
    * which are assigned to the custom element.

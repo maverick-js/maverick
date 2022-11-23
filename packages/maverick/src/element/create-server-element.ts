@@ -58,6 +58,8 @@ export function createServerElement<
     _instance: ElementInstance<Props, Events> | null = null;
     /** @internal */
     _ssr?: string;
+    /** @internal */
+    _rendered = false;
 
     readonly attributes = new Attributes();
     readonly style = new Style();
@@ -112,7 +114,10 @@ export function createServerElement<
       }
 
       scheduler.flushSync();
-      this._ssr = renderToString(instance[RENDER]!).code;
+
+      const $render = instance[RENDER];
+      this._rendered = !!$render;
+      this._ssr = $render ? renderToString($render).code : '';
 
       if (this.classList.length > 0) {
         this.setAttribute('class', this.classList.toString());
@@ -132,9 +137,11 @@ export function createServerElement<
 
       const innerHTML = this.renderInnerHTML();
 
-      return definition.shadowRoot
-        ? `<template shadowroot="${this.getShadowRootMode()}">${innerHTML}</template>`
-        : `<shadow-root>${innerHTML}</shadow-root>`;
+      return this._rendered || (definition.shadowRoot && definition.css)
+        ? definition.shadowRoot
+          ? `<template shadowroot="${this.getShadowRootMode()}">${innerHTML}</template>`
+          : `<shadow-root>${innerHTML}</shadow-root>`
+        : innerHTML;
     }
 
     renderInnerHTML() {

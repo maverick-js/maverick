@@ -3,6 +3,7 @@ import {
   type ElementDefinition,
   getElementInstance,
   type MaverickElement,
+  RENDER,
 } from '../../element';
 import { createElementInstance } from '../../element/instance';
 import { attachDeclarativeShadowDOM } from '../../std/dom';
@@ -81,13 +82,22 @@ export function $$_setup_custom_element(
   props?: Record<string, any>,
 ) {
   if (definition.shadowRoot) $$_attach_declarative_shadow_dom(element);
+
   const instance = createElementInstance(definition, { props });
   element.attachComponent(instance);
   onDispose(() => instance.destroy());
+
   if (!props) return;
   if (props.innerHTML) return $$_inner_html(element, props.innerHTML);
+
   const marker = createComment('$$');
-  element.firstChild!.after(marker);
+
+  if (instance[RENDER] && !definition.shadowRoot) {
+    element.firstChild!.after(marker);
+  } else {
+    element.prepend(marker);
+  }
+
   instance.run(() => insertExpression(marker, props.$children));
 }
 

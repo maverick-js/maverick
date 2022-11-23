@@ -128,20 +128,20 @@ export function createElementInstance<
     setElementInstance(null);
 
     const $render = instance[MEMBERS]!.$render;
-    const render = $render
-      ? root(() => {
-          // Create a new root context map to prevent children from overwriting flat context tree.
-          setContextMap(new Map(getContextMap()));
-          return scope($render);
-        })
-      : () => null;
+    if ($render) {
+      const render = root(() => {
+        // Create a new root context map to prevent children from overwriting flat context tree.
+        setContextMap(new Map(getContextMap()));
+        return scope($render);
+      });
 
-    instance[RENDER] = () => {
-      setElementInstance(instance);
-      const result = peek(render);
-      setElementInstance(null);
-      return result;
-    };
+      instance[RENDER] = () => {
+        setElementInstance(instance);
+        const result = peek(render);
+        setElementInstance(null);
+        return result;
+      };
+    }
 
     return instance;
   });

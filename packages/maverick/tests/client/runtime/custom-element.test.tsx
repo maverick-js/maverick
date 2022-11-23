@@ -2,10 +2,21 @@ import { createContext, CustomElement, observable, render, tick } from 'maverick
 
 import { defineElement } from 'maverick.js/element';
 
-import { isKeyboardClick } from '../../../src/std/event';
-
 afterEach(() => {
   document.body.innerHTML = '';
+});
+
+it('should render empty custom element', () => {
+  const Foo = defineElement({ tagName: `mk-foo` });
+  const root = document.createElement('root');
+  render(() => <CustomElement $element={Foo} />, { target: root });
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <mk-foo
+        mk-d=""
+      />
+    </root>
+  `);
 });
 
 it('should render custom element', async () => {
@@ -117,7 +128,6 @@ it('should render custom element with only children', () => {
       <mk-button-3
         mk-d=""
       >
-        <shadow-root />
         <div>
           Children
         </div>

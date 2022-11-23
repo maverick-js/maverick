@@ -49,7 +49,6 @@ it('should hydrate custom element', async () => {
         mk-d=""
         mk-h=""
       >
-        <shadow-root />
         <!--$$-->
         <!--$-->
         <div>
@@ -73,7 +72,6 @@ it('should hydrate custom element', async () => {
         mk-d=""
         mk-h=""
       >
-        <shadow-root />
         <!--$$-->
         <!--/$-->
       </mk-foo>

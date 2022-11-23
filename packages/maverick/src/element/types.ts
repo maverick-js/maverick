@@ -120,7 +120,7 @@ export type ElementSetup<
   Props extends ElementPropRecord = ElementPropRecord,
   Events extends ElementEventRecord = ElementEventRecord,
   Members extends ElementMembers = ElementMembers,
-> = (instance: ElementInstance<Props, Events>) => (() => JSX.Element) | Members;
+> = (instance: ElementInstance<Props, Events>) => void | (() => JSX.Element) | Members;
 
 export type AnyElementDefinition = ElementDefinition<any, any, any, any>;
 

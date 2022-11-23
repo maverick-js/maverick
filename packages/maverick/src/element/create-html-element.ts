@@ -74,7 +74,7 @@ export function createHTMLElement<
     /** @internal */
     [HOST] = true;
 
-    private _root?: Node;
+    private _root?: Node | null;
     private _destroyed = false;
     private _instance: ElementInstance<Props, Events> | null = null;
     private _onEventDispatch?: (eventType: string) => void;
@@ -206,12 +206,16 @@ export function createHTMLElement<
 
       if (this._instance || this._destroyed) return;
 
-      this._root = definition.shadowRoot
-        ? this.shadowRoot ??
-          this.attachShadow(
-            isBoolean(definition.shadowRoot) ? { mode: 'open' } : definition.shadowRoot,
-          )
-        : resolveShadowRootElement(this);
+      const $render = instance[RENDER];
+
+      this._root = $render
+        ? definition.shadowRoot
+          ? this.shadowRoot ??
+            this.attachShadow(
+              isBoolean(definition.shadowRoot) ? { mode: 'open' } : definition.shadowRoot,
+            )
+          : resolveShadowRootElement(this)
+        : null;
 
       if (!hydration && definition.shadowRoot && definition.css) {
         adoptCSS(this._root as ShadowRoot, definition.css);
@@ -280,11 +284,13 @@ export function createHTMLElement<
         });
       }
 
-      const renderer = this._hydrate ? hydrate : render;
-      renderer(instance[RENDER]!, {
-        target: this._root,
-        resume: !definition.shadowRoot,
-      });
+      if (this._root && $render) {
+        const renderer = this._hydrate ? hydrate : render;
+        renderer($render, {
+          target: this._root,
+          resume: !definition.shadowRoot,
+        });
+      }
 
       instance[DESTROY].push(() => {
         this._instance = null;

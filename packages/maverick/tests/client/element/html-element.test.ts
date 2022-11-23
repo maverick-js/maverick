@@ -449,12 +449,10 @@ it('should render css vars', () => {
   element.attachComponent(instance);
 
   expect(element).toMatchInlineSnapshot(`
-  <mk-button-5
-    style="--foo: 10; --bar: none;"
-  >
-    <shadow-root />
-  </mk-button-5>
-`);
+    <mk-button-5
+      style="--foo: 10; --bar: none;"
+    />
+  `);
 });
 
 it('should render css vars builder', async () => {
@@ -473,23 +471,19 @@ it('should render css vars builder', async () => {
   element.attachComponent(instance);
 
   expect(element).toMatchInlineSnapshot(`
-  <mk-button-6
-    style="--foo: 0;"
-  >
-    <shadow-root />
-  </mk-button-6>
-`);
+    <mk-button-6
+      style="--foo: 0;"
+    />
+  `);
 
   instance[PROPS].foo.set(100);
   await tick();
 
   expect(element).toMatchInlineSnapshot(`
-  <mk-button-6
-    style="--foo: 100;"
-  >
-    <shadow-root />
-  </mk-button-6>
-`);
+    <mk-button-6
+      style="--foo: 100;"
+    />
+  `);
 });
 
 afterEach(() => {

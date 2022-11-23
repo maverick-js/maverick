@@ -11,6 +11,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
+    "importsNotUsedAsValues": "error",
     "lib": ["es2020"],
     "module": "esnext",
     "moduleResolution": "node",

@@ -1,3 +1,5 @@
+import type { Simplify } from 'type-fest';
+
 export function keysOf<T>(obj: T): (keyof T)[] {
   return Object.keys(obj as object) as (keyof T)[];
 }
@@ -35,4 +37,30 @@ export function mergeProperties(...sources: any[]) {
   }
 
   return target;
+}
+
+/**
+ * Creates a new object composed of the picked `source` properties. All enumerable properties
+ * are merged including values, getters, setters, and methods.
+ */
+export function pick<T, R extends keyof T>(source: T, props: R[]): Simplify<Pick<T, R>> {
+  const target = {} as T;
+
+  for (const prop of props) {
+    Object.defineProperty(target, prop, Object.getOwnPropertyDescriptor(source, prop)!);
+  }
+
+  return target;
+}
+
+/**
+ * The opposite of `pick`; this function creates a new object composed of the `source` properties
+ * that are not included in the given `props` argument. All enumerable properties are merged
+ * including values, getters, setters, and methods.
+ */
+export function omit<T, R extends keyof T>(source: T, props: R[]): Simplify<Omit<T, R>> {
+  return pick(
+    source,
+    keysOf(source).filter((key) => !props.includes(key as R)),
+  );
 }

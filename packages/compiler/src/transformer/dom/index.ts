@@ -36,7 +36,7 @@ import {
   serializeCreateComponent,
   serializeParentExpression,
 } from '../jsx/utils';
-import { type ASTSerializer } from '../transform';
+import type { ASTSerializer } from '../transform';
 
 const ID = {
   template: '$$_templ',

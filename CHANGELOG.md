@@ -1,3 +1,21 @@
+# [0.6.0](https://github.com/maverick-js/maverick/compare/v0.5.3...v0.6.0) (2022-11-24)
+
+
+### Bug Fixes
+
+* add `browser` package export field ([572c4dd](https://github.com/maverick-js/maverick/commit/572c4dd90fe910647c880b999202ac8ced4027e7))
+* add attr converter to object literal prop defs ([6b57e27](https://github.com/maverick-js/maverick/commit/6b57e27e8915a74b7e6e9844b212feba4ff7e3dd))
+* dont ssr `<shadow-root>` if no render ([369ffe3](https://github.com/maverick-js/maverick/commit/369ffe3db24e70a85563de4126ddf1872d751147))
+* element `setup` function can be void ([0e4fb7f](https://github.com/maverick-js/maverick/commit/0e4fb7fa40dd422e09e9ec3f817f64d0182766f5))
+
+
+### Features
+
+* add `pick` and `omit` to std lib ([70fb9c5](https://github.com/maverick-js/maverick/commit/70fb9c51c2dc1e7370686286ad12aad61cd9415e))
+* new `accessors` prop on element instance ([662e005](https://github.com/maverick-js/maverick/commit/662e005f3d44196f6d102303b09e50888bab670c))
+
+
+
 ## [0.5.3](https://github.com/maverick-js/maverick/compare/v0.5.2...v0.5.3) (2022-11-22)
 
 

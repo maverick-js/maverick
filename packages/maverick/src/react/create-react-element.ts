@@ -5,7 +5,7 @@ import { defineCustomElement } from '../element/create-html-element';
 import { createElementInstance } from '../element/instance';
 import { PROPS } from '../element/internal';
 import type { AnyElementDefinition, AnyElementInstance, MaverickElement } from '../element/types';
-import { ContextMap } from '../runtime';
+import type { ContextMap } from '../runtime';
 import { $$_attach_declarative_shadow_dom } from '../runtime/dom';
 import { kebabToPascalCase } from '../std/string';
 import { createReactServerElement } from './create-react-server-element';

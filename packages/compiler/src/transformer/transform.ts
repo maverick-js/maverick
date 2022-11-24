@@ -10,7 +10,7 @@ import {
   setGlobalLogLevel,
 } from '../utils/logger';
 import { createImportDeclaration, Declarations, format } from '../utils/print';
-import { type AST } from './ast';
+import type { AST } from './ast';
 import { dom } from './dom';
 import { parseJSX } from './jsx/parse-jsx';
 import { overwrite } from './jsx/utils';

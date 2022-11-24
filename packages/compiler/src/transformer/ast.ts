@@ -1,5 +1,5 @@
 import { encode } from 'html-entities';
-import ts from 'typescript';
+import type ts from 'typescript';
 
 import { trimWhitespace } from '../utils/print';
 import type {

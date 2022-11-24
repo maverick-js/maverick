@@ -8,7 +8,7 @@ import {
   getElementInstance,
   MOUNT,
 } from './internal';
-import { MaverickElement } from './types';
+import type { MaverickElement } from './types';
 
 export type ElementLifecycleCallback = (host: MaverickElement) => any;
 

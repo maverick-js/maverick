@@ -99,9 +99,9 @@ export function createHTMLElement<
 
     attributeChangedCallback(name, _, newValue) {
       if (!this._instance) return;
-      const propName = attrToProp.get(name)!;
+      const propName = attrToProp.get(name)! as keyof Props;
       const from = propDefs[propName]?.converter?.from;
-      if (from) this._instance[PROPS][propName]?.set(from(newValue));
+      if (from) this._instance[PROPS][propName] = from(newValue);
     }
 
     connectedCallback() {
@@ -223,11 +223,11 @@ export function createHTMLElement<
 
       for (const attrName of attrToProp.keys()) {
         if (this.hasAttribute(attrName)) {
-          const propName = attrToProp.get(attrName)!;
+          const propName = attrToProp.get(attrName)! as keyof Props;
           const convert = propDefs[propName].converter?.from;
           if (convert) {
             const attrValue = this.getAttribute(attrName);
-            instance[PROPS][propName]!.set(convert(attrValue));
+            instance[PROPS][propName] = convert(attrValue);
           }
         }
       }
@@ -273,10 +273,9 @@ export function createHTMLElement<
           // Reflected props.
           for (const propName of reflectedProps) {
             const attrName = propToAttr.get(propName)!;
-            const prop = instance![PROPS][propName];
             const convert = propDefs[propName]!.converter?.to;
             effect(() => {
-              const propValue = prop();
+              const propValue = instance![PROPS][propName];
               const attrValue = convert?.(propValue) ?? propValue + '';
               setAttribute(this, attrName, attrValue);
             });
@@ -329,9 +328,9 @@ export function createHTMLElement<
           const dep = node as MaverickElement;
           deps.push(dep);
           whenDepsMounted.push(
-            customElements.whenDefined(dep.localName).then(() => {
-              return dep[MOUNTED] || new Promise((res) => (dep[MOUNT] ??= []).push(res));
-            }),
+            customElements
+              .whenDefined(dep.localName)
+              .then(() => dep[MOUNTED] || new Promise((res) => (dep[MOUNT] ??= []).push(res))),
           );
         }
 

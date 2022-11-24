@@ -25,8 +25,8 @@ it('should create props', () => {
   expect(instance.props.foo).toBe(10);
   expect(instance.props.bar).toBe(20);
 
-  expect(isSubject(instance[PROPS].foo)).toBeTruthy();
-  expect(isSubject(instance[PROPS].bar)).toBeTruthy();
+  expect(instance[PROPS].foo).toBe(10);
+  expect(instance[PROPS].bar).toBe(20);
 });
 
 it('should forward props', () => {

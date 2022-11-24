@@ -4,6 +4,7 @@ import type { Writable } from 'type-fest';
 import { createScopedRunner, getContextMap, setContextMap, type SubjectRecord } from '../runtime';
 import { DOMEvent } from '../std/event';
 import { runAll } from '../std/fn';
+import { noop } from '../std/unit';
 import {
   AFTER_UPDATE,
   ATTACH,
@@ -38,12 +39,14 @@ export function createElementInstance<
   return root((dispose) => {
     if (init.context) setContextMap(init.context);
 
-    let destroyed = false;
-    let { props, $$props } = createInstanceProps(definition.props ?? ({} as Props));
+    let destroyed = false,
+      $$props = definition.props ? createInstanceProps(definition.props) : ({} as Props);
 
-    if (init.props) {
+    if (init.props && definition.props) {
       for (const prop of Object.keys(init.props)) {
-        $$props[prop]?.set(init.props[prop]!);
+        if (prop in definition.props) {
+          $$props[prop as keyof Props] = init.props[prop]!;
+        }
       }
     }
 
@@ -71,7 +74,13 @@ export function createElementInstance<
 
     const instance: Writable<AnyElementInstance> = {
       host,
-      props,
+      props: new Proxy($$props, {
+        set: __DEV__
+          ? (_, prop) => {
+              throw Error(`[maverick] attempting to set readonly prop \`${String(prop)}\``);
+            }
+          : (noop as any),
+      }),
       [PROPS]: $$props,
       [ATTACH]: [],
       [CONNECT]: [],
@@ -80,6 +89,7 @@ export function createElementInstance<
       [AFTER_UPDATE]: [],
       [DISCONNECT]: [],
       [DESTROY]: [],
+      accessors: () => $$props,
       dispatch(type, init) {
         if (__DEV__ && !host.el) {
           console.warn(
@@ -151,21 +161,20 @@ function createInstanceProps<Props extends ElementPropRecord>(
   propDefs: ElementPropDefinitions<Props>,
 ) {
   const props = {} as Props;
-  const $$props = {} as SubjectRecord<Props>;
 
   for (const propName of Object.keys(propDefs) as (keyof Props)[]) {
     const def = propDefs![propName];
     const $prop = observable(def.initial, def);
-
-    $$props[propName] = $prop;
-
     Object.defineProperty(props, propName, {
       enumerable: true,
       get() {
         return $prop();
       },
+      set(value) {
+        $prop.set(value);
+      },
     });
   }
 
-  return { props, $$props };
+  return props;
 }

@@ -112,7 +112,7 @@ function createReactClientElement<Definition extends AnyElementDefinition>(
         if (eventCallbacks.has(prop)) {
           this._updateEventListener(eventCallbacks.get(prop)!, value);
         } else if (definedProps.has(prop)) {
-          $$props[prop].set(value);
+          $$props[prop] = value;
         } else {
           props[prop] = value;
         }

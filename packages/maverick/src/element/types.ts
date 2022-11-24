@@ -1,13 +1,6 @@
 import type { Constructor } from 'type-fest';
 
-import type {
-  ContextMap,
-  JSX,
-  Observable,
-  observable,
-  ObservableSubject,
-  SubjectRecord,
-} from '../runtime';
+import type { ContextMap, JSX, Observable, observable, ObservableSubject } from '../runtime';
 import type { DOMEventInit } from '../std/event';
 import type { CSS } from './css';
 import type { HOST, MEMBERS, PROPS, RENDER } from './internal';
@@ -200,7 +193,7 @@ export type ElementInstance<
    * Component properties where each value is a readonly observable. Do note destructure this
    * object because it will result in a loss of reactivity.
    */
-  readonly props: Props;
+  readonly props: Readonly<Props>;
   /**
    * Facade for dispatching events on the current host element this component is attached to.
    */
@@ -210,12 +203,21 @@ export type ElementInstance<
    */
   readonly destroy: () => void;
   /**
+   * Returns get/set accessors for all defined properties on this element instance. This method
+   * should only be used for exposing properties as members on the HTML element so consumers can
+   * use them.
+   *
+   * **⚠️ Do not use this internally for setting props. It will generally lead to state being out
+   * of sync between the host framework and internally which will cause inconsistent states.**
+   */
+  readonly accessors: () => Props;
+  /**
    * Runs given function inside instance scope.
    */
   readonly run: <T>(fn: () => T) => T;
 } & {
   /** @internal */
-  [PROPS]: SubjectRecord<Props>;
+  [PROPS]: Props;
   /** @internal */
   [MEMBERS]?: ElementMembers;
   /** @internal */

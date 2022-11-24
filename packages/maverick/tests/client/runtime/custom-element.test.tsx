@@ -20,22 +20,21 @@ it('should render empty custom element', () => {
 });
 
 it('should render custom element', async () => {
-  const Button = defineElement({
-    tagName: `mk-button-1`,
+  const Foo = defineElement({
+    tagName: `mk-foo-1`,
     setup: ({ host }) => {
       return () => !host.$children && <div>Internal</div>;
     },
   });
 
   const root = document.createElement('root');
-
   const $children = observable(<div>Foo</div>);
-  render(() => <CustomElement $element={Button}>{$children()}</CustomElement>, { target: root });
+  render(() => <CustomElement $element={Foo}>{$children()}</CustomElement>, { target: root });
 
   await tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-1
+      <mk-foo-1
         mk-d=""
       >
         <shadow-root>
@@ -45,7 +44,7 @@ it('should render custom element', async () => {
         <div>
           Foo
         </div>
-      </mk-button-1>
+      </mk-foo-1>
     </root>
   `);
 
@@ -53,7 +52,7 @@ it('should render custom element', async () => {
   await tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-1
+      <mk-foo-1
         mk-d=""
       >
         <shadow-root>
@@ -63,7 +62,7 @@ it('should render custom element', async () => {
         <div>
           Foo
         </div>
-      </mk-button-1>
+      </mk-foo-1>
     </root>
   `);
 
@@ -71,7 +70,7 @@ it('should render custom element', async () => {
   await tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-1
+      <mk-foo-1
         mk-d=""
       >
         <shadow-root>
@@ -81,23 +80,23 @@ it('should render custom element', async () => {
         <div>
           Foo
         </div>
-      </mk-button-1>
+      </mk-foo-1>
     </root>
   `);
 });
 
 it('should render custom element with only internal content', () => {
-  const Button = defineElement({
-    tagName: `mk-button-2`,
+  const Foo = defineElement({
+    tagName: `mk-foo-2`,
     setup: () => () => <button>Test</button>,
   });
 
   const root = document.createElement('root');
-  render(() => <CustomElement $element={Button} />, { target: root });
+  render(() => <CustomElement $element={Foo} />, { target: root });
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-2
+      <mk-foo-2
         mk-d=""
       >
         <shadow-root>
@@ -105,18 +104,18 @@ it('should render custom element with only internal content', () => {
             Test
           </button>
         </shadow-root>
-      </mk-button-2>
+      </mk-foo-2>
     </root>
   `);
 });
 
 it('should render custom element with only children', () => {
-  const Button = defineElement({ tagName: `mk-button-3` });
+  const Foo = defineElement({ tagName: `mk-foo-3` });
 
   const root = document.createElement('root');
   render(
     () => (
-      <CustomElement $element={Button}>
+      <CustomElement $element={Foo}>
         <div>Children</div>
       </CustomElement>
     ),
@@ -125,20 +124,20 @@ it('should render custom element with only children', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-3
+      <mk-foo-3
         mk-d=""
       >
         <div>
           Children
         </div>
-      </mk-button-3>
+      </mk-foo-3>
     </root>
   `);
 });
 
 it('should render custom element with inner html', () => {
-  const Button = defineElement({
-    tagName: `mk-button-4`,
+  const Foo = defineElement({
+    tagName: `mk-foo-4`,
     setup:
       ({ host }) =>
       () =>
@@ -148,7 +147,7 @@ it('should render custom element with inner html', () => {
   const root = document.createElement('root');
   render(
     () => (
-      <CustomElement $element={Button} $prop:innerHTML="<div>INNER HTML</div>">
+      <CustomElement $element={Foo} $prop:innerHTML="<div>INNER HTML</div>">
         <div>Children</div>
       </CustomElement>
     ),
@@ -157,26 +156,26 @@ it('should render custom element with inner html', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-4
+      <mk-foo-4
         mk-d=""
       >
         <div>
           INNER HTML
         </div>
-      </mk-button-4>
+      </mk-foo-4>
     </root>
   `);
 });
 
 it('should render custom element with shadow dom', () => {
-  const Button = defineElement({
-    tagName: `mk-button-10`,
+  const Foo = defineElement({
+    tagName: `mk-foo-10`,
     shadowRoot: true,
     setup: () => () => <button>Test</button>,
   });
 
   const root = document.createElement('root');
-  render(() => <CustomElement $element={Button} />, { target: root });
+  render(() => <CustomElement $element={Foo} />, { target: root });
 
   const shadowRoot = (root.firstChild as HTMLElement).shadowRoot;
   expect(shadowRoot?.innerHTML).toMatchInlineSnapshot('"<button>Test</button>"');
@@ -194,6 +193,7 @@ it('should forward context to another custom element', async () => {
 
   const Parent = defineElement({
     tagName: `mk-parent`,
+    props: {},
     setup: () => {
       context.set(1);
       return () => <Component />;
@@ -205,7 +205,6 @@ it('should forward context to another custom element', async () => {
     setup: () => {
       expect(context()).toBe(1);
       expect(contextB()).toBe(0);
-      return () => null;
     },
   });
 

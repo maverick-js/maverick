@@ -86,7 +86,7 @@ export function createServerElement<
         if (this.hasAttribute(attrName)) {
           const convert = propDefs[propName].converter!.from! as (value: string | null) => any;
           const attrValue = this.getAttribute(attrName);
-          instance[PROPS][propName]!.set(convert(attrValue));
+          instance[PROPS][propName as keyof Props] = convert(attrValue);
         }
       }
 

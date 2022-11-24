@@ -75,7 +75,7 @@ it('should reflect props', async () => {
   element.attachComponent(instance);
 
   expect(element.getAttribute('foo')).toBe('100');
-  instance[PROPS].foo.set(200);
+  instance[PROPS].foo = 200;
 
   await tick();
   expect(element.getAttribute('foo')).toBe('200');
@@ -317,7 +317,7 @@ it('should call update hooks', async () => {
   expect(beforeUpdate).not.toHaveBeenCalled();
   expect(afterUpdate).not.toHaveBeenCalled();
 
-  instance[PROPS].foo.set(20);
+  instance[PROPS].foo = 20;
   await tick();
   expect(beforeUpdate).toHaveBeenCalled();
   expect(afterUpdate).toHaveBeenCalled();
@@ -476,7 +476,7 @@ it('should render css vars builder', async () => {
     />
   `);
 
-  instance[PROPS].foo.set(100);
+  instance[PROPS].foo = 100;
   await tick();
 
   expect(element).toMatchInlineSnapshot(`

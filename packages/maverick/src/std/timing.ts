@@ -1,3 +1,4 @@
+import { run } from './fn';
 import { isUndefined, noop } from './unit';
 
 /**
@@ -71,6 +72,8 @@ export function animationFrameThrottle<Fn extends (...args: any[]) => void>(
 
 const requestIdleCallback = __SERVER__
   ? noop
+  : __TEST__
+  ? run
   : 'requestIdleCallback' in window
   ? window.requestIdleCallback
   : (cb) => window.requestAnimationFrame(cb);

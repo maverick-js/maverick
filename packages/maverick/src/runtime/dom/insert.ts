@@ -1,9 +1,8 @@
 import { createComment, createFragment, isDOMNode } from '../../std/dom';
-import { run } from '../../std/fn';
 import { unwrapDeep } from '../../std/observable';
 import { isArray, isFunction, isNumber, isString } from '../../std/unit';
 import type { JSX } from '../jsx';
-import { effect, isObserved } from '../reactivity';
+import { effect } from '../reactivity';
 import { hydration } from './render';
 
 const TEXT = Symbol();
@@ -32,22 +31,7 @@ export function insert(
 
 export function insertExpression(start: StartMarker, value: JSX.Element, isObservable = false) {
   if (isFunction(value)) {
-    let observed = false;
-
-    const stop = effect(() => {
-      insertExpression(start, unwrapDeep(value), true);
-      observed = isObserved();
-    });
-
-    if (!observed) {
-      const idle = __TEST__ ? run : requestIdleCallback ?? requestAnimationFrame;
-      idle(() => {
-        stop();
-        start[END_MARKER]?.remove();
-        start.remove();
-      });
-    }
-
+    effect(() => void insertExpression(start, unwrapDeep(value), true));
     return;
   } else if (hydration && !isObservable) {
     start.remove();

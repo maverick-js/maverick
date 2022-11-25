@@ -37,20 +37,23 @@ export function ErrorBoundary(props: {
   const $error: ObservableError = () => $e();
   $error.handled = () => $e.set(null);
 
-  return computed(() => {
-    const $children = props.$children;
+  return computed(
+    () => {
+      const $children = props.$children;
 
-    onError((error) => {
-      if (__DEV__ && (!isFunction($children) || $children.length === 0)) {
-        console.error(error);
-      }
+      onError((error) => {
+        if (__DEV__ && (!isFunction($children) || $children.length === 0)) {
+          console.error(error);
+        }
 
-      $e.set(error);
-      props.onError?.(error, $error.handled);
-    });
+        $e.set(error);
+        props.onError?.(error, $error.handled);
+      });
 
-    return isFunction($children) && $children.length > 0
-      ? peek(() => ($children as any)($error))
-      : $children;
-  });
+      return isFunction($children) && $children.length > 0
+        ? peek(() => ($children as any)($error))
+        : $children;
+    },
+    __DEV__ ? { fallback: null } : undefined,
+  );
 }

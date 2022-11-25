@@ -62,23 +62,30 @@ it('should render components', () => {
   );
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    Text
-    <div>
+    <root>
       Text
-    </div>
-    <div>
-      Child Text
-    </div>
-    <div>
-      Child Text
-    </div>
-    <div>
-      Text
-    </div>
-    <div />
-  </root>
-`);
+      <div>
+        Text
+      </div>
+      <div>
+        <!--$-->
+        Child Text
+        <!--/$-->
+      </div>
+      <div>
+        <!--$-->
+        Child Text
+        <!--/$-->
+      </div>
+      <div>
+        Text
+      </div>
+      <div>
+        <!--$-->
+        <!--/$-->
+      </div>
+    </root>
+  `);
 
   expect(<Fragment />).toBeInstanceOf(Array);
 });
@@ -179,21 +186,21 @@ it('should render observable component', async () => {
   render(() => $component, { target: root });
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      <!--$-->
-      1
+    <root>
+      <!--$$-->
+      <span>
+        <!--$-->
+        1
+        <!--/$-->
+      </span>
+      <span>
+        <!--$-->
+        1
+        <!--/$-->
+      </span>
       <!--/$-->
-    </span>
-    <span>
-      <!--$-->
-      1
-      <!--/$-->
-    </span>
-    <!--/$-->
-  </root>
-`);
+    </root>
+  `);
 
   $component.set(
     <Component>
@@ -205,15 +212,15 @@ it('should render observable component', async () => {
   await tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <span>
-      Foo
-    </span>
-    <span>
-      Bar
-    </span>
-    <!--/$-->
-  </root>
-`);
+    <root>
+      <!--$$-->
+      <span>
+        Foo
+      </span>
+      <span>
+        Bar
+      </span>
+      <!--/$-->
+    </root>
+  `);
 });

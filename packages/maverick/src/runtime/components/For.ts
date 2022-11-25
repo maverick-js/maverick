@@ -20,7 +20,11 @@ export function For<Item, Element extends JSX.Element>(props: {
   each: Maybe<Item[] | Observable<Item[]>>;
   $children: (item: Observable<Item>, index: number) => Element;
 }): Observable<Element[]> {
-  return computedMap(() => unwrap(props.each), props.$children);
+  return computedMap(
+    () => unwrap(props.each),
+    props.$children,
+    __DEV__ ? { id: 'For' } : undefined,
+  );
 }
 
 /**
@@ -40,5 +44,9 @@ export function ForKeyed<Item, Element extends JSX.Element>(props: {
   each: Maybe<Item[] | Observable<Item[]>>;
   $children: (item: Item, index: Observable<number>) => Element;
 }): Observable<Element[]> {
-  return computedKeyedMap(() => unwrap(props.each), props.$children);
+  return computedKeyedMap(
+    () => unwrap(props.each),
+    props.$children,
+    __DEV__ ? { id: 'ForKeyed' } : undefined,
+  );
 }

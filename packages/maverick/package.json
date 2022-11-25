@@ -1,6 +1,6 @@
 {
   "name": "maverick.js",
-  "description": "Build functional, reactive, type-safe, lightweight, and fast UI.",
+  "description": "Build functional, reactive, type-safe, lightweight, and fast UI libraries.",
   "license": "MIT",
   "version": "0.6.0",
   "type": "module",
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@edge-runtime/vm": "^2.0.0",
     "@maverick-js/compiler": "workspace:*",
-    "@maverick-js/observables": "^4.8.5",
+    "@maverick-js/observables": "^4.9.6",
     "@maverick-js/scheduler": "^2.1.0",
     "@types/node": "^18.0.3",
     "@types/react": "^18.0.24",

@@ -135,7 +135,9 @@ it('should insert observable element', () => {
   insert(root, observable);
   expect(root).toMatchInlineSnapshot(`
     <div>
+      <!--$$-->
       <div />
+      <!--/$-->
     </div>
   `);
 });
@@ -388,7 +390,9 @@ it('should stop expression effect if not observed', () => {
   insertExpression(marker, () => 'Text');
   expect(root).toMatchInlineSnapshot(`
     <root>
+      <!--$$-->
       Text
+      <!--/$-->
     </root>
   `);
 });

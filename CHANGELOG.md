@@ -1,3 +1,12 @@
+## [0.6.1](https://github.com/maverick-js/maverick/compare/v0.6.0...v0.6.1) (2022-11-25)
+
+
+### Features
+
+* bump `@maverick-js/observables` to `4.9.6` ([f3e29ef](https://github.com/maverick-js/maverick/commit/f3e29efe3d34f341a5355598ef2c2723ba7db68d))
+
+
+
 # [0.6.0](https://github.com/maverick-js/maverick/compare/v0.5.3...v0.6.0) (2022-11-24)
 
 

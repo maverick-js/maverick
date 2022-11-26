@@ -79,7 +79,7 @@ importers:
     specifiers:
       '@edge-runtime/vm': ^2.0.0
       '@maverick-js/compiler': workspace:*
-      '@maverick-js/observables': ^4.9.6
+      '@maverick-js/observables': ^4.9.7
       '@maverick-js/scheduler': ^2.1.0
       '@types/node': ^18.0.3
       '@types/react': ^18.0.24
@@ -100,7 +100,7 @@ importers:
     devDependencies:
       '@edge-runtime/vm': 2.0.2
       '@maverick-js/compiler': link:../compiler
-      '@maverick-js/observables': 4.9.6
+      '@maverick-js/observables': 4.9.7
       '@maverick-js/scheduler': 2.1.0
       '@types/node': 18.11.9
       '@types/react': 18.0.25
@@ -444,8 +444,8 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@maverick-js/observables/4.9.6:
-    resolution: {integrity: sha512-khFCOwZu9DFg05jyYW6HLsTm2I7PMAXaY6PsEZiDZSgsMjk3r3z04MQiVl1MzUS0bMvfbuLN5/lvqVgpMW9TcQ==}
+  /@maverick-js/observables/4.9.7:
+    resolution: {integrity: sha512-MEcSm5s18tJ2X2tdIKwAuQ23O7D/CoPUcVXrgY++sIkaOpwFQXFlIepyoenWlVk8FMVal3iFKKfztif+Jn43og==}
     dependencies:
       '@maverick-js/scheduler': 2.1.0
     dev: true

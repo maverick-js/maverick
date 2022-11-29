@@ -260,6 +260,8 @@ export type ElementInstanceHost<
 export interface ElementInstanceDispatcher<Events extends ElementEventRecord = ElementEventRecord> {
   <Type extends keyof Events>(
     type: Type,
-    detail?: Events[Type]['detail'] | DOMEventInit<Events[Type]['detail']>,
+    ...detail: Events[Type]['detail'] extends void | undefined
+      ? [detail?: Events[Type]['detail'] | Partial<DOMEventInit<Events[Type]['detail']>>]
+      : [detail: Events[Type]['detail'] | DOMEventInit<Events[Type]['detail']>]
   ): boolean;
 }

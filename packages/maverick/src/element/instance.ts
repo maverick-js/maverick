@@ -90,7 +90,7 @@ export function createElementInstance<
       [DISCONNECT]: [],
       [DESTROY]: [],
       accessors: () => $$props,
-      dispatch(type, init) {
+      dispatch(type, ..._init) {
         if (__DEV__ && !host.el) {
           console.warn(
             `[maverick] attempted to dispatch event \`${
@@ -99,12 +99,15 @@ export function createElementInstance<
           );
         }
 
+        const init = _init[0];
         return host.el
-          ? host.el.dispatchEvent(
-              new DOMEvent(type as string, {
-                ...definition.events?.[type],
-                ...(init && 'detail' in init ? init : { detail: init }),
-              }),
+          ? peek(() =>
+              host.el!.dispatchEvent(
+                new DOMEvent(type as string, {
+                  ...definition.events?.[type],
+                  ...(init && 'detail' in init ? init : { detail: init }),
+                }),
+              ),
             )
           : false;
       },

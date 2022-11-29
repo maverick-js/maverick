@@ -7,7 +7,7 @@ const DOM_EVENT = Symbol('DOM_EVENT'),
   DOMEventBase: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event;
 
 export type DOMEventInit<Detail = unknown> = EventInit & {
-  readonly detail?: Detail;
+  readonly detail: Detail;
   readonly triggerEvent?: Event;
 };
 
@@ -15,7 +15,7 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
   /**
    * The event detail.
    */
-  readonly detail?: Detail;
+  readonly detail!: Detail;
 
   /**
    * The preceding event that was responsible for this event being fired.
@@ -62,13 +62,15 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
  */
 export function createEvent<EventType extends keyof MaverickEventRecord>(
   type: EventType,
-  init?: InferEventInit<EventType>,
+  ...init: InferEventDetail<EventType> extends void | undefined
+    ? [init?: Partial<InferEventInit<EventType>>]
+    : [init: InferEventInit<EventType>]
 ): EventType extends keyof MaverickEventRecord
   ? MaverickEventRecord[EventType] extends DOMEvent
     ? MaverickEventRecord[EventType]
     : DOMEvent<InferEventDetail<EventType>>
   : DOMEvent<InferEventDetail<EventType>> {
-  return new DOMEvent(type, init) as any;
+  return new DOMEvent(type, init[0] as any) as any;
 }
 
 /**
@@ -86,10 +88,12 @@ export function createEvent<EventType extends keyof MaverickEventRecord>(
 export function dispatchEvent<EventType extends keyof MaverickEventRecord>(
   target: EventTarget | null,
   event: EventType,
-  init?: InferEventInit<EventType>,
+  ...init: InferEventDetail<EventType> extends void | undefined
+    ? [init?: Partial<InferEventInit<EventType>>]
+    : [init: InferEventInit<EventType>]
 ): boolean {
   if (__SERVER__) return false;
-  return target ? peek(() => target.dispatchEvent(new DOMEvent(event, init))) : false;
+  return target ? peek(() => target.dispatchEvent(new DOMEvent(event, init[0] as any))) : false;
 }
 
 /**

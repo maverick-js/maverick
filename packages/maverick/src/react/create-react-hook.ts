@@ -6,8 +6,8 @@ import {
   isSubject,
   type Observable,
   type ObservableSubject,
+  provideContextMap,
   root,
-  setContextMap,
 } from '../runtime';
 import { ReactContextMap } from './use-react-context';
 
@@ -42,7 +42,7 @@ export function createReactHook<T extends Observable<any>>(
 
   React.useMemo(() => {
     root((dispose) => {
-      if (context) setContextMap(context);
+      if (context) provideContextMap(context);
 
       effect(() => {
         setState(observable());

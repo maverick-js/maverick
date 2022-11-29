@@ -1,5 +1,5 @@
 import { getScope, onDispose, onError, tick } from '@maverick-js/observables';
-import { createContext } from 'maverick.js';
+import { createContext, provideContext, useContext } from 'maverick.js';
 
 import {
   createElementInstance,
@@ -84,16 +84,16 @@ it('should reflect props', async () => {
 it('should call connect lifecycle hook', () => {
   const destroy = vi.fn();
   const attach = vi.fn().mockReturnValue(destroy);
-  const context = createContext(0);
+  const Context = createContext<number>();
 
   const { instance, element } = setupTestElement({
     setup({ host }) {
-      context.set(1);
+      provideContext(Context, 1);
       onAttach((__host) => {
         expect(__host).toBeDefined();
         expect(host.el).toBeDefined();
         expect(__host).toEqual(host.el);
-        expect(context()).toBe(1);
+        expect(useContext(Context)).toBe(1);
         return attach();
       });
       return () => null;
@@ -139,16 +139,16 @@ it('should scope connect/disconnect lifecycle hooks', () => {
   const connect = vi.fn();
   const disconnect = vi.fn();
   const dispose = vi.fn();
-  const context = createContext(0);
+  const Context = createContext<number>();
 
   const { instance, element } = setupTestElement({
     setup() {
-      context.set(1);
+      provideContext(Context, 1);
 
       onConnect((host) => {
         const connectScope = getScope();
         expect(connectScope).toBeDefined();
-        expect(context()).toBe(1);
+        expect(useContext(Context)).toBe(1);
 
         connect(host);
         onDispose(dispose);
@@ -157,7 +157,7 @@ it('should scope connect/disconnect lifecycle hooks', () => {
           const disconnectScope = getScope();
           expect(disconnectScope).toBeDefined();
           expect(disconnectScope).toBe(connectScope);
-          expect(context()).toBe(1);
+          expect(useContext(Context)).toBe(1);
           disconnect();
         };
       });
@@ -329,14 +329,14 @@ it('should call update hooks', async () => {
 
 it('should call disconnect lifecycle hook', () => {
   const disconnect = vi.fn();
-  const context = createContext(0);
+  const Context = createContext<number>();
 
   const { instance, element } = setupTestElement({
     setup() {
-      context.set(1);
+      provideContext(Context, 1);
 
       onDisconnect((host) => {
-        expect(context()).toBe(1);
+        expect(useContext(Context)).toBe(1);
         disconnect(host);
       });
 
@@ -356,13 +356,13 @@ it('should call disconnect lifecycle hook', () => {
 
 it('should call destroy lifecycle hook', () => {
   const destroy = vi.fn();
-  const context = createContext(0);
+  const Context = createContext<number>();
 
   const { instance, element } = setupTestElement({
     setup() {
-      context.set(1);
+      provideContext(Context, 1);
       onDestroy((host) => {
-        expect(context()).toBe(1);
+        expect(useContext(Context)).toBe(1);
         destroy(host);
       });
       return () => null;

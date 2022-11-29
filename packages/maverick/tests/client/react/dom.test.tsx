@@ -1,4 +1,4 @@
-import { createContext } from 'maverick.js';
+import { createContext, provideContext, useContext } from 'maverick.js';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
@@ -169,11 +169,11 @@ it('should forward ref', () => {
 });
 
 it('should forward context', () => {
-  const context = createContext(0);
+  const Context = createContext(() => 0);
 
   let value = 0;
   function Component() {
-    value = context();
+    value = useContext(Context);
     return <div>{value}</div>;
   }
 
@@ -187,7 +187,7 @@ it('should forward context', () => {
   const { container } = render(
     {
       setup: () => {
-        context.set(10);
+        provideContext(Context, 10);
         return () => null;
       },
     },

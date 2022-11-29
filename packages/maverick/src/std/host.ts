@@ -8,11 +8,7 @@ export function useHost<
   const instance = getElementInstance();
 
   if (!instance) {
-    throw Error(
-      __DEV__
-        ? '[maverick] called `useHost` outside of root or setup function'
-        : '[maverick] useHost',
-    );
+    throw Error(__DEV__ ? '[maverick] called `useHost` outside of root or setup function' : '');
   }
 
   return instance.host;

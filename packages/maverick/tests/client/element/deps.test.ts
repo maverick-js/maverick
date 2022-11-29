@@ -1,4 +1,11 @@
-import { createContext, getContext, onError, setContext } from 'maverick.js';
+import {
+  createContext,
+  getContext,
+  onError,
+  provideContext,
+  setContext,
+  useContext,
+} from 'maverick.js';
 
 import {
   createElementInstance,
@@ -14,7 +21,7 @@ afterEach(() => {
 });
 
 it('should wait for parents to mount', async () => {
-  const context = createContext<number[]>([]);
+  const Context = createContext<number[]>(() => []);
 
   const error = new Error();
   const errorHandler = vi.fn();
@@ -23,7 +30,7 @@ it('should wait for parents to mount', async () => {
     tagName: `mk-parent-a`,
     setup() {
       setContext('foo', 10);
-      context.next((v) => [...v, 1]);
+      provideContext(Context, [1]);
       onError(errorHandler);
       return () => null;
     },
@@ -32,8 +39,9 @@ it('should wait for parents to mount', async () => {
   const ParentB = defineElement({
     tagName: `mk-parent-b`,
     setup() {
-      expect(context()).toEqual([1]);
-      context.next((v) => [...v, 2]);
+      const value = useContext(Context);
+      expect(value).toEqual([1]);
+      provideContext(Context, [...value, 2]);
       return () => null;
     },
   });
@@ -42,8 +50,11 @@ it('should wait for parents to mount', async () => {
     tagName: `mk-child`,
     setup() {
       expect(getContext('foo')).toBe(10);
-      expect(context()).toEqual([1, 2]);
-      context.next((v) => [...v, 3]);
+
+      const value = useContext(Context);
+      expect(value).toEqual([1, 2]);
+      provideContext(Context, [...value, 3]);
+
       return () => null;
     },
   });
@@ -51,7 +62,8 @@ it('should wait for parents to mount', async () => {
   const GrandChild = defineElement({
     tagName: `mk-grandchild`,
     setup() {
-      expect(context()).toEqual([1, 2, 3]);
+      const value = useContext(Context);
+      expect(value).toEqual([1, 2, 3]);
 
       onConnect(() => {
         throw error;

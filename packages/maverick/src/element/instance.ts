@@ -1,7 +1,7 @@
 import { getScheduler, observable, peek, root, scope } from '@maverick-js/observables';
 import type { Writable } from 'type-fest';
 
-import { createScopedRunner, getContextMap, setContextMap, type SubjectRecord } from '../runtime';
+import { createScopedRunner, provideContextMap, useContextMap } from '../runtime';
 import { DOMEvent } from '../std/event';
 import { runAll } from '../std/fn';
 import { noop } from '../std/unit';
@@ -37,7 +37,7 @@ export function createElementInstance<
   init: ElementInstanceInit<Props> = {},
 ): ElementInstance<Props, Events> {
   return root((dispose) => {
-    if (init.context) setContextMap(init.context);
+    if (init.context) provideContextMap(init.context);
 
     let destroyed = false,
       $$props = definition.props ? createInstanceProps(definition.props) : ({} as Props);
@@ -141,7 +141,7 @@ export function createElementInstance<
     if ($render) {
       const render = root(() => {
         // Create a new root context map to prevent children from overwriting flat context tree.
-        setContextMap(new Map(getContextMap()));
+        provideContextMap(new Map(useContextMap()));
         return scope($render);
       });
 

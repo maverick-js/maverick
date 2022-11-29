@@ -6,5 +6,10 @@ export const ReactContextMap = React.createContext<ContextMap | null>(null);
 
 export function useReactContext<T>(context: Context<T>): T {
   const map = React.useContext(ReactContextMap);
-  return map?.get(context.id) ?? context.initial;
+
+  if (!map) {
+    throw Error(__DEV__ ? '[maverick] attempting to use context without providing first' : '');
+  }
+
+  return map.get(context.id);
 }

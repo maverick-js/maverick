@@ -1,4 +1,12 @@
-import { createContext, CustomElement, observable, render, tick } from 'maverick.js';
+import {
+  createContext,
+  CustomElement,
+  observable,
+  provideContext,
+  render,
+  tick,
+  useContext,
+} from 'maverick.js';
 
 import { defineElement } from 'maverick.js/element';
 
@@ -182,12 +190,13 @@ it('should render custom element with shadow dom', () => {
 });
 
 it('should forward context to another custom element', async () => {
-  const context = createContext(0);
-  const contextB = createContext(0);
+  const Context = createContext(() => 0);
+  const ContextB = createContext(() => 0);
 
   function Component() {
-    contextB.set(1);
-    expect(context()).toBe(1);
+    provideContext(ContextB, 1);
+    expect(useContext(Context)).toBe(1);
+    expect(useContext(ContextB)).toBe(1);
     return null;
   }
 
@@ -195,7 +204,7 @@ it('should forward context to another custom element', async () => {
     tagName: `mk-parent`,
     props: {},
     setup: () => {
-      context.set(1);
+      provideContext(Context, 1);
       return () => <Component />;
     },
   });
@@ -203,8 +212,8 @@ it('should forward context to another custom element', async () => {
   const Child = defineElement({
     tagName: `mk-child`,
     setup: () => {
-      expect(context()).toBe(1);
-      expect(contextB()).toBe(0);
+      expect(useContext(Context)).toBe(1);
+      expect(() => useContext(ContextB)).toThrow();
     },
   });
 

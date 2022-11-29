@@ -1,4 +1,4 @@
-import { createContext } from 'maverick.js';
+import { createContext, provideContext, useContext } from 'maverick.js';
 import * as React from 'React';
 import { renderToString } from 'react-dom/server';
 
@@ -158,19 +158,19 @@ it('should forward props', () => {
 });
 
 it('should forward context map to maverick element', () => {
-  const context = createContext(0);
+  const Context = createContext(() => 0);
 
   const elementA = defineElement({
     tagName: 'mk-foo-10',
     setup: () => {
-      context.set(10);
+      provideContext(Context, 10);
       return () => null;
     },
   });
 
   const elementB = defineElement({
     tagName: 'mk-foo',
-    setup: () => () => context(),
+    setup: () => () => useContext(Context),
   });
 
   const ComponentA = createReactElement(elementA);
@@ -188,12 +188,12 @@ it('should forward context map to maverick element', () => {
 });
 
 it('should forward context to react element', () => {
-  const context = createContext(0);
+  const Context = createContext(() => 0);
 
   const ParentElement = defineElement({
     tagName: 'mk-foo-11',
     setup: () => {
-      context.set(10);
+      provideContext(Context, 10);
       return () => null;
     },
   });
@@ -201,7 +201,7 @@ it('should forward context to react element', () => {
   const Parent = createReactElement(ParentElement);
 
   function Child() {
-    const value = useReactContext(context);
+    const value = useReactContext(Context);
     return React.createElement('div', { id: 'react' }, value);
   }
 

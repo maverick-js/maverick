@@ -1,41 +1,63 @@
 import { computed } from '@maverick-js/observables';
-import { createContext, root } from 'maverick.js';
+import { createContext, hasProvidedContext, provideContext, root, useContext } from 'maverick.js';
 
 it('should create context', () => {
-  const context = createContext(1);
-  expect(context.initial).toEqual(1);
+  const FooContext = createContext(() => 1);
+  expect(FooContext.factory!()).toEqual(1);
 
   root(() => {
-    expect(context()).toEqual(1);
+    provideContext(FooContext);
 
-    const $a = computed(() => context());
+    expect(useContext(FooContext)).toEqual(1);
+
+    const $a = computed(() => useContext(FooContext));
     expect($a()).toEqual(1);
 
-    context.set(2);
-    expect(context()).toBe(2);
-
-    context.next((n) => n + 1);
-    expect(context()).toBe(3);
+    provideContext(FooContext, 2);
+    expect(useContext(FooContext)).toBe(2);
   });
 });
 
 it('should forward context across roots', () => {
-  const context = createContext(1);
+  const FooContext = createContext(() => 1);
   root(() => {
-    context.set(2);
+    provideContext(FooContext, 2);
     root(() => {
-      expect(context()).toEqual(2);
+      expect(useContext(FooContext)).toEqual(2);
       root(() => {
-        expect(context()).toEqual(2);
+        expect(useContext(FooContext)).toEqual(2);
       });
     });
   });
 });
 
-it('should throw error when trying to get context outside root', () => {
-  expect(() => createContext(0)()).toThrowError(/attempting to get context outside/);
+it('should return true if context has been provided', () => {
+  const FooContext = createContext(() => 1);
+  root(() => {
+    provideContext(FooContext);
+    expect(hasProvidedContext(FooContext)).toBeTruthy();
+  });
 });
 
-it('should throw error when trying to set context outside root', () => {
-  expect(() => createContext(0).set(1)).toThrowError(/attempting to set context outside/);
+it('should return false if context has _not_ been provided', () => {
+  const FooContext = createContext(() => 1);
+  expect(hasProvidedContext(FooContext)).toBeFalsy();
+});
+
+it('should throw error when trying to provide context outside root', () => {
+  expect(() => provideContext(createContext(() => 0))).toThrowError(
+    /attempting to provide context outside/,
+  );
+});
+
+it('should throw error when trying to provide context without initial value', () => {
+  expect(() => root(() => provideContext(createContext()))).toThrowError(
+    /context can not be provided without a value or factory/,
+  );
+});
+
+it('should throw error when trying to use context before providing', () => {
+  expect(() => root(() => useContext(createContext()))).toThrowError(
+    /attempting to use context without providing first/,
+  );
 });

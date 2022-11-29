@@ -1,5 +1,4 @@
-import { isSubject } from '@maverick-js/observables';
-import { createContext } from 'maverick.js';
+import { createContext, useContext } from 'maverick.js';
 
 import {
   createElementInstance,
@@ -50,20 +49,18 @@ it('should forward props', () => {
 });
 
 it('should forward context map', () => {
-  const foo = createContext(10);
-  const bar = createContext(10);
+  const FooContext = createContext(() => 10);
 
   const definition = defineElement({
     tagName: 'mk-foo-3',
     setup() {
-      expect(foo()).toBe(20);
-      expect(bar()).toBe(10);
+      expect(useContext(FooContext)).toBe(20);
       return () => null;
     },
   });
 
   const context = new Map();
-  context.set(foo.id, 20);
+  context.set(FooContext.id, 20);
   createElementInstance(definition, { context });
 });
 

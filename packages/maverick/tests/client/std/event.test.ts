@@ -1,5 +1,9 @@
+import { observable, tick } from '@maverick-js/observables';
+import { effect } from 'maverick.js';
+
 import {
   appendTriggerEvent,
+  dispatchEvent,
   DOMEvent,
   findTriggerEvent,
   isDOMEvent,
@@ -67,4 +71,33 @@ it('should append trigger event', () => {
   appendTriggerEvent(eventC, eventB);
   expect(eventC.triggerEvent).toBe(eventB);
   expect(eventB.triggerEvent).toBe(eventA);
+});
+
+it('should not observe dispatched event handlers', async () => {
+  const root = document.createElement('div');
+  const child = document.createElement('div');
+  root.appendChild(child);
+
+  const $fire = observable(false);
+  const $foo = observable(0);
+
+  root.addEventListener('click', () => {
+    $foo();
+  });
+
+  const $effect = vi.fn();
+  effect(() => {
+    $effect();
+    if ($fire()) dispatchEvent(child, 'click', { bubbles: true });
+  });
+
+  expect($effect).toHaveBeenCalledTimes(1);
+
+  $fire.set(true);
+  await tick();
+  expect($effect).toHaveBeenCalledTimes(2);
+
+  $foo.set(1);
+  await tick();
+  expect($effect).toHaveBeenCalledTimes(2);
 });

@@ -1,6 +1,6 @@
 import type { Constructor } from 'type-fest';
 
-import { type JSX, onDispose } from '../runtime';
+import { type JSX, onDispose, peek } from '../runtime';
 import { noop } from './unit';
 
 const DOM_EVENT = Symbol('DOM_EVENT'),
@@ -85,11 +85,11 @@ export function createEvent<EventType extends keyof MaverickEventRecord>(
  */
 export function dispatchEvent<EventType extends keyof MaverickEventRecord>(
   target: EventTarget | null,
-  type: EventType,
+  event: EventType,
   init?: InferEventInit<EventType>,
 ): boolean {
   if (__SERVER__) return false;
-  return target?.dispatchEvent(new DOMEvent(type, init)) ?? false;
+  return target ? peek(() => target.dispatchEvent(new DOMEvent(event, init))) : false;
 }
 
 /**

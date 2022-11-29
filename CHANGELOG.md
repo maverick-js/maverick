@@ -1,3 +1,18 @@
+# [0.8.0](https://github.com/maverick-js/maverick/compare/v0.7.0...v0.8.0) (2022-11-29)
+
+
+### Bug Fixes
+
+* do not observe dispatched event handlers ([f7d7d81](https://github.com/maverick-js/maverick/commit/f7d7d810b4314e682eab8856d8ea6d2423f50ea1))
+* event `detail` is required by default ([9d4b7a2](https://github.com/maverick-js/maverick/commit/9d4b7a2f20c1fd5b585308da18678e6fdfb38e9f))
+
+
+### Features
+
+* revamp context api ([6151532](https://github.com/maverick-js/maverick/commit/61515325bd82c2f5bc3dd7569c680c9e13d6a96e))
+
+
+
 # [0.7.0](https://github.com/maverick-js/maverick/compare/v0.6.1...v0.7.0) (2022-11-26)
 
 

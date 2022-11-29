@@ -2,7 +2,7 @@
   "name": "maverick.js",
   "description": "Build functional, reactive, type-safe, lightweight, and fast UI libraries.",
   "license": "MIT",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "module": "dist/prod/runtime.js",
   "sideEffects": false,

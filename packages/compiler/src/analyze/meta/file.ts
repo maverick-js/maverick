@@ -1,5 +1,5 @@
 import normalizePath from 'normalize-path';
-import ts from 'typescript';
+import type ts from 'typescript';
 
 import { type FileMeta, TS_NODE } from './component';
 

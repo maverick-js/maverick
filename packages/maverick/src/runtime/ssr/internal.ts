@@ -1,4 +1,4 @@
-import { createServerElement, type ElementDefinition } from '../../element';
+import { type AnyElementDefinition, createServerElement } from '../../element';
 import { createElementInstance } from '../../element/instance';
 import { getElementInstance } from '../../element/internal';
 import { escape } from '../../std/html';
@@ -44,7 +44,7 @@ export function $$_host_element(spreads?: Record<string, unknown>[]) {
 
 /** @internal */
 export function $$_custom_element(
-  definition: ElementDefinition,
+  definition: AnyElementDefinition,
   props?: Record<string, any>,
   spreads?: Record<string, unknown>[],
 ) {

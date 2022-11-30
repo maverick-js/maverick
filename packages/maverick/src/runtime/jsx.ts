@@ -33,7 +33,9 @@ declare global {
    * }
    * ```
    */
-  interface MaverickOnAttributes extends GlobalEventHandlersEventMap {}
+  interface MaverickOnAttributes extends HTMLElementEventMap {
+    [eventType: string]: Event;
+  }
 
   /**
    * Store all global directives in this record so global `$use` types can be inferred.
@@ -48,134 +50,6 @@ declare global {
    * ```
    */
   interface MaverickUseAttributes extends JSX.DirectiveRecord {}
-
-  /**
-   * Store all events in this record so they can be used to infer event type mappings. Types in
-   * this record will _not_ be valid `$on` JSX attribute types. However, types in the
-   * `MaverickOnAttributes` record will show up in this type.
-   *
-   * @example
-   * ```ts
-   * declare global {
-   *   interface MaverickEventRecord {
-   *     foo: DOMEvent<string>;
-   *   }
-   * }
-   * ```
-   */
-  interface MaverickEventRecord extends MaverickOnAttributes {}
-
-  /**
-   * Contains a mapping of global event types to their respective event init type. Maverick and
-   * libraries can fallback to using this record when an event doesn't extend the Maverick DOM
-   * event class.
-   *
-   * @example
-   * ```ts
-   * declare global {
-   *   interface MaverickEventInitRecord {
-   *     foo: FooEventInit;
-   *   }
-   * }
-   * ```
-   */
-  interface MaverickEventInitRecord {
-    abort: UIEventInit;
-    animationcancel: AnimationEventInit;
-    animationend: AnimationEventInit;
-    animationiteration: AnimationEventInit;
-    animationstart: AnimationEventInit;
-    auxclick: MouseEventInit;
-    beforeinput: InputEventInit;
-    blur: FocusEventInit;
-    canplay: EventInit;
-    canplaythrough: EventInit;
-    change: EventInit;
-    click: MouseEventInit;
-    close: EventInit;
-    compositionend: CompositionEventInit;
-    compositionstart: CompositionEventInit;
-    compositionupdate: CompositionEventInit;
-    contextmenu: MouseEventInit;
-    cuechange: EventInit;
-    dblclick: MouseEventInit;
-    drag: DragEventInit;
-    dragend: DragEventInit;
-    dragenter: DragEventInit;
-    dragleave: DragEventInit;
-    dragover: DragEventInit;
-    dragstart: DragEventInit;
-    drop: DragEventInit;
-    durationchange: EventInit;
-    emptied: EventInit;
-    ended: EventInit;
-    error: ErrorEventInit;
-    focus: FocusEventInit;
-    focusin: FocusEventInit;
-    focusout: FocusEventInit;
-    formdata: FormDataEventInit;
-    gotpointercapture: PointerEventInit;
-    input: EventInit;
-    invalid: EventInit;
-    keydown: KeyboardEventInit;
-    keypress: KeyboardEventInit;
-    keyup: KeyboardEventInit;
-    load: EventInit;
-    loadeddata: EventInit;
-    loadedmetadata: EventInit;
-    loadstart: EventInit;
-    lostpointercapture: PointerEventInit;
-    mousedown: MouseEventInit;
-    mouseenter: MouseEventInit;
-    mouseleave: MouseEventInit;
-    mousemove: MouseEventInit;
-    mouseout: MouseEventInit;
-    mouseover: MouseEventInit;
-    mouseup: MouseEventInit;
-    pause: EventInit;
-    play: EventInit;
-    playing: EventInit;
-    pointercancel: PointerEventInit;
-    pointerdown: PointerEventInit;
-    pointerenter: PointerEventInit;
-    pointerleave: PointerEventInit;
-    pointermove: PointerEventInit;
-    pointerout: PointerEventInit;
-    pointerover: PointerEventInit;
-    pointerup: PointerEventInit;
-    progress: ProgressEventInit;
-    ratechange: EventInit;
-    reset: EventInit;
-    resize: UIEventInit;
-    scroll: EventInit;
-    securitypolicyviolation: SecurityPolicyViolationEventInit;
-    seeked: EventInit;
-    seeking: EventInit;
-    select: EventInit;
-    selectionchange: EventInit;
-    selectstart: EventInit;
-    slotchange: EventInit;
-    stalled: EventInit;
-    submit: SubmitEventInit;
-    suspend: EventInit;
-    timeupdate: EventInit;
-    toggle: EventInit;
-    touchcancel: TouchEventInit;
-    touchend: TouchEventInit;
-    touchmove: TouchEventInit;
-    touchstart: TouchEventInit;
-    transitioncancel: TransitionEventInit;
-    transitionend: TransitionEventInit;
-    transitionrun: TransitionEventInit;
-    transitionstart: TransitionEventInit;
-    volumechange: EventInit;
-    waiting: EventInit;
-    webkitanimationend: EventInit;
-    webkitanimationiteration: EventInit;
-    webkitanimationstart: EventInit;
-    webkittransitionend: EventInit;
-    wheel: WheelEventInit;
-  }
 }
 
 export namespace JSX {
@@ -250,14 +124,14 @@ export namespace JSX {
    * ```
    */
   export type PropAttributes<Record extends PropRecord> = {
-    [P in keyof Record as `$prop:${Stringify<P>}`]?: Value<Record[P] | null>;
+    [P in keyof Record as `$prop:${Stringify<P>}`]?: Value<Record[P]>;
   } & KebabCasedObservableAttributes<ConditionalPick<Record, AttrValue>>;
 
-  export type InnerContentAttributes = {
+  export interface InnerContentAttributes {
     '$prop:innerHTML'?: Value<AttrValue>;
     '$prop:innerText'?: Value<AttrValue>;
     '$prop:textContent'?: Value<AttrValue>;
-  };
+  }
 
   /**
    * -------------------------------------------------------------------------------------------
@@ -439,9 +313,9 @@ export namespace JSX {
     [Prop in keyof Props as `$prop:${Stringify<Prop>}`]?: Value<Props[Prop] | null>;
   } & LowercasedObservableAttributes<ConditionalPick<Props, AttrValue>>;
 
-  export type HTMLAttributes = HTMLPropAttributes<HTMLProperties> & {
+  export interface HTMLAttributes extends HTMLPropAttributes<HTMLProperties> {
     $children?: Element;
-  };
+  }
 
   export type HTMLCSSProperties = {
     [P in keyof Omit<
@@ -454,32 +328,32 @@ export namespace JSX {
     [id: `data-${string}`]: Value<AttrValue>;
   };
 
+  // Separate interface so TS can cache it.
+  export interface BaseHTMLElementAttributes
+    extends HTMLAttributes,
+      ClassAttributes,
+      StyleAttributes,
+      ARIAAttributes,
+      HTMLDataAttributes,
+      InnerContentAttributes,
+      CSSVarAttributes<MaverickCSSVarAttributes>,
+      UseAttributes<MaverickUseAttributes> {}
+
   export type HTMLElementAttributes<
     Element extends DOMElement = DOMElement,
     Props extends PropRecord = {},
     Events extends EventRecord = {},
     CSSVars extends CSSRecord = {},
-  > =
-    // HTML Defaults
-    HTMLAttributes &
-      ClassAttributes &
-      StyleAttributes &
-      ARIAAttributes &
-      HTMLDataAttributes &
-      InnerContentAttributes &
-      // User Defined
-      RefAttributes<Element> &
-      PropAttributes<Props> &
-      OnAttributes<Element, Events> &
-      CSSVarAttributes<CSSVars> &
-      // Globals
-      CSSVarAttributes<MaverickCSSVarAttributes> &
-      OnAttributes<Element, MaverickOnAttributes & EventRecord> &
-      UseAttributes<MaverickUseAttributes>;
+  > = BaseHTMLElementAttributes &
+    RefAttributes<Element> &
+    PropAttributes<Props> &
+    OnAttributes<Element, Events> &
+    CSSVarAttributes<CSSVars> &
+    OnAttributes<Element, MaverickOnAttributes>;
 
-  export type HTMLMarqueeElement = HTMLElement & HTMLMarqueeElementProperties;
+  export interface HTMLMarqueeElement extends HTMLElement, HTMLMarqueeElementProperties {}
 
-  export type HTMLMarqueeElementProperties = {
+  export interface HTMLMarqueeElementProperties {
     behavior?: 'scroll' | 'slide' | 'alternate';
     bgColor?: string;
     direction?: 'left' | 'right' | 'up' | 'down';
@@ -491,11 +365,12 @@ export namespace JSX {
     trueSpeed?: boolean;
     vspace?: number | string;
     width?: number | string;
-  };
+  }
 
-  export type HTMLMarqueeElementAttributes = HTMLPropAttributes<HTMLMarqueeElementProperties>;
+  export interface HTMLMarqueeElementAttributes
+    extends HTMLPropAttributes<HTMLMarqueeElementProperties> {}
 
-  export type HTMLProperties = {
+  export interface HTMLProperties {
     // Standard HTML Attributes
     accept?: string;
     acceptCharset?: string;
@@ -675,7 +550,7 @@ export namespace JSX {
     itemType?: string;
     itemID?: string;
     itemRef?: string;
-  };
+  }
 
   /**
    * -------------------------------------------------------------------------------------------
@@ -683,7 +558,7 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
-  export type SVGAttributes = KebabCasedObservableAttributes<SVGProperties>;
+  export interface SVGAttributes extends KebabCasedObservableAttributes<SVGProperties> {}
 
   export type SVGElementAttributes<Element extends DOMElement = SVGElement> =
     HTMLElementAttributes<Element> & SVGAttributes;
@@ -692,7 +567,7 @@ export namespace JSX {
     d: string;
   }
 
-  export type SVGProperties = {
+  export interface SVGProperties {
     accentHeight?: number | string;
     accumulate?: 'none' | 'sum';
     additive?: 'replace' | 'sum';
@@ -945,7 +820,7 @@ export namespace JSX {
     yChannelSelector?: string;
     z?: number | string;
     zoomAndPan?: string;
-  };
+  }
 
   /**
    * -------------------------------------------------------------------------------------------
@@ -1130,55 +1005,55 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
-  export type ARIAAttributes = Partial<{
-    'aria-autocomplete': 'none' | 'inline' | 'list' | 'both';
-    'aria-checked': 'true' | 'false' | 'mixed';
-    'aria-disabled': 'true' | 'false';
-    'aria-errormessage': string;
-    'aria-expanded': 'true' | 'false';
-    'aria-haspopup': 'true' | 'false' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog';
-    'aria-hidden': 'true' | 'false';
-    'aria-invalid': 'grammar' | 'false' | 'spelling' | 'true';
-    'aria-label': string;
-    'aria-level': number;
-    'aria-modal': 'true' | 'false';
-    'aria-multiline': 'true' | 'false';
-    'aria-multiselectable': 'true' | 'false';
-    'aria-orientation': 'horizontal' | 'vertical';
-    'aria-placeholder': string;
-    'aria-pressed': 'true' | 'false' | 'mixed';
-    'aria-readonly': 'true' | 'false';
-    'aria-required': 'true' | 'false';
-    'aria-selected': 'true' | 'false';
-    'aria-sort': 'ascending' | 'descending' | 'none' | 'other';
-    'aria-valuemin': number;
-    'aria-valuemax': number;
-    'aria-valuenow': number;
-    'aria-valuetext': string;
-    'aria-busy': 'true' | 'false';
-    'aria-live': 'assertive' | 'polite' | 'off';
-    'aria-relevant': 'all' | 'additions' | 'removals' | 'text' | 'additions text';
-    'aria-atomic': 'true' | 'false';
-    'aria-dropeffect': 'copy' | 'execute' | 'link' | 'move' | 'none' | 'popup';
-    'aria-grabbed': 'true' | 'false';
-    'aria-activedescendant': string;
-    'aria-colcount': number;
-    'aria-colindex': number;
-    'aria-colspan': number;
-    'aria-controls': string;
-    'aria-describedby': string;
-    'aria-description': string;
-    'aria-details': string;
-    'aria-flowto': string;
-    'aria-labelledby': string;
-    'aria-owns': string;
-    'aria-posinet': number;
-    'aria-rowcount': number;
-    'aria-rowindex': number;
-    'aria-rowspan': number;
-    'aria-setsize': number;
-    'aria-current': 'page' | 'step' | 'location' | 'date' | 'time' | 'true' | 'false';
-    'aria-keyshortcuts': string;
-    'aria-roledescription': string;
-  }>;
+  export interface ARIAAttributes {
+    'aria-autocomplete'?: 'none' | 'inline' | 'list' | 'both';
+    'aria-checked'?: 'true' | 'false' | 'mixed';
+    'aria-disabled'?: 'true' | 'false';
+    'aria-errormessage'?: string;
+    'aria-expanded'?: 'true' | 'false';
+    'aria-haspopup'?: 'true' | 'false' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog';
+    'aria-hidden'?: 'true' | 'false';
+    'aria-invalid'?: 'grammar' | 'false' | 'spelling' | 'true';
+    'aria-label'?: string;
+    'aria-level'?: number;
+    'aria-modal'?: 'true' | 'false';
+    'aria-multiline'?: 'true' | 'false';
+    'aria-multiselectable'?: 'true' | 'false';
+    'aria-orientation'?: 'horizontal' | 'vertical';
+    'aria-placeholder'?: string;
+    'aria-pressed'?: 'true' | 'false' | 'mixed';
+    'aria-readonly'?: 'true' | 'false';
+    'aria-required'?: 'true' | 'false';
+    'aria-selected'?: 'true' | 'false';
+    'aria-sort'?: 'ascending' | 'descending' | 'none' | 'other';
+    'aria-valuemin'?: number;
+    'aria-valuemax'?: number;
+    'aria-valuenow'?: number;
+    'aria-valuetext'?: string;
+    'aria-busy'?: 'true' | 'false';
+    'aria-live'?: 'assertive' | 'polite' | 'off';
+    'aria-relevant'?: 'all' | 'additions' | 'removals' | 'text' | 'additions text';
+    'aria-atomic'?: 'true' | 'false';
+    'aria-dropeffect'?: 'copy' | 'execute' | 'link' | 'move' | 'none' | 'popup';
+    'aria-grabbed'?: 'true' | 'false';
+    'aria-activedescendant'?: string;
+    'aria-colcount'?: number;
+    'aria-colindex'?: number;
+    'aria-colspan'?: number;
+    'aria-controls'?: string;
+    'aria-describedby'?: string;
+    'aria-description'?: string;
+    'aria-details'?: string;
+    'aria-flowto'?: string;
+    'aria-labelledby'?: string;
+    'aria-owns'?: string;
+    'aria-posinet'?: number;
+    'aria-rowcount'?: number;
+    'aria-rowindex'?: number;
+    'aria-rowspan'?: number;
+    'aria-setsize'?: number;
+    'aria-current'?: 'page' | 'step' | 'location' | 'date' | 'time' | 'true' | 'false';
+    'aria-keyshortcuts'?: string;
+    'aria-roledescription'?: string;
+  }
 }

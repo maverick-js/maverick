@@ -3,38 +3,29 @@ import type { Writable } from 'type-fest';
 import { isArray, isFunction } from '../std/unit';
 import { isHostElement } from './create-html-element';
 import type {
+  AnyMaverickElement,
   ElementAttributeConverter,
-  ElementCSSVarRecord,
   ElementDeclaration,
   ElementDefinition,
-  ElementEventRecord,
-  ElementMembers,
   ElementPropDefinition,
-  ElementPropRecord,
-  MaverickElement,
+  PartialElementDeclaration,
 } from './types';
 
-export function defineElement<
-  Props extends ElementPropRecord,
-  Events extends ElementEventRecord,
-  CSSVars extends ElementCSSVarRecord,
-  Members extends ElementMembers,
->(
-  declaration: ElementDeclaration<Props, Events, CSSVars, Members>,
-): ElementDefinition<Props, Events, CSSVars, Members> {
-  const definition: ElementDefinition<Props, Events, CSSVars, Members> = {
-    ...declaration,
+export function defineElement<Element extends AnyMaverickElement>(
+  declaration: PartialElementDeclaration<Element>,
+): ElementDefinition<Element> {
+  const definition = {
+    ...(declaration as ElementDeclaration<Element>),
     setup(instance) {
-      const setup = declaration.setup?.(instance) ?? {};
-      return (isFunction(setup) ? { $render: setup } : setup) as Members;
+      const setup = (declaration as ElementDeclaration<Element>).setup?.(instance) ?? {};
+      return isFunction(setup) ? { $render: setup } : setup;
     },
     is: __SERVER__
       ? (node): node is never => false
-      : (node): node is MaverickElement<Props, Events> & Members =>
-          isHostElement(node) && node.localName === definition.tagName,
-  };
+      : (node): node is Element => isHostElement(node) && node.localName === definition.tagName,
+  } as ElementDefinition<Element>;
 
-  if (definition.props) {
+  if ('props' in definition) {
     for (const prop of Object.values(definition.props) as Writable<ElementPropDefinition>[]) {
       if (prop.attribute !== false && !prop.converter) {
         prop.converter = createConverter(prop.initial);

@@ -8,28 +8,27 @@ import { isBoolean, isFunction } from '../std/unit';
 import { ATTACH, HOST, PROPS, RENDER } from './internal';
 import type {
   AnyElementDefinition,
-  ElementCSSVarRecord,
+  AnyMaverickElement,
   ElementDefinition,
-  ElementEventRecord,
   ElementInstance,
-  ElementMembers,
   ElementPropDefinitions,
-  ElementPropRecord,
   HostElement,
+  InferElementEvents,
+  InferElementProps,
 } from './types';
 
 const scheduler = getScheduler(),
   registry = new WeakMap<AnyElementDefinition, any>();
 
-export function createServerElement<
-  Props extends ElementPropRecord,
-  Events extends ElementEventRecord,
-  CSSVars extends ElementCSSVarRecord,
-  Members extends ElementMembers,
->(definition: ElementDefinition<Props, Events, CSSVars, Members>) {
+export function createServerElement<Element extends AnyMaverickElement>(
+  definition: ElementDefinition<Element>,
+) {
   if (registry.has(definition)) {
     return registry.get(definition) as typeof MaverickServerElement;
   }
+
+  type Props = InferElementProps<Element>;
+  type Events = InferElementEvents<Element>;
 
   const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
   const propToAttr = new Map<string, string>();
@@ -194,16 +193,17 @@ export function createServerElement<
   return MaverickServerElement;
 }
 
-export type ServerHTMLElement = Pick<
-  HTMLElement,
-  | 'getAttribute'
-  | 'setAttribute'
-  | 'hasAttribute'
-  | 'removeAttribute'
-  | 'dispatchEvent'
-  | 'addEventListener'
-  | 'removeEventListener'
-> & {
+export interface ServerHTMLElement
+  extends Pick<
+    HTMLElement,
+    | 'getAttribute'
+    | 'setAttribute'
+    | 'hasAttribute'
+    | 'removeAttribute'
+    | 'dispatchEvent'
+    | 'addEventListener'
+    | 'removeEventListener'
+  > {
   readonly classList: Pick<
     HTMLElement['classList'],
     'length' | 'add' | 'contains' | 'remove' | 'replace' | 'toggle' | 'toString'
@@ -212,7 +212,7 @@ export type ServerHTMLElement = Pick<
     HTMLElement['style'],
     'length' | 'getPropertyValue' | 'removeProperty' | 'setProperty'
   > & { toString(): string };
-};
+}
 
 class Attributes {
   protected _tokens = new Map<string, string>();

@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import type ts from 'typescript';
 
 import {
   getPropertyAssignmentValue,
@@ -6,7 +6,7 @@ import {
   getValueNode,
   walkProperties,
 } from '../utils/walk';
-import { type MembersMeta, type MethodMeta, type PropMeta } from './component';
+import type { MembersMeta, MethodMeta, PropMeta } from './component';
 import { buildMethodMeta } from './methods';
 import { buildPropMeta } from './props';
 

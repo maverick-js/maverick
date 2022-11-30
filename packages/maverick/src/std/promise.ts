@@ -1,8 +1,8 @@
-export type DeferredPromise<ResolveType = void, RejectType = void> = {
+export interface DeferredPromise<ResolveType = void, RejectType = void> {
   promise: Promise<ResolveType | undefined>;
   resolve: (value?: ResolveType) => void;
   reject: (reason: RejectType) => void;
-};
+}
 
 /**
  * Creates an empty Promise and defers resolving/rejecting it.

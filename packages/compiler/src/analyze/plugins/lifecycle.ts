@@ -1,11 +1,11 @@
 import { createHash } from 'crypto';
 import kleur from 'kleur';
 import LRUCache from 'lru-cache';
-import ts from 'typescript';
+import type ts from 'typescript';
 
 import { formatPluginName, log, LogLevel, logTime } from '../../utils/logger';
 import { isUndefined } from '../../utils/unit';
-import { type ComponentMeta } from '../meta/component';
+import type { ComponentMeta } from '../meta/component';
 import { resolvePath } from '../utils/path';
 import type { AnalyzePlugin, ElementDefintionNode } from './AnalyzePlugin';
 

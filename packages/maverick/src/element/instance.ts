@@ -21,28 +21,29 @@ import {
 } from './internal';
 import type {
   AnyElementInstance,
+  AnyMaverickElement,
   ElementDefinition,
-  ElementEventRecord,
   ElementInstance,
   ElementInstanceInit,
   ElementPropDefinitions,
   ElementPropRecord,
+  InferElementEvents,
+  InferElementProps,
 } from './types';
 
-export function createElementInstance<
-  Props extends ElementPropRecord,
-  Events extends ElementEventRecord = ElementEventRecord,
->(
-  definition: ElementDefinition<Props, Events, any, any>,
-  init: ElementInstanceInit<Props> = {},
-): ElementInstance<Props, Events> {
+export function createElementInstance<Element extends AnyMaverickElement>(
+  definition: ElementDefinition<Element>,
+  init: ElementInstanceInit<InferElementProps<Element>> = {},
+): ElementInstance<InferElementProps<Element>, InferElementEvents<Element>> {
+  type Props = InferElementProps<Element>;
+
   return root((dispose) => {
     if (init.context) provideContextMap(init.context);
 
     let destroyed = false,
-      $$props = definition.props ? createInstanceProps(definition.props) : ({} as Props);
+      $$props = 'props' in definition ? createInstanceProps(definition.props) : ({} as Props);
 
-    if (init.props && definition.props) {
+    if (init.props && 'props' in definition) {
       for (const prop of Object.keys(init.props)) {
         if (prop in definition.props) {
           $$props[prop as keyof Props] = init.props[prop]!;
@@ -101,12 +102,10 @@ export function createElementInstance<
 
         const init = _init[0];
         return host.el
-          ? peek(() =>
-              host.el!.dispatchEvent(
-                new DOMEvent(type as string, {
-                  ...definition.events?.[type],
-                  ...(init && 'detail' in init ? init : { detail: init }),
-                }),
+          ? host.el!.dispatchEvent(
+              new DOMEvent(
+                type as string,
+                typeof init === 'object' && 'detail' in init ? init : { detail: init },
               ),
             )
           : false;
@@ -146,7 +145,7 @@ export function createElementInstance<
         // Create a new root context map to prevent children from overwriting flat context tree.
         provideContextMap(new Map(useContextMap()));
         return scope($render);
-      });
+      }) as () => any;
 
       instance[RENDER] = () => {
         setElementInstance(instance);
@@ -167,7 +166,7 @@ function createInstanceProps<Props extends ElementPropRecord>(
 
   for (const propName of Object.keys(propDefs) as (keyof Props)[]) {
     const def = propDefs![propName];
-    const $prop = observable(def.initial, def);
+    const $prop = observable((def as any).initial, def);
     Object.defineProperty(props, propName, {
       enumerable: true,
       get() {

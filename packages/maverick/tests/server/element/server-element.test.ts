@@ -1,9 +1,8 @@
 import {
+  AnyElementDeclaration,
   createElementInstance,
   createServerElement,
   defineElement,
-  defineProp,
-  type ElementDeclaration,
   onAttach,
 } from 'maverick.js/element';
 
@@ -105,8 +104,8 @@ it('should render styles', () => {
 it('should reflect props', () => {
   const { instance, host } = setupTestElement({
     props: {
-      foo: defineProp(10, { reflect: true }),
-      bar: defineProp(20, { reflect: true }),
+      foo: { initial: 10, reflect: true },
+      bar: { initial: 20, reflect: true },
     },
   });
 
@@ -139,7 +138,7 @@ it('should noop dom events api', () => {
   }).not.toThrow();
 });
 
-function setupTestElement(declaration?: Partial<ElementDeclaration>) {
+function setupTestElement(declaration?: Partial<AnyElementDeclaration>) {
   const definition = defineElement({
     tagName: `mk-foo`,
     setup: ({ props }) => {
@@ -157,7 +156,7 @@ function setupTestElement(declaration?: Partial<ElementDeclaration>) {
       return members;
     },
     ...declaration,
-  });
+  } as any);
 
   const instance = createElementInstance(definition);
 

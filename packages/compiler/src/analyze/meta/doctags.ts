@@ -1,7 +1,7 @@
 import kleur from 'kleur';
 import normalizePath from 'normalize-path';
 import { dirname, resolve } from 'path';
-import ts from 'typescript';
+import type ts from 'typescript';
 
 import { filterArrayUnique } from '../../utils/array';
 import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';

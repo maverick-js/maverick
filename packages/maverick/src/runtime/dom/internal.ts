@@ -1,8 +1,8 @@
 import {
+  type AnyElementDefinition,
+  type AnyMaverickElement,
   defineCustomElement,
-  type ElementDefinition,
   getElementInstance,
-  type MaverickElement,
   RENDER,
 } from '../../element';
 import { createElementInstance } from '../../element/instance';
@@ -57,7 +57,10 @@ export function $$_host_element() {
 }
 
 /** @internal */
-export function $$_next_custom_element(definition: ElementDefinition, walker = hydration?.w): Node {
+export function $$_next_custom_element(
+  definition: AnyElementDefinition,
+  walker = hydration?.w,
+): Node {
   const { tagName } = definition;
   defineCustomElement(definition);
 
@@ -77,8 +80,8 @@ export function $$_next_custom_element(definition: ElementDefinition, walker = h
 
 /** @internal */
 export function $$_setup_custom_element(
-  element: MaverickElement,
-  definition: ElementDefinition,
+  element: AnyMaverickElement,
+  definition: AnyElementDefinition,
   props?: Record<string, any>,
 ) {
   if (definition.shadowRoot) $$_attach_declarative_shadow_dom(element);
@@ -113,7 +116,7 @@ export function $$_create_element(tagName: string) {
 }
 
 /** @internal */
-export function $$_attach_declarative_shadow_dom(element: MaverickElement) {
+export function $$_attach_declarative_shadow_dom(element: AnyMaverickElement) {
   if (element.firstChild?.nodeName === 'TEMPLATE') {
     if ((element.firstChild as HTMLTemplateElement).hasAttribute('shadowroot')) {
       attachDeclarativeShadowDOM(element);

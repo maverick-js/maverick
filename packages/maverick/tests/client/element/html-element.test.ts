@@ -2,13 +2,13 @@ import { getScope, onDispose, onError, tick } from '@maverick-js/observables';
 import { createContext, provideContext, useContext } from 'maverick.js';
 
 import {
+  AnyMaverickElement,
   createElementInstance,
   defineCustomElement,
   defineElement,
-  defineProp,
-  type ElementDeclaration,
-  type MaverickElement,
-  type MaverickElementConstructor,
+  ElementDeclaration,
+  MaverickElement,
+  MaverickElementConstructor,
   onAfterUpdate,
   onAttach,
   onBeforeUpdate,
@@ -39,10 +39,10 @@ it('should handle basic setup and destroy', () => {
 it('should observe attributes', () => {
   const { instance, element, elementCtor } = setupTestElement({
     props: {
-      foo: defineProp(1),
-      bar: defineProp(2),
-      bazBax: defineProp(3),
-      bazBaxHux: defineProp(4),
+      foo: { initial: 1 },
+      bar: { initial: 2 },
+      bazBax: { initial: 3 },
+      bazBaxHux: { initial: 4 },
     },
   });
 
@@ -56,7 +56,7 @@ it('should observe attributes', () => {
 it('should initialize from attribute', () => {
   const { instance, element } = setupTestElement({
     props: {
-      foo: defineProp(1),
+      foo: { initial: 1 },
     },
   });
 
@@ -68,7 +68,7 @@ it('should initialize from attribute', () => {
 it('should reflect props', async () => {
   const { instance, element } = setupTestElement({
     props: {
-      foo: defineProp(100, { reflect: true }),
+      foo: { initial: 100, reflect: true },
     },
   });
 
@@ -295,7 +295,7 @@ it('should call update hooks', async () => {
 
   const { instance, element } = setupTestElement({
     props: {
-      foo: defineProp(10),
+      foo: { initial: 10 },
     },
     setup() {
       onBeforeUpdate((host) => {
@@ -436,6 +436,7 @@ it('should discover events on dispatch', () => {
 it('should render css vars', () => {
   const Button = defineElement({
     tagName: `mk-button-5`,
+    // @ts-expect-error
     cssvars: {
       foo: 10,
       bar: 'none',
@@ -462,7 +463,7 @@ it('should render css vars builder', async () => {
     cssvars: (props) => ({
       foo: () => props.foo,
     }),
-  });
+  } as any);
 
   defineCustomElement(Button);
 
@@ -493,7 +494,7 @@ afterEach(() => {
 let count = 0;
 
 function setupTestElement(
-  declaration?: Partial<ElementDeclaration>,
+  declaration?: Partial<ElementDeclaration<AnyMaverickElement>>,
   { hydrate = false, delegate = true, append = true } = {},
 ) {
   const definition = defineElement({
@@ -513,7 +514,7 @@ function setupTestElement(
       return members;
     },
     ...declaration,
-  });
+  } as any);
 
   defineCustomElement(definition);
 

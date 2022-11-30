@@ -2,7 +2,7 @@ import { createContext, provideContext, useContext } from 'maverick.js';
 import * as React from 'React';
 import { renderToString } from 'react-dom/server';
 
-import { defineElement, defineProp, onAttach } from 'maverick.js/element';
+import { defineElement, onAttach } from 'maverick.js/element';
 import { createReactElement, useReactContext } from 'maverick.js/react';
 
 it('should render', () => {
@@ -141,8 +141,9 @@ it('should forward attributes', () => {
 it('should forward props', () => {
   const element = defineElement({
     tagName: 'mk-foo-9',
+    // @ts-expect-error
     props: {
-      foo: defineProp(10),
+      foo: { initial: 10 },
     },
     setup:
       ({ props }) =>

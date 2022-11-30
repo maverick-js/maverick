@@ -1,8 +1,8 @@
 import { existsSync } from 'fs';
 import kleur from 'kleur';
-import ts from 'typescript';
+import type ts from 'typescript';
 
-import { type AnalyzePlugin } from '../../analyze/plugins/AnalyzePlugin';
+import type { AnalyzePlugin } from '../../analyze/plugins/AnalyzePlugin';
 import { createBuildPlugin } from '../../analyze/plugins/build-plugin';
 import { createDiscoverPlugin } from '../../analyze/plugins/discover-plugin';
 import { runPlugins } from '../../analyze/plugins/lifecycle';

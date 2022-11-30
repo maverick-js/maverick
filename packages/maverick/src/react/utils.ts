@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { type ContextMap } from '../runtime';
+import type { ContextMap } from '../runtime';
 import { ReactContextMap } from './use-react-context';
 
 export function WithContextMap(

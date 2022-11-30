@@ -4,7 +4,13 @@ import * as React from 'react';
 import { defineCustomElement } from '../element/create-html-element';
 import { createElementInstance } from '../element/instance';
 import { PROPS } from '../element/internal';
-import type { AnyElementDefinition, AnyElementInstance, MaverickElement } from '../element/types';
+import type {
+  AnyElementDefinition,
+  AnyElementInstance,
+  AnyMaverickElement,
+  InferElementFromDefinition,
+  MaverickElement,
+} from '../element/types';
 import type { ContextMap } from '../runtime';
 import { $$_attach_declarative_shadow_dom } from '../runtime/dom';
 import { kebabToPascalCase } from '../std/string';
@@ -20,7 +26,7 @@ export type ReactElementInit = {
 export function createReactElement<Definition extends AnyElementDefinition>(
   definition: Definition,
   init?: ReactElementInit,
-): ReactElement<Definition> {
+): ReactElement<InferElementFromDefinition<Definition>> {
   return __SERVER__
     ? createReactServerElement(definition)
     : createReactClientElement(definition, init);
@@ -29,16 +35,16 @@ export function createReactElement<Definition extends AnyElementDefinition>(
 const scheduler = getScheduler(),
   SETUP = Symbol();
 
-function createReactClientElement<Definition extends AnyElementDefinition>(
-  definition: Definition,
-  init?: ReactElementInit,
-): ReactElement<Definition> {
+function createReactClientElement<
+  Definition extends AnyElementDefinition,
+  Element extends AnyMaverickElement = InferElementFromDefinition<Definition>,
+>(definition: Definition, init?: ReactElementInit): ReactElement<Element> {
   defineCustomElement(definition);
 
   const definedProps = new Set(Object.keys(definition.props ?? {})),
     eventCallbacks = new Map<string, string>();
 
-  class CustomElement extends React.Component<ReactElementProps<Definition>> {
+  class CustomElement extends React.Component<ReactElementProps<Element>> {
     static displayName = init?.displayName ?? definition.tagName;
     static override contextType = ReactContextMap;
     declare context: React.ContextType<typeof ReactContextMap>;

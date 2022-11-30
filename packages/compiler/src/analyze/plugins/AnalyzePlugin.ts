@@ -2,14 +2,14 @@ import type ts from 'typescript';
 
 import type { ComponentMeta } from '../meta/component';
 
-export type ElementDefintionNode = {
+export interface ElementDefintionNode {
   name: string;
   tagName: ComponentMeta['tagname'];
   statement: ts.VariableStatement;
   variable: ts.VariableDeclaration;
   call: ts.CallExpression;
   declaration: ts.ObjectLiteralExpression;
-};
+}
 
 export interface AnalyzePlugin {
   name: string;

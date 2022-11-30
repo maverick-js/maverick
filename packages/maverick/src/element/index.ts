@@ -4,7 +4,5 @@ export * from './create-html-element';
 export * from './create-server-element';
 export * from './css';
 export * from './define';
-export * from './event';
 export * from './lifecycle';
-export * from './property';
 export * from './types';

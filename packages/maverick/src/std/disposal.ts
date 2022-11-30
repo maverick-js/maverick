@@ -1,9 +1,9 @@
 import { onDispose } from '../runtime';
 
-export type DisposalBin = {
+export interface DisposalBin {
   add(...callbacks: (() => any)[]): void;
   empty(): void;
-};
+}
 
 /**
  * Creates and returns a disposal bin for managing cleanup operations.

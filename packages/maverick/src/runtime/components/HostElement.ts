@@ -1,10 +1,9 @@
 import type {
-  ElementCSSVarRecord,
-  ElementDefinition,
-  ElementEventRecord,
-  ElementMembers,
-  ElementPropRecord,
-  MaverickElement,
+  AnyElementDefinition,
+  AnyMaverickElement,
+  InferElementCSSProps,
+  InferElementEvents,
+  InferElementFromDefinition,
 } from '../../element/types';
 import type { JSX } from '../jsx';
 
@@ -26,20 +25,18 @@ import type { JSX } from '../jsx';
  * ```
  */
 export function HostElement<
-  Props extends ElementPropRecord,
-  Events extends ElementEventRecord,
-  CSSVars extends ElementCSSVarRecord,
-  Members extends ElementMembers,
+  Definition extends AnyElementDefinition,
+  Element extends AnyMaverickElement = InferElementFromDefinition<Definition>,
 >(
   props: {
     /** Custom element defintion. */
-    $element?: ElementDefinition<Props, Events, CSSVars, Members>;
+    $element?: Definition;
     $children?: JSX.Element;
   } & JSX.HTMLElementAttributes<
-    MaverickElement<Props, Events> & Members,
+    Element,
     {},
-    Events & JSX.EventRecord,
-    CSSVars
+    InferElementEvents<Element>,
+    InferElementCSSProps<Element>
   >,
 ): JSX.Element {
   // Virtual component so it doesn't return anything, output is determined by the compiler.

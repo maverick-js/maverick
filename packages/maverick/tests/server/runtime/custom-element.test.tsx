@@ -5,7 +5,6 @@ import {
   createServerElement,
   css,
   defineElement,
-  defineProp,
 } from 'maverick.js/element';
 import { renderToString } from 'maverick.js/ssr';
 
@@ -109,8 +108,9 @@ it('should render with attributes', () => {
 it('should forward props', () => {
   const element = defineElement({
     tagName: 'mk-foo',
+    // @ts-expect-error
     props: {
-      foo: defineProp(10),
+      foo: { initial: 10 },
     },
     setup:
       ({ props }) =>
@@ -128,8 +128,9 @@ it('should forward props', () => {
 it('should forward attrs to props', () => {
   const element = defineElement({
     tagName: 'mk-foo',
+    // @ts-expect-error
     props: {
-      foo: defineProp(10),
+      foo: { initial: 10 },
     },
     setup:
       ({ props }) =>
@@ -164,6 +165,7 @@ it('should set inner html', () => {
 it('should render css vars', () => {
   const Button = defineElement({
     tagName: `mk-button-5`,
+    // @ts-expect-error
     cssvars: {
       foo: 10,
       bar: 'none',
@@ -185,6 +187,7 @@ it('should render css vars', () => {
 it('should render css vars builder', () => {
   const Button = defineElement({
     tagName: `mk-button-6`,
+    // @ts-expect-error
     props: { foo: { initial: 100 } },
     cssvars: (props) => ({
       foo: () => props.foo,

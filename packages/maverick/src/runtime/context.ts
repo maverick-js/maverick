@@ -1,9 +1,9 @@
 import { getContext, getScope, setContext } from '@maverick-js/observables';
 
-export type Context<T> = {
+export interface Context<T> {
   id: symbol;
   factory?: () => T;
-};
+}
 
 export function createContext<T>(factory?: () => T): Context<T> {
   return { id: Symbol(), factory };

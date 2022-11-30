@@ -102,15 +102,15 @@ export interface FileMeta {
   path: string;
 }
 
-export type TagNameMeta = {
+export interface TagNameMeta {
   [TS_NODE]: ts.Node;
   name: string;
-};
+}
 
-export type MembersMeta = {
+export interface MembersMeta {
   props?: PropMeta[];
   methods?: MethodMeta[];
-};
+}
 
 export interface ComponentMeta extends Record<string, unknown> {
   [TS_NODE]: ts.Node;

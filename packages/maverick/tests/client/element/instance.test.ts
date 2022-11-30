@@ -4,7 +4,6 @@ import {
   createElementInstance,
   defineCustomElement,
   defineElement,
-  defineProp,
   MaverickElement,
   onAttach,
   PROPS,
@@ -14,10 +13,10 @@ it('should create props', () => {
   const definition = defineElement({
     tagName: 'mk-foo-1',
     props: {
-      foo: defineProp(10),
-      bar: defineProp(20),
+      foo: { initial: 10 },
+      bar: { initial: 20 },
     },
-  });
+  } as any);
 
   const instance = createElementInstance(definition);
 
@@ -32,10 +31,10 @@ it('should forward props', () => {
   const definition = defineElement({
     tagName: 'mk-foo-2',
     props: {
-      foo: defineProp(10),
-      bar: defineProp(20),
+      foo: { initial: 10 },
+      bar: { initial: 20 },
     },
-  });
+  } as any);
 
   const instance = createElementInstance(definition, {
     props: {

@@ -1,15 +1,15 @@
 import type { Constructor } from 'type-fest';
 
-import { type JSX, onDispose, peek } from '../runtime';
+import { type Dispose, type JSX, onDispose, untrack } from '../runtime';
 import { noop } from './unit';
 
 const DOM_EVENT = Symbol('DOM_EVENT'),
   DOMEventBase: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event;
 
-export type DOMEventInit<Detail = unknown> = EventInit & {
+export interface DOMEventInit<Detail = unknown> extends EventInit {
   readonly detail: Detail;
   readonly triggerEvent?: Event;
-};
+}
 
 export class DOMEvent<Detail = unknown> extends DOMEventBase {
   /**
@@ -50,24 +50,24 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
 
 /**
  * Creates and returns a `DOMEvent`. This function is typed to match all events declared
- * on the global `MaverickEventRecord`. You can extend it like so:
+ * on the global `HTMLElementEventMap`. You can extend it like so:
  *
  * ```ts
  * declare global {
- *   interface MaverickEventRecord {
+ *   interface HTMLElementEventMap {
  *     foo: DOMEvent<number>;
  *   }
  * }
  * ```
  */
-export function createEvent<EventType extends keyof MaverickEventRecord>(
+export function createEvent<EventType extends keyof HTMLElementEventMap>(
   type: EventType,
-  ...init: InferEventDetail<EventType> extends void | undefined
+  ...init: InferEventDetail<EventType> extends void | undefined | never
     ? [init?: Partial<InferEventInit<EventType>>]
     : [init: InferEventInit<EventType>]
-): EventType extends keyof MaverickEventRecord
-  ? MaverickEventRecord[EventType] extends DOMEvent
-    ? MaverickEventRecord[EventType]
+): EventType extends keyof HTMLElementEventMap
+  ? HTMLElementEventMap[EventType] extends DOMEvent
+    ? HTMLElementEventMap[EventType]
     : DOMEvent<InferEventDetail<EventType>>
   : DOMEvent<InferEventDetail<EventType>> {
   return new DOMEvent(type, init[0] as any) as any;
@@ -75,25 +75,25 @@ export function createEvent<EventType extends keyof MaverickEventRecord>(
 
 /**
  * Creates a `DOMEvent` and dispatches it from the given `target`. This function is typed to
- * match all events declared on the global `MaverickEventRecord`. You can extend it like so:
+ * match all events declared on the global `HTMLElementEventMap`. You can extend it like so:
  *
  * ```ts
  * declare global {
- *   interface MaverickEventRecord {
+ *   interface HTMLElementEventMap {
  *     foo: DOMEvent<number>;
  *   }
  * }
  * ```
  */
-export function dispatchEvent<EventType extends keyof MaverickEventRecord>(
+export function dispatchEvent<EventType extends keyof HTMLElementEventMap>(
   target: EventTarget | null,
   event: EventType,
-  ...init: InferEventDetail<EventType> extends void | undefined
+  ...init: InferEventDetail<EventType> extends void | undefined | never
     ? [init?: Partial<InferEventInit<EventType>>]
     : [init: InferEventInit<EventType>]
 ): boolean {
   if (__SERVER__) return false;
-  return target ? peek(() => target.dispatchEvent(new DOMEvent(event, init[0] as any))) : false;
+  return target ? target.dispatchEvent(new DOMEvent(event, init[0] as any)) : false;
 }
 
 /**
@@ -106,10 +106,10 @@ export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {
 /**
  * Whether the given `event` is of the given `type`.
  */
-export function isEventType<Type extends keyof MaverickEventRecord>(
+export function isEventType<Type extends keyof HTMLElementEventMap>(
   event: Event,
   type: Type,
-): event is MaverickEventRecord[Type] {
+): event is HTMLElementEventMap[Type] {
   return event.type === type;
 }
 
@@ -160,7 +160,7 @@ export function walkTriggerEventChain<T>(
 export function findTriggerEvent<Type extends string>(
   event: Event,
   type: Type,
-): (Type extends keyof MaverickEventRecord ? MaverickEventRecord[Type] : Event) | undefined {
+): (Type extends keyof HTMLElementEventMap ? HTMLElementEventMap[Type] : Event) | undefined {
   return walkTriggerEventChain(event, (e) => e.type === type)?.[0] as any;
 }
 
@@ -200,12 +200,8 @@ function defineEventProperty<T extends keyof DOMEvent>(
 }
 
 export type InferEventDetail<T> = T extends string
-  ? T extends keyof MaverickEventInitRecord
-    ? MaverickEventInitRecord[T] extends DOMEventInit<infer Detail>
-      ? Detail
-      : unknown
-    : T extends keyof MaverickEventRecord
-    ? MaverickEventRecord[T] extends DOMEvent<infer Detail>
+  ? T extends keyof HTMLElementEventMap
+    ? HTMLElementEventMap[T] extends DOMEvent<infer Detail>
       ? Detail
       : unknown
     : unknown
@@ -218,10 +214,8 @@ export type InferEventDetail<T> = T extends string
   : unknown;
 
 export type InferEventInit<T> = T extends string
-  ? T extends keyof MaverickEventInitRecord
-    ? MaverickEventInitRecord[T]
-    : T extends keyof MaverickEventRecord
-    ? InferEventInit<MaverickEventRecord[T]>
+  ? T extends keyof HTMLElementEventMap
+    ? InferEventInit<HTMLElementEventMap[T]>
     : DOMEventInit<unknown>
   : T extends Constructor<DOMEvent>
   ? DOMEventInit<InferEventDetail<InstanceType<T>>>
@@ -230,8 +224,6 @@ export type InferEventInit<T> = T extends string
   : T extends DOMEventInit
   ? T
   : DOMEventInit<unknown>;
-
-export type RemoveEventListener = () => void;
 
 /**
  * Adds an event listener for the given `type` and returns a function which can be invoked to
@@ -245,15 +237,13 @@ export function listenEvent<Target extends EventTarget, EventType extends string
   type: EventType,
   handler: JSX.TargetedEventHandler<
     Target,
-    EventType extends keyof MaverickEventRecord ? MaverickEventRecord[EventType] : Event
+    EventType extends keyof HTMLElementEventMap ? HTMLElementEventMap[EventType] : Event
   >,
   options?: AddEventListenerOptions | boolean,
-): RemoveEventListener {
+): Dispose {
   if (__SERVER__) return noop;
   target.addEventListener(type, handler as any, options);
-  const off = () => target.removeEventListener(type, handler as any, options);
-  onDispose(off);
-  return off;
+  return onDispose(() => target.removeEventListener(type, handler as any, options));
 }
 
 export function isPointerEvent(event: Event | undefined): event is PointerEvent {

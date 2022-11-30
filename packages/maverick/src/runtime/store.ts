@@ -2,10 +2,10 @@ import { observable } from '@maverick-js/observables';
 
 import type { AnyRecord } from './types';
 
-export type Store<Record extends AnyRecord> = {
+export interface Store<Record extends AnyRecord> {
   initial: Record;
   create: () => Record;
-};
+}
 
 /**
  * Converts an object into a store. A store stores the initial object and enables producing new

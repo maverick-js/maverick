@@ -202,7 +202,6 @@ it('should forward context to another custom element', async () => {
 
   const Parent = defineElement({
     tagName: `mk-parent`,
-    props: {},
     setup: () => {
       provideContext(Context, 1);
       return () => <Component />;

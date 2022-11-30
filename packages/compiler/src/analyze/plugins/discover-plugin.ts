@@ -9,7 +9,7 @@ import {
   isCallExpression,
   isExportedVariableStatement,
 } from '../utils/walk';
-import { type AnalyzePlugin, type ElementDefintionNode } from './AnalyzePlugin';
+import type { AnalyzePlugin, ElementDefintionNode } from './AnalyzePlugin';
 
 export function createDiscoverPlugin(): AnalyzePlugin {
   let checker: ts.TypeChecker;

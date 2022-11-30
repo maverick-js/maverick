@@ -1,10 +1,10 @@
 import type {
-  ElementCSSVarRecord,
-  ElementDefinition,
-  ElementEventRecord,
-  ElementMembers,
-  ElementPropRecord,
-  MaverickElement,
+  AnyElementDefinition,
+  AnyMaverickElement,
+  InferElementCSSProps,
+  InferElementEvents,
+  InferElementFromDefinition,
+  InferElementProps,
 } from '../../element/types';
 import type { JSX } from '../jsx';
 
@@ -24,22 +24,20 @@ import type { JSX } from '../jsx';
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements}
  */
 export function CustomElement<
-  Props extends ElementPropRecord,
-  Events extends ElementEventRecord,
-  CSSVars extends ElementCSSVarRecord,
-  Members extends ElementMembers,
+  Definition extends AnyElementDefinition,
+  Element extends AnyMaverickElement = InferElementFromDefinition<Definition>,
 >(
   props: {
     /** Custom element defintion. */
-    $element: ElementDefinition<Props, Events, CSSVars, Members>;
+    $element: Definition;
     $children?: JSX.Element;
   } & JSX.HTMLElementAttributes<
-    MaverickElement<Props, Events> & Members,
-    Partial<Props>,
-    Events & JSX.EventRecord,
-    CSSVars
+    Element,
+    Partial<InferElementProps<Element>>,
+    InferElementEvents<Element>,
+    InferElementCSSProps<Element>
   >,
-): MaverickElement<Props, Events> & Members {
+): Element {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;
 }

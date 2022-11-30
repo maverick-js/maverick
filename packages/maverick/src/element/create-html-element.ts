@@ -1,4 +1,4 @@
-import { effect, getScheduler, isSubject, root } from '@maverick-js/observables';
+import { effect, getScheduler, isSubject, root, untrack } from '@maverick-js/observables';
 
 import { createScopedRunner, hydrate, hydration, render } from '../runtime';
 import { $$_create_element } from '../runtime/dom/internal';
@@ -23,15 +23,14 @@ import {
 } from './internal';
 import type {
   AnyElementDefinition,
-  ElementCSSVarRecord,
+  AnyMaverickElement,
   ElementDefinition,
-  ElementEventRecord,
   ElementInstance,
   ElementInstanceInit,
-  ElementMembers,
   ElementPropDefinitions,
-  ElementPropRecord,
   HostElement,
+  InferElementEvents,
+  InferElementProps,
   MaverickElement,
   MaverickElementConstructor,
 } from './types';
@@ -39,19 +38,17 @@ import type {
 const scheduler = getScheduler(),
   MOUNTED = Symbol(__DEV__ ? 'MOUNTED' : 0);
 
-export function createHTMLElement<
-  Props extends ElementPropRecord,
-  Events extends ElementEventRecord,
-  CSSVars extends ElementCSSVarRecord,
-  Members extends ElementMembers,
->(
-  definition: ElementDefinition<Props, Events, CSSVars, Members>,
-): MaverickElementConstructor<Props, Events, Members> {
+export function createHTMLElement<Element extends AnyMaverickElement>(
+  definition: ElementDefinition<Element>,
+): MaverickElementConstructor<Element> {
   if (__SERVER__) {
     throw Error(
       '[maverick] `createHTMLElement` was called outside of browser - use `createServerElement`',
     );
   }
+
+  type Props = InferElementProps<Element>;
+  type Events = InferElementEvents<Element>;
 
   const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
   const attrToProp = new Map<string, string>();
@@ -311,7 +308,7 @@ export function createHTMLElement<
         dispatchedEvents.add(event.type);
       }
 
-      return super.dispatchEvent(event);
+      return untrack(() => super.dispatchEvent(event));
     }
 
     private _pendingSetup = false;

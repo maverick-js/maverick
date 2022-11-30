@@ -91,7 +91,7 @@ function createLifecycleMethod(type: keyof ElementLifecycleManager) {
       return;
     }
 
-    const hook = () => callback(instance.host.el!);
+    const hook = () => callback(instance.host.el! as any);
     instance[type].push(isConnect ? hook : () => instance.run(hook));
   };
 }

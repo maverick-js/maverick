@@ -13,3 +13,6 @@ export function kebabToPascalCase(str: string) {
 export function uppercaseFirstChar(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export const escapeQuotes = (str: string): string =>
+  str.replace(/^"+|"+$/g, '').replace(/^'+|'+$/g, '');

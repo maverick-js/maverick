@@ -2,8 +2,7 @@ import { existsSync, mkdirSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 
-import { escapeQuotes } from 'maverick.js/utils/print';
-
+import { escapeQuotes } from '../../utils/str';
 import { isUndefined } from '../../utils/unit';
 import type { ComponentMeta, PropMeta } from '../meta/component';
 import { resolveConfigPaths } from '../utils/resolve';

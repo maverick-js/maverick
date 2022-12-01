@@ -1,3 +1,18 @@
+# [0.9.0](https://github.com/maverick-js/maverick/compare/v0.8.0...v0.9.0) (2022-12-01)
+
+
+### Bug Fixes
+
+* align analyzer with new type system ([15b0d80](https://github.com/maverick-js/maverick/commit/15b0d80240e8729b1c3db9c04e1fe096de75d011))
+* remove redundant `define` stripping ([bece828](https://github.com/maverick-js/maverick/commit/bece8285ca79518c76f676dbc2f83ce20d396444))
+
+
+### Features
+
+* revamp custom element type system ([884d747](https://github.com/maverick-js/maverick/commit/884d747571a8d905e300b4120ab1762e92d324fc))
+
+
+
 # [0.8.0](https://github.com/maverick-js/maverick/compare/v0.7.0...v0.8.0) (2022-11-29)
 
 

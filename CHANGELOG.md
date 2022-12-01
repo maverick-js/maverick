@@ -1,3 +1,13 @@
+## [0.9.1](https://github.com/maverick-js/maverick/compare/v0.9.0...v0.9.1) (2022-12-01)
+
+
+### Bug Fixes
+
+* `useHost` should return element instance host ([62fcb09](https://github.com/maverick-js/maverick/commit/62fcb09d7e2a79c4af6983349aeb7752572ec2c7))
+* element lifecycle hooks can accept any element ([ea2d2c7](https://github.com/maverick-js/maverick/commit/ea2d2c72d9a52ad40cc335566a0d6aa6834b8644))
+
+
+
 # [0.9.0](https://github.com/maverick-js/maverick/compare/v0.8.0...v0.9.0) (2022-12-01)
 
 

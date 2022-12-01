@@ -160,8 +160,8 @@ export interface MaverickElement<
 }
 
 export interface HostElement<
-  Props extends ElementPropRecord = never,
-  Events extends ElementEventRecord = never,
+  Props extends ElementPropRecord = {},
+  Events extends ElementEventRecord = {},
 > {
   [HOST]?: boolean;
   /**
@@ -206,7 +206,7 @@ export interface MaverickElementConstructor<Element extends AnyMaverickElement =
   readonly observedAttributes: string[];
 }
 
-export interface ElementInstanceInit<Props> {
+export interface ElementInstanceInit<Props = {}> {
   props?: Readonly<Partial<Props>>;
   context?: ContextMap;
   children?: Observable<boolean>;
@@ -214,8 +214,10 @@ export interface ElementInstanceInit<Props> {
 
 export type AnyElementInstance = ElementInstance<any, any>;
 
-export interface ElementInstance<Props extends ElementPropRecord, Events extends ElementEventRecord>
-  extends ElementLifecycleManager {
+export interface ElementInstance<
+  Props extends ElementPropRecord = {},
+  Events extends ElementEventRecord = {},
+> extends ElementLifecycleManager {
   /** @internal */
   [PROPS]: Props;
   /** @internal */
@@ -259,8 +261,8 @@ export interface ElementInstance<Props extends ElementPropRecord, Events extends
 }
 
 export interface ElementInstanceHost<
-  Props extends ElementPropRecord,
-  Events extends ElementEventRecord,
+  Props extends ElementPropRecord = {},
+  Events extends ElementEventRecord = {},
 > {
   /**
    * The custom element this component is attached to. This is safe to call server-side with the

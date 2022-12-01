@@ -4,10 +4,11 @@ import type {
   ElementInstanceHost,
   InferElementEvents,
   InferElementProps,
+  MaverickElement,
 } from '../element/types';
 
 export function useHost<
-  Element extends AnyMaverickElement = AnyMaverickElement,
+  Element extends AnyMaverickElement = MaverickElement,
 >(): ElementInstanceHost<InferElementProps<Element>, InferElementEvents<Element>> {
   const instance = getElementInstance();
 

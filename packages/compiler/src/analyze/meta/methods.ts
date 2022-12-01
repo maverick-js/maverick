@@ -9,20 +9,22 @@ import { getDocTags, hasDocTag } from './doctags';
 export function buildMethodMeta(
   checker: ts.TypeChecker,
   name: string,
-  node: ts.MethodDeclaration | ts.FunctionDeclaration,
+  node: ts.MethodSignature | ts.MethodDeclaration | ts.FunctionDeclaration,
 ): MethodMeta | undefined {
   const docs = getDocs(checker, node.name as ts.Identifier),
     doctags = getDocTags(node),
     signature = checker.getSignatureFromDeclaration(node)!,
     returnType = checker.getReturnTypeOfSignature(signature);
 
-  const parameters: ParameterMeta[] = node.parameters.map((parameter) => ({
-    [TS_NODE]: parameter,
-    name: (parameter.name as ts.Identifier).escapedText as string,
-    type: buildTypeMeta(checker, parameter),
-    optional: !isUndefined(parameter.questionToken),
-    default: parameter.initializer?.getText(),
-  }));
+  const parameters: ParameterMeta[] = node.parameters
+    .filter((parameter) => parameter.type)
+    .map((parameter) => ({
+      [TS_NODE]: parameter,
+      name: (parameter.name as ts.Identifier).escapedText as string,
+      type: buildTypeMeta(checker, parameter.type!),
+      optional: !isUndefined(parameter.questionToken) ? true : undefined,
+      default: parameter.initializer?.getText(),
+    }));
 
   let internal!: MethodMeta['internal'], deprecated!: MethodMeta['deprecated'];
 

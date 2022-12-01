@@ -3,7 +3,6 @@ import type ts from 'typescript';
 export const TS_NODE = Symbol('NODE');
 
 export interface TypeMeta {
-  generic?: string;
   serialized: string;
   union?: string[];
 }
@@ -57,6 +56,7 @@ export interface EventMeta {
   [TS_NODE]: ts.Node;
   name: string;
   type: TypeMeta;
+  detail: string;
   docs?: string;
   doctags?: DocTagMeta[];
   bubbles?: boolean;

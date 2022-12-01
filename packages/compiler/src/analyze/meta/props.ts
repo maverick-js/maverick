@@ -1,16 +1,15 @@
 import ts from 'typescript';
 
-import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
 import { escapeQuotes } from '../../utils/print';
 import { camelToKebabCase } from '../../utils/str';
+import type { ElementDefintionNode } from '../plugins/AnalyzePlugin';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta } from '../utils/types';
 import {
   getPropertyAssignmentValue,
-  getReturnStatement,
   getValueNode,
-  isCallExpression,
   walkProperties,
+  walkSignatures,
 } from '../utils/walk';
 import { type PropMeta, TS_NODE } from './component';
 import { findDocTag, getDocTags, hasDocTag } from './doctags';
@@ -19,40 +18,34 @@ export interface PropMetaInfo {
   attribute?: string;
   reflect?: boolean;
   value?: ts.Node | false;
-  generic?: ts.TypeNode;
 }
 
 export function buildPropsMeta(
   checker: ts.TypeChecker,
-  root: ts.ObjectLiteralExpression,
+  declarationRoot: ts.ObjectLiteralExpression,
+  typeRoot?: ElementDefintionNode['types']['props'],
 ): PropMeta[] | undefined {
+  if (!typeRoot) return;
+
   const meta: PropMeta[] = [],
-    defs = getPropertyAssignmentValue(checker, root, 'props');
+    members = walkSignatures(checker, typeRoot);
 
-  if (defs) {
-    const members = walkProperties(checker, defs);
+  if (members.props.size > 0) {
+    const props = getPropertyAssignmentValue(checker, declarationRoot, 'props'),
+      defs = props ? walkProperties(checker, props) : null;
 
-    for (const [name, node] of members.props) {
-      const value = getValueNode(checker, node.value) ?? node.value,
-        isDefineProp = isCallExpression(value, 'defineProp'),
-        initial = ts.isObjectLiteralExpression(value)
-          ? getPropertyAssignmentValue(checker, value, 'initial')
-          : isDefineProp
-          ? getValueNode(checker, value.arguments[0])
-          : false,
-        definition = ts.isObjectLiteralExpression(value)
-          ? value
-          : isDefineProp && getValueNode(checker, value.arguments[1]);
+    for (const [name, signatureNode] of members.props) {
+      if (!signatureNode.type) continue;
 
-      let info: PropMetaInfo = {
-        value: initial,
-      };
+      const valueNode = defs?.props.get(name),
+        value = valueNode ? getValueNode(checker, valueNode.value) ?? valueNode.value : null,
+        definition = value && ts.isObjectLiteralExpression(value) ? value : false;
 
-      if (isDefineProp && value.typeArguments?.[0]) {
-        info.generic = value.typeArguments[0]!;
-      }
+      let info: PropMetaInfo = {};
 
-      if (definition && ts.isObjectLiteralExpression(definition)) {
+      if (definition) {
+        info.value = getPropertyAssignmentValue(checker, definition, 'initial');
+
         const attr = getValueNode(
             checker,
             getPropertyAssignmentValue(checker, definition, 'attribute'),
@@ -76,7 +69,7 @@ export function buildPropsMeta(
         info.attribute = camelToKebabCase(name);
       }
 
-      const prop = buildPropMeta(checker, name, node.assignment, info);
+      const prop = buildPropMeta(checker, name, valueNode?.assignment, signatureNode, info);
       if (prop) meta.push(prop);
     }
   }
@@ -87,23 +80,30 @@ export function buildPropsMeta(
 export function buildPropMeta(
   checker: ts.TypeChecker,
   name: string,
-  node:
+  valueNode:
     | ts.VariableDeclaration
     | ts.PropertyAssignment
     | ts.GetAccessorDeclaration
     | ts.PropertySignature
-    | ts.ShorthandPropertyAssignment,
+    | ts.ShorthandPropertyAssignment
+    | undefined,
+  typeNode: ts.PropertySignature,
   info?: PropMetaInfo,
 ): PropMeta | undefined {
-  const identifier = node.name as ts.Identifier,
-    symbol = checker.getSymbolAtLocation(identifier)!,
-    isGetAccessor = ts.isGetAccessor(node),
-    hasSetAccessor = ts.isGetAccessor(node)
-      ? symbol.declarations!.some(ts.isSetAccessorDeclaration)
-      : undefined,
-    docs = getDocs(checker, identifier),
-    doctags = getDocTags(node),
+  const valueIdentifier = valueNode?.name as ts.Identifier | undefined,
+    typeIdentifier = typeNode.name as ts.Identifier,
+    symbol = valueIdentifier ? checker.getSymbolAtLocation(valueIdentifier) : undefined,
+    isGetAccessor = valueNode && ts.isGetAccessor(valueNode),
+    hasSetAccessor =
+      valueNode && ts.isGetAccessor(valueNode)
+        ? !!symbol?.declarations!.some(ts.isSetAccessorDeclaration)
+        : undefined,
+    docs =
+      getDocs(checker, typeIdentifier) ??
+      (valueIdentifier ? getDocs(checker, valueIdentifier) : undefined),
+    doctags = getDocTags(typeNode) ?? (valueNode ? getDocTags(valueNode) : undefined),
     readonly =
+      !!typeNode.modifiers?.some((mod) => mod.kind === ts.SyntaxKind.ReadonlyKeyword) ||
       (isGetAccessor && !hasSetAccessor) ||
       (!hasSetAccessor && doctags && hasDocTag(doctags, 'readonly'));
 
@@ -130,65 +130,20 @@ export function buildPropMeta(
     };
   }
 
-  if (info) {
-    if (!readonly) {
-      attribute = info.attribute;
-      reflect = info.reflect;
-    }
+  if (info && !readonly) {
+    attribute = info.attribute;
+    reflect = info.reflect;
   }
 
-  let value: ts.Node | undefined;
-
-  if (info?.value !== false) {
-    if (info?.value) {
-      value = info.value;
-    } else {
-      value = getValueNode(checker, node);
-    }
-  }
-
-  if (!value) {
-    reportDiagnosticByNode('could not resolve value node', node, LogLevel.Warn);
-    return undefined;
-  }
-
-  const type = buildTypeMeta(checker, value, info?.generic);
-
-  if (!$default) {
-    if (ts.isGetAccessor(node)) {
-      const returnExpression = getReturnStatement(node)?.expression;
-      if (returnExpression) {
-        if (
-          ts.isCallExpression(returnExpression) &&
-          ts.isIdentifier(returnExpression.expression) &&
-          returnExpression.arguments.length === 0
-        ) {
-          const value = getValueNode(checker, returnExpression.expression);
-          if (
-            value &&
-            (isCallExpression(value, 'observable') || isCallExpression(value, 'computed')) &&
-            value.arguments[0]
-          ) {
-            $default = value.arguments[0].getText();
-          } else {
-            $default = returnExpression.getText();
-          }
-        } else {
-          $default = returnExpression.getText();
-        }
-      } else {
-        $default = 'unknown';
-      }
-    } else {
-      $default = value.getText();
-    }
+  if (!$default && info?.value) {
+    $default = info.value.getText();
   }
 
   return {
-    [TS_NODE]: node,
+    [TS_NODE]: typeNode,
     name,
     default: $default,
-    type,
+    type: buildTypeMeta(checker, typeNode.type!),
     docs,
     doctags,
     required,

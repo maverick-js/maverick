@@ -2,17 +2,11 @@ import ts from 'typescript';
 
 import type { TypeMeta } from '../meta/component';
 
-export function buildTypeMeta(
-  checker: ts.TypeChecker,
-  node: ts.Node,
-  generic?: ts.TypeNode,
-): TypeMeta {
-  const type = checker.getTypeAtLocation(generic ?? node),
-    primitive = !generic ? resolvePrimitiveType(type) : null,
+export function buildTypeMeta(checker: ts.TypeChecker, typeNode: ts.TypeNode): TypeMeta {
+  const type = checker.getTypeAtLocation(typeNode),
     union = resolveTypeUnion(checker, type),
-    serialized = primitive ?? serializeType(checker, type);
+    serialized = serializeType(checker, type);
   return {
-    generic: generic && generic.getText() !== serialized ? generic.getText() : undefined,
     serialized,
     union: union.length > 1 ? union : undefined,
   };

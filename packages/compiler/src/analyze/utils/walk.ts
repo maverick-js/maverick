@@ -80,6 +80,7 @@ export function walkProperties(
 }
 
 export type SeenMemberSignatures = {
+  heritage: Map<string, ts.TypeReferenceNode | ts.ExpressionWithTypeArguments>;
   props: Map<string, ts.PropertySignature>;
   methods: Map<string, ts.MethodSignature>;
 };
@@ -88,19 +89,24 @@ export function walkSignatures(
   checker: ts.TypeChecker,
   node: ts.Node,
   members: SeenMemberSignatures = {
+    heritage: new Map(),
     props: new Map(),
     methods: new Map(),
   },
+  ignoredIdentifiers = new Set<string>(),
 ) {
   if (ts.isTypeLiteralNode(node) || ts.isInterfaceDeclaration(node)) {
     if (ts.isInterfaceDeclaration(node) && node.heritageClauses) {
       for (const clause of node.heritageClauses) {
         for (const type of clause.types) {
           if (ts.isIdentifier(type.expression)) {
-            const declarations = getDeclarations(checker, type.expression);
-            if (declarations) {
-              for (const declaration of declarations) {
-                walkSignatures(checker, declaration, members);
+            members.heritage.set(type.expression.escapedText as string, type);
+            if (!ignoredIdentifiers.has(type.expression.escapedText as string)) {
+              const declarations = getDeclarations(checker, type.expression);
+              if (declarations) {
+                for (const declaration of declarations) {
+                  walkSignatures(checker, declaration, members);
+                }
               }
             }
           }
@@ -120,10 +126,13 @@ export function walkSignatures(
     }
   } else if (ts.isTypeReferenceNode(node)) {
     if (ts.isIdentifier(node.typeName)) {
-      const declarations = getDeclarations(checker, node.typeName);
-      if (declarations) {
-        for (const declaration of declarations) {
-          walkSignatures(checker, declaration, members);
+      members.heritage.set(node.typeName.escapedText as string, node);
+      if (!ignoredIdentifiers.has(node.typeName.escapedText as string)) {
+        const declarations = getDeclarations(checker, node.typeName);
+        if (declarations) {
+          for (const declaration of declarations) {
+            walkSignatures(checker, declaration, members);
+          }
         }
       }
     }

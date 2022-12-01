@@ -1,55 +1,121 @@
 // @ts-nocheck
 
-export const FooElement = defineElement({
-  tagName: 'mk-foo',
-});
+type FooProps = {
+  /** This is the foo prop docs. */
+  foo: number;
+  bar: number;
+  lux: number;
+  /**
+   * This is the bax hux docs.
+   *
+   * @internal
+   * @deprecated
+   */
+  baxHux: Bar;
+  /** @defaultValue null */
+  huxBux: string | null;
+} & {
+  /**
+   * This is the bam docs.
+   *
+   * @example
+   * ```ts
+   * const bam = 1;
+   * ```
+   */
+  bam: string;
+  show: () => string;
+};
+
+interface FooEvent extends DOMEvent<boolean> {}
 
 /**
- * This is the `BarElement` documentation.
+ * This is the `Baz` event docs.
+ *
+ * @internal
  */
-export const BarElement = defineElement({
-  tagName: 'mk-bar',
-});
+type BazEvent = DOMEvent<0 | 1>;
+
+interface FooEvents extends BarEvents {
+  /**
+   * This is the foo event.
+   *
+   * @bubbles
+   */
+  foo: FooEvent;
+  bar: DOMEvent<void>;
+}
+
+type BarEvents = {
+  baz: BazEvent;
+  boo: DOMEvent<string | null>;
+} & {
+  /***
+   * This is the lux event.
+   *
+   * @composed
+   * @deprecated
+   */
+  lux: DOMEvent<string | null>;
+  hux: DOMEvent<number | null>;
+} & BazEvents;
+
+type FooBoo = 'a' | 'b' | 'c';
+
+type BazEvents = {
+  'bax-hux': DOMEvent<0 | 1 | 2 | 3>;
+  'baz-boo': DOMEvent<FooBoo>;
+};
+
+interface FooCSSVars {
+  /**
+   * This is the foo docs.
+   *
+   * @defaultValue 1
+   */
+  foo: 0 | 1;
+  bar: string;
+  baz: Bar;
+}
+
+type Bar = string | null;
 
 /**
- * @fooTag 1
- * @barTag This is a little description.
- */
-export const BazElement = defineElement({
-  tagName: 'mk-baz',
-  shadowRoot: true,
-});
-
-type A = boolean | null;
-type B = A | 0;
-type C = string | null;
-let huxBux: string | null = 'lemons';
-
-/**
- * @slot - This is the default slot.
+ * This is the `FooElement` documentation.
+ *
+ * @slot This is the default slot.
  * @slot foo - This is the foo slot.
- * @csspart foo - The foo part.
- * @csspart bar - The bar part.
- * @cssvar bax - The foo var.
- * @cssvar hux - The bar var.
+ * @csspart foo - This is the foo CSS Part.
+ * @csspart bar - This is the bar CSS Part.
  */
-export const BaxElement = defineElement({
-  tagName: 'mk-bax',
+interface FooElement extends MaverickElement<FooProps, FooEvents, FooCSSVars> {
+  foo: number;
+  bar: Bar;
+  /**
+   * This is the baz docs.
+   */
+  readonly baz: boolean;
+  boo: { a: number; b: string; c: string };
+  start(): void;
+  /**
+   * The stop method docs.
+   */
+  stop(fooArg: number, barArg: Bar): Promise<void>;
+  /** The resume method docs. */
+  resume<T>(foo: T): T;
+}
+
+const BAZ_CSS_VAR = 'baz';
+
+export const FooElement = defineElement<FooElement>({
+  tagName: 'mk-foo',
+  shadowRoot: true,
   props: {
-    /**
-     * The foo prop docs.
-     *
-     * @fooTag ...
-     */
     foo: { initial: 0 },
     bar: { initial: 10, attribute: 'boo' },
     lux: { initial: 20, attribute: false },
     baxHux: { initial: 30, reflect: true },
-    huxBux: defineProp(huxBux, { attribute: 'voo', reflect: false }),
-    hoo: defineProp<number | boolean>(10),
-    /** @internal */
-    chux: defineProp<A>(false),
-    nux: defineProp<B>(false),
+    huxBux: { initial: huxBux, attribute: 'voo', reflect: false },
     ...{
       bam: { initial: 'foo' },
       show: { initial: () => 'foo' },
@@ -57,120 +123,7 @@ export const BaxElement = defineElement({
   },
   cssvars: {
     foo: 0,
-    /**
-     * The bar cssvar docs.
-     *
-     * @fooTag ...
-     */
-    bar: defineCSSVar<0 | 1>(0),
-    baz: defineCSSVar<C>(null),
-  },
-  events: {
-    foo: {},
-  },
-});
-
-interface BaseCSSVars {
-  lux: 'foo' | 'bar';
-}
-
-interface HuxCSSVars extends ElementCSSVarRecord, BaseCSSVars {
-  hux: string;
-}
-
-type TootCSSVars = {
-  /**
-   * The toot cssvar docs.
-   *
-   * @required
-   */
-  toot: string;
-};
-
-/**
- * The foo event.
- *
- * @composed
- */
-type FooEvent = DOMEvent<void>;
-
-export const HuxElement = defineElement({
-  tagName: 'mk-hux',
-  cssvars: defineCSSVars<
-    {
-      /**
-       * The foo cssvar docs.
-       *
-       * @fooTag ...
-       */
-      foo: number;
-      bar: C;
-    } & {
-      bax: 0 | 1;
-    } & HuxCSSVars &
-      TootCSSVars
-  >(),
-  events: defineEvents<{
-    foo: FooEvent;
-    /**
-     * The bar event docs.
-     *
-     * @bubbles
-     */
-    bar: DOMEvent<boolean>;
-  }>(),
-});
-
-export const LuxElement = defineElement({
-  tagName: 'mk-lux',
-  props: {
-    foo: { initial: 0 },
-  },
-  cssvars: (props) => {
-    return {
-      foo: 10,
-      /** The bar cssvar docs. */
-      bar: () => props.foo,
-    };
-  },
-  setup() {
-    const $a = observable(0);
-
-    const $b = computed(() => ({
-      id: $a() + '',
-    }));
-
-    /** Hux method docs. */
-    const hux = () => 100;
-
-    /** Lux method docs. */
-    function lux(name: string, height: number) {
-      return name;
-    }
-
-    return {
-      /** @deprecated */
-      foo: 1,
-      /** This is the bar prop docs. */
-      get bar() {
-        return 10;
-      },
-      get far() {
-        return $a();
-      },
-      set far(v: number) {
-        $a.set(v);
-      },
-      get toot() {
-        return $b();
-      },
-      hux,
-      lux,
-      /** @internal */
-      low(...args: any[]): string[] {
-        return [];
-      },
-      $render: () => null,
-    };
+    bar: '1',
+    baz: BAZ_CSS_VAR,
   },
 });

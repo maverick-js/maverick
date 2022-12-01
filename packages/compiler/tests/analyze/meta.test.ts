@@ -32,6 +32,7 @@ async function buildMeta() {
   const discoverPlugin = createDiscoverPlugin();
   const buildPlugin = createBuildPlugin();
   const sourceFile = program.getSourceFile(filename)!;
+  await discoverPlugin.init!(program);
   const definitions = await discoverPlugin.discover!(sourceFile);
   if (!definitions?.[0]) return null;
   await buildPlugin.init!(program);

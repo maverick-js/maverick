@@ -30,22 +30,21 @@ export function buildComponentMeta(
   checker: ts.TypeChecker,
   def: ElementDefintionNode,
 ): ComponentMeta {
-  const identifier = def.variable.name as ts.Identifier;
-  const doctags = getDocTags(def.statement);
+  const doctags = getDocTags(def.types.root);
   return {
     [TS_NODE]: def.statement,
     name: def.name,
     tagname: def.tagName,
     file: buildFileMeta(def.statement),
     shadow: buildShadowRootMeta(checker, def.declaration),
-    docs: getDocs(checker, identifier),
+    docs: getDocs(checker, def.types.root.name),
     doctags,
-    props: buildPropsMeta(checker, def.declaration),
-    events: buildEventsMeta(checker, def.declaration, doctags),
-    cssvars: buildCSSVarsMeta(checker, def.declaration, doctags),
+    props: buildPropsMeta(checker, def.declaration, def.types.props),
+    events: buildEventsMeta(checker, def.types.events),
+    cssvars: buildCSSVarsMeta(checker, def.declaration, def.types.cssvars, doctags),
     cssparts: buildCSSPartsMeta(doctags),
     slots: buildSlotsMeta(doctags),
-    members: buildMembersMeta(checker, def.declaration),
+    members: buildMembersMeta(checker, def.members),
   };
 }
 

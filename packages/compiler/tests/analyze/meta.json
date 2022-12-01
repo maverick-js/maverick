@@ -6,51 +6,13 @@
     },
     "file": {
       "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/compiler/tests/analyze/fixtures.ts"
-    }
-  },
-  {
-    "name": "BarElement",
-    "tagname": {
-      "name": "mk-bar"
-    },
-    "file": {
-      "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/compiler/tests/analyze/fixtures.ts"
-    },
-    "docs": "This is the `BarElement` documentation."
-  },
-  {
-    "name": "BazElement",
-    "tagname": {
-      "name": "mk-baz"
-    },
-    "file": {
-      "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/compiler/tests/analyze/fixtures.ts"
     },
     "shadow": true,
-    "doctags": [
-      {
-        "name": "fooTag",
-        "text": "1"
-      },
-      {
-        "name": "barTag",
-        "text": "This is a little description."
-      }
-    ],
-    "cssparts": []
-  },
-  {
-    "name": "BaxElement",
-    "tagname": {
-      "name": "mk-bax"
-    },
-    "file": {
-      "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/compiler/tests/analyze/fixtures.ts"
-    },
+    "docs": "This is the `FooElement` documentation.",
     "doctags": [
       {
         "name": "slot",
-        "text": "- This is the default slot."
+        "text": "This is the default slot."
       },
       {
         "name": "slot",
@@ -58,19 +20,11 @@
       },
       {
         "name": "csspart",
-        "text": "foo - The foo part."
+        "text": "foo - This is the foo CSS Part."
       },
       {
         "name": "csspart",
-        "text": "bar - The bar part."
-      },
-      {
-        "name": "cssvar",
-        "text": "bax - The foo var."
-      },
-      {
-        "name": "cssvar",
-        "text": "hux - The bar var."
+        "text": "bar - This is the bar CSS Part."
       }
     ],
     "props": [
@@ -80,13 +34,7 @@
         "type": {
           "serialized": "number"
         },
-        "docs": "The foo prop docs.",
-        "doctags": [
-          {
-            "name": "fooTag",
-            "text": "..."
-          }
-        ],
+        "docs": "This is the foo prop docs.",
         "attribute": "foo"
       },
       {
@@ -108,63 +56,43 @@
         "name": "baxHux",
         "default": "30",
         "type": {
-          "serialized": "number"
+          "serialized": "string | null",
+          "union": [
+            "null",
+            "string"
+          ]
         },
+        "docs": "This is the bax hux docs.",
+        "doctags": [
+          {
+            "name": "internal"
+          },
+          {
+            "name": "deprecated"
+          }
+        ],
         "attribute": "bax-hux",
-        "reflect": true
+        "reflect": true,
+        "internal": true,
+        "deprecated": true
       },
       {
         "name": "huxBux",
-        "default": "'lemons'",
+        "default": "null",
         "type": {
-          "serialized": "string"
-        },
-        "attribute": "voo"
-      },
-      {
-        "name": "hoo",
-        "default": "10",
-        "type": {
-          "serialized": "number | boolean",
+          "serialized": "string | null",
           "union": [
-            "boolean",
-            "number"
-          ]
-        },
-        "attribute": "hoo"
-      },
-      {
-        "name": "chux",
-        "default": "false",
-        "type": {
-          "generic": "A",
-          "serialized": "boolean | null",
-          "union": [
-            "boolean",
-            "null"
+            "null",
+            "string"
           ]
         },
         "doctags": [
           {
-            "name": "internal"
+            "name": "defaultValue",
+            "text": "null"
           }
         ],
-        "attribute": "chux",
-        "internal": true
-      },
-      {
-        "name": "nux",
-        "default": "false",
-        "type": {
-          "generic": "B",
-          "serialized": "0 | A",
-          "union": [
-            "0",
-            "boolean",
-            "null"
-          ]
-        },
-        "attribute": "nux"
+        "attribute": "voo"
       },
       {
         "name": "bam",
@@ -172,6 +100,13 @@
         "type": {
           "serialized": "string"
         },
+        "docs": "This is the bam docs.",
+        "doctags": [
+          {
+            "name": "example",
+            "text": "```ts\nconst bam = 1;\n```"
+          }
+        ],
         "attribute": "bam"
       },
       {
@@ -185,31 +120,77 @@
     ],
     "events": [
       {
+        "name": "baz",
+        "type": {
+          "serialized": "DOMEvent<0 | 1>"
+        },
+        "detail": "0 | 1",
+        "docs": "This is the `Baz` event docs.",
+        "doctags": [
+          {
+            "name": "internal"
+          }
+        ],
+        "internal": true
+      },
+      {
+        "name": "boo",
+        "type": {
+          "serialized": "DOMEvent<string | null>"
+        },
+        "detail": "string | null"
+      },
+      {
+        "name": "lux",
+        "type": {
+          "serialized": "DOMEvent<string | null>"
+        },
+        "detail": "string | null",
+        "docs": "*\nThis is the lux event.",
+        "doctags": [
+          {
+            "name": "composed"
+          },
+          {
+            "name": "deprecated"
+          }
+        ],
+        "composed": true,
+        "deprecated": true
+      },
+      {
+        "name": "hux",
+        "type": {
+          "serialized": "DOMEvent<number | null>"
+        },
+        "detail": "number | null"
+      },
+      {
         "name": "foo",
         "type": {
-          "serialized": "DOMEvent"
-        }
+          "serialized": "FooEvent"
+        },
+        "detail": "boolean",
+        "docs": "This is the foo event.",
+        "doctags": [
+          {
+            "name": "bubbles"
+          }
+        ],
+        "bubbles": true
+      },
+      {
+        "name": "bar",
+        "type": {
+          "serialized": "DOMEvent<void>"
+        },
+        "detail": "void"
       }
     ],
     "cssvars": [
       {
-        "name": "bax",
-        "description": "The foo var."
-      },
-      {
-        "name": "hux",
-        "description": "The bar var."
-      },
-      {
         "name": "foo",
-        "default": "0",
-        "type": {
-          "serialized": "number"
-        }
-      },
-      {
-        "name": "bar",
-        "default": "0",
+        "default": "1",
         "type": {
           "serialized": "0 | 1",
           "union": [
@@ -217,19 +198,25 @@
             "1"
           ]
         },
-        "docs": "The bar cssvar docs.",
+        "docs": "This is the foo docs.",
         "doctags": [
           {
-            "name": "fooTag",
-            "text": "..."
+            "name": "defaultValue",
+            "text": "1"
           }
         ]
       },
       {
-        "name": "baz",
-        "default": "null",
+        "name": "bar",
+        "default": "'1'",
         "type": {
-          "generic": "C",
+          "serialized": "string"
+        }
+      },
+      {
+        "name": "baz",
+        "default": "'baz'",
+        "type": {
           "serialized": "string | null",
           "union": [
             "null",
@@ -241,11 +228,11 @@
     "cssparts": [
       {
         "name": "foo",
-        "description": "The foo part."
+        "description": "This is the foo CSS Part."
       },
       {
         "name": "bar",
-        "description": "The bar part."
+        "description": "This is the bar CSS Part."
       }
     ],
     "slots": [
@@ -256,253 +243,95 @@
         "name": "foo",
         "description": "This is the foo slot."
       }
-    ]
-  },
-  {
-    "name": "HuxElement",
-    "tagname": {
-      "name": "mk-hux"
-    },
-    "file": {
-      "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/compiler/tests/analyze/fixtures.ts"
-    },
-    "events": [
-      {
-        "name": "foo",
-        "type": {
-          "generic": "FooEvent",
-          "serialized": "DOMEvent<void>"
-        },
-        "docs": "The foo event.",
-        "doctags": [
-          {
-            "name": "composed"
-          }
-        ],
-        "composed": true
-      },
-      {
-        "name": "bar",
-        "type": {
-          "serialized": "DOMEvent<boolean>"
-        },
-        "docs": "The bar event docs.",
-        "doctags": [
-          {
-            "name": "bubbles"
-          }
-        ],
-        "bubbles": true
-      }
-    ],
-    "cssvars": [
-      {
-        "name": "foo",
-        "type": {
-          "serialized": "number"
-        },
-        "docs": "The foo cssvar docs.",
-        "doctags": [
-          {
-            "name": "fooTag",
-            "text": "..."
-          }
-        ]
-      },
-      {
-        "name": "bar",
-        "type": {
-          "generic": "C",
-          "serialized": "string | null",
-          "union": [
-            "null",
-            "string"
-          ]
-        }
-      },
-      {
-        "name": "bax",
-        "type": {
-          "serialized": "0 | 1",
-          "union": [
-            "0",
-            "1"
-          ]
-        }
-      },
-      {
-        "name": "lux",
-        "type": {
-          "serialized": "'foo' | 'bar'",
-          "union": [
-            "'bar'",
-            "'foo'"
-          ]
-        }
-      },
-      {
-        "name": "hux",
-        "type": {
-          "serialized": "string"
-        }
-      },
-      {
-        "name": "toot",
-        "type": {
-          "serialized": "string"
-        },
-        "docs": "The toot cssvar docs.",
-        "doctags": [
-          {
-            "name": "required"
-          }
-        ],
-        "required": true
-      }
-    ]
-  },
-  {
-    "name": "LuxElement",
-    "tagname": {
-      "name": "mk-lux"
-    },
-    "file": {
-      "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/compiler/tests/analyze/fixtures.ts"
-    },
-    "props": [
-      {
-        "name": "foo",
-        "default": "0",
-        "type": {
-          "serialized": "number"
-        },
-        "attribute": "foo"
-      }
-    ],
-    "cssvars": [
-      {
-        "name": "foo",
-        "default": "10",
-        "type": {
-          "serialized": "number"
-        }
-      },
-      {
-        "name": "bar",
-        "default": "() => props.foo",
-        "type": {
-          "serialized": "() => any"
-        },
-        "docs": "The bar cssvar docs.",
-        "readonly": true
-      }
     ],
     "members": {
       "props": [
         {
           "name": "foo",
-          "default": "1",
           "type": {
             "serialized": "number"
-          },
-          "doctags": [
-            {
-              "name": "deprecated"
-            }
-          ],
-          "deprecated": true
-        },
-        {
-          "name": "hux",
-          "default": "() => 100",
-          "type": {
-            "serialized": "() => number"
           }
         },
         {
           "name": "bar",
-          "default": "10",
           "type": {
-            "serialized": "number"
-          },
-          "docs": "This is the bar prop docs.",
-          "readonly": true,
-          "accessor": {
-            "get": true
+            "serialized": "string | null",
+            "union": [
+              "null",
+              "string"
+            ]
           }
         },
         {
-          "name": "far",
-          "default": "0",
+          "name": "baz",
           "type": {
-            "serialized": "number"
+            "serialized": "boolean"
           },
-          "accessor": {
-            "get": true,
-            "set": true
-          }
+          "docs": "This is the baz docs.",
+          "readonly": true
         },
         {
-          "name": "toot",
-          "default": "() => ({\n      id: $a() + '',\n    })",
+          "name": "boo",
           "type": {
-            "serialized": "any"
-          },
-          "readonly": true,
-          "accessor": {
-            "get": true
+            "serialized": "{ a: number; b: string; c: string; }"
           }
         }
       ],
       "methods": [
         {
-          "name": "lux",
-          "docs": "Lux method docs.",
-          "parameters": [
-            {
-              "name": "name",
-              "type": {
-                "serialized": "string"
-              },
-              "optional": false
-            },
-            {
-              "name": "height",
-              "type": {
-                "serialized": "number"
-              },
-              "optional": false
-            }
-          ],
+          "name": "start",
+          "parameters": [],
           "signature": {
-            "type": "(name: string, height: number) => string"
+            "type": "() => void"
           },
           "return": {
-            "type": "string"
+            "type": "void"
           }
         },
         {
-          "name": "low",
-          "doctags": [
-            {
-              "name": "internal"
-            }
-          ],
-          "internal": true,
+          "name": "stop",
+          "docs": "The stop method docs.",
           "parameters": [
             {
-              "name": "args",
+              "name": "fooArg",
               "type": {
-                "serialized": "any[]"
-              },
-              "optional": false
+                "serialized": "number"
+              }
+            },
+            {
+              "name": "barArg",
+              "type": {
+                "serialized": "string | null",
+                "union": [
+                  "null",
+                  "string"
+                ]
+              }
             }
           ],
           "signature": {
-            "type": "(...args: any[]) => string[]"
+            "type": "(fooArg: number, barArg: Bar) => Promise<void>"
           },
           "return": {
-            "type": "string[]"
+            "type": "Promise<void>"
+          }
+        },
+        {
+          "name": "resume",
+          "docs": "The resume method docs.",
+          "parameters": [
+            {
+              "name": "foo",
+              "type": {
+                "serialized": "T"
+              }
+            }
+          ],
+          "signature": {
+            "type": "<T>(foo: T) => T"
+          },
+          "return": {
+            "type": "T"
           }
         }
       ]

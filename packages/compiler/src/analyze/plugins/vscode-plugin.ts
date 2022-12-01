@@ -2,6 +2,8 @@ import { existsSync, mkdirSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 
+import { escapeQuotes } from 'maverick.js/utils/print';
+
 import { isUndefined } from '../../utils/unit';
 import type { ComponentMeta, PropMeta } from '../meta/component';
 import { resolveConfigPaths } from '../utils/resolve';
@@ -52,7 +54,7 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
                 description: prop.docs,
                 values: prop.type.union
                   ?.filter((value) => !primitiveTypeRE.test(value))
-                  .map((type) => ({ name: type })),
+                  .map((type) => ({ name: escapeQuotes(type) })),
               };
 
               return config.transformAttributeData?.(prop, data) ?? data;

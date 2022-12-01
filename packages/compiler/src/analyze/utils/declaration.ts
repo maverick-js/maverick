@@ -4,7 +4,10 @@ export function getDeclarations(
   checker: ts.TypeChecker,
   identifier: ts.Identifier,
 ): ts.Declaration[] | undefined {
-  if (ts.isImportClause(identifier.parent) || ts.isImportSpecifier(identifier.parent)) {
+  if (
+    identifier.parent &&
+    (ts.isImportClause(identifier.parent) || ts.isImportSpecifier(identifier.parent))
+  ) {
     const symbol = checker.getSymbolAtLocation(identifier)!;
     return symbol ? checker.getAliasedSymbol(symbol)?.declarations : undefined;
   } else {

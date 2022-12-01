@@ -1,6 +1,7 @@
 import type ts from 'typescript';
 
 import type { ComponentMeta } from '../meta/component';
+import type { SeenMemberSignatures } from '../utils/walk';
 
 export interface ElementDefintionNode {
   name: string;
@@ -9,6 +10,25 @@ export interface ElementDefintionNode {
   variable: ts.VariableDeclaration;
   call: ts.CallExpression;
   declaration: ts.ObjectLiteralExpression;
+  members: SeenMemberSignatures;
+  types: {
+    root: ts.TypeAliasDeclaration | ts.InterfaceDeclaration;
+    props?:
+      | ts.TypeLiteralNode
+      | ts.TypeAliasDeclaration
+      | ts.InterfaceDeclaration
+      | ts.IntersectionTypeNode;
+    events?:
+      | ts.TypeLiteralNode
+      | ts.TypeAliasDeclaration
+      | ts.InterfaceDeclaration
+      | ts.IntersectionTypeNode;
+    cssvars?:
+      | ts.TypeLiteralNode
+      | ts.TypeAliasDeclaration
+      | ts.InterfaceDeclaration
+      | ts.IntersectionTypeNode;
+  };
 }
 
 export interface AnalyzePlugin {

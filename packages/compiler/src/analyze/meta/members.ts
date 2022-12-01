@@ -1,50 +1,25 @@
 import type ts from 'typescript';
 
-import {
-  getPropertyAssignmentValue,
-  getReturnExpression,
-  getValueNode,
-  walkProperties,
-} from '../utils/walk';
+import type { SeenMemberSignatures } from '../utils/walk';
 import type { MembersMeta, MethodMeta, PropMeta } from './component';
 import { buildMethodMeta } from './methods';
 import { buildPropMeta } from './props';
 
-const ignore = new Set(['$render']);
-
 export function buildMembersMeta(
   checker: ts.TypeChecker,
-  root: ts.ObjectLiteralExpression,
+  members: SeenMemberSignatures,
 ): MembersMeta | undefined {
   const props: PropMeta[] = [],
-    methods: MethodMeta[] = [],
-    setup = getValueNode(checker, getPropertyAssignmentValue(checker, root, 'setup'));
+    methods: MethodMeta[] = [];
 
-  if (setup) {
-    const returnExpression = getReturnExpression(setup);
-    const members = returnExpression ? walkProperties(checker, returnExpression) : undefined;
-    if (members) {
-      for (const [name, node] of members.props) {
-        if (!ignore.has(name)) {
-          const prop = buildPropMeta(checker, name, node.assignment);
-          if (prop) props.push(prop);
-        }
-      }
+  for (const [name, node] of members.props) {
+    const prop = buildPropMeta(checker, name, undefined, node);
+    if (prop) props.push(prop);
+  }
 
-      for (const [name, node] of members.accessors) {
-        if (node.get) {
-          const prop = buildPropMeta(checker, name, node.get);
-          if (prop) props.push(prop);
-        }
-      }
-
-      for (const [name, node] of members.methods) {
-        if (!ignore.has(name)) {
-          const method = buildMethodMeta(checker, name, node.value);
-          if (method) methods.push(method);
-        }
-      }
-    }
+  for (const [name, node] of members.methods) {
+    const method = buildMethodMeta(checker, name, node);
+    if (method) methods.push(method);
   }
 
   return props.length > 0 || methods.length > 0

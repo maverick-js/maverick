@@ -1,3 +1,18 @@
+# [0.12.0](https://github.com/maverick-js/maverick/compare/v0.11.0...v0.12.0) (2022-12-02)
+
+
+### Bug Fixes
+
+* lifecycle hooks no longer provide host element ([adc8d43](https://github.com/maverick-js/maverick/commit/adc8d430f85981dab5210151e843e2e8938f16fb))
+* remove `useHost` ([ad2b10d](https://github.com/maverick-js/maverick/commit/ad2b10dd0a8901932626eafd106c9ee6aa0e5896))
+
+
+### Features
+
+* new `useHostConnected` ([5cf6542](https://github.com/maverick-js/maverick/commit/5cf65429b6f8ea11153c2f8d4e7ddf9f59733b03))
+
+
+
 # [0.11.0](https://github.com/maverick-js/maverick/compare/v0.10.0...v0.11.0) (2022-12-02)
 
 

@@ -88,7 +88,7 @@ type Bar = string | null;
  * @csspart foo - This is the foo CSS Part.
  * @csspart bar - This is the bar CSS Part.
  */
-interface FooElement extends MaverickElement<FooProps, FooEvents, FooCSSVars> {
+interface FooElement extends HTMLCustomElement<FooProps, FooEvents, FooCSSVars> {
   foo: number;
   bar: Bar;
   /**

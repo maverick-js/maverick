@@ -7,30 +7,30 @@ import { camelToKebabCase } from '../std/string';
 import { isBoolean, isFunction } from '../std/unit';
 import { ATTACH, HOST, PROPS, RENDER } from './internal';
 import type {
-  AnyElementDefinition,
-  AnyMaverickElement,
-  ElementDefinition,
-  ElementInstance,
-  ElementPropDefinitions,
+  AnyCustomElement,
+  AnyCustomElementDefinition,
+  CustomElementDefinition,
+  CustomElementInstance,
+  CustomElementPropDefinitions,
   HostElement,
-  InferElementEvents,
-  InferElementProps,
+  InferCustomElementEvents,
+  InferCustomElementProps,
 } from './types';
 
 const scheduler = getScheduler(),
-  registry = new WeakMap<AnyElementDefinition, any>();
+  registry = new WeakMap<AnyCustomElementDefinition, any>();
 
-export function createServerElement<Element extends AnyMaverickElement>(
-  definition: ElementDefinition<Element>,
+export function createServerElement<Element extends AnyCustomElement>(
+  definition: CustomElementDefinition<Element>,
 ) {
   if (registry.has(definition)) {
     return registry.get(definition) as typeof MaverickServerElement;
   }
 
-  type Props = InferElementProps<Element>;
-  type Events = InferElementEvents<Element>;
+  type Props = InferCustomElementProps<Element>;
+  type Events = InferCustomElementEvents<Element>;
 
-  const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
+  const propDefs = (definition.props ?? {}) as CustomElementPropDefinitions<Props>;
   const propToAttr = new Map<string, string>();
   const reflectedProps = new Map<string, string>();
 
@@ -54,7 +54,7 @@ export function createServerElement<Element extends AnyMaverickElement>(
     [HOST] = true;
 
     /** @internal */
-    _instance: ElementInstance<Props, Events> | null = null;
+    _instance: CustomElementInstance<Props, Events> | null = null;
     /** @internal */
     _ssr?: string;
     /** @internal */
@@ -68,7 +68,7 @@ export function createServerElement<Element extends AnyMaverickElement>(
       return this._instance;
     }
 
-    attachComponent(instance: ElementInstance<Props, Events>) {
+    attachComponent(instance: CustomElementInstance<Props, Events>) {
       this.setAttribute('mk-h', '');
       this.setAttribute('mk-d', '');
 

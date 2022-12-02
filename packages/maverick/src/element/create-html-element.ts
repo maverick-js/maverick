@@ -22,35 +22,35 @@ import {
   RENDER,
 } from './internal';
 import type {
-  AnyElementDefinition,
-  AnyMaverickElement,
-  ElementDefinition,
-  ElementInstance,
-  ElementInstanceInit,
-  ElementPropDefinitions,
+  AnyCustomElement,
+  AnyCustomElementDefinition,
+  CustomElementDefinition,
+  CustomElementInstance,
+  CustomElementInstanceInit,
+  CustomElementPropDefinitions,
   HostElement,
-  InferElementEvents,
-  InferElementProps,
-  MaverickElement,
-  MaverickElementConstructor,
+  HTMLCustomElement,
+  HTMLCustomElementConstructor,
+  InferCustomElementEvents,
+  InferCustomElementProps,
 } from './types';
 
 const scheduler = getScheduler(),
   MOUNTED = Symbol(__DEV__ ? 'MOUNTED' : 0);
 
-export function createHTMLElement<Element extends AnyMaverickElement>(
-  definition: ElementDefinition<Element>,
-): MaverickElementConstructor<Element> {
+export function createHTMLElement<Element extends AnyCustomElement>(
+  definition: CustomElementDefinition<Element>,
+): HTMLCustomElementConstructor<Element> {
   if (__SERVER__) {
     throw Error(
       '[maverick] `createHTMLElement` was called outside of browser - use `createServerElement`',
     );
   }
 
-  type Props = InferElementProps<Element>;
-  type Events = InferElementEvents<Element>;
+  type Props = InferCustomElementProps<Element>;
+  type Events = InferCustomElementEvents<Element>;
 
-  const propDefs = (definition.props ?? {}) as ElementPropDefinitions<Props>;
+  const propDefs = (definition.props ?? {}) as CustomElementPropDefinitions<Props>;
   const attrToProp = new Map<string, string>();
   const propToAttr = new Map<string, string>();
   const dispatchedEvents = new Set<string>();
@@ -67,13 +67,13 @@ export function createHTMLElement<Element extends AnyMaverickElement>(
     }
   }
 
-  class MaverickElement extends HTMLElement implements HostElement<Props, Events> {
+  class HTMLCustomElement extends HTMLElement implements HostElement<Props, Events> {
     /** @internal */
     [HOST] = true;
 
     private _root?: Node | null;
     private _destroyed = false;
-    private _instance: ElementInstance<Props, Events> | null = null;
+    private _instance: CustomElementInstance<Props, Events> | null = null;
     private _onEventDispatch?: (eventType: string) => void;
     /** Dynamic disconnect callbacks returned from `onConnect` */
     private _disconnectCallbacks: (() => void)[] = [];
@@ -190,7 +190,7 @@ export function createHTMLElement<Element extends AnyMaverickElement>(
       }
     }
 
-    attachComponent(instance: ElementInstance<Props, Events>) {
+    attachComponent(instance: CustomElementInstance<Props, Events>) {
       if (__DEV__ && this._instance) {
         console.warn(`[maverick] element \`${definition.tagName}\` already has attached component`);
       }
@@ -316,13 +316,13 @@ export function createHTMLElement<Element extends AnyMaverickElement>(
       if (this._pendingSetup) return;
 
       const prefix = definition.tagName.split('-', 1)[0] + '-',
-        deps: MaverickElement[] = [],
+        deps: HTMLCustomElement[] = [],
         whenDepsMounted: Promise<void>[] = [];
 
       let node: Node | null = this.parentNode;
       while (node) {
         if (node.nodeType === 1 && (node as Element).localName.startsWith(prefix)) {
-          const dep = node as MaverickElement;
+          const dep = node as HTMLCustomElement;
           deps.push(dep);
           whenDepsMounted.push(
             customElements
@@ -349,19 +349,19 @@ export function createHTMLElement<Element extends AnyMaverickElement>(
       });
     }
 
-    private _attachComponent(init?: ElementInstanceInit<Props>) {
+    private _attachComponent(init?: CustomElementInstanceInit<Props>) {
       this.attachComponent(createElementInstance(definition, init));
     }
   }
 
-  return MaverickElement as any;
+  return HTMLCustomElement as any;
 }
 
-export function isHostElement(node?: Node | null): node is MaverickElement {
+export function isHostElement(node?: Node | null): node is HTMLCustomElement {
   return !!node?.[HOST];
 }
 
-export function defineCustomElement(definition: AnyElementDefinition) {
+export function defineCustomElement(definition: AnyCustomElementDefinition) {
   if (__SERVER__) return;
   if (!window.customElements.get(definition.tagName)) {
     window.customElements.define(definition.tagName, createHTMLElement(definition));

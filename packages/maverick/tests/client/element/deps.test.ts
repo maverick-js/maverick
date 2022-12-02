@@ -11,7 +11,7 @@ import {
   createElementInstance,
   defineCustomElement,
   defineElement,
-  MaverickElement,
+  HTMLCustomElement,
   onConnect,
 } from 'maverick.js/element';
 import { waitAnimationFrame } from 'maverick.js/std';
@@ -73,16 +73,16 @@ it('should wait for parents to mount', async () => {
     },
   });
 
-  const parentA = document.createElement(ParentA.tagName) as MaverickElement;
+  const parentA = document.createElement(ParentA.tagName) as HTMLCustomElement;
   parentA.setAttribute('mk-d', '');
 
-  const parentB = document.createElement(ParentB.tagName) as MaverickElement;
+  const parentB = document.createElement(ParentB.tagName) as HTMLCustomElement;
   parentA.append(parentB);
 
-  const child = document.createElement(Child.tagName) as MaverickElement;
+  const child = document.createElement(Child.tagName) as HTMLCustomElement;
   parentB.append(child);
 
-  const grandchild = document.createElement(GrandChild.tagName) as MaverickElement;
+  const grandchild = document.createElement(GrandChild.tagName) as HTMLCustomElement;
   child.append(grandchild);
 
   document.body.append(parentA);

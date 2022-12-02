@@ -2,13 +2,13 @@ import { getScope, onDispose, onError, tick } from '@maverick-js/observables';
 import { createContext, provideContext, useContext } from 'maverick.js';
 
 import {
-  AnyMaverickElement,
+  AnyCustomElement,
   createElementInstance,
+  CustomElementDeclaration,
   defineCustomElement,
   defineElement,
-  ElementDeclaration,
-  MaverickElement,
-  MaverickElementConstructor,
+  HTMLCustomElement,
+  HTMLCustomElementConstructor,
   onAfterUpdate,
   onAttach,
   onBeforeUpdate,
@@ -446,7 +446,7 @@ it('should render css vars', () => {
   defineCustomElement(Button);
 
   const instance = createElementInstance(Button);
-  const element = document.createElement(Button.tagName) as MaverickElement;
+  const element = document.createElement(Button.tagName) as HTMLCustomElement;
   element.attachComponent(instance);
 
   expect(element).toMatchInlineSnapshot(`
@@ -468,7 +468,7 @@ it('should render css vars builder', async () => {
   defineCustomElement(Button);
 
   const instance = createElementInstance(Button);
-  const element = document.createElement(Button.tagName) as MaverickElement;
+  const element = document.createElement(Button.tagName) as HTMLCustomElement;
   element.attachComponent(instance);
 
   expect(element).toMatchInlineSnapshot(`
@@ -494,7 +494,7 @@ afterEach(() => {
 let count = 0;
 
 function setupTestElement(
-  declaration?: Partial<ElementDeclaration<AnyMaverickElement>>,
+  declaration?: Partial<CustomElementDeclaration<AnyCustomElement>>,
   { hydrate = false, delegate = true, append = true } = {},
 ) {
   const definition = defineElement({
@@ -520,7 +520,7 @@ function setupTestElement(
 
   const container = document.createElement('div'),
     instance = createElementInstance(definition),
-    element = document.createElement(`mk-test-${count}`) as MaverickElement & Record<string, any>;
+    element = document.createElement(`mk-test-${count}`) as HTMLCustomElement & Record<string, any>;
 
   if (hydrate) {
     element.setAttribute('mk-h', '');
@@ -540,6 +540,6 @@ function setupTestElement(
     instance,
     container,
     element,
-    elementCtor: element.constructor as MaverickElementConstructor,
+    elementCtor: element.constructor as HTMLCustomElementConstructor,
   };
 }

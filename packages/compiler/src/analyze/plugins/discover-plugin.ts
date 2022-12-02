@@ -13,7 +13,7 @@ import {
 } from '../utils/walk';
 import type { AnalyzePlugin, ElementDefintionNode } from './AnalyzePlugin';
 
-const ignoredTypeIdentifiers = new Set(['HTMLElement', 'MaverickElement']);
+const ignoredTypeIdentifiers = new Set(['HTMLElement', 'HTMLCustomElement']);
 
 export function createDiscoverPlugin(): AnalyzePlugin {
   let checker: ts.TypeChecker;
@@ -65,11 +65,11 @@ export function createDiscoverPlugin(): AnalyzePlugin {
             );
           } else {
             const members = walkSignatures(checker, rootType, undefined, ignoredTypeIdentifiers);
-            const MaverickElement = members.heritage.get('MaverickElement');
+            const CustomElement = members.heritage.get('HTMLCustomElement');
 
-            if (!MaverickElement || !ts.isExpressionWithTypeArguments(MaverickElement)) {
+            if (!CustomElement || !ts.isExpressionWithTypeArguments(CustomElement)) {
               reportDiagnosticByNode(
-                'type given to `defineElement` must extend `MaverickElement`',
+                'type given to `defineElement` must extend `HTMLCustomElement`',
                 exportVar.initializer.typeArguments[0],
                 LogLevel.Warn,
               );
@@ -90,9 +90,9 @@ export function createDiscoverPlugin(): AnalyzePlugin {
               members,
               types: {
                 root: rootType,
-                props: MaverickElement.typeArguments?.[0] as ts.TypeLiteralNode,
-                events: MaverickElement.typeArguments?.[1] as ts.TypeLiteralNode,
-                cssvars: MaverickElement.typeArguments?.[2] as ts.TypeLiteralNode,
+                props: CustomElement.typeArguments?.[0] as ts.TypeLiteralNode,
+                events: CustomElement.typeArguments?.[1] as ts.TypeLiteralNode,
+                cssvars: CustomElement.typeArguments?.[2] as ts.TypeLiteralNode,
               },
             });
           }

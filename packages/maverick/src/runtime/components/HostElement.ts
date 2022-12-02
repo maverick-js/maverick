@@ -1,9 +1,9 @@
 import type {
-  AnyElementDefinition,
-  AnyMaverickElement,
-  InferElementCSSProps,
-  InferElementEvents,
-  InferElementFromDefinition,
+  AnyCustomElement,
+  AnyCustomElementDefinition,
+  InferCustomElementCSSProps,
+  InferCustomElementEvents,
+  InferCustomElementFromDefinition,
 } from '../../element/types';
 import type { JSX } from '../jsx';
 
@@ -13,10 +13,10 @@ import type { JSX } from '../jsx';
  *
  * @example
  * ```tsx
- * const FooElement = defineElement({
+ * const FooElementDefinition = defineElement({
  *   setup() {
  *     return () => (
- *       <HostElement bar="..." $element={FooElement}>
+ *       <HostElement bar="..." $element={FooElementDefinition}>
  *         ...
  *       </HostElement>
  *     );
@@ -25,18 +25,18 @@ import type { JSX } from '../jsx';
  * ```
  */
 export function HostElement<
-  Definition extends AnyElementDefinition,
-  Element extends AnyMaverickElement = InferElementFromDefinition<Definition>,
+  Definition extends AnyCustomElementDefinition,
+  CustomElement extends AnyCustomElement = InferCustomElementFromDefinition<Definition>,
 >(
   props: {
     /** Custom element defintion. */
     $element?: Definition;
     $children?: JSX.Element;
   } & JSX.HTMLElementAttributes<
-    Element,
+    CustomElement,
     {},
-    InferElementEvents<Element>,
-    InferElementCSSProps<Element>
+    InferCustomElementEvents<CustomElement>,
+    InferCustomElementCSSProps<CustomElement>
   >,
 ): JSX.Element {
   // Virtual component so it doesn't return anything, output is determined by the compiler.

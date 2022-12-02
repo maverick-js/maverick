@@ -1,10 +1,10 @@
 import type {
-  AnyElementDefinition,
-  AnyMaverickElement,
-  InferElementCSSProps,
-  InferElementEvents,
-  InferElementFromDefinition,
-  InferElementProps,
+  AnyCustomElement,
+  AnyCustomElementDefinition,
+  InferCustomElementCSSProps,
+  InferCustomElementEvents,
+  InferCustomElementFromDefinition,
+  InferCustomElementProps,
 } from '../../element/types';
 import type { JSX } from '../jsx';
 
@@ -14,30 +14,30 @@ import type { JSX } from '../jsx';
  *
  * @example
  * ```tsx
- * const MyButton = defineElement({
- *   tagName: 'my-button',
- *   setup: () => () => <button />
+ * const FooElementDefinition = defineElement({
+ *   tagName: 'mk-foo',
+ *   setup: () => () => <div />
  * });
  *
- * const element = <CustomElement $element={MyButton} />
+ * const element = <CustomElement $element={FooElementDefinition} />
  * ```
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements}
  */
 export function CustomElement<
-  Definition extends AnyElementDefinition,
-  Element extends AnyMaverickElement = InferElementFromDefinition<Definition>,
+  Definition extends AnyCustomElementDefinition,
+  CustomElement extends AnyCustomElement = InferCustomElementFromDefinition<Definition>,
 >(
   props: {
     /** Custom element defintion. */
     $element: Definition;
     $children?: JSX.Element;
   } & JSX.HTMLElementAttributes<
-    Element,
-    Partial<InferElementProps<Element>>,
-    InferElementEvents<Element>,
-    InferElementCSSProps<Element>
+    CustomElement,
+    Partial<InferCustomElementProps<CustomElement>>,
+    InferCustomElementEvents<CustomElement>,
+    InferCustomElementCSSProps<CustomElement>
   >,
-): Element {
+): CustomElement {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;
 }

@@ -1,14 +1,14 @@
 import { isNull } from '../std/unit';
-import type { AnyElementInstance } from './types';
+import type { AnyCustomElementInstance } from './types';
 
-let _instances: (AnyElementInstance | null)[] = [null],
+let _instances: (AnyCustomElementInstance | null)[] = [null],
   _current = 0;
 
-export function getElementInstance(): AnyElementInstance | null {
+export function getElementInstance(): AnyCustomElementInstance | null {
   return _instances[_current];
 }
 
-export function setElementInstance(host: AnyElementInstance | null) {
+export function setElementInstance(host: AnyCustomElementInstance | null) {
   if (isNull(host)) {
     _instances.pop();
     _current--;

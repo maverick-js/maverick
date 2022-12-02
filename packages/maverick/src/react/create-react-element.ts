@@ -5,11 +5,11 @@ import { defineCustomElement } from '../element/create-html-element';
 import { createElementInstance } from '../element/instance';
 import { PROPS } from '../element/internal';
 import type {
-  AnyElementDefinition,
-  AnyElementInstance,
-  AnyMaverickElement,
-  InferElementFromDefinition,
-  MaverickElement,
+  AnyCustomElement,
+  AnyCustomElementDefinition,
+  AnyCustomElementInstance,
+  HTMLCustomElement,
+  InferCustomElementFromDefinition,
 } from '../element/types';
 import type { ContextMap } from '../runtime';
 import { $$_attach_declarative_shadow_dom } from '../runtime/dom';
@@ -23,10 +23,10 @@ export type ReactElementInit = {
   displayName?: string;
 };
 
-export function createReactElement<Definition extends AnyElementDefinition>(
+export function createReactElement<Definition extends AnyCustomElementDefinition>(
   definition: Definition,
   init?: ReactElementInit,
-): ReactElement<InferElementFromDefinition<Definition>> {
+): ReactElement<InferCustomElementFromDefinition<Definition>> {
   return __SERVER__
     ? createReactServerElement(definition)
     : createReactClientElement(definition, init);
@@ -36,25 +36,25 @@ const scheduler = getScheduler(),
   SETUP = Symbol();
 
 function createReactClientElement<
-  Definition extends AnyElementDefinition,
-  Element extends AnyMaverickElement = InferElementFromDefinition<Definition>,
+  Definition extends AnyCustomElementDefinition,
+  Element extends AnyCustomElement = InferCustomElementFromDefinition<Definition>,
 >(definition: Definition, init?: ReactElementInit): ReactElement<Element> {
   defineCustomElement(definition);
 
   const definedProps = new Set(Object.keys(definition.props ?? {})),
     eventCallbacks = new Map<string, string>();
 
-  class CustomElement extends React.Component<ReactElementProps<Element>> {
+  class ReactCustomElement extends React.Component<ReactElementProps<Element>> {
     static displayName = init?.displayName ?? definition.tagName;
     static override contextType = ReactContextMap;
     declare context: React.ContextType<typeof ReactContextMap>;
 
-    private _instance: AnyElementInstance;
-    private _element: MaverickElement | null = null;
+    private _instance: AnyCustomElementInstance;
+    private _element: HTMLCustomElement | null = null;
     private _context!: ContextMap;
     private _children = observable(false);
-    private _ref?: React.RefCallback<MaverickElement>;
-    private _forwardedRef?: React.Ref<MaverickElement>;
+    private _ref?: React.RefCallback<HTMLCustomElement>;
+    private _forwardedRef?: React.Ref<HTMLCustomElement>;
     private _listeners = new Map<string, EventListenerObject>();
 
     constructor(props, context) {
@@ -161,10 +161,10 @@ function createReactClientElement<
   }
 
   const ForwardedComponent = React.forwardRef<any, any>((props, ref) =>
-    React.createElement(CustomElement, { ...props, __forwardedRef: ref }, props?.children),
+    React.createElement(ReactCustomElement, { ...props, __forwardedRef: ref }, props?.children),
   );
 
-  ForwardedComponent.displayName = CustomElement.displayName;
+  ForwardedComponent.displayName = ReactCustomElement.displayName;
   return ForwardedComponent as any;
 }
 

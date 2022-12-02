@@ -1,5 +1,5 @@
 import {
-  AnyElementDeclaration,
+  AnyCustomElementDeclaration,
   createElementInstance,
   createServerElement,
   defineElement,
@@ -138,7 +138,7 @@ it('should noop dom events api', () => {
   }).not.toThrow();
 });
 
-function setupTestElement(declaration?: Partial<AnyElementDeclaration>) {
+function setupTestElement(declaration?: Partial<AnyCustomElementDeclaration>) {
   const definition = defineElement({
     tagName: `mk-foo`,
     setup: ({ props }) => {

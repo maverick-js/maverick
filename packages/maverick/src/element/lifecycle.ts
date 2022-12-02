@@ -8,9 +8,9 @@ import {
   getElementInstance,
   MOUNT,
 } from './internal';
-import type { AnyMaverickElement } from './types';
+import type { AnyCustomElement } from './types';
 
-export type ElementLifecycleCallback = (host: AnyMaverickElement) => any;
+export type ElementLifecycleCallback = (host: AnyCustomElement) => any;
 
 export type ElementLifecycleManager = {
   [ATTACH]: (() => any)[];

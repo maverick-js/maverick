@@ -1,6 +1,6 @@
 import type { Constructor } from 'type-fest';
 
-import type { MaverickElement } from '../element/types';
+import type { HTMLCustomElement } from '../element/types';
 import { type Dispose, type JSX, onDispose } from '../runtime';
 import { noop } from './unit';
 
@@ -51,11 +51,11 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
 
 /**
  * Creates a `DOMEvent` and dispatches it from the given `target`. This function is typed to
- * match all events declared on the given `target` (must be a `MaverickElement`).
+ * match all events declared on the given `target` (must be a `HTMLCustomElement`).
  */
 export function dispatchEvent<
   Target extends EventTarget,
-  Events = Target extends MaverickElement<any, infer ElementEvents>
+  Events = Target extends HTMLCustomElement<any, infer ElementEvents>
     ? ElementEvents
     : Record<string, DOMEventInit>,
   EventType extends keyof Events = keyof Events,
@@ -185,7 +185,7 @@ export type InferEventInit<T> = T extends Constructor<DOMEvent>
  */
 export function listenEvent<
   Target extends EventTarget,
-  Events = Target extends MaverickElement<any, infer Events>
+  Events = Target extends HTMLCustomElement<any, infer Events>
     ? Events & MaverickOnAttributes
     : MaverickOnAttributes,
   EventType extends keyof Events = keyof Events,

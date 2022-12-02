@@ -19,21 +19,21 @@ import {
   setElementInstance,
 } from './internal';
 import type {
-  AnyElementInstance,
-  AnyMaverickElement,
-  ElementDefinition,
-  ElementInstance,
-  ElementInstanceInit,
-  ElementPropDefinitions,
-  InferElementEvents,
-  InferElementProps,
+  AnyCustomElement,
+  AnyCustomElementInstance,
+  CustomElementDefinition,
+  CustomElementInstance,
+  CustomElementInstanceInit,
+  CustomElementPropDefinitions,
+  InferCustomElementEvents,
+  InferCustomElementProps,
 } from './types';
 
-export function createElementInstance<Element extends AnyMaverickElement>(
-  definition: ElementDefinition<Element>,
-  init: ElementInstanceInit<InferElementProps<Element>> = {},
-): ElementInstance<InferElementProps<Element>, InferElementEvents<Element>> {
-  type Props = InferElementProps<Element>;
+export function createElementInstance<Element extends AnyCustomElement>(
+  definition: CustomElementDefinition<Element>,
+  init: CustomElementInstanceInit<InferCustomElementProps<Element>> = {},
+): CustomElementInstance<InferCustomElementProps<Element>, InferCustomElementEvents<Element>> {
+  type Props = InferCustomElementProps<Element>;
 
   return root((dispose) => {
     if (init.context) provideContextMap(init.context);
@@ -53,7 +53,7 @@ export function createElementInstance<Element extends AnyMaverickElement>(
     const $mounted = observable(false);
     const $children = init.children ?? observable(false);
 
-    const host: AnyElementInstance['host'] = {
+    const host: AnyCustomElementInstance['host'] = {
       el: null,
       get $connected() {
         return $connected();
@@ -71,7 +71,7 @@ export function createElementInstance<Element extends AnyMaverickElement>(
       },
     };
 
-    const instance: Writable<AnyElementInstance> = {
+    const instance: Writable<AnyCustomElementInstance> = {
       host,
       props: new Proxy($$props, {
         set: __DEV__
@@ -138,7 +138,7 @@ export function createElementInstance<Element extends AnyMaverickElement>(
   });
 }
 
-function createInstanceProps<Props>(propDefs: ElementPropDefinitions<Props>) {
+function createInstanceProps<Props>(propDefs: CustomElementPropDefinitions<Props>) {
   const props = {} as Props;
 
   for (const propName of Object.keys(propDefs) as (keyof Props)[]) {

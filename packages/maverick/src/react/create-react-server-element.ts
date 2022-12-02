@@ -3,14 +3,14 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 import { createServerElement } from '../element/create-server-element';
 import { createElementInstance } from '../element/instance';
-import type { AnyElementDefinition } from '../element/types';
+import type { AnyCustomElementDefinition } from '../element/types';
 import { kebabToCamelCase } from '../std/string';
 import { ReactContextMap } from './use-react-context';
 import { WithContextMap } from './utils';
 
 const stylesRE = /style="(.*?)"/;
 
-export function createReactServerElement(definition: AnyElementDefinition): any {
+export function createReactServerElement(definition: AnyCustomElementDefinition): any {
   const ServerElement = createServerElement(definition);
   const propDefs = definition.props ?? {};
 

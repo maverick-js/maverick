@@ -52,7 +52,7 @@ export interface CustomElementCSSVarsBuilder<Props, CSSVars> {
 
 export type AnyCustomElementDeclaration = CustomElementDeclaration<AnyCustomElement>;
 
-export interface CustomElementDeclaration<Element extends AnyCustomElement> {
+export interface CustomElementDeclaration<T extends AnyCustomElement> {
   /**
    * The tag name of the custom element. Note that custom element names must contain a hypen (e.g.,
    * `foo-bar`).
@@ -72,54 +72,56 @@ export interface CustomElementDeclaration<Element extends AnyCustomElement> {
    * Component properties. Note that these are not exposed on the custom element, only members
    * returned from the `setup` function are.
    */
-  props: CustomElementPropDefinitions<InferCustomElementProps<Element>>;
+  props: CustomElementPropDefinitions<InferCustomElementProps<T>>;
   /**
    * CSS variables that should be initialized during setup.
    */
   cssvars:
-    | InferCustomElementCSSProps<Element>
-    | CustomElementCSSVarsBuilder<
-        InferCustomElementProps<Element>,
-        InferCustomElementCSSProps<Element>
-      >;
+    | InferCustomElementCSSProps<T>
+    | CustomElementCSSVarsBuilder<InferCustomElementProps<T>, InferCustomElementCSSProps<T>>;
   /**
    * The setup function is run once the custom element is ready to render. This function must
    * return a render function. Optionally, class members (i.e., props and methods) can be returned
    * which are assigned to the custom element.
    */
-  setup: CustomElementSetup<Element>;
+  setup: CustomElementSetup<T>;
 }
 
-export type CustomElementSetup<Element extends AnyCustomElement> = (
-  instance: CustomElementInstance<
-    InferCustomElementProps<Element>,
-    InferCustomElementEvents<Element>
-  >,
-) => InferCustomElementMembers<Element> extends Record<any, never>
+export type CustomElementSetup<T extends AnyCustomElement> = (
+  instance: CustomElementInstance<T>,
+) => InferCustomElementMembers<T> extends Record<any, never>
   ? void | (() => JSX.Element)
-  : InferCustomElementMembers<Element> & { $render?: () => JSX.Element };
+  : InferCustomElementMembers<T> & { $render?: () => JSX.Element };
 
 export interface AnyCustomElementDefinition extends CustomElementDefinition<AnyCustomElement> {}
 
-export interface CustomElementDefinition<Element extends AnyCustomElement>
-  extends Omit<CustomElementDeclaration<Element>, 'setup'> {
+export interface CustomElementDefinition<T extends AnyCustomElement>
+  extends Omit<CustomElementDeclaration<T>, 'setup'> {
   /** @internal */
-  setup: (instance: NonNullable<Element['instance']>) => InferCustomElementMembers<Element> & {
+  setup: (instance: NonNullable<T['instance']>) => InferCustomElementMembers<T> & {
     $render?: () => JSX.Element;
   };
+
   /** Whether the given `node` was created using this element defintion. */
-  is: (node?: Node | null) => node is Element;
+  is: (node?: Node | null) => node is T;
 }
 
-export type InferCustomElementFromDefinition<Def> = Def extends CustomElementDefinition<
-  infer Element
->
+export type InferCustomElementFromDefinition<T> = T extends CustomElementDefinition<infer Element>
   ? Element
   : never;
 
+export interface AnyCustomElement extends HTMLCustomElement<any, any, any> {}
+
+export interface HTMLCustomElementConstructor<T extends AnyCustomElement = AnyCustomElement>
+  extends Constructor<T> {
+  readonly observedAttributes: string[];
+}
+
 export interface HTMLCustomElement<Props = {}, Events = {}, CSSVars = {}>
   extends HTMLElement,
-    HostElement<Props, Events> {
+    HostElement {
+  /** @internal only holds type - not a real prop. */
+  ___props?: Props;
   /** @internal only holds type - not a real prop. */
   ___cssvars?: CSSVars;
 
@@ -156,65 +158,48 @@ export interface HTMLCustomElement<Props = {}, Events = {}, CSSVars = {}>
   ): void;
 }
 
-export interface HostElement<Props = {}, Events = {}> {
+export interface HostElement {
   [HOST]?: boolean;
   /**
    * Maverick component instance associated with this element.
+   *
+   * @internal
    */
-  readonly instance: CustomElementInstance<Props, Events> | null;
+  readonly instance: AnyCustomElementInstance | null;
   /**
    * Associate this element with a Maverick component instance.
+   *
+   * @internal
    */
-  attachComponent(instance: CustomElementInstance<Props, Events>): void;
+  attachComponent(instance: AnyCustomElementInstance): void;
   /**
    * The given `handler` is invoked with the type of event (e.g., `my-event`) when this element
    * dispatches it. Each event type is unique and only passed to the given `handler` once.
+   *
+   * @internal
    */
   onEventDispatch(handler: (eventType: string) => void): void;
 }
 
-export interface AnyCustomElement extends HTMLCustomElement<any, any, any> {}
-
-export type InferCustomElementProps<Element> = Element extends HTMLCustomElement<
-  infer Props,
-  any,
-  any
->
+export type InferCustomElementProps<T> = T extends HTMLCustomElement<infer Props, any, any>
   ? Props
   : never;
 
-export type InferCustomElementEvents<Element> = Element extends HTMLCustomElement<
-  any,
-  infer Events,
-  any
->
+export type InferCustomElementEvents<T> = T extends HTMLCustomElement<any, infer Events, any>
   ? Events
   : never;
 
-export type InferCustomElementCSSProps<Element> = Element extends HTMLCustomElement<
-  any,
-  any,
-  infer CSSVars
->
+export type InferCustomElementCSSProps<T> = T extends HTMLCustomElement<any, any, infer CSSVars>
   ? CSSVars
   : never;
 
-export type InferCustomElementCSSVars<Element> = Element extends HTMLCustomElement<
-  any,
-  any,
-  infer CSSVars
->
+export type InferCustomElementCSSVars<T> = T extends HTMLCustomElement<any, any, infer CSSVars>
   ? { [Var in keyof CSSVars as `--${Var & string}`]: CSSVars[Var] }
   : never;
 
-export type InferCustomElementMembers<Element> = Element extends AnyCustomElement
-  ? Simplify<Omit<Element, keyof AnyCustomElement | '$render'>>
+export type InferCustomElementMembers<T> = T extends AnyCustomElement
+  ? Simplify<Omit<T, keyof AnyCustomElement | '$render'>>
   : never;
-
-export interface HTMLCustomElementConstructor<Element extends AnyCustomElement = AnyCustomElement>
-  extends Constructor<Element> {
-  readonly observedAttributes: string[];
-}
 
 export interface CustomElementInstanceInit<Props = {}> {
   props?: Readonly<Partial<Props>>;
@@ -222,16 +207,16 @@ export interface CustomElementInstanceInit<Props = {}> {
   children?: Observable<boolean>;
 }
 
-export type AnyCustomElementInstance = CustomElementInstance<any, any>;
+export type AnyCustomElementInstance = CustomElementInstance<AnyCustomElement>;
 
-export interface CustomElementInstance<Props = {}, Events = {}> extends ElementLifecycleManager {
+export interface CustomElementInstance<T extends AnyCustomElement> extends ElementLifecycleManager {
   /** @internal */
-  [PROPS]: Props;
+  [PROPS]: InferCustomElementProps<T>;
   /** @internal */
   [MEMBERS]?: Record<string, any>;
   /** @internal */
   [RENDER]?: () => JSX.Element;
-  readonly host: CustomElementInstanceHost<HTMLCustomElement<Props, Events>> & {
+  readonly host: CustomElementInstanceHost<T> & {
     /** @internal */
     [PROPS]: {
       $connected: ObservableSubject<boolean>;
@@ -243,7 +228,7 @@ export interface CustomElementInstance<Props = {}, Events = {}> extends ElementL
    * Component properties where each value is a readonly observable. Do note destructure this
    * object because it will result in a loss of reactivity.
    */
-  readonly props: Readonly<Props>;
+  readonly props: Readonly<InferCustomElementProps<T>>;
   /**
    * Permanently destroy component instance.
    */
@@ -256,14 +241,14 @@ export interface CustomElementInstance<Props = {}, Events = {}> extends ElementL
    * **⚠️ Do not use this internally for setting props. It will generally lead to state being out
    * of sync between the host framework and internally which will cause inconsistent states.**
    */
-  readonly accessors: () => Props;
+  readonly accessors: () => InferCustomElementProps<T>;
   /**
    * Runs given function inside instance scope.
    */
   readonly run: <T>(fn: () => T) => T;
 }
 
-export interface CustomElementInstanceHost<CustomElement extends AnyCustomElement> {
+export interface CustomElementInstanceHost<T extends AnyCustomElement> {
   /**
    * The custom element this component is attached to. This is safe to call server-side with the
    * limited API isted below.
@@ -275,7 +260,7 @@ export interface CustomElementInstanceHost<CustomElement extends AnyCustomElemen
    * - Styles: `style` API
    * - Events (noops): `addEventListener`, `removeEventListener`, and `dispatchEvent`
    */
-  el: CustomElement | null;
+  el: T | null;
   /**
    * Whether the custom element associated with this component has connected to the DOM. This is
    * a reactive observable call.
@@ -294,18 +279,18 @@ export interface CustomElementInstanceHost<CustomElement extends AnyCustomElemen
 }
 
 // Conditional checks are simply ensuring props, cssvars, and setup are only required when needed.
-export type PartialCustomElementDeclaration<Element extends AnyCustomElement> =
-  InferCustomElementMembers<Element> extends EmptyRecord
+export type PartialCustomElementDeclaration<T extends AnyCustomElement> =
+  InferCustomElementMembers<T> extends EmptyRecord
     ? Omit<
-        CustomElementDeclaration<Element>,
-        | (InferCustomElementProps<Element> extends Record<string, never> ? 'props' : '')
+        CustomElementDeclaration<T>,
+        | (InferCustomElementProps<T> extends Record<string, never> ? 'props' : '')
         | 'setup'
-        | (InferCustomElementCSSProps<Element> extends Record<string, never> ? 'cssvars' : '')
+        | (InferCustomElementCSSProps<T> extends Record<string, never> ? 'cssvars' : '')
       > & {
-        setup?: CustomElementDeclaration<Element>['setup'];
+        setup?: CustomElementDeclaration<T>['setup'];
       }
     : Omit<
-        CustomElementDeclaration<Element>,
-        | (InferCustomElementProps<Element> extends Record<string, never> ? 'props' : '')
-        | (InferCustomElementCSSProps<Element> extends Record<string, never> ? 'cssvars' : '')
+        CustomElementDeclaration<T>,
+        | (InferCustomElementProps<T> extends Record<string, never> ? 'props' : '')
+        | (InferCustomElementCSSProps<T> extends Record<string, never> ? 'cssvars' : '')
       >;

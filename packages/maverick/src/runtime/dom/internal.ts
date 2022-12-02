@@ -1,7 +1,7 @@
 import {
   type AnyCustomElement,
   type AnyCustomElementDefinition,
-  getElementInstance,
+  getCustomElementInstance,
   registerCustomElement,
   RENDER,
 } from '../../element';
@@ -53,7 +53,7 @@ export function $$_next_element(walker: TreeWalker): Node {
 
 /** @internal */
 export function $$_host_element() {
-  return getElementInstance()!.host.el!;
+  return getCustomElementInstance()!.host.el!;
 }
 
 /** @internal */

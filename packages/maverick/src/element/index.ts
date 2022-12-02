@@ -1,5 +1,5 @@
 export { createElementInstance } from './instance';
-export { getElementInstance, PROPS, RENDER, MEMBERS } from './internal';
+export { getCustomElementInstance, PROPS, RENDER, MEMBERS } from './internal';
 export * from './create-html-element';
 export * from './create-server-element';
 export * from './css';

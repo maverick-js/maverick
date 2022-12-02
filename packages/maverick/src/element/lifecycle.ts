@@ -5,7 +5,7 @@ import {
   CONNECT,
   DESTROY,
   DISCONNECT,
-  getElementInstance,
+  getCustomElementInstance,
   MOUNT,
 } from './internal';
 
@@ -83,7 +83,7 @@ function createLifecycleMethod(type: keyof ElementLifecycleManager) {
   return (callback: ElementLifecycleCallback) => {
     if (__SERVER__ && type !== ATTACH) return;
 
-    const instance = getElementInstance();
+    const instance = getCustomElementInstance();
 
     if (!instance) {
       if (__DEV__) throw Error('[maverick] lifecycle hook called outside of element setup');

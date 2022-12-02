@@ -121,9 +121,9 @@ export namespace JSX {
    * }>
    * ```
    */
-  export type PropAttributes<Record extends PropRecord> = {
-    [P in keyof Record as `$prop:${Stringify<P>}`]?: Value<Record[P]>;
-  } & KebabCasedObservableAttributes<ConditionalPick<Record, AttrValue>>;
+  export type PropAttributes<Props> = {
+    [Prop in keyof Props as `$prop:${Stringify<Prop>}`]?: Value<Props[Prop]>;
+  } & KebabCasedObservableAttributes<ConditionalPick<Props, AttrValue>>;
 
   export interface InnerContentAttributes {
     '$prop:innerHTML'?: Value<AttrValue>;
@@ -191,23 +191,20 @@ export namespace JSX {
    * }>
    * ```
    */
-  export type OnAttributes<
-    Target extends EventTarget = EventTarget,
-    Events extends EventRecord = EventRecord,
-  > = {
+  export type OnAttributes<Target extends EventTarget = EventTarget, Events = EventRecord> = {
     [EventType in keyof Events as `$on:${Stringify<EventType>}`]?: TargetedEventHandler<
       Target,
-      Events[EventType]
+      Events[EventType] & Event
     >;
   } & OnCaptureAttributes<Target, Events>;
 
   export type OnCaptureAttributes<
     Target extends EventTarget = EventTarget,
-    Events extends EventRecord = EventRecord,
+    Events = EventRecord,
   > = {
     [EventType in keyof Events as `$oncapture:${Stringify<EventType>}`]?: TargetedEventHandler<
       Target,
-      Events[EventType]
+      Events[EventType] & Event
     >;
   };
 
@@ -295,7 +292,7 @@ export namespace JSX {
    * }>
    * ```
    */
-  export type CSSVarAttributes<Variables extends CSSRecord> = {
+  export type CSSVarAttributes<Variables> = {
     [Var in keyof Variables as `$cssvar:${Stringify<Var>}`]: Value<
       Variables[Var] | null | undefined
     >;
@@ -339,15 +336,15 @@ export namespace JSX {
 
   export type HTMLElementAttributes<
     Element extends DOMElement = DOMElement,
-    Props extends PropRecord = {},
-    Events extends EventRecord = {},
-    CSSVars extends CSSRecord = {},
+    Props = {},
+    Events = {},
+    CSSVars = {},
   > = BaseHTMLElementAttributes &
     RefAttributes<Element> &
     PropAttributes<Props> &
     OnAttributes<Element, Events> &
     CSSVarAttributes<CSSVars> &
-    OnAttributes<Element, MaverickOnAttributes & EventRecord>;
+    OnAttributes<Element, MaverickOnAttributes>;
 
   export interface HTMLMarqueeElement extends HTMLElement, HTMLMarqueeElementProperties {}
 

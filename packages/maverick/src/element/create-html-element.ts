@@ -24,31 +24,29 @@ import {
 import type {
   AnyCustomElement,
   AnyCustomElementDefinition,
+  AnyCustomElementInstance,
   CustomElementDefinition,
-  CustomElementInstance,
   CustomElementInstanceInit,
   CustomElementPropDefinitions,
   HostElement,
   HTMLCustomElement,
   HTMLCustomElementConstructor,
-  InferCustomElementEvents,
   InferCustomElementProps,
 } from './types';
 
 const scheduler = getScheduler(),
   MOUNTED = Symbol(__DEV__ ? 'MOUNTED' : 0);
 
-export function createHTMLElement<Element extends AnyCustomElement>(
-  definition: CustomElementDefinition<Element>,
-): HTMLCustomElementConstructor<Element> {
+export function createHTMLElement<T extends AnyCustomElement>(
+  definition: CustomElementDefinition<T>,
+): HTMLCustomElementConstructor<T> {
   if (__SERVER__) {
     throw Error(
       '[maverick] `createHTMLElement` was called outside of browser - use `createServerElement`',
     );
   }
 
-  type Props = InferCustomElementProps<Element>;
-  type Events = InferCustomElementEvents<Element>;
+  type Props = InferCustomElementProps<T>;
 
   const propDefs = (definition.props ?? {}) as CustomElementPropDefinitions<Props>;
   const attrToProp = new Map<string, string>();
@@ -67,13 +65,13 @@ export function createHTMLElement<Element extends AnyCustomElement>(
     }
   }
 
-  class HTMLCustomElement extends HTMLElement implements HostElement<Props, Events> {
+  class HTMLCustomElement extends HTMLElement implements HostElement {
     /** @internal */
     [HOST] = true;
 
     private _root?: Node | null;
     private _destroyed = false;
-    private _instance: CustomElementInstance<Props, Events> | null = null;
+    private _instance: AnyCustomElementInstance | null = null;
     private _onEventDispatch?: (eventType: string) => void;
     /** Dynamic disconnect callbacks returned from `onConnect` */
     private _disconnectCallbacks: (() => void)[] = [];
@@ -133,7 +131,7 @@ export function createHTMLElement<Element extends AnyCustomElement>(
             for (const connectCallback of instance[CONNECT]) {
               const disconnectCallback = run(connectCallback);
               if (isFunction(disconnectCallback)) {
-                this._disconnectCallbacks.push(() => run(() => disconnectCallback(this)));
+                this._disconnectCallbacks.push(() => run(disconnectCallback));
               }
             }
 
@@ -149,7 +147,7 @@ export function createHTMLElement<Element extends AnyCustomElement>(
         for (const mountCallback of instance[MOUNT]) {
           const destroyCallback = mountCallback();
           if (isFunction(destroyCallback)) {
-            instance[DESTROY].push(() => instance.run(() => destroyCallback(this)));
+            instance[DESTROY].push(() => instance.run(destroyCallback));
           }
         }
 
@@ -190,7 +188,7 @@ export function createHTMLElement<Element extends AnyCustomElement>(
       }
     }
 
-    attachComponent(instance: CustomElementInstance<Props, Events>) {
+    attachComponent(instance: AnyCustomElementInstance) {
       if (__DEV__ && this._instance) {
         console.warn(`[maverick] element \`${definition.tagName}\` already has attached component`);
       }
@@ -255,13 +253,13 @@ export function createHTMLElement<Element extends AnyCustomElement>(
       Object.defineProperties(this, Object.getOwnPropertyDescriptors(instance[MEMBERS]));
       instance[MEMBERS] = undefined;
 
-      instance.host.el = this;
+      instance.host.el = this as unknown as T;
       this._instance = instance;
 
       for (const attachCallback of instance[ATTACH]) {
         const destroyCallback = attachCallback();
         if (isFunction(destroyCallback)) {
-          instance[DESTROY].push(() => instance.run(() => destroyCallback(this)));
+          instance[DESTROY].push(() => instance.run(destroyCallback));
         }
       }
 
@@ -321,7 +319,7 @@ export function createHTMLElement<Element extends AnyCustomElement>(
 
       let node: Node | null = this.parentNode;
       while (node) {
-        if (node.nodeType === 1 && (node as Element).localName.startsWith(prefix)) {
+        if (node.nodeType === 1 && (node as T).localName.startsWith(prefix)) {
           const dep = node as HTMLCustomElement;
           deps.push(dep);
           whenDepsMounted.push(

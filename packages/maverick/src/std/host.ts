@@ -1,7 +1,7 @@
-import { getElementInstance } from '../element/internal';
+import { getCustomElementInstance } from '../element/internal';
 
 export function useHostConnected(): () => boolean {
-  const instance = getElementInstance();
+  const instance = getCustomElementInstance();
 
   if (!instance) {
     throw Error(

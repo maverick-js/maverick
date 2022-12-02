@@ -16,7 +16,7 @@ import {
   MOUNT,
   PROPS,
   RENDER,
-  setElementInstance,
+  setCustomElementInstance,
 } from './internal';
 import type {
   AnyCustomElement,
@@ -25,15 +25,14 @@ import type {
   CustomElementInstance,
   CustomElementInstanceInit,
   CustomElementPropDefinitions,
-  InferCustomElementEvents,
   InferCustomElementProps,
 } from './types';
 
-export function createElementInstance<Element extends AnyCustomElement>(
-  definition: CustomElementDefinition<Element>,
-  init: CustomElementInstanceInit<InferCustomElementProps<Element>> = {},
-): CustomElementInstance<InferCustomElementProps<Element>, InferCustomElementEvents<Element>> {
-  type Props = InferCustomElementProps<Element>;
+export function createElementInstance<T extends AnyCustomElement>(
+  definition: CustomElementDefinition<T>,
+  init: CustomElementInstanceInit<InferCustomElementProps<T>> = {},
+): CustomElementInstance<T> {
+  type Props = InferCustomElementProps<T>;
 
   return root((dispose) => {
     if (init.context) provideContextMap(init.context);
@@ -73,7 +72,7 @@ export function createElementInstance<Element extends AnyCustomElement>(
 
     const instance: Writable<AnyCustomElementInstance> = {
       host,
-      props: new Proxy($$props, {
+      props: new Proxy($$props as object, {
         set: __DEV__
           ? (_, prop) => {
               throw Error(`[maverick] attempting to set readonly prop \`${String(prop)}\``);
@@ -114,9 +113,9 @@ export function createElementInstance<Element extends AnyCustomElement>(
       run: createScopedRunner(),
     };
 
-    setElementInstance(instance);
+    setCustomElementInstance(instance);
     instance[MEMBERS] = definition.setup(instance);
-    setElementInstance(null);
+    setCustomElementInstance(null);
 
     const $render = instance[MEMBERS]!.$render;
     if ($render) {
@@ -127,14 +126,14 @@ export function createElementInstance<Element extends AnyCustomElement>(
       }) as () => any;
 
       instance[RENDER] = () => {
-        setElementInstance(instance);
+        setCustomElementInstance(instance);
         const result = peek(render);
-        setElementInstance(null);
+        setCustomElementInstance(null);
         return result;
       };
     }
 
-    return instance;
+    return instance as CustomElementInstance<T>;
   });
 }
 

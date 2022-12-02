@@ -9,26 +9,24 @@ import { ATTACH, HOST, PROPS, RENDER } from './internal';
 import type {
   AnyCustomElement,
   AnyCustomElementDefinition,
+  AnyCustomElementInstance,
   CustomElementDefinition,
-  CustomElementInstance,
   CustomElementPropDefinitions,
   HostElement,
-  InferCustomElementEvents,
   InferCustomElementProps,
 } from './types';
 
 const scheduler = getScheduler(),
   registry = new WeakMap<AnyCustomElementDefinition, any>();
 
-export function createServerElement<Element extends AnyCustomElement>(
-  definition: CustomElementDefinition<Element>,
+export function createServerElement<T extends AnyCustomElement>(
+  definition: CustomElementDefinition<T>,
 ) {
   if (registry.has(definition)) {
-    return registry.get(definition) as typeof MaverickServerElement;
+    return registry.get(definition) as typeof ServerCustomElement;
   }
 
-  type Props = InferCustomElementProps<Element>;
-  type Events = InferCustomElementEvents<Element>;
+  type Props = InferCustomElementProps<T>;
 
   const propDefs = (definition.props ?? {}) as CustomElementPropDefinitions<Props>;
   const propToAttr = new Map<string, string>();
@@ -49,12 +47,12 @@ export function createServerElement<Element extends AnyCustomElement>(
     reflectedProps.set(def.attribute ?? camelToKebabCase(propName), propName);
   }
 
-  class MaverickServerElement implements ServerHTMLElement, HostElement<Props, Events> {
+  class ServerCustomElement implements ServerHTMLElement, HostElement {
     /** @internal */
     [HOST] = true;
 
     /** @internal */
-    _instance: CustomElementInstance<Props, Events> | null = null;
+    _instance: AnyCustomElementInstance | null = null;
     /** @internal */
     _ssr?: string;
     /** @internal */
@@ -68,7 +66,7 @@ export function createServerElement<Element extends AnyCustomElement>(
       return this._instance;
     }
 
-    attachComponent(instance: CustomElementInstance<Props, Events>) {
+    attachComponent(instance: AnyCustomElementInstance) {
       this.setAttribute('mk-h', '');
       this.setAttribute('mk-d', '');
 
@@ -189,8 +187,8 @@ export function createServerElement<Element extends AnyCustomElement>(
     removeEventListener() {}
   }
 
-  registry.set(definition, MaverickServerElement);
-  return MaverickServerElement;
+  registry.set(definition, ServerCustomElement);
+  return ServerCustomElement;
 }
 
 export interface ServerHTMLElement

@@ -9,21 +9,19 @@ import type {
 } from '../element/types';
 import type { JSX } from '../runtime/jsx';
 
-export interface ReactElement<Element extends AnyCustomElement>
-  extends React.ForwardRefExoticComponent<ReactElementProps<Element>> {}
+export interface ReactElement<T extends AnyCustomElement>
+  extends React.ForwardRefExoticComponent<ReactElementProps<T>> {}
 
-export type ReactElementProps<Element extends AnyCustomElement> = Partial<
-  InferCustomElementProps<Element>
-> &
-  React.RefAttributes<Element> &
-  Omit<React.HTMLAttributes<Element>, 'style'> & {
+export type ReactElementProps<T extends AnyCustomElement> = Partial<InferCustomElementProps<T>> &
+  React.RefAttributes<T> &
+  Omit<React.HTMLAttributes<T>, 'style'> & {
     style?:
       | (React.CSSProperties &
-          Partial<InferCustomElementCSSVars<Element>> & { [name: `--${string}`]: string })
+          Partial<InferCustomElementCSSVars<T>> & { [name: `--${string}`]: string })
       | undefined;
     children?: React.ReactNode | undefined;
-    __forwardedRef?: React.Ref<Element>;
-  } & ReactElementEventCallbacks<Element, InferCustomElementEvents<Element> & ReactEventMap>;
+    __forwardedRef?: React.Ref<T>;
+  } & ReactElementEventCallbacks<T, InferCustomElementEvents<T> & ReactEventMap>;
 
 export interface ReactEventMap extends Omit<MaverickOnAttributes, keyof HTMLElementEventMap> {}
 

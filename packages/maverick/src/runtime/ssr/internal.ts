@@ -1,6 +1,6 @@
 import { type AnyCustomElementDefinition, createServerElement } from '../../element';
 import { createElementInstance } from '../../element/instance';
-import { getElementInstance } from '../../element/internal';
+import { getCustomElementInstance } from '../../element/internal';
 import { escape } from '../../std/html';
 import { unwrapDeep } from '../../std/observable';
 import { trimTrailingSemicolon } from '../../std/string';
@@ -21,7 +21,7 @@ export function $$_ssr(template: string[], ...parts: unknown[]) {
 
 /** @internal */
 export function $$_host_element(spreads?: Record<string, unknown>[]) {
-  const host = getElementInstance()!.host.el!;
+  const host = getCustomElementInstance()!.host.el!;
 
   if (spreads && spreads.length > 0) {
     const spread = $$_merge_spreads(spreads);

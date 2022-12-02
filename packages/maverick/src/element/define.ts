@@ -7,23 +7,27 @@ import type {
   CustomElementAttributeConverter,
   CustomElementDeclaration,
   CustomElementDefinition,
+  CustomElementInstance,
   CustomElementPropDefinition,
   PartialCustomElementDeclaration,
 } from './types';
 
-export function defineCustomElement<Element extends AnyCustomElement>(
-  declaration: PartialCustomElementDeclaration<Element>,
-): CustomElementDefinition<Element> {
+export function defineCustomElement<T extends AnyCustomElement>(
+  declaration: PartialCustomElementDeclaration<T>,
+): CustomElementDefinition<T> {
   const definition = {
-    ...(declaration as CustomElementDeclaration<Element>),
+    ...(declaration as CustomElementDeclaration<T>),
     setup(instance) {
-      const setup = (declaration as CustomElementDeclaration<Element>).setup?.(instance) ?? {};
+      const setup =
+        (declaration as CustomElementDeclaration<T>).setup?.(
+          instance as CustomElementInstance<T>,
+        ) ?? {};
       return isFunction(setup) ? { $render: setup } : setup;
     },
     is: __SERVER__
       ? (node): node is never => false
-      : (node): node is Element => isHostElement(node) && node.localName === definition.tagName,
-  } as CustomElementDefinition<Element>;
+      : (node): node is T => isHostElement(node) && node.localName === definition.tagName,
+  } as CustomElementDefinition<T>;
 
   if ('props' in definition) {
     for (const prop of Object.values(definition.props) as Writable<CustomElementPropDefinition>[]) {

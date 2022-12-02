@@ -36,15 +36,15 @@ const scheduler = getScheduler(),
   SETUP = Symbol();
 
 function createReactClientElement<
-  Definition extends AnyCustomElementDefinition,
-  Element extends AnyCustomElement = InferCustomElementFromDefinition<Definition>,
->(definition: Definition, init?: ReactElementInit): ReactElement<Element> {
+  T extends AnyCustomElementDefinition,
+  R extends AnyCustomElement = InferCustomElementFromDefinition<T>,
+>(definition: T, init?: ReactElementInit): ReactElement<R> {
   registerCustomElement(definition);
 
   const definedProps = new Set(Object.keys(definition.props ?? {})),
     eventCallbacks = new Map<string, string>();
 
-  class ReactCustomElement extends React.Component<ReactElementProps<Element>> {
+  class ReactCustomElement extends React.Component<ReactElementProps<R>> {
     static displayName = init?.displayName ?? definition.tagName;
     static override contextType = ReactContextMap;
     declare context: React.ContextType<typeof ReactContextMap>;

@@ -4,11 +4,12 @@ import type { AnyCustomElementInstance } from './types';
 let _instances: (AnyCustomElementInstance | null)[] = [null],
   _current = 0;
 
-export function getElementInstance(): AnyCustomElementInstance | null {
+/** @internal */
+export function getCustomElementInstance(): AnyCustomElementInstance | null {
   return _instances[_current];
 }
 
-export function setElementInstance(host: AnyCustomElementInstance | null) {
+export function setCustomElementInstance(host: AnyCustomElementInstance | null) {
   if (isNull(host)) {
     _instances.pop();
     _current--;

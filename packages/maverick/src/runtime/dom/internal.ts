@@ -220,7 +220,12 @@ export function $$_merge_props(...sources: Record<string, unknown>[]) {
 }
 
 /** @internal */
-export function $$_listen(target: EventTarget, type: string, handler: unknown, capture = false) {
+export function $$_listen(
+  target: EventTarget,
+  type: keyof MaverickEventMap,
+  handler: unknown,
+  capture = false,
+) {
   if (isFunction(handler)) listenEvent(target, type, handler as any, { capture });
 }
 

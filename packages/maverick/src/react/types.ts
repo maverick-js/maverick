@@ -24,10 +24,9 @@ export type ReactElementProps<Element extends AnyMaverickElement> = Partial<
       | undefined;
     children?: React.ReactNode | undefined;
     __forwardedRef?: React.Ref<Element>;
-  } & ReactElementEventCallbacks<
-    Element & EventTarget,
-    InferElementEvents<Element> & Omit<MaverickOnAttributes, keyof HTMLElementEventMap>
-  >;
+  } & ReactElementEventCallbacks<Element, InferElementEvents<Element> & ReactEventMap>;
+
+export interface ReactEventMap extends Omit<MaverickOnAttributes, keyof HTMLElementEventMap> {}
 
 export type ReactElementEventCallbacks<
   Target extends EventTarget,

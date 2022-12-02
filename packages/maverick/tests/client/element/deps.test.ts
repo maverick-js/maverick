@@ -9,10 +9,10 @@ import {
 
 import {
   createElementInstance,
-  defineCustomElement,
   defineElement,
   HTMLCustomElement,
   onConnect,
+  registerCustomElement,
 } from 'maverick.js/element';
 import { waitAnimationFrame } from 'maverick.js/std';
 
@@ -101,23 +101,23 @@ it('should wait for parents to mount', async () => {
     </body>
   `);
 
-  defineCustomElement(GrandChild);
+  registerCustomElement(GrandChild);
   expect(grandchild.instance?.host.$mounted).toBeFalsy();
 
-  defineCustomElement(Child);
+  registerCustomElement(Child);
   expect(child.instance?.host.$mounted).toBeFalsy();
 
   await waitAnimationFrame();
   expect(child.instance?.host.$mounted).toBeFalsy();
   expect(grandchild.instance?.host.$mounted).toBeFalsy();
 
-  defineCustomElement(ParentB);
+  registerCustomElement(ParentB);
   await waitAnimationFrame();
   expect(parentB.instance?.host.$mounted).toBeFalsy();
   expect(child.instance?.host.$mounted).toBeFalsy();
   expect(grandchild.instance?.host.$mounted).toBeFalsy();
 
-  defineCustomElement(ParentA);
+  registerCustomElement(ParentA);
   parentA.attachComponent(createElementInstance(ParentA));
   expect(parentA.instance?.host.$mounted).toBeTruthy();
 

@@ -361,7 +361,7 @@ export function isHostElement(node?: Node | null): node is HTMLCustomElement {
   return !!node?.[HOST];
 }
 
-export function defineCustomElement(definition: AnyCustomElementDefinition) {
+export function registerCustomElement(definition: AnyCustomElementDefinition) {
   if (__SERVER__) return;
   if (!window.customElements.get(definition.tagName)) {
     window.customElements.define(definition.tagName, createHTMLElement(definition));

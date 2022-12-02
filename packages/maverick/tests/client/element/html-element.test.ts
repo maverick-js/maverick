@@ -5,7 +5,6 @@ import {
   AnyCustomElement,
   createElementInstance,
   CustomElementDeclaration,
-  defineCustomElement,
   defineElement,
   HTMLCustomElement,
   HTMLCustomElementConstructor,
@@ -17,6 +16,7 @@ import {
   onDisconnect,
   onMount,
   PROPS,
+  registerCustomElement,
 } from 'maverick.js/element';
 
 it('should handle basic setup and destroy', () => {
@@ -443,7 +443,7 @@ it('should render css vars', () => {
     },
   });
 
-  defineCustomElement(Button);
+  registerCustomElement(Button);
 
   const instance = createElementInstance(Button);
   const element = document.createElement(Button.tagName) as HTMLCustomElement;
@@ -465,7 +465,7 @@ it('should render css vars builder', async () => {
     }),
   } as any);
 
-  defineCustomElement(Button);
+  registerCustomElement(Button);
 
   const instance = createElementInstance(Button);
   const element = document.createElement(Button.tagName) as HTMLCustomElement;
@@ -516,7 +516,7 @@ function setupTestElement(
     ...declaration,
   } as any);
 
-  defineCustomElement(definition);
+  registerCustomElement(definition);
 
   const container = document.createElement('div'),
     instance = createElementInstance(definition),

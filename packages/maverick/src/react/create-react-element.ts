@@ -1,7 +1,7 @@
 import { getScheduler, observable } from '@maverick-js/observables';
 import * as React from 'react';
 
-import { defineCustomElement } from '../element/create-html-element';
+import { registerCustomElement } from '../element/create-html-element';
 import { createElementInstance } from '../element/instance';
 import { PROPS } from '../element/internal';
 import type {
@@ -39,7 +39,7 @@ function createReactClientElement<
   Definition extends AnyCustomElementDefinition,
   Element extends AnyCustomElement = InferCustomElementFromDefinition<Definition>,
 >(definition: Definition, init?: ReactElementInit): ReactElement<Element> {
-  defineCustomElement(definition);
+  registerCustomElement(definition);
 
   const definedProps = new Set(Object.keys(definition.props ?? {})),
     eventCallbacks = new Map<string, string>();

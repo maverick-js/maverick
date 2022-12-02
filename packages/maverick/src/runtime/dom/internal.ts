@@ -1,8 +1,8 @@
 import {
   type AnyCustomElement,
   type AnyCustomElementDefinition,
-  defineCustomElement,
   getElementInstance,
+  registerCustomElement,
   RENDER,
 } from '../../element';
 import { createElementInstance } from '../../element/instance';
@@ -62,7 +62,7 @@ export function $$_next_custom_element(
   walker = hydration?.w,
 ): Node {
   const { tagName } = definition;
-  defineCustomElement(definition);
+  registerCustomElement(definition);
 
   let next: Comment | undefined;
 

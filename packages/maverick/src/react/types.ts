@@ -3,7 +3,6 @@ import type { PascalCase } from 'type-fest';
 
 import type {
   AnyMaverickElement,
-  ElementEventRecord,
   InferElementCSSVars,
   InferElementEvents,
   InferElementProps,
@@ -28,12 +27,9 @@ export type ReactElementProps<Element extends AnyMaverickElement> = Partial<
 
 export interface ReactEventMap extends Omit<MaverickOnAttributes, keyof HTMLElementEventMap> {}
 
-export type ReactElementEventCallbacks<
-  Target extends EventTarget,
-  Events extends ElementEventRecord,
-> = {
+export type ReactElementEventCallbacks<Target extends EventTarget, Events> = {
   [EventType in keyof Events as `on${PascalCase<EventType & string>}`]?: JSX.TargetedEventHandler<
     Target,
-    Events[EventType]
+    Events[EventType] & Event
   >;
 };

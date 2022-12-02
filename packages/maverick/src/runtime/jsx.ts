@@ -48,25 +48,6 @@ declare global {
    * ```
    */
   interface MaverickUseAttributes extends JSX.DirectiveRecord {}
-
-  /**
-   * Store all events in this interface so they can be used to infer event type mappings in the
-   * Maverick standard libary. Types in this record will _not_ be valid `$on` JSX attribute types.
-   * However, types in the `MaverickOnAttributes` record will show up in this type.
-   *
-   * If an event is truly global then prefer attaching it to `HTMLElementEventMap` which will
-   * also extend this type.
-   *
-   * @example
-   * ```ts
-   * declare global {
-   *   interface MaverickEventMap {
-   *     foo: DOMEvent<string>;
-   *   }
-   * }
-   * ```
-   */
-  interface MaverickEventMap extends MaverickOnAttributes {}
 }
 
 export namespace JSX {

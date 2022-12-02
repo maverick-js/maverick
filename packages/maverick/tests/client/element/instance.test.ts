@@ -1,13 +1,6 @@
 import { createContext, useContext } from 'maverick.js';
 
-import {
-  createElementInstance,
-  defineCustomElement,
-  defineElement,
-  MaverickElement,
-  onAttach,
-  PROPS,
-} from 'maverick.js/element';
+import { createElementInstance, defineElement, PROPS } from 'maverick.js/element';
 
 it('should create props', () => {
   const definition = defineElement({
@@ -61,27 +54,4 @@ it('should forward context map', () => {
   const context = new Map();
   context.set(FooContext.id, 20);
   createElementInstance(definition, { context });
-});
-
-it('should dispatch events on host', () => {
-  const definition = defineElement({
-    tagName: 'mk-foo-4',
-    setup({ dispatch }) {
-      onAttach(() => {
-        dispatch('foo');
-      });
-      return () => null;
-    },
-  });
-
-  defineCustomElement(definition);
-
-  const element = document.createElement(definition.tagName) as MaverickElement;
-  const instance = createElementInstance(definition);
-
-  const callback = vi.fn();
-  element.addEventListener('foo', callback);
-
-  element.attachComponent(instance);
-  expect(callback).toBeCalledTimes(1);
 });

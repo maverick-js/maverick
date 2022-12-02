@@ -1,7 +1,6 @@
 import type { Constructor, Simplify } from 'type-fest';
 
 import type { ContextMap, JSX, Observable, ObservableOptions, ObservableSubject } from '../runtime';
-import type { DOMEvent, DOMEventInit } from '../std/event';
 import type { CSS } from './css';
 import type { HOST, MEMBERS, PROPS, RENDER } from './internal';
 import type { ElementLifecycleManager } from './lifecycle';
@@ -41,18 +40,11 @@ export type ElementPropDefinition<Value = unknown> = ObservableOptions<Value> &
     converter?: ElementAttributeConverter<Value>;
   };
 
-export interface ElementPropRecord extends Record<string, any> {}
-export interface ElementEventRecord extends Record<string, DOMEvent<any>> {}
-export interface ElementCSSVarRecord extends Record<string, JSX.CSSValue> {}
-
-export type ElementPropDefinitions<Props extends ElementPropRecord> = Readonly<{
+export type ElementPropDefinitions<Props> = Readonly<{
   [Prop in keyof Props]: ElementPropDefinition<Props[Prop]>;
 }>;
 
-export interface ElementCSSVarsBuilder<
-  Props extends ElementPropRecord,
-  CSSVars extends ElementCSSVarRecord,
-> {
+export interface ElementCSSVarsBuilder<Props, CSSVars> {
   (props: Readonly<Props>): Partial<{
     [P in keyof CSSVars]: CSSVars[P] | Observable<CSSVars[P]>;
   }>;
@@ -117,11 +109,10 @@ export type InferElementFromDefinition<Def> = Def extends ElementDefinition<infe
   ? Element
   : never;
 
-export interface MaverickElement<
-  Props extends ElementPropRecord = {},
-  Events extends ElementEventRecord = {},
-  CSSVars extends ElementCSSVarRecord = {},
-> extends HTMLElement,
+type A = CustomElement;
+
+export interface MaverickElement<Props = {}, Events = {}, CSSVars = {}>
+  extends HTMLElement,
     HostElement<Props, Events> {
   /** @internal only holds type - not a real prop. */
   ___cssvars?: CSSVars;
@@ -159,10 +150,7 @@ export interface MaverickElement<
   ): void;
 }
 
-export interface HostElement<
-  Props extends ElementPropRecord = {},
-  Events extends ElementEventRecord = {},
-> {
+export interface HostElement<Props = {}, Events = {}> {
   [HOST]?: boolean;
   /**
    * Maverick component instance associated with this element.
@@ -214,10 +202,7 @@ export interface ElementInstanceInit<Props = {}> {
 
 export type AnyElementInstance = ElementInstance<any, any>;
 
-export interface ElementInstance<
-  Props extends ElementPropRecord = {},
-  Events extends ElementEventRecord = {},
-> extends ElementLifecycleManager {
+export interface ElementInstance<Props = {}, Events = {}> extends ElementLifecycleManager {
   /** @internal */
   [PROPS]: Props;
   /** @internal */
@@ -238,10 +223,6 @@ export interface ElementInstance<
    */
   readonly props: Readonly<Props>;
   /**
-   * Facade for dispatching events on the current host element this component is attached to.
-   */
-  readonly dispatch: ElementInstanceDispatcher<Events>;
-  /**
    * Permanently destroy component instance.
    */
   readonly destroy: () => void;
@@ -260,10 +241,7 @@ export interface ElementInstance<
   readonly run: <T>(fn: () => T) => T;
 }
 
-export interface ElementInstanceHost<
-  Props extends ElementPropRecord = {},
-  Events extends ElementEventRecord = {},
-> {
+export interface ElementInstanceHost<Props = {}, Events = {}> {
   /**
    * The custom element this component is attached to. This is safe to call server-side with the
    * limited API listed below.
@@ -291,15 +269,6 @@ export interface ElementInstanceHost<
    * you can return fallback content. This is a reactive observable call.
    */
   $children: boolean;
-}
-
-export interface ElementInstanceDispatcher<Events extends ElementEventRecord> {
-  <Type extends keyof Events>(
-    type: Events extends never | EmptyRecord ? never : Type,
-    ...detail: Events[Type]['detail'] extends void | undefined
-      ? [detail?: Events[Type]['detail'] | Partial<DOMEventInit<Events[Type]['detail']>>]
-      : [detail: Events[Type]['detail'] | DOMEventInit<Events[Type]['detail']>]
-  ): boolean;
 }
 
 // Conditional checks are simply ensuring props, cssvars, and setup are only required when needed.

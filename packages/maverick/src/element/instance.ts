@@ -2,7 +2,6 @@ import { getScheduler, observable, peek, root, scope } from '@maverick-js/observ
 import type { Writable } from 'type-fest';
 
 import { createScopedRunner, provideContextMap, useContextMap } from '../runtime';
-import { DOMEvent } from '../std/event';
 import { runAll } from '../std/fn';
 import { noop } from '../std/unit';
 import {
@@ -26,7 +25,6 @@ import type {
   ElementInstance,
   ElementInstanceInit,
   ElementPropDefinitions,
-  ElementPropRecord,
   InferElementEvents,
   InferElementProps,
 } from './types';
@@ -91,25 +89,6 @@ export function createElementInstance<Element extends AnyMaverickElement>(
       [DISCONNECT]: [],
       [DESTROY]: [],
       accessors: () => $$props,
-      dispatch(type, ..._init) {
-        if (__DEV__ && !host.el) {
-          console.warn(
-            `[maverick] attempted to dispatch event \`${
-              type as string
-            }\` before attaching to host element`,
-          );
-        }
-
-        const init = _init[0];
-        return host.el
-          ? host.el!.dispatchEvent(
-              new DOMEvent(
-                type as string,
-                typeof init === 'object' && 'detail' in init ? init : { detail: init },
-              ),
-            )
-          : false;
-      },
       destroy() {
         if (destroyed) return;
 
@@ -159,9 +138,7 @@ export function createElementInstance<Element extends AnyMaverickElement>(
   });
 }
 
-function createInstanceProps<Props extends ElementPropRecord>(
-  propDefs: ElementPropDefinitions<Props>,
-) {
+function createInstanceProps<Props>(propDefs: ElementPropDefinitions<Props>) {
   const props = {} as Props;
 
   for (const propName of Object.keys(propDefs) as (keyof Props)[]) {

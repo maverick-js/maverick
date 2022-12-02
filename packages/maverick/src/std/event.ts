@@ -1,5 +1,6 @@
 import type { Constructor } from 'type-fest';
 
+import type { MaverickElement } from '../element/types';
 import { type Dispose, type JSX, onDispose } from '../runtime';
 import { noop } from './unit';
 
@@ -49,51 +50,26 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
 }
 
 /**
- * Creates and returns a `DOMEvent`. This function is typed to match all events declared
- * on the global `MaverickEventMap`. You can extend it like so:
- *
- * ```ts
- * declare global {
- *   interface MaverickEventMap {
- *     foo: DOMEvent<number>;
- *   }
- * }
- * ```
- */
-export function createEvent<EventType extends keyof MaverickEventMap>(
-  type: EventType,
-  ...init: InferEventDetail<EventType> extends void | undefined | never
-    ? [init?: Partial<InferEventInit<EventType>>]
-    : [init: InferEventInit<EventType>]
-): EventType extends keyof MaverickEventMap
-  ? MaverickEventMap[EventType] extends DOMEvent
-    ? MaverickEventMap[EventType]
-    : DOMEvent<InferEventDetail<EventType>>
-  : DOMEvent<InferEventDetail<EventType>> {
-  return new DOMEvent(type, init[0] as any) as any;
-}
-
-/**
  * Creates a `DOMEvent` and dispatches it from the given `target`. This function is typed to
- * match all events declared on the global `MaverickEventMap`. You can extend it like so:
- *
- * ```ts
- * declare global {
- *   interface MaverickEventMap {
- *     foo: DOMEvent<number>;
- *   }
- * }
- * ```
+ * match all events declared on the given `target` (must be a `MaverickElement`).
  */
-export function dispatchEvent<EventType extends keyof MaverickEventMap>(
-  target: EventTarget | null,
+export function dispatchEvent<
+  Target extends EventTarget,
+  Events = Target extends MaverickElement<any, infer ElementEvents>
+    ? ElementEvents
+    : Record<string, DOMEventInit>,
+  EventType extends keyof Events = keyof Events,
+>(
+  target: Target | null,
   event: EventType,
-  ...init: InferEventDetail<EventType> extends void | undefined | never
-    ? [init?: Partial<InferEventInit<EventType>>]
-    : [init: InferEventInit<EventType>]
+  ...init: InferEventDetail<Events[EventType]> extends void | undefined | never
+    ? [init?: Partial<InferEventInit<Events[EventType]>>]
+    : [init: InferEventInit<Events[EventType]>]
 ): boolean {
   if (__SERVER__) return false;
-  return target ? target.dispatchEvent(new DOMEvent(event, init[0] as any)) : false;
+  return target
+    ? target.dispatchEvent(new DOMEvent(event as string, init[0] as DOMEventInit))
+    : false;
 }
 
 /**
@@ -101,16 +77,6 @@ export function dispatchEvent<EventType extends keyof MaverickEventMap>(
  */
 export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {
   return !!event?.[DOM_EVENT];
-}
-
-/**
- * Whether the given `event` is of the given `type`.
- */
-export function isEventType<Type extends keyof MaverickEventMap>(
-  event: Event,
-  type: Type,
-): event is MaverickEventMap[Type] {
-  return event.type === type;
 }
 
 /**
@@ -157,10 +123,7 @@ export function walkTriggerEventChain<T>(
  * @param event - The event on which to look for a trigger event.
  * @param type - The type of event to find.
  */
-export function findTriggerEvent<Type extends keyof MaverickEventMap>(
-  event: Event,
-  type: Type,
-): (Type extends keyof MaverickEventMap ? MaverickEventMap[Type] : Event) | undefined {
+export function findTriggerEvent(event: Event, type: string): Event | undefined {
   return walkTriggerEventChain(event, (e) => e.type === type)?.[0] as any;
 }
 
@@ -170,7 +133,7 @@ export function findTriggerEvent<Type extends keyof MaverickEventMap>(
  * @param event - The event on which to look for a trigger event.
  * @param type - The type of event to find.
  */
-export function hasTriggerEvent(event: Event, type: keyof MaverickEventMap): boolean {
+export function hasTriggerEvent(event: Event, type: string): boolean {
   return !!findTriggerEvent(event, type);
 }
 
@@ -199,25 +162,13 @@ function defineEventProperty<T extends keyof DOMEvent>(
   });
 }
 
-export type InferEventDetail<T> = T extends string
-  ? T extends keyof MaverickEventMap
-    ? MaverickEventMap[T] extends DOMEvent<infer Detail>
-      ? Detail
-      : unknown
-    : unknown
-  : T extends DOMEventInit<infer Detail>
+export type InferEventDetail<T> = T extends DOMEventInit<infer Detail>
   ? Detail
   : T extends DOMEvent<infer Detail>
   ? Detail
-  : T extends CustomEvent<infer Detail>
-  ? Detail
   : unknown;
 
-export type InferEventInit<T> = T extends string
-  ? T extends keyof MaverickEventMap
-    ? InferEventInit<MaverickEventMap[T]>
-    : DOMEventInit<unknown>
-  : T extends Constructor<DOMEvent>
+export type InferEventInit<T> = T extends Constructor<DOMEvent>
   ? DOMEventInit<InferEventDetail<InstanceType<T>>>
   : T extends DOMEvent
   ? DOMEventInit<InferEventDetail<T>>
@@ -232,18 +183,24 @@ export type InferEventInit<T> = T extends string
  * - The listener is removed if the current scope is disposed.
  * - This function is safe to use on the server (noop).
  */
-export function listenEvent<Target extends EventTarget, EventType extends keyof MaverickEventMap>(
+export function listenEvent<
+  Target extends EventTarget,
+  Events = Target extends MaverickElement<any, infer Events>
+    ? Events & MaverickOnAttributes
+    : MaverickOnAttributes,
+  EventType extends keyof Events = keyof Events,
+>(
   target: Target,
   type: EventType,
   handler: JSX.TargetedEventHandler<
     Target,
-    EventType extends keyof MaverickEventMap ? MaverickEventMap[EventType] : Event
+    Events[EventType] extends Event ? Events[EventType] : Event
   >,
   options?: AddEventListenerOptions | boolean,
 ): Dispose {
   if (__SERVER__) return noop;
-  target.addEventListener(type, handler as any, options);
-  return onDispose(() => target.removeEventListener(type, handler as any, options));
+  target.addEventListener(type as string, handler as any, options);
+  return onDispose(() => target.removeEventListener(type as string, handler as any, options));
 }
 
 export function isPointerEvent(event: Event | undefined): event is PointerEvent {

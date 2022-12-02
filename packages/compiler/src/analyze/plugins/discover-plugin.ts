@@ -33,7 +33,7 @@ export function createDiscoverPlugin(): AnalyzePlugin {
           (exportVar = node.declarationList.declarations[0]) &&
           ts.isIdentifier(exportVar.name) &&
           exportVar.initializer &&
-          isCallExpression(exportVar.initializer, 'defineElement') &&
+          isCallExpression(exportVar.initializer, 'defineCustomElement') &&
           exportVar.initializer.typeArguments?.[0] &&
           ts.isTypeReferenceNode(exportVar.initializer.typeArguments[0]) &&
           ts.isIdentifier(exportVar.initializer.typeArguments[0].typeName)
@@ -59,7 +59,7 @@ export function createDiscoverPlugin(): AnalyzePlugin {
             (!ts.isInterfaceDeclaration(rootType) && !ts.isTypeAliasDeclaration(rootType))
           ) {
             reportDiagnosticByNode(
-              'type passed to `defineElement` must be an interface or type alias',
+              'type passed to `defineCustomElement` must be an interface or type alias',
               exportVar.initializer.typeArguments[0],
               LogLevel.Warn,
             );
@@ -69,7 +69,7 @@ export function createDiscoverPlugin(): AnalyzePlugin {
 
             if (!CustomElement || !ts.isExpressionWithTypeArguments(CustomElement)) {
               reportDiagnosticByNode(
-                'type given to `defineElement` must extend `HTMLCustomElement`',
+                'type given to `defineCustomElement` must extend `HTMLCustomElement`',
                 exportVar.initializer.typeArguments[0],
                 LogLevel.Warn,
               );

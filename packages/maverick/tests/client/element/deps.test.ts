@@ -9,7 +9,7 @@ import {
 
 import {
   createElementInstance,
-  defineElement,
+  defineCustomElement,
   HTMLCustomElement,
   onConnect,
   registerCustomElement,
@@ -26,7 +26,7 @@ it('should wait for parents to mount', async () => {
   const error = new Error();
   const errorHandler = vi.fn();
 
-  const ParentA = defineElement({
+  const ParentA = defineCustomElement({
     tagName: `mk-parent-a`,
     setup() {
       setContext('foo', 10);
@@ -36,7 +36,7 @@ it('should wait for parents to mount', async () => {
     },
   });
 
-  const ParentB = defineElement({
+  const ParentB = defineCustomElement({
     tagName: `mk-parent-b`,
     setup() {
       const value = useContext(Context);
@@ -46,7 +46,7 @@ it('should wait for parents to mount', async () => {
     },
   });
 
-  const Child = defineElement({
+  const Child = defineCustomElement({
     tagName: `mk-child`,
     setup() {
       expect(getContext('foo')).toBe(10);
@@ -59,7 +59,7 @@ it('should wait for parents to mount', async () => {
     },
   });
 
-  const GrandChild = defineElement({
+  const GrandChild = defineCustomElement({
     tagName: `mk-grandchild`,
     setup() {
       const value = useContext(Context);

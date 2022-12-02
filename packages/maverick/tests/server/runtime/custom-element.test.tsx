@@ -4,12 +4,12 @@ import {
   createElementInstance,
   createServerElement,
   css,
-  defineElement,
+  defineCustomElement,
 } from 'maverick.js/element';
 import { renderToString } from 'maverick.js/ssr';
 
 it('should render', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo',
     setup: () => () => <div class="foo">Test</div>,
   });
@@ -22,7 +22,7 @@ it('should render', () => {
 });
 
 it('should render with children', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo',
     setup: () => () => <div class="foo">Test</div>,
   });
@@ -39,7 +39,7 @@ it('should render with children', () => {
 });
 
 it('should render with shadow dom', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo',
     shadowRoot: true,
     setup: () => () => <div class="foo">Test</div>,
@@ -59,7 +59,7 @@ it('should render with shadow dom', () => {
 });
 
 it('should render adopted css styles in shadow root template', () => {
-  const Button = defineElement({
+  const Button = defineCustomElement({
     tagName: `mk-button-7`,
     shadowRoot: true,
     css: [
@@ -86,7 +86,7 @@ it('should render adopted css styles in shadow root template', () => {
 });
 
 it('should render with attributes', () => {
-  const element = defineElement({ tagName: 'mk-foo' });
+  const element = defineCustomElement({ tagName: 'mk-foo' });
 
   const result = renderToString(() => (
     <CustomElement
@@ -106,7 +106,7 @@ it('should render with attributes', () => {
 });
 
 it('should forward props', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo',
     // @ts-expect-error
     props: {
@@ -126,7 +126,7 @@ it('should forward props', () => {
 });
 
 it('should forward attrs to props', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo',
     // @ts-expect-error
     props: {
@@ -146,7 +146,7 @@ it('should forward attrs to props', () => {
 });
 
 it('should set inner html', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo-10',
     setup: () => () => <div>Test</div>,
   });
@@ -163,7 +163,7 @@ it('should set inner html', () => {
 });
 
 it('should render css vars', () => {
-  const Button = defineElement({
+  const Button = defineCustomElement({
     tagName: `mk-button-5`,
     // @ts-expect-error
     cssvars: {
@@ -185,7 +185,7 @@ it('should render css vars', () => {
 });
 
 it('should render css vars builder', () => {
-  const Button = defineElement({
+  const Button = defineCustomElement({
     tagName: `mk-button-6`,
     // @ts-expect-error
     props: { foo: { initial: 100 } },

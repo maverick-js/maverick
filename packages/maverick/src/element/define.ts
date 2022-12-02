@@ -11,7 +11,7 @@ import type {
   PartialCustomElementDeclaration,
 } from './types';
 
-export function defineElement<Element extends AnyCustomElement>(
+export function defineCustomElement<Element extends AnyCustomElement>(
   declaration: PartialCustomElementDeclaration<Element>,
 ): CustomElementDefinition<Element> {
   const definition = {

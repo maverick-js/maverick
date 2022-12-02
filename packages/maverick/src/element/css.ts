@@ -26,7 +26,7 @@ export function injectCSS(value: unknown) {
 }
 
 /**
- * A template literal tag which can be used with Maverick's `defineElement` function to create
+ * A template literal tag which can be used with Maverick's `defineCustomElement` function to create
  * element styles. For security reasons, only literal string values and number may be used in
  * embedded expressions. Use `injectCSS` to incorporate non-literal values inside CSS expressions.
  */

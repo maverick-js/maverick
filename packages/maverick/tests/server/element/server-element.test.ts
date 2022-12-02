@@ -2,7 +2,7 @@ import {
   AnyCustomElementDeclaration,
   createElementInstance,
   createServerElement,
-  defineElement,
+  defineCustomElement,
   onAttach,
 } from 'maverick.js/element';
 
@@ -139,7 +139,7 @@ it('should noop dom events api', () => {
 });
 
 function setupTestElement(declaration?: Partial<AnyCustomElementDeclaration>) {
-  const definition = defineElement({
+  const definition = defineCustomElement({
     tagName: `mk-foo`,
     setup: ({ props }) => {
       const members = { $render: () => 'Test' };

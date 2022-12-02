@@ -8,14 +8,14 @@ import {
   useContext,
 } from 'maverick.js';
 
-import { defineElement } from 'maverick.js/element';
+import { defineCustomElement } from 'maverick.js/element';
 
 afterEach(() => {
   document.body.innerHTML = '';
 });
 
 it('should render empty custom element', () => {
-  const Foo = defineElement({ tagName: `mk-foo` });
+  const Foo = defineCustomElement({ tagName: `mk-foo` });
   const root = document.createElement('root');
   render(() => <CustomElement $element={Foo} />, { target: root });
   expect(root).toMatchInlineSnapshot(`
@@ -28,7 +28,7 @@ it('should render empty custom element', () => {
 });
 
 it('should render custom element', async () => {
-  const Foo = defineElement({
+  const Foo = defineCustomElement({
     tagName: `mk-foo-1`,
     setup: ({ host }) => {
       return () => !host.$children && <div>Internal</div>;
@@ -94,7 +94,7 @@ it('should render custom element', async () => {
 });
 
 it('should render custom element with only internal content', () => {
-  const Foo = defineElement({
+  const Foo = defineCustomElement({
     tagName: `mk-foo-2`,
     setup: () => () => <button>Test</button>,
   });
@@ -118,7 +118,7 @@ it('should render custom element with only internal content', () => {
 });
 
 it('should render custom element with only children', () => {
-  const Foo = defineElement({ tagName: `mk-foo-3` });
+  const Foo = defineCustomElement({ tagName: `mk-foo-3` });
 
   const root = document.createElement('root');
   render(
@@ -144,7 +144,7 @@ it('should render custom element with only children', () => {
 });
 
 it('should render custom element with inner html', () => {
-  const Foo = defineElement({
+  const Foo = defineCustomElement({
     tagName: `mk-foo-4`,
     setup:
       ({ host }) =>
@@ -176,7 +176,7 @@ it('should render custom element with inner html', () => {
 });
 
 it('should render custom element with shadow dom', () => {
-  const Foo = defineElement({
+  const Foo = defineCustomElement({
     tagName: `mk-foo-10`,
     shadowRoot: true,
     setup: () => () => <button>Test</button>,
@@ -200,7 +200,7 @@ it('should forward context to another custom element', async () => {
     return null;
   }
 
-  const Parent = defineElement({
+  const Parent = defineCustomElement({
     tagName: `mk-parent`,
     setup: () => {
       provideContext(Context, 1);
@@ -208,7 +208,7 @@ it('should forward context to another custom element', async () => {
     },
   });
 
-  const Child = defineElement({
+  const Child = defineCustomElement({
     tagName: `mk-child`,
     setup: () => {
       expect(useContext(Context)).toBe(1);

@@ -14,7 +14,7 @@ import type { JSX } from '../jsx';
  *
  * @example
  * ```tsx
- * const FooElementDefinition = defineElement({
+ * const FooElementDefinition = defineCustomElement({
  *   tagName: 'mk-foo',
  *   setup: () => () => <div />
  * });

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 
-import { AnyCustomElementDeclaration, defineElement } from 'maverick.js/element';
+import { AnyCustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
 import { createReactElement } from 'maverick.js/react';
 import { DOMEvent } from 'maverick.js/std';
 
@@ -178,7 +178,7 @@ it('should forward context', () => {
   }
 
   const Child = createReactElement(
-    defineElement({
+    defineCustomElement({
       tagName: 'mk-child-1',
       setup: () => () => <Component />,
     }),
@@ -292,7 +292,7 @@ function render(
   declaration: Partial<AnyCustomElementDeclaration>,
   children?: (element: any) => React.ReactNode,
 ) {
-  const definition = defineElement({
+  const definition = defineCustomElement({
     tagName: `mk-foo-${++count}`,
     ...declaration,
   });

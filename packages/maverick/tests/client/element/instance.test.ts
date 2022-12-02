@@ -1,9 +1,9 @@
 import { createContext, useContext } from 'maverick.js';
 
-import { createElementInstance, defineElement, PROPS } from 'maverick.js/element';
+import { createElementInstance, defineCustomElement, PROPS } from 'maverick.js/element';
 
 it('should create props', () => {
-  const definition = defineElement({
+  const definition = defineCustomElement({
     tagName: 'mk-foo-1',
     props: {
       foo: { initial: 10 },
@@ -21,7 +21,7 @@ it('should create props', () => {
 });
 
 it('should forward props', () => {
-  const definition = defineElement({
+  const definition = defineCustomElement({
     tagName: 'mk-foo-2',
     props: {
       foo: { initial: 10 },
@@ -43,7 +43,7 @@ it('should forward props', () => {
 it('should forward context map', () => {
   const FooContext = createContext(() => 10);
 
-  const definition = defineElement({
+  const definition = defineCustomElement({
     tagName: 'mk-foo-3',
     setup() {
       expect(useContext(FooContext)).toBe(20);

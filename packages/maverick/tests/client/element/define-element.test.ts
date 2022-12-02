@@ -1,9 +1,9 @@
-import { defineElement } from 'maverick.js/element';
+import { defineCustomElement } from 'maverick.js/element';
 
 const isFunction = (value: unknown): value is Function => typeof value === 'function';
 
 it('should create element definition', () => {
-  const definition = defineElement({
+  const definition = defineCustomElement({
     tagName: 'mk-foo',
     props: { foo: { initial: 10 } },
   } as any);
@@ -13,7 +13,7 @@ it('should create element definition', () => {
 });
 
 it('should create default string converter', () => {
-  const defs = defineElement({
+  const defs = defineCustomElement({
     tagName: 'mk-foo',
     props: { foo: { initial: 'foo' } },
   } as any);
@@ -27,7 +27,7 @@ it('should create default string converter', () => {
 });
 
 it('should create default number converter', () => {
-  const defs = defineElement({
+  const defs = defineCustomElement({
     tagName: 'mk-foo',
     props: { foo: { initial: 0 } },
   } as any);
@@ -41,7 +41,7 @@ it('should create default number converter', () => {
 });
 
 it('should create default boolean converter', () => {
-  const defs = defineElement({
+  const defs = defineCustomElement({
     tagName: 'mk-foo',
     props: { foo: { initial: true } },
   } as any);
@@ -61,7 +61,7 @@ it('should create default boolean converter', () => {
 
 it('should create default function converter', () => {
   const fn = () => {};
-  const defs = defineElement({
+  const defs = defineCustomElement({
     tagName: 'mk-foo',
     props: { foo: { initial: fn } },
   } as any);
@@ -75,7 +75,7 @@ it('should create default function converter', () => {
 
 it('should create default array converter', () => {
   const value = [1, 2, 3];
-  const defs = defineElement({
+  const defs = defineCustomElement({
     tagName: 'mk-foo',
     props: { foo: { initial: value } },
   } as any);
@@ -93,7 +93,7 @@ it('should create default array converter', () => {
 
 it('should create default object converter', () => {
   const value = { foo: 1, bar: 2, baz: 'apple' };
-  const defs = defineElement({
+  const defs = defineCustomElement({
     tagName: 'mk-foo',
     props: { foo: { initial: value } },
   } as any);
@@ -110,7 +110,7 @@ it('should create default object converter', () => {
 });
 
 it('should _not_ create converter if attribute is false', () => {
-  const definition = defineElement({
+  const definition = defineCustomElement({
     tagName: 'mk-foo',
     props: { foo: { initial: [], attribute: false } },
   } as any);

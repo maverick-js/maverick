@@ -1,11 +1,11 @@
 import { CustomElement, HostElement, observable, render, tick } from 'maverick.js';
 
-import { defineElement } from 'maverick.js/element';
+import { defineCustomElement } from 'maverick.js/element';
 
 it('should render attributes', async () => {
   const foo = observable(1);
 
-  const Button = defineElement({
+  const Button = defineCustomElement({
     tagName: `mk-button-1`,
     setup: () => () => <HostElement data-foo={foo} />,
   });
@@ -39,7 +39,7 @@ it('should render attributes', async () => {
 });
 
 it('should render children', () => {
-  const Button = defineElement({
+  const Button = defineCustomElement({
     tagName: `mk-button-2`,
     setup: () => () =>
       (

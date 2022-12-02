@@ -2,7 +2,7 @@ import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 
-import { type AnyCustomElementDeclaration, defineElement } from 'maverick.js/element';
+import { type AnyCustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
 import { createReactElement } from 'maverick.js/react';
 
 it('should hydrate', () => {
@@ -61,7 +61,7 @@ function hydrate(
   declaration: Partial<AnyCustomElementDeclaration>,
   children?: (element: any) => React.ReactNode,
 ) {
-  const definition = defineElement({
+  const definition = defineCustomElement({
     tagName: `mk-foo-${++count}`,
     ...declaration,
   });

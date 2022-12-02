@@ -107,7 +107,7 @@ interface FooElement extends HTMLCustomElement<FooProps, FooEvents, FooCSSVars> 
 
 const BAZ_CSS_VAR = 'baz';
 
-export const FooElement = defineElement<FooElement>({
+export const FooElement = defineCustomElement<FooElement>({
   tagName: 'mk-foo',
   shadowRoot: true,
   props: {

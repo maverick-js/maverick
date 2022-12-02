@@ -5,7 +5,7 @@ import {
   AnyCustomElement,
   createElementInstance,
   CustomElementDeclaration,
-  defineElement,
+  defineCustomElement,
   HTMLCustomElement,
   HTMLCustomElementConstructor,
   onAfterUpdate,
@@ -434,7 +434,7 @@ it('should discover events on dispatch', () => {
 });
 
 it('should render css vars', () => {
-  const Button = defineElement({
+  const Button = defineCustomElement({
     tagName: `mk-button-5`,
     // @ts-expect-error
     cssvars: {
@@ -457,7 +457,7 @@ it('should render css vars', () => {
 });
 
 it('should render css vars builder', async () => {
-  const Button = defineElement({
+  const Button = defineCustomElement({
     tagName: `mk-button-6`,
     props: { foo: { initial: 0 } },
     cssvars: (props) => ({
@@ -497,7 +497,7 @@ function setupTestElement(
   declaration?: Partial<CustomElementDeclaration<AnyCustomElement>>,
   { hydrate = false, delegate = true, append = true } = {},
 ) {
-  const definition = defineElement({
+  const definition = defineCustomElement({
     tagName: `mk-test-${++count}`,
     setup: ({ props }) => {
       const members = { $render: () => 'Test' };

@@ -1,11 +1,11 @@
 import { CustomElement, hydrate, observable, tick } from 'maverick.js';
 
-import { defineElement } from 'maverick.js/element';
+import { defineCustomElement } from 'maverick.js/element';
 
 import { startMarker } from '../utils';
 
 it('should hydrate custom element', async () => {
-  const Foo = defineElement({ tagName: `mk-foo` });
+  const Foo = defineCustomElement({ tagName: `mk-foo` });
 
   const child = document.createElement('div');
   child.appendChild(document.createTextNode('Foo'));

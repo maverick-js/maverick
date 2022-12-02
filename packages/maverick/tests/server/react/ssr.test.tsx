@@ -2,11 +2,11 @@ import { createContext, provideContext, useContext } from 'maverick.js';
 import * as React from 'React';
 import { renderToString } from 'react-dom/server';
 
-import { defineElement, onAttach } from 'maverick.js/element';
+import { defineCustomElement, onAttach } from 'maverick.js/element';
 import { createReactElement, useReactContext } from 'maverick.js/react';
 
 it('should render', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo',
     setup: () => () => <div>Test</div>,
   });
@@ -20,7 +20,7 @@ it('should render', () => {
 });
 
 it('should render shadow dom', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo-2',
     shadowRoot: true,
     setup: () => () => <div>Test</div>,
@@ -35,7 +35,7 @@ it('should render shadow dom', () => {
 });
 
 it('should render with children', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo-3',
     setup: () => () => <div>Test</div>,
   });
@@ -54,7 +54,7 @@ it('should render with children', () => {
 });
 
 it('should notify host of children', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo-4',
     setup:
       ({ host }) =>
@@ -71,7 +71,7 @@ it('should notify host of children', () => {
 });
 
 it('should notify host of _no_ children', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo-5',
     setup:
       ({ host }) =>
@@ -88,7 +88,7 @@ it('should notify host of _no_ children', () => {
 });
 
 it('should render with class', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo-6',
     setup: ({ host }) => {
       onAttach(() => {
@@ -108,7 +108,7 @@ it('should render with class', () => {
 });
 
 it('should render with style', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo-7',
     setup: ({ host }) => {
       onAttach(() => {
@@ -130,7 +130,7 @@ it('should render with style', () => {
 });
 
 it('should forward attributes', () => {
-  const element = defineElement({ tagName: 'mk-foo-8' });
+  const element = defineCustomElement({ tagName: 'mk-foo-8' });
   const Component = createReactElement(element);
   const Root = React.createElement(Component, { 'aria-label': 'Label' });
   expect(renderToString(Root)).toMatchInlineSnapshot(
@@ -139,7 +139,7 @@ it('should forward attributes', () => {
 });
 
 it('should forward props', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo-9',
     // @ts-expect-error
     props: {
@@ -161,7 +161,7 @@ it('should forward props', () => {
 it('should forward context map to maverick element', () => {
   const Context = createContext(() => 0);
 
-  const elementA = defineElement({
+  const elementA = defineCustomElement({
     tagName: 'mk-foo-10',
     setup: () => {
       provideContext(Context, 10);
@@ -169,7 +169,7 @@ it('should forward context map to maverick element', () => {
     },
   });
 
-  const elementB = defineElement({
+  const elementB = defineCustomElement({
     tagName: 'mk-foo',
     setup: () => () => useContext(Context),
   });
@@ -191,7 +191,7 @@ it('should forward context map to maverick element', () => {
 it('should forward context to react element', () => {
   const Context = createContext(() => 0);
 
-  const ParentElement = defineElement({
+  const ParentElement = defineCustomElement({
     tagName: 'mk-foo-11',
     setup: () => {
       provideContext(Context, 10);

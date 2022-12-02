@@ -1,9 +1,9 @@
 import { CustomElement, HostElement, renderToString } from 'maverick.js';
 
-import { defineElement } from 'maverick.js/element';
+import { defineCustomElement } from 'maverick.js/element';
 
 it('should render attributes', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo',
     setup: () => () => <HostElement foo="..." $class:foo={true} $style:display={'none'} />,
   });
@@ -16,7 +16,7 @@ it('should render attributes', () => {
 });
 
 it('should render with children', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo',
     setup: () => () =>
       (
@@ -35,7 +35,7 @@ it('should render with children', () => {
 });
 
 it('should render with attributes and children', () => {
-  const element = defineElement({
+  const element = defineCustomElement({
     tagName: 'mk-foo',
     setup: () => () =>
       (

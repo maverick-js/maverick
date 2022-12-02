@@ -1,3 +1,13 @@
+# [0.10.0](https://github.com/maverick-js/maverick/compare/v0.9.2...v0.10.0) (2022-12-02)
+
+
+### Bug Fixes
+
+* `MaverickElement` -> `HTMLCustomElement` ([b344ec0](https://github.com/maverick-js/maverick/commit/b344ec0682599e3be764f6599168fc1842b8d124))
+* stricter std event dispatch/listen functions ([4b170b6](https://github.com/maverick-js/maverick/commit/4b170b6f28c01344a7d48a38d18e6096ada47064))
+
+
+
 ## [0.9.2](https://github.com/maverick-js/maverick/compare/v0.9.1...v0.9.2) (2022-12-02)
 
 

@@ -8,9 +8,8 @@ import {
   getElementInstance,
   MOUNT,
 } from './internal';
-import type { AnyCustomElement } from './types';
 
-export type ElementLifecycleCallback = (host: AnyCustomElement) => any;
+export type ElementLifecycleCallback = () => any;
 
 export type ElementLifecycleManager = {
   [ATTACH]: (() => any)[];
@@ -91,7 +90,6 @@ function createLifecycleMethod(type: keyof ElementLifecycleManager) {
       return;
     }
 
-    const hook = () => callback(instance.host.el! as any);
-    instance[type].push(isConnect ? hook : () => instance.run(hook));
+    instance[type].push(isConnect ? callback : () => instance.run(callback));
   };
 }

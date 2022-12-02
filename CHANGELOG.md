@@ -1,3 +1,13 @@
+# [0.11.0](https://github.com/maverick-js/maverick/compare/v0.10.0...v0.11.0) (2022-12-02)
+
+
+### Bug Fixes
+
+* `defineCustomElement` -> `registerCustomElement` ([cf1078c](https://github.com/maverick-js/maverick/commit/cf1078cc8a45b71d8e36b2671f3fbf10701b96a9))
+* `defineElement` -> `defineCustomElement` ([b0a658a](https://github.com/maverick-js/maverick/commit/b0a658a55a4870f5da8c22733c6b229a4ce7495c))
+
+
+
 # [0.10.0](https://github.com/maverick-js/maverick/compare/v0.9.2...v0.10.0) (2022-12-02)
 
 

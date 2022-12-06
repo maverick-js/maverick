@@ -124,6 +124,8 @@ export interface HTMLCustomElement<Props = {}, Events = {}, CSSVars = {}>
   ___props?: Props;
   /** @internal only holds type - not a real prop. */
   ___cssvars?: CSSVars;
+  /** @internal only holds type - not a real prop. */
+  ___events?: Events;
 
   addEventListener<K extends keyof HTMLElementEventMap>(
     type: K,

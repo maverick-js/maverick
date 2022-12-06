@@ -1,12 +1,12 @@
-import { effect as $effect, type Effect, scope, type StopEffect } from '@maverick-js/observables';
+import { effect as $effect, type Effect, scope, type StopEffect } from '@maverick-js/signals';
 
 import { noop } from '../std/unit';
 
 /**
- * Invokes the given function each time any of the observables that are read inside are updated
+ * Invokes the given function each time any of the signals that are read inside are updated
  * (i.e., their value changes). The effect is immediately invoked on initialization.
  *
- * @see {@link https://github.com/maverick-js/observables#effect}
+ * @see {@link https://github.com/maverick-js/signals#effect}
  */
 export function effect(fn: Effect, opts?: { id?: string }): StopEffect {
   if (__SERVER__) return noop;
@@ -27,5 +27,5 @@ export function createScopedRunner() {
   };
 }
 
-export * from '@maverick-js/observables';
+export * from '@maverick-js/signals';
 export * from './store';

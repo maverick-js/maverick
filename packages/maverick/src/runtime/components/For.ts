@@ -1,6 +1,6 @@
-import { unwrap } from '../../std/observable';
+import { unwrap } from '../../std/signal';
 import type { JSX } from '../jsx';
-import { computedKeyedMap, computedMap, type Maybe, type Observable } from '../reactivity';
+import { computedKeyedMap, computedMap, type Maybe, type ReadSignal } from '../reactivity';
 
 /**
  * Non-keyed list iteration where rendered nodes are keyed to an array index. This is useful when
@@ -17,9 +17,9 @@ import { computedKeyedMap, computedMap, type Maybe, type Observable } from '../r
  * ```
  */
 export function For<Item, Element extends JSX.Element>(props: {
-  each: Maybe<Item[] | Observable<Item[]>>;
-  $children: (item: Observable<Item>, index: number) => Element;
-}): Observable<Element[]> {
+  each: Maybe<Item[] | ReadSignal<Item[]>>;
+  $children: (item: ReadSignal<Item>, index: number) => Element;
+}): ReadSignal<Element[]> {
   return computedMap(
     () => unwrap(props.each),
     props.$children,
@@ -41,9 +41,9 @@ export function For<Item, Element extends JSX.Element>(props: {
  * ```
  */
 export function ForKeyed<Item, Element extends JSX.Element>(props: {
-  each: Maybe<Item[] | Observable<Item[]>>;
-  $children: (item: Item, index: Observable<number>) => Element;
-}): Observable<Element[]> {
+  each: Maybe<Item[] | ReadSignal<Item[]>>;
+  $children: (item: Item, index: ReadSignal<number>) => Element;
+}): ReadSignal<Element[]> {
   return computedKeyedMap(
     () => unwrap(props.each),
     props.$children,

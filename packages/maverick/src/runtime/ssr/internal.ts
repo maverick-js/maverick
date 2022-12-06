@@ -2,7 +2,7 @@ import { type AnyCustomElementDefinition, createServerElement } from '../../elem
 import { createElementInstance } from '../../element/instance';
 import { getCustomElementInstance } from '../../element/internal';
 import { escape } from '../../std/html';
-import { unwrapDeep } from '../../std/observable';
+import { unwrapDeep } from '../../std/signal';
 import { trimTrailingSemicolon } from '../../std/string';
 import { isFunction, isNull, isString } from '../../std/unit';
 import { injectHTML, resolve, SSR_TEMPLATE } from './render';

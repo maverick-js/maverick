@@ -1,4 +1,4 @@
-import { getScheduler, observable, peek, root, scope } from '@maverick-js/observables';
+import { getScheduler, peek, root, scope, signal } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
 import { createScopedRunner, provideContextMap, useContextMap } from '../runtime';
@@ -48,9 +48,9 @@ export function createElementInstance<T extends AnyCustomElement>(
       }
     }
 
-    const $connected = observable(false);
-    const $mounted = observable(false);
-    const $children = init.children ?? observable(false);
+    const $connected = signal(false);
+    const $mounted = signal(false);
+    const $children = init.children ?? signal(false);
 
     const host: AnyCustomElementInstance['host'] = {
       el: null,
@@ -142,7 +142,7 @@ function createInstanceProps<Props>(propDefs: CustomElementPropDefinitions<Props
 
   for (const propName of Object.keys(propDefs) as (keyof Props)[]) {
     const def = propDefs![propName];
-    const $prop = observable((def as any).initial, def);
+    const $prop = signal((def as any).initial, def);
     Object.defineProperty(props, propName, {
       enumerable: true,
       get() {

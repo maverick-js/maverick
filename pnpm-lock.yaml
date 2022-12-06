@@ -79,8 +79,7 @@ importers:
     specifiers:
       '@edge-runtime/vm': ^2.0.0
       '@maverick-js/compiler': workspace:*
-      '@maverick-js/observables': ^4.10.0
-      '@maverick-js/scheduler': ^2.1.0
+      '@maverick-js/signals': ^5.0.0
       '@types/node': ^18.0.3
       '@types/react': ^18.0.24
       '@types/react-dom': ^18.0.8
@@ -100,8 +99,7 @@ importers:
     devDependencies:
       '@edge-runtime/vm': 2.0.2
       '@maverick-js/compiler': link:../compiler
-      '@maverick-js/observables': 4.10.0
-      '@maverick-js/scheduler': 2.1.0
+      '@maverick-js/signals': 5.0.0
       '@types/node': 18.11.9
       '@types/react': 18.0.25
       '@types/react-dom': 18.0.9
@@ -444,14 +442,8 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@maverick-js/observables/4.10.0:
-    resolution: {integrity: sha512-1LXG1ohPP+T5VlcAt6tBi1BBOODJuJQtjOVh9STnwuNJIItr/J2pSsTKfUnpRxGbiUTwyK/n0fI6Ti0kE6Z41Q==}
-    dependencies:
-      '@maverick-js/scheduler': 2.1.0
-    dev: true
-
-  /@maverick-js/scheduler/2.1.0:
-    resolution: {integrity: sha512-pNV+P9kwnVxhtsWSaQWw7NMdX0t2jHNb6mlzR6IBN82o4bYCIJn6lwKivh5RZIKf8fc4CLhZgaWXJC88/bQLdg==}
+  /@maverick-js/signals/5.0.0:
+    resolution: {integrity: sha512-gBeWjTJiPoQ1Bk3BbKFAiB70FSDlecS43n+0IKW/udrNEhrabXHXV3Z8cmys9Wdj4dpSe5t2e7p9gdW6KUZIMg==}
     dev: true
 
   /@nodelib/fs.scandir/2.1.5:

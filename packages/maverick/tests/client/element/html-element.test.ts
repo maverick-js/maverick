@@ -1,4 +1,4 @@
-import { getScope, onDispose, onError, tick } from '@maverick-js/observables';
+import { getScope, onDispose, onError, tick } from '@maverick-js/signals';
 import { createContext, provideContext, useContext } from 'maverick.js';
 
 import {

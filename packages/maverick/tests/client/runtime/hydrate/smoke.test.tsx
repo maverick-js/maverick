@@ -1,4 +1,4 @@
-import { hydrate, observable, type ParentComponent, tick } from 'maverick.js';
+import { hydrate, type ParentComponent, signal, tick } from 'maverick.js';
 
 import { element, startMarker, text } from '../utils';
 
@@ -30,7 +30,7 @@ it('should hydrate', async () => {
 
   root.append(startMarker(), div);
 
-  const $count = observable(1);
+  const $count = signal(1);
   const clickHandler = vi.fn();
 
   const ChildComponent: ParentComponent = (props) => {

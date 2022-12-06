@@ -1,10 +1,10 @@
-import { observable, tick } from '@maverick-js/observables';
+import { signal, tick } from '@maverick-js/signals';
 import { hydrate } from 'maverick.js';
 
 import { startMarker } from '../utils';
 
 it('should hydrate fragment', async () => {
-  const $count = observable(0);
+  const $count = signal(0);
 
   const clickChildA = vi.fn();
   const clickChildB = vi.fn();
@@ -121,12 +121,12 @@ it('should hydrate fragment', async () => {
   `);
 });
 
-it('should hydrate observable fragment', async () => {
+it('should hydrate signal fragment', async () => {
   const clickChildA = vi.fn();
   const clickChildB = vi.fn();
 
-  const $count = observable(0);
-  const $fragment = observable(() => (
+  const $count = signal(0);
+  const $fragment = signal(() => (
     <>
       <div $on:click={clickChildA}>A</div>
       {false && <div>Ignore</div>}

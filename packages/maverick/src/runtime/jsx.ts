@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 import type { ConditionalPick, KebabCase } from 'type-fest';
 
-import type { Observable } from './reactivity';
+import type { ReadSignal } from './reactivity';
 
 type DOMElement = Element;
 type DOMEvent = Event;
@@ -57,19 +57,19 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
-  export type Value<T> = T | Observable<T>;
+  export type Value<T> = T | ReadSignal<T>;
   export type Stringify<P> = P extends string ? P : never;
   export type AttrValue = string | number | boolean | null | undefined;
 
-  export type ObservableAttributes<T> = {
+  export type SignalAttributes<T> = {
     [P in keyof T]: Value<T[P] | null>;
   };
 
-  export type LowercasedObservableAttributes<T> = {
+  export type LowercasedSignalAttributes<T> = {
     [P in keyof T as Lowercase<Stringify<P>>]?: Value<T[P] | null>;
   };
 
-  export type KebabCasedObservableAttributes<T> = {
+  export type KebabCasedSignalAttributes<T> = {
     [P in keyof T as KebabCase<P>]: Value<T[P] | null>;
   };
 
@@ -91,7 +91,7 @@ export namespace JSX {
   export type Nodes = Node[];
   export type NodeFactory = () => Node;
 
-  export type Element = Node | Observable<Node>;
+  export type Element = Node | ReadSignal<Node>;
 
   export interface ElementAttributesProperty {}
 
@@ -112,7 +112,7 @@ export namespace JSX {
    *
    * @example
    * ```ts
-   * // { foo: string | Observable<string>; '$prop:foo': string | Observable<string>, ... }
+   * // { foo: string | ReadSignal<string>; '$prop:foo': string | ReadSignal<string>, ... }
    * type Props = PropAttributes<{
    *   foo: string; // foo or $prop:foo
    *   bar: number; // bar or $prop:bar
@@ -123,7 +123,7 @@ export namespace JSX {
    */
   export type PropAttributes<Props> = {
     [Prop in keyof Props as `$prop:${Stringify<Prop>}`]?: Value<Props[Prop]>;
-  } & KebabCasedObservableAttributes<ConditionalPick<Props, AttrValue>>;
+  } & KebabCasedSignalAttributes<ConditionalPick<Props, AttrValue>>;
 
   export interface InnerContentAttributes {
     '$prop:innerHTML'?: Value<AttrValue>;
@@ -285,7 +285,7 @@ export namespace JSX {
    *
    * @example
    * ```ts
-   * // { '$cssvar:foo': string | Observable<string>, '$cssvar:baz-he': ... }
+   * // { '$cssvar:foo': string | ReadSignal<string>, '$cssvar:baz-he': ... }
    * type Vars = CSSVarAttributes<{
    *   foo: string; // foo
    *   bazHe: number; // baz-he
@@ -306,7 +306,7 @@ export namespace JSX {
 
   export type HTMLPropAttributes<Props extends PropRecord> = {
     [Prop in keyof Props as `$prop:${Stringify<Prop>}`]?: Value<Props[Prop] | null>;
-  } & LowercasedObservableAttributes<ConditionalPick<Props, AttrValue>>;
+  } & LowercasedSignalAttributes<ConditionalPick<Props, AttrValue>>;
 
   export interface HTMLAttributes extends HTMLPropAttributes<HTMLProperties> {
     $children?: Element;
@@ -553,7 +553,7 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
-  export interface SVGAttributes extends KebabCasedObservableAttributes<SVGProperties> {}
+  export interface SVGAttributes extends KebabCasedSignalAttributes<SVGProperties> {}
 
   export type SVGElementAttributes<Element extends DOMElement = SVGElement> =
     HTMLElementAttributes<Element> & SVGAttributes;

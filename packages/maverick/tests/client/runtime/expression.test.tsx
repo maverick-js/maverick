@@ -1,8 +1,8 @@
-import { observable, tick } from '@maverick-js/observables';
+import { signal, tick } from '@maverick-js/signals';
 import { render } from 'maverick.js';
 
 it('should render expression', async () => {
-  const count = observable(0);
+  const count = signal(0);
   const expression = count() > 1 ? <div>Yes</div> : <div>No</div>;
 
   const root = document.createElement('root');
@@ -33,7 +33,7 @@ it('should render expression', async () => {
 });
 
 it('should insert expression', async () => {
-  const count = observable(0);
+  const count = signal(0);
   const expression = count() > 1 ? <div>Yes</div> : 'No';
 
   function Component() {

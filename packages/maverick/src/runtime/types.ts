@@ -1,4 +1,4 @@
-import type { Observable, ObservableSubject } from '@maverick-js/observables';
+import type { ReadSignal, WriteSignal } from '@maverick-js/signals';
 
 import type { JSX } from './jsx';
 
@@ -22,18 +22,18 @@ export type ParentComponent<Props = {}, Children = ComponentChildren> = (
 
 export type VoidComponentProps<Props = {}> = ComponentProps<Props>;
 
-export type VoidComponent<Props = {}> = Component<VoidComponentProps<Props>>;
+export interface VoidComponent<Props = {}> extends Component<VoidComponentProps<Props>> {}
 
-export type ObservableRecord<Props = Record<string, any>> = {
-  [Prop in keyof Props]: Observable<Props[Prop]>;
+export type ReadSignalRecord<Props = Record<string, any>> = {
+  [Prop in keyof Props]: ReadSignal<Props[Prop]>;
 };
 
-export type SubjectRecord<Props = Record<string, any>> = {
-  [Prop in keyof Props]: ObservableSubject<Props[Prop]>;
+export type WriteSignalRecord<Props = Record<string, any>> = {
+  [Prop in keyof Props]: WriteSignal<Props[Prop]>;
 };
 
-export type ObservableRecordValues<T> = {
-  [P in keyof T]: T[P] extends Observable<infer R> ? R : never;
+export type InferSignalRecordValues<T> = {
+  [P in keyof T]: T[P] extends ReadSignal<infer R> ? R : never;
 };
 
 export type AnyRecord = {

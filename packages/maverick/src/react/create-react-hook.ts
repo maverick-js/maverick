@@ -3,23 +3,23 @@ import * as React from 'react';
 import {
   effect,
   getScheduler,
-  isSubject,
-  type Observable,
-  type ObservableSubject,
+  isWriteSignal,
   provideContextMap,
+  type ReadSignal,
   root,
+  type WriteSignal,
 } from '../runtime';
 import { ReactContextMap } from './use-react-context';
 
 const scheduler = getScheduler();
 
 /**
- * Creates a React hook given an observable. Readonly or computed observables will only return
- * the current value. Writable observables will return a tuple `[value, setValue]`.
+ * Creates a React hook given a signal. Read only or computed signals will only return the current
+ * value. Write signals will return a tuple `[value, setValue]`.
  *
  * @example
  * ```ts
- * const $value = observable(0);
+ * const $value = signal(0);
  *
  * function Component() {
  *   const [value, setValue] = createReactHook($value);
@@ -27,12 +27,12 @@ const scheduler = getScheduler();
  * }
  * ```
  */
-export function createReactHook<T extends Observable<any>>(
-  observable: T,
-): T extends ObservableSubject<infer U>
+export function createReactHook<T extends ReadSignal<any>>(
+  signal: T,
+): T extends WriteSignal<infer U>
   ? [value: U, setValue: (value: U) => void]
-  : T extends Observable<infer V>
-  ? V extends ObservableSubject<infer X>
+  : T extends ReadSignal<infer V>
+  ? V extends WriteSignal<infer X>
     ? X
     : V
   : never {
@@ -45,7 +45,7 @@ export function createReactHook<T extends Observable<any>>(
       if (context) provideContextMap(context);
 
       effect(() => {
-        setState(observable());
+        setState(signal());
       });
 
       disposal.current = dispose;
@@ -55,11 +55,11 @@ export function createReactHook<T extends Observable<any>>(
   React.useEffect(() => () => disposal.current?.(), []);
 
   return (
-    isSubject(observable)
+    isWriteSignal(signal)
       ? [
           state,
           (value) => {
-            observable.set(value);
+            signal.set(value);
             scheduler.flushSync();
           },
         ]

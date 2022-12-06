@@ -1,6 +1,6 @@
 import type { Constructor, Simplify } from 'type-fest';
 
-import type { ContextMap, JSX, Observable, ObservableOptions, ObservableSubject } from '../runtime';
+import type { ContextMap, JSX, ReadSignal, SignalOptions, WriteSignal } from '../runtime';
 import type { CSS } from './css';
 import type { HOST, MEMBERS, PROPS, RENDER } from './internal';
 import type { ElementLifecycleManager } from './lifecycle';
@@ -14,7 +14,7 @@ export interface CustomElementAttributeConverter<Value = unknown> {
   readonly to?: (value: Value) => AttributeValue;
 }
 
-export type CustomElementPropDefinition<Value = unknown> = ObservableOptions<Value> &
+export type CustomElementPropDefinition<Value = unknown> = SignalOptions<Value> &
   (Value extends undefined
     ? {}
     : {
@@ -46,7 +46,7 @@ export type CustomElementPropDefinitions<Props> = Readonly<{
 
 export interface CustomElementCSSVarsBuilder<Props, CSSVars> {
   (props: Readonly<Props>): Partial<{
-    [P in keyof CSSVars]: CSSVars[P] | Observable<CSSVars[P]>;
+    [P in keyof CSSVars]: CSSVars[P] | ReadSignal<CSSVars[P]>;
   }>;
 }
 
@@ -204,7 +204,7 @@ export type InferCustomElementMembers<T> = T extends AnyCustomElement
 export interface CustomElementInstanceInit<Props = {}> {
   props?: Readonly<Partial<Props>>;
   context?: ContextMap;
-  children?: Observable<boolean>;
+  children?: ReadSignal<boolean>;
 }
 
 export type AnyCustomElementInstance = CustomElementInstance<AnyCustomElement>;
@@ -219,13 +219,13 @@ export interface CustomElementInstance<T extends AnyCustomElement> extends Eleme
   readonly host: CustomElementInstanceHost<T> & {
     /** @internal */
     [PROPS]: {
-      $connected: ObservableSubject<boolean>;
-      $mounted: ObservableSubject<boolean>;
-      $children: Observable<boolean> | ObservableSubject<boolean>;
+      $connected: WriteSignal<boolean>;
+      $mounted: WriteSignal<boolean>;
+      $children: ReadSignal<boolean> | WriteSignal<boolean>;
     };
   };
   /**
-   * Component properties where each value is a readonly observable. Do note destructure this
+   * Component properties where each value is a readonly signal. Do note destructure this
    * object because it will result in a loss of reactivity.
    */
   readonly props: Readonly<InferCustomElementProps<T>>;
@@ -263,17 +263,17 @@ export interface CustomElementInstanceHost<T extends AnyCustomElement> {
   el: T | null;
   /**
    * Whether the custom element associated with this component has connected to the DOM. This is
-   * a reactive observable call.
+   * a reactive signal call.
    */
   $connected: boolean;
   /**
    * Whether the custom element associated with this component has mounted the DOM and rendered
-   * content in its shadow root. This is a reactive observable call.
+   * content in its shadow root. This is a reactive signal call.
    */
   $mounted: boolean;
   /**
    * Whether there is any child nodes in the associated custom element's light DOM. If `false`
-   * you can return fallback content. This is a reactive observable call.
+   * you can return fallback content. This is a reactive signal call.
    */
   $children: boolean;
 }

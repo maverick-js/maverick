@@ -1,4 +1,4 @@
-import { observable, tick } from '@maverick-js/observables';
+import { signal, tick } from '@maverick-js/signals';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
@@ -6,7 +6,7 @@ import { act } from 'react-dom/test-utils';
 import { createReactHook } from 'maverick.js/react';
 
 it('should create hook', async () => {
-  const $value = observable(0);
+  const $value = signal(0);
 
   function Component() {
     const [value, setValue] = createReactHook($value);

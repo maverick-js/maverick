@@ -1,4 +1,4 @@
-import { observable, render, tick } from 'maverick.js';
+import { render, signal, tick } from 'maverick.js';
 
 import { Element, Fragment } from './fixtures/primitives';
 import { InputField } from './fixtures/reactivity';
@@ -168,14 +168,14 @@ it('should be reactive', async () => {
   `);
 });
 
-it('should render observable component', async () => {
+it('should render signal component', async () => {
   function Component(props) {
     return props.$children;
   }
 
-  const $count = observable(1);
+  const $count = signal(1);
 
-  const $component = observable(
+  const $component = signal(
     <Component>
       <span>{$count()}</span>
       <span>{$count()}</span>

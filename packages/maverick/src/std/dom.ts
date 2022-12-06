@@ -1,5 +1,5 @@
 import type { ServerHTMLElement } from '../element/create-server-element';
-import { observe } from './observable';
+import { observe } from './signal';
 
 export function isDOMNode(node: any): node is Node {
   return node instanceof Node;
@@ -23,7 +23,7 @@ export function createComment(data: string) {
 
 /**
  * Sets or removes the given attribute `value`. Falsy values except `''` and `0` will remove
- * the attribute. If the given `value` is a function/observable, the attribute will be updated as
+ * the attribute. If the given `value` is a function/signal, the attribute will be updated as
  * the value updates.
  *
  * This function is safe to use on the server.
@@ -45,7 +45,7 @@ export function setAttribute(host: Element | ServerHTMLElement, name: string, va
 
 /**
  * Sets or removes the given style `value`. Falsy values will remove the style. If the
- * given `value` is a function/observable, the style will be updated as the value updates.
+ * given `value` is a function/signal, the style will be updated as the value updates.
  *
  * This function is safe to use on the server.
  *
@@ -63,7 +63,7 @@ export function setStyle(host: HTMLElement | ServerHTMLElement, property: string
 
 /**
  * Toggles the given class `name`. Falsy values will remove the class from the list. If the
- * given `value` is a function/observable, the class will be toggled as the value updates.
+ * given `value` is a function/signal, the class will be toggled as the value updates.
  *
  * This function is safe to use on the server.
  *

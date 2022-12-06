@@ -1,4 +1,4 @@
-import { unwrapDeep } from '../../std/observable';
+import { unwrapDeep } from '../../std/signal';
 import type { JSX } from '../jsx';
 import { root as createRoot, type Dispose } from '../reactivity';
 import { createMarkerWalker, type MarkerWalker } from './insert';

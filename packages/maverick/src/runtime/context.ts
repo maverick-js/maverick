@@ -1,4 +1,4 @@
-import { getContext, getScope, setContext } from '@maverick-js/observables';
+import { getContext, getScope, setContext } from '@maverick-js/signals';
 
 export interface Context<T> {
   id: symbol;

@@ -1,9 +1,9 @@
 import {
   createContext,
   CustomElement,
-  observable,
   provideContext,
   render,
+  signal,
   tick,
   useContext,
 } from 'maverick.js';
@@ -36,7 +36,7 @@ it('should render custom element', async () => {
   });
 
   const root = document.createElement('root');
-  const $children = observable(<div>Foo</div>);
+  const $children = signal(<div>Foo</div>);
   render(() => <CustomElement $element={Foo}>{$children()}</CustomElement>, { target: root });
 
   await tick();

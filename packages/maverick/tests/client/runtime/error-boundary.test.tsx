@@ -1,4 +1,4 @@
-import { effect, ErrorBoundary, observable, render, tick } from 'maverick.js';
+import { effect, ErrorBoundary, render, signal, tick } from 'maverick.js';
 
 it('should return children', () => {
   function Component() {
@@ -25,7 +25,7 @@ it('should return children', () => {
 
 it('should handle error', async () => {
   const error = new Error(),
-    shouldThrow = observable(false);
+    shouldThrow = signal(false);
 
   function Component() {
     return (
@@ -91,7 +91,7 @@ it('should invoke `onError` property', async () => {
   let error = new Error(),
     handler = vi.fn(),
     resolve!: () => void,
-    shouldThrow = observable(false);
+    shouldThrow = signal(false);
 
   function Component() {
     return (

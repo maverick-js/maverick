@@ -1,9 +1,9 @@
-import { CustomElement, HostElement, observable, render, tick } from 'maverick.js';
+import { CustomElement, HostElement, render, signal, tick } from 'maverick.js';
 
 import { defineCustomElement } from 'maverick.js/element';
 
 it('should render attributes', async () => {
-  const foo = observable(1);
+  const foo = signal(1);
 
   const Button = defineCustomElement({
     tagName: `mk-button-1`,

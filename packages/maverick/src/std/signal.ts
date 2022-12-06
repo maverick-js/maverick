@@ -27,9 +27,9 @@ export type DeepReturnType<T> = T extends () => any
  * Observes the given `value`. This utility is useful when a side effect needs to run on both
  * the client and server.
  *
- * - If the given `value` is a function/observable it will be run in an effect and observed. The
+ * - If the given `value` is a function/signal it will be run in an effect and observed. The
  * observed value will be passed to the given `callback`.
- * - If the given `value` is _not_ a function/observable, it'll simply be passed to the given
+ * - If the given `value` is _not_ a function/signal, it'll simply be passed to the given
  * `callback`.
  * - In a server environment the given `value` will be unwrapped if needed but no effect will be
  * created.

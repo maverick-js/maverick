@@ -5,7 +5,7 @@ export * from './event';
 export * from './fn';
 export * from './host';
 export * from './object';
-export * from './observable';
+export * from './signal';
 export * from './promise';
 export * from './string';
 export * from './timing';

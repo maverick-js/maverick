@@ -1,4 +1,4 @@
-import { observable, root, tick } from 'maverick.js';
+import { root, signal, tick } from 'maverick.js';
 
 import {
   $$_attr,
@@ -129,10 +129,10 @@ it('should insert dom fragment', () => {
   `);
 });
 
-it('should insert observable element', () => {
+it('should insert signal element', () => {
   const root = element('div');
-  const observable = () => element('div');
-  insert(root, observable);
+  const signal = () => element('div');
+  insert(root, signal);
   expect(root).toMatchInlineSnapshot(`
     <div>
       <!--$$-->
@@ -158,7 +158,7 @@ it('should insert before given element', () => {
 
 it('should remove old nodes on update', async () => {
   const root = element('div');
-  const $element = observable<any>(element('div'));
+  const $element = signal<any>(element('div'));
 
   insert(root, $element);
   expect(root).toMatchInlineSnapshot(`
@@ -244,7 +244,7 @@ it('should remove falsy attribute', () => {
 
 it('should observe attribute', async () => {
   const el = element('div');
-  const $attr = observable<string | undefined>('foo');
+  const $attr = signal<string | undefined>('foo');
 
   $$_attr(el, 'foo', $attr);
   expect(el.getAttribute('foo')).toBe('foo');
@@ -266,7 +266,7 @@ it('should set property', () => {
 
 it('should observe property', async () => {
   const el = element('div');
-  const $prop = observable(10);
+  const $prop = signal(10);
 
   $$_prop(el, 'tabIndex', $prop);
   expect(el.tabIndex).toBe(10);
@@ -401,7 +401,7 @@ it('should _not_ stop expression effect if observed', async () => {
   const root = document.createElement('root');
   const marker = document.createComment('$$');
   root.append(marker);
-  const $a = observable(10);
+  const $a = signal(10);
   insertExpression(marker, $a);
   expect(root).toMatchInlineSnapshot(`
     <root>

@@ -1,4 +1,4 @@
-import { observable } from '@maverick-js/observables';
+import { signal } from '@maverick-js/signals';
 
 import type { AnyRecord } from './types';
 
@@ -9,7 +9,7 @@ export interface Store<Record extends AnyRecord> {
 
 /**
  * Converts an object into a store. A store stores the initial object and enables producing new
- * objects where each value in the provided object becomes an observable with respective getters
+ * objects where each value in the provided object becomes a signal with respective getters
  * and setters for convenient access.
  *
  * @example
@@ -34,7 +34,7 @@ export function createStore<Record extends AnyRecord>(initial: Record): Store<Re
       const store = {} as Record;
 
       for (const name of Object.keys(initial)) {
-        const $value = observable(initial[name]);
+        const $value = signal(initial[name]);
         Object.defineProperty(store, name, {
           get: $value,
           set: $value.set,

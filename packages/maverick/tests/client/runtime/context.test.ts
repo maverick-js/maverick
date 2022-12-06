@@ -1,4 +1,4 @@
-import { computed } from '@maverick-js/observables';
+import { computed } from '@maverick-js/signals';
 import { createContext, hasProvidedContext, provideContext, root, useContext } from 'maverick.js';
 
 it('should create context', () => {

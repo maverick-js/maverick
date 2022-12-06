@@ -1,10 +1,10 @@
-import { observable, tick } from '@maverick-js/observables';
+import { signal, tick } from '@maverick-js/signals';
 import { hydrate } from 'maverick.js';
 
 import { startMarker } from '../utils';
 
 it('should hydrate expression', async () => {
-  const $count = observable(0);
+  const $count = signal(0);
 
   const click = vi.fn();
   const expression = $count() === 0 ? <div $on:click={click}>Yes</div> : 'No';

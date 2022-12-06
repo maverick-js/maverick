@@ -1,9 +1,9 @@
 import { isFunction } from '../../std/unit';
 import type { JSX } from '../jsx';
-import { computed, observable, type Observable, onError, peek } from '../reactivity';
+import { computed, onError, peek, type ReadSignal, signal } from '../reactivity';
 
-export type ObservableError<T = unknown> = Observable<T | null> & { handled(): void };
-export type ErrorBoundaryHandler<T = unknown> = (error: ObservableError<T>) => JSX.Element;
+export type ErrorSignal<T = unknown> = ReadSignal<T | null> & { handled(): void };
+export type ErrorBoundaryHandler<T = unknown> = (error: ErrorSignal<T>) => JSX.Element;
 
 /**
  * Catches errors that are thrown inside a child component and enables you to handle them
@@ -31,10 +31,10 @@ export type ErrorBoundaryHandler<T = unknown> = (error: ObservableError<T>) => J
 export function ErrorBoundary(props: {
   onError?: (error: unknown, handled: () => void) => void;
   $children: JSX.Element | ErrorBoundaryHandler;
-}): Observable<JSX.Element> {
-  const $e = observable<unknown>(null);
+}): ReadSignal<JSX.Element> {
+  const $e = signal<unknown>(null);
 
-  const $error: ObservableError = () => $e();
+  const $error: ErrorSignal = () => $e();
   $error.handled = () => $e.set(null);
 
   return computed(

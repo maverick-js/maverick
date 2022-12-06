@@ -1,4 +1,4 @@
-import { CustomElement, hydrate, observable, tick } from 'maverick.js';
+import { CustomElement, hydrate, signal, tick } from 'maverick.js';
 
 import { defineCustomElement } from 'maverick.js/element';
 
@@ -38,7 +38,7 @@ it('should hydrate custom element', async () => {
   `);
 
   const click = vi.fn();
-  const $children = observable<any>(() => <div $on:click={click}>Foo</div>);
+  const $children = signal<any>(() => <div $on:click={click}>Foo</div>);
 
   hydrate(() => <CustomElement $element={Foo}>{$children}</CustomElement>, { target: root });
 

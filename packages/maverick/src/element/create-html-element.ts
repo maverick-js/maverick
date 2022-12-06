@@ -1,4 +1,4 @@
-import { effect, getScheduler, isSubject, root, untrack } from '@maverick-js/observables';
+import { effect, getScheduler, isWriteSignal, root, untrack } from '@maverick-js/signals';
 
 import { createScopedRunner, hydrate, hydration, render } from '../runtime';
 import { $$_create_element } from '../runtime/dom/internal';
@@ -242,7 +242,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
       }
 
       const $children = instance.host[PROPS].$children;
-      if (isSubject($children)) {
+      if (isWriteSignal($children)) {
         const onMutation = () => $children.set(this.childElementCount > 1);
         onMutation();
         const observer = new MutationObserver(onMutation);

@@ -1,4 +1,4 @@
-import { computed, observable } from './reactivity';
+import { computed, signal } from './reactivity';
 
 export * from './types';
 export * from './reactivity';
@@ -9,6 +9,5 @@ export * from './components/HostElement';
 export * from './context';
 export * from './dom/render';
 export { renderToString } from './ssr';
-export { observable as $, computed as $$ };
+export { signal as $, computed as $$ };
 export type { JSX } from './jsx';
-export * from '@maverick-js/scheduler';

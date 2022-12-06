@@ -1,7 +1,7 @@
-import { For, observable, render, tick } from 'maverick.js';
+import { For, render, signal, tick } from 'maverick.js';
 
 it('should render non-keyed loop', async () => {
-  const source = observable([1, 2, 3]);
+  const source = signal([1, 2, 3]);
 
   function Component() {
     return (

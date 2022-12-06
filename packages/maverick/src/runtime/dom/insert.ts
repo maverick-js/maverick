@@ -1,5 +1,5 @@
 import { createComment, createFragment, isDOMNode } from '../../std/dom';
-import { unwrapDeep } from '../../std/observable';
+import { unwrapDeep } from '../../std/signal';
 import { isArray, isFunction, isNumber, isString } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { effect } from '../reactivity';
@@ -29,11 +29,11 @@ export function insert(
   insertExpression(marker, value);
 }
 
-export function insertExpression(start: StartMarker, value: JSX.Element, isObservable = false) {
+export function insertExpression(start: StartMarker, value: JSX.Element, isSignal = false) {
   if (isFunction(value)) {
     effect(() => void insertExpression(start, unwrapDeep(value), true));
     return;
-  } else if (hydration && !isObservable) {
+  } else if (hydration && !isSignal) {
     start.remove();
     return;
   }
@@ -85,7 +85,7 @@ export function insertExpression(start: StartMarker, value: JSX.Element, isObser
     removeNodesBetweenMarkers(start, end);
   }
 
-  if (!isObservable) {
+  if (!isSignal) {
     start.remove();
     return;
   }

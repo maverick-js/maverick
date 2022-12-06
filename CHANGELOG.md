@@ -1,3 +1,12 @@
+## [0.13.1](https://github.com/maverick-js/maverick/compare/v0.13.0...v0.13.1) (2022-12-06)
+
+
+### Bug Fixes
+
+* store generic `Events` type on `HTMLCustomElement` for inference ([e302149](https://github.com/maverick-js/maverick/commit/e3021499d32948bbaf998574dfbc6c80a0df9a6c))
+
+
+
 # [0.13.0](https://github.com/maverick-js/maverick/compare/v0.12.1...v0.13.0) (2022-12-06)
 
 

@@ -1,3 +1,12 @@
+# [0.13.0](https://github.com/maverick-js/maverick/compare/v0.12.1...v0.13.0) (2022-12-06)
+
+
+### Features
+
+* migrate from `@maverick-js/observables` to `@maverick-js/signals` ([57f607f](https://github.com/maverick-js/maverick/commit/57f607f06a451ef24428e3b84b35ec2d1f9bee48))
+
+
+
 ## [0.12.1](https://github.com/maverick-js/maverick/compare/v0.12.0...v0.12.1) (2022-12-02)
 
 

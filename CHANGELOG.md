@@ -1,3 +1,17 @@
+# [0.14.0](https://github.com/maverick-js/maverick/compare/v0.13.1...v0.14.0) (2022-12-08)
+
+
+### Bug Fixes
+
+* remove custom el update hooks - requires redesign ([d3b4e7d](https://github.com/maverick-js/maverick/commit/d3b4e7dfbb6b2a7f60cc3b0e29acac9da1977a4d))
+
+
+### Features
+
+* bump `maverick-js/signals` to `5.0.1` ([8727c81](https://github.com/maverick-js/maverick/commit/8727c81b3d70bacc106430239dc3cc1043bad7d9))
+
+
+
 ## [0.13.1](https://github.com/maverick-js/maverick/compare/v0.13.0...v0.13.1) (2022-12-06)
 
 

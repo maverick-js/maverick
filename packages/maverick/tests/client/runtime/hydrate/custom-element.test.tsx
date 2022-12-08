@@ -4,7 +4,7 @@ import { defineCustomElement } from 'maverick.js/element';
 
 import { startMarker } from '../utils';
 
-it('should hydrate custom element', async () => {
+it('should hydrate custom element', () => {
   const Foo = defineCustomElement({ tagName: `mk-foo` });
 
   const child = document.createElement('div');
@@ -63,7 +63,7 @@ it('should hydrate custom element', async () => {
   expect(click).toHaveBeenCalledOnce();
 
   $children.set(null);
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>

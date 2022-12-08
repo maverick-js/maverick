@@ -1,6 +1,6 @@
 import { ForKeyed, render, signal, tick } from 'maverick.js';
 
-it('should render keyed loop', async () => {
+it('should render keyed loop', () => {
   const source = signal([{ id: 'a' }, { id: 'b' }, { id: 'c' }]);
 
   function Component() {
@@ -60,7 +60,7 @@ it('should render keyed loop', async () => {
     return [...p];
   });
 
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -98,7 +98,7 @@ it('should render keyed loop', async () => {
 
   // Delete Last
   source.set(source().slice(0, -1));
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -127,7 +127,7 @@ it('should render keyed loop', async () => {
 
   // Add
   source.set([...source(), { id: 'd' }, { id: 'e' }]);
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -174,7 +174,7 @@ it('should render keyed loop', async () => {
 
   // Delete First
   source.set(source().slice(1));
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -212,7 +212,7 @@ it('should render keyed loop', async () => {
 
   // Empty
   source.set([]);
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
   <root>

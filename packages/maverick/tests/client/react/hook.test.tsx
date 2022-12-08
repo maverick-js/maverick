@@ -25,7 +25,7 @@ it('should create hook', async () => {
 
   await act(async () => {
     $value.set(1);
-    await tick();
+    tick();
   });
 
   expect(container).toMatchInlineSnapshot(`

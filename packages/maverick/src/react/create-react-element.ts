@@ -1,4 +1,4 @@
-import { getScheduler, signal } from '@maverick-js/signals';
+import { signal, tick } from '@maverick-js/signals';
 import * as React from 'react';
 
 import { registerCustomElement } from '../element/create-html-element';
@@ -32,8 +32,7 @@ export function createReactElement<Definition extends AnyCustomElementDefinition
     : createReactClientElement(definition, init);
 }
 
-const scheduler = getScheduler(),
-  SETUP = Symbol();
+const SETUP = Symbol();
 
 function createReactClientElement<
   T extends AnyCustomElementDefinition,
@@ -90,7 +89,6 @@ function createReactClientElement<
       // Root element won't have context set.
       if (!this.context) {
         while (setups.length) setups.pop()();
-        scheduler.flushSync();
       }
     }
 
@@ -125,7 +123,7 @@ function createReactClientElement<
       }
 
       this._children.set(!!children);
-      scheduler.flushSync();
+      tick();
 
       return WithContextMap(
         this._context,

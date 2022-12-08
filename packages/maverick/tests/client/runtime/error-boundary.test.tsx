@@ -23,7 +23,7 @@ it('should return children', () => {
 `);
 });
 
-it('should handle error', async () => {
+it('should handle error', () => {
   const error = new Error(),
     shouldThrow = signal(false);
 
@@ -56,7 +56,7 @@ it('should handle error', async () => {
 `);
 
   shouldThrow.set(true);
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
   <root>
@@ -72,7 +72,7 @@ it('should handle error', async () => {
 
   shouldThrow.set(false); // handled error
   root.firstElementChild?.dispatchEvent(new MouseEvent('click'));
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
   <root>
@@ -87,7 +87,7 @@ it('should handle error', async () => {
 `);
 });
 
-it('should invoke `onError` property', async () => {
+it('should invoke `onError` property', () => {
   let error = new Error(),
     handler = vi.fn(),
     resolve!: () => void,
@@ -127,7 +127,7 @@ it('should invoke `onError` property', async () => {
 `);
 
   shouldThrow.set(true);
-  await tick();
+  tick();
 
   expect(handler).toHaveBeenCalledWith(error);
   expect(handler).toHaveBeenCalledTimes(1);
@@ -145,7 +145,7 @@ it('should invoke `onError` property', async () => {
 
   resolve();
   shouldThrow.set(false);
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
   <root>

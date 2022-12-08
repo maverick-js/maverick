@@ -2,7 +2,7 @@ import { CustomElement, HostElement, render, signal, tick } from 'maverick.js';
 
 import { defineCustomElement } from 'maverick.js/element';
 
-it('should render attributes', async () => {
+it('should render attributes', () => {
   const foo = signal(1);
 
   const Button = defineCustomElement({
@@ -25,7 +25,7 @@ it('should render attributes', async () => {
   `);
 
   foo.set(2);
-  await tick();
+  tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-button-1

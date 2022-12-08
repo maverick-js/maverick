@@ -3,7 +3,7 @@ import { hydrate } from 'maverick.js';
 
 import { startMarker } from '../utils';
 
-it('should hydrate expression', async () => {
+it('should hydrate expression', () => {
   const $count = signal(0);
 
   const click = vi.fn();
@@ -58,7 +58,7 @@ it('should hydrate expression', async () => {
   expect(click).toHaveBeenCalledOnce();
 
   $count.set(1);
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>

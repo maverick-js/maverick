@@ -90,14 +90,14 @@ it('should render components', () => {
   expect(<Fragment />).toBeInstanceOf(Array);
 });
 
-it('should be reactive', async () => {
+it('should be reactive', () => {
   const root = element('root');
   let next!: () => void;
 
   const input = <InputField next={(n) => (next = n)} />;
 
   render(() => input, { target: root });
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -125,7 +125,7 @@ it('should be reactive', async () => {
   expect(inputElement).toBeInstanceOf(HTMLInputElement);
 
   next();
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -148,7 +148,7 @@ it('should be reactive', async () => {
   expect(getValueTextNode()).toBe(valueText);
 
   inputElement!.dispatchEvent(new CustomEvent('next'));
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -168,7 +168,7 @@ it('should be reactive', async () => {
   `);
 });
 
-it('should render signal component', async () => {
+it('should render signal component', () => {
   function Component(props) {
     return props.$children;
   }
@@ -209,7 +209,7 @@ it('should render signal component', async () => {
     </Component>,
   );
 
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>

@@ -2,16 +2,14 @@ import * as React from 'react';
 
 import {
   effect,
-  getScheduler,
   isWriteSignal,
   provideContextMap,
   type ReadSignal,
   root,
+  tick,
   type WriteSignal,
 } from '../runtime';
 import { ReactContextMap } from './use-react-context';
-
-const scheduler = getScheduler();
 
 /**
  * Creates a React hook given a signal. Read only or computed signals will only return the current
@@ -60,7 +58,7 @@ export function createReactHook<T extends ReadSignal<any>>(
           state,
           (value) => {
             signal.set(value);
-            scheduler.flushSync();
+            tick();
           },
         ]
       : state

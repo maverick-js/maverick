@@ -156,7 +156,7 @@ it('should insert before given element', () => {
   `);
 });
 
-it('should remove old nodes on update', async () => {
+it('should remove old nodes on update', () => {
   const root = element('div');
   const $element = signal<any>(element('div'));
 
@@ -173,7 +173,7 @@ it('should remove old nodes on update', async () => {
   newFragment.append(element('span'), element('span'), element('span'));
 
   $element.set(newFragment);
-  await tick();
+  tick();
   expect(root).toMatchInlineSnapshot(`
     <div>
       <!--$$-->
@@ -185,7 +185,7 @@ it('should remove old nodes on update', async () => {
   `);
 
   $element.set(null);
-  await tick();
+  tick();
   expect(root).toMatchInlineSnapshot(`
     <div>
       <!--$$-->
@@ -242,7 +242,7 @@ it('should remove falsy attribute', () => {
   expect(el.getAttribute('foo')).toBe(null);
 });
 
-it('should observe attribute', async () => {
+it('should observe attribute', () => {
   const el = element('div');
   const $attr = signal<string | undefined>('foo');
 
@@ -250,11 +250,11 @@ it('should observe attribute', async () => {
   expect(el.getAttribute('foo')).toBe('foo');
 
   $attr.set(undefined);
-  await tick();
+  tick();
   expect(el.getAttribute('foo')).toBe(null);
 
   $attr.set('bar');
-  await tick();
+  tick();
   expect(el.getAttribute('foo')).toBe('bar');
 });
 
@@ -264,7 +264,7 @@ it('should set property', () => {
   expect(el.tabIndex).toBe(1);
 });
 
-it('should observe property', async () => {
+it('should observe property', () => {
   const el = element('div');
   const $prop = signal(10);
 
@@ -272,7 +272,7 @@ it('should observe property', async () => {
   expect(el.tabIndex).toBe(10);
 
   $prop.set(20);
-  await tick();
+  tick();
   expect(el.tabIndex).toBe(20);
 });
 
@@ -397,7 +397,7 @@ it('should stop expression effect if not observed', () => {
   `);
 });
 
-it('should _not_ stop expression effect if observed', async () => {
+it('should _not_ stop expression effect if observed', () => {
   const root = document.createElement('root');
   const marker = document.createComment('$$');
   root.append(marker);
@@ -411,7 +411,7 @@ it('should _not_ stop expression effect if observed', async () => {
     </root>
   `);
   $a.set(20);
-  await tick();
+  tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
       <!--$$-->

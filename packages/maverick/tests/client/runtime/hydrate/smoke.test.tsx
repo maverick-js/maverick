@@ -2,7 +2,7 @@ import { hydrate, type ParentComponent, signal, tick } from 'maverick.js';
 
 import { element, startMarker, text } from '../utils';
 
-it('should hydrate', async () => {
+it('should hydrate', () => {
   const root = element('root');
 
   const spanOne = element('span');
@@ -97,7 +97,7 @@ it('should hydrate', async () => {
   expect(clickHandler).toHaveBeenCalledWith(clickEvent);
 
   $count.set(2);
-  await tick();
+  tick();
 
   expect(countText.textContent).toBe('2');
   expect(countTextTwo.textContent).toBe('2');

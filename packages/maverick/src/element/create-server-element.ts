@@ -1,4 +1,4 @@
-import { getScheduler, renderToString } from '../runtime';
+import { renderToString, tick } from '../runtime';
 import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';
@@ -16,8 +16,7 @@ import type {
   InferCustomElementProps,
 } from './types';
 
-const scheduler = getScheduler(),
-  registry = new WeakMap<AnyCustomElementDefinition, any>();
+const registry = new WeakMap<AnyCustomElementDefinition, any>();
 
 export function createServerElement<T extends AnyCustomElement>(
   definition: CustomElementDefinition<T>,
@@ -110,7 +109,7 @@ export function createServerElement<T extends AnyCustomElement>(
         setAttribute(this as any, attrName, convert ? convert(propValue) : propValue + '');
       }
 
-      scheduler.flushSync();
+      tick();
 
       const $render = instance[RENDER];
       this._rendered = !!$render;

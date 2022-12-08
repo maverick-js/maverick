@@ -65,7 +65,7 @@ it('should initialize from attribute', () => {
   expect(element.foo).toBe(10);
 });
 
-it('should reflect props', async () => {
+it('should reflect props', () => {
   const { instance, element } = setupTestElement({
     props: {
       foo: { initial: 100, reflect: true },
@@ -77,7 +77,7 @@ it('should reflect props', async () => {
   expect(element.getAttribute('foo')).toBe('100');
   instance[PROPS].foo = 200;
 
-  await tick();
+  tick();
   expect(element.getAttribute('foo')).toBe('200');
 });
 
@@ -195,7 +195,7 @@ it('should call mount lifecycle hook', () => {
   expect(destroy).toHaveBeenCalledTimes(1);
 });
 
-it('should handle errors thrown in lifecycle hooks', async () => {
+it('should handle errors thrown in lifecycle hooks', () => {
   const attachError = Error(),
     connectError = Error(),
     mountError = Error(),
@@ -267,7 +267,7 @@ it('should handle errors thrown in lifecycle hooks', async () => {
   expect(nextConnect).toHaveBeenCalledTimes(1);
   expect(nextMount).toHaveBeenCalledTimes(1);
 
-  await tick();
+  tick();
   expect(errorHandler).toHaveBeenCalledTimes(5);
   expect(errorHandler).toHaveBeenCalledWith(beforeUpdateError);
   expect(errorHandler).toHaveBeenCalledWith(afterUpdateError);
@@ -280,7 +280,7 @@ it('should handle errors thrown in lifecycle hooks', async () => {
   expect(nextDestroy).toHaveBeenCalledTimes(1);
 });
 
-it('should call update hooks', async () => {
+it('should call update hooks', () => {
   const beforeUpdate = vi.fn();
   const afterUpdate = vi.fn();
 
@@ -312,7 +312,7 @@ it('should call update hooks', async () => {
   expect(afterUpdate).not.toHaveBeenCalled();
 
   instance[PROPS].foo = 20;
-  await tick();
+  tick();
   expect(beforeUpdate).toHaveBeenCalled();
   expect(afterUpdate).toHaveBeenCalled();
 
@@ -378,7 +378,7 @@ it('should throw if lifecycle hook called outside setup', () => {
   }).toThrowError(/called outside of element setup/);
 });
 
-it('should detect children during initial render', async () => {
+it('should detect children during initial render', () => {
   const { container, element } = setupTestElement(
     {
       setup({ host }) {
@@ -446,7 +446,7 @@ it('should render css vars', () => {
   `);
 });
 
-it('should render css vars builder', async () => {
+it('should render css vars builder', () => {
   const Button = defineCustomElement({
     tagName: `mk-button-6`,
     props: { foo: { initial: 0 } },
@@ -468,7 +468,7 @@ it('should render css vars builder', async () => {
   `);
 
   instance[PROPS].foo = 100;
-  await tick();
+  tick();
 
   expect(element).toMatchInlineSnapshot(`
     <mk-button-6

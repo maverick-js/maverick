@@ -1,4 +1,4 @@
-import { effect, getScheduler, isWriteSignal, root, untrack } from '@maverick-js/signals';
+import { effect, getScheduler, isWriteSignal, root, tick, untrack } from '@maverick-js/signals';
 
 import { createScopedRunner, hydrate, hydration, render } from '../runtime';
 import { $$_create_element } from '../runtime/dom/internal';
@@ -151,8 +151,8 @@ export function createHTMLElement<T extends AnyCustomElement>(
           }
         }
 
-        instance[MOUNT] = [];
-        scheduler.flushSync();
+        instance[MOUNT].length = 0;
+        tick();
 
         if (this[MOUNT]) {
           runAll(this[MOUNT]);
@@ -175,8 +175,8 @@ export function createHTMLElement<T extends AnyCustomElement>(
       instance.host[PROPS].$connected.set(false);
       runAll(instance[DISCONNECT]);
       runAll(this._disconnectCallbacks);
-      this._disconnectCallbacks = [];
-      scheduler.flushSync();
+      this._disconnectCallbacks.length = 0;
+      tick();
 
       if (!this._delegate) {
         requestAnimationFrame(() => {
@@ -243,7 +243,11 @@ export function createHTMLElement<T extends AnyCustomElement>(
 
       const $children = instance.host[PROPS].$children;
       if (isWriteSignal($children)) {
-        const onMutation = () => $children.set(this.childElementCount > 1);
+        const onMutation = () => {
+          $children.set(this.childElementCount > 1);
+          tick();
+        };
+
         onMutation();
         const observer = new MutationObserver(onMutation);
         observer.observe(this, { childList: true });
@@ -291,7 +295,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
         this._destroyed = true;
       });
 
-      scheduler.flushSync();
+      tick();
       this.connectedCallback();
     }
 

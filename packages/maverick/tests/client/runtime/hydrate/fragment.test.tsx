@@ -3,7 +3,7 @@ import { hydrate } from 'maverick.js';
 
 import { startMarker } from '../utils';
 
-it('should hydrate fragment', async () => {
+it('should hydrate fragment', () => {
   const $count = signal(0);
 
   const clickChildA = vi.fn();
@@ -97,7 +97,7 @@ it('should hydrate fragment', async () => {
   expect(clickChildB).toHaveBeenCalledOnce();
 
   $count.set(10);
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -121,7 +121,7 @@ it('should hydrate fragment', async () => {
   `);
 });
 
-it('should hydrate signal fragment', async () => {
+it('should hydrate signal fragment', () => {
   const clickChildA = vi.fn();
   const clickChildB = vi.fn();
 
@@ -201,7 +201,7 @@ it('should hydrate signal fragment', async () => {
   expect(clickChildB).toHaveBeenCalledOnce();
 
   $fragment.set(() => null);
-  await tick();
+  tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
       <!--$-->
@@ -214,7 +214,7 @@ it('should hydrate signal fragment', async () => {
   `);
 
   $fragment.set(() => [1, 2, 3]);
-  await tick();
+  tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
       <!--$-->

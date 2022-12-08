@@ -1,4 +1,4 @@
-import { getScheduler, peek, root, scope, signal } from '@maverick-js/signals';
+import { peek, root, scope, signal, tick } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
 import { createScopedRunner, provideContextMap, useContextMap } from '../runtime';
@@ -96,11 +96,11 @@ export function createElementInstance<T extends AnyCustomElement>(
           runAll(instance[DISCONNECT]);
           $mounted.set(false);
           runAll(instance[DESTROY]);
-          getScheduler().flushSync();
-          for (const type of LIFECYCLES) instance[type] = [];
+          tick();
+          for (const type of LIFECYCLES) instance[type].length = 0;
           dispose();
         } else {
-          instance[ATTACH] = [];
+          instance[ATTACH].length = 0;
           dispose();
         }
 

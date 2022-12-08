@@ -1,7 +1,7 @@
 import { signal, tick } from '@maverick-js/signals';
 import { render } from 'maverick.js';
 
-it('should render expression', async () => {
+it('should render expression', () => {
   const count = signal(0);
   const expression = count() > 1 ? <div>Yes</div> : <div>No</div>;
 
@@ -19,7 +19,7 @@ it('should render expression', async () => {
   `);
 
   count.set(2);
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -32,7 +32,7 @@ it('should render expression', async () => {
   `);
 });
 
-it('should insert expression', async () => {
+it('should insert expression', () => {
   const count = signal(0);
   const expression = count() > 1 ? <div>Yes</div> : 'No';
 
@@ -54,7 +54,7 @@ it('should insert expression', async () => {
   `);
 
   count.set(2);
-  await tick();
+  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>

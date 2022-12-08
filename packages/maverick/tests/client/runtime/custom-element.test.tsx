@@ -36,8 +36,8 @@ it('should render custom element', async () => {
   });
 
   const root = document.createElement('root');
-  const $children = signal(<div>Foo</div>);
-  render(() => <CustomElement $element={Foo}>{$children()}</CustomElement>, { target: root });
+  const $children = signal(<div>Foo</div>, { id: '$children' });
+  render(() => <CustomElement $element={Foo}>{$children}</CustomElement>, { target: root });
 
   await tick();
   expect(root).toMatchInlineSnapshot(`
@@ -49,9 +49,11 @@ it('should render custom element', async () => {
           <!--$$-->
           <!--/$-->
         </shadow-root>
+        <!--$$-->
         <div>
           Foo
         </div>
+        <!--/$-->
       </mk-foo-1>
     </root>
   `);
@@ -65,11 +67,13 @@ it('should render custom element', async () => {
       >
         <shadow-root>
           <!--$$-->
+          <div>
+            Internal
+          </div>
           <!--/$-->
         </shadow-root>
-        <div>
-          Foo
-        </div>
+        <!--$$-->
+        <!--/$-->
       </mk-foo-1>
     </root>
   `);
@@ -85,9 +89,11 @@ it('should render custom element', async () => {
           <!--$$-->
           <!--/$-->
         </shadow-root>
+        <!--$$-->
         <div>
-          Foo
+          Bar
         </div>
+        <!--/$-->
       </mk-foo-1>
     </root>
   `);
@@ -189,7 +195,7 @@ it('should render custom element with shadow dom', () => {
   expect(shadowRoot?.innerHTML).toMatchInlineSnapshot('"<button>Test</button>"');
 });
 
-it('should forward context to another custom element', async () => {
+it('should forward context to another custom element', () => {
   const Context = createContext(() => 0);
   const ContextB = createContext(() => 0);
 
@@ -227,5 +233,5 @@ it('should forward context to another custom element', async () => {
     { target: root },
   );
 
-  await tick();
+  tick();
 });

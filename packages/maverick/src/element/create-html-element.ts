@@ -9,9 +9,7 @@ import { isBoolean, isFunction } from '../std/unit';
 import { adoptCSS } from './css';
 import { createElementInstance } from './instance';
 import {
-  AFTER_UPDATE,
   ATTACH,
-  BEFORE_UPDATE,
   CONNECT,
   DESTROY,
   DISCONNECT,
@@ -158,10 +156,6 @@ export function createHTMLElement<T extends AnyCustomElement>(
           runAll(this[MOUNT]);
           this[MOUNT] = undefined;
         }
-
-        // Updates
-        instance[DESTROY].push(scheduler.onBeforeFlush(() => runAll(instance[BEFORE_UPDATE])));
-        instance[DESTROY].push(scheduler.onFlush(() => runAll(instance[AFTER_UPDATE])));
 
         this[MOUNTED] = true;
       }

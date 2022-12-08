@@ -1,13 +1,4 @@
-import {
-  AFTER_UPDATE,
-  ATTACH,
-  BEFORE_UPDATE,
-  CONNECT,
-  DESTROY,
-  DISCONNECT,
-  getCustomElementInstance,
-  MOUNT,
-} from './internal';
+import { ATTACH, CONNECT, DESTROY, DISCONNECT, getCustomElementInstance, MOUNT } from './internal';
 
 export type ElementLifecycleCallback = () => any;
 
@@ -15,8 +6,6 @@ export type ElementLifecycleManager = {
   [ATTACH]: (() => any)[];
   [CONNECT]: (() => any)[];
   [MOUNT]: (() => any)[];
-  [BEFORE_UPDATE]: (() => any)[];
-  [AFTER_UPDATE]: (() => any)[];
   [DISCONNECT]: (() => any)[];
   [DESTROY]: (() => any)[];
 };
@@ -45,23 +34,6 @@ export const onConnect = createLifecycleMethod(CONNECT);
  * - This hook will only run once after the first connect.
  */
 export const onMount = createLifecycleMethod(MOUNT);
-
-/**
- * The given callback is invoked before each component render except the initial render.
- *
- * - This hook is _not_ called on the first mount.
- * - This hook can run more than once (before each render).
- */
-export const onBeforeUpdate = createLifecycleMethod(BEFORE_UPDATE);
-
-/**
- * The given callback is invoked each time _after_ the component has re-rendered except the initial
- * render.
- *
- * - This hook is _not_ called on the first mount.
- * - This hook can run more than once (after each render).
- */
-export const onAfterUpdate = createLifecycleMethod(AFTER_UPDATE);
 
 /**
  * The given callback is invoked when the component has disconnected from the DOM.

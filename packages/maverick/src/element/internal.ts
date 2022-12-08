@@ -30,17 +30,7 @@ export const RENDER = Symbol(__DEV__ ? 'RENDER' : 0);
 export const ATTACH = Symbol(__DEV__ ? 'ATTACH' : 0);
 export const CONNECT = Symbol(__DEV__ ? 'CONNECT' : 0);
 export const MOUNT = Symbol(__DEV__ ? 'MOUNT' : 0);
-export const BEFORE_UPDATE = Symbol(__DEV__ ? 'BEFORE_UPDATE' : 0);
-export const AFTER_UPDATE = Symbol(__DEV__ ? 'AFTER_UPDATE' : 0);
 export const DISCONNECT = Symbol(__DEV__ ? 'DISCONNECT' : 0);
 export const DESTROY = Symbol(__DEV__ ? 'DESTROY' : 0);
 
-export const LIFECYCLES = [
-  ATTACH,
-  CONNECT,
-  MOUNT,
-  BEFORE_UPDATE,
-  AFTER_UPDATE,
-  DISCONNECT,
-  DESTROY,
-] as const;
+export const LIFECYCLES = [ATTACH, CONNECT, MOUNT, DISCONNECT, DESTROY] as const;

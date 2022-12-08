@@ -8,9 +8,7 @@ import {
   defineCustomElement,
   HTMLCustomElement,
   HTMLCustomElementConstructor,
-  onAfterUpdate,
   onAttach,
-  onBeforeUpdate,
   onConnect,
   onDestroy,
   onDisconnect,
@@ -199,15 +197,11 @@ it('should handle errors thrown in lifecycle hooks', () => {
   const attachError = Error(),
     connectError = Error(),
     mountError = Error(),
-    beforeUpdateError = Error(),
-    afterUpdateError = Error(),
     destroyError = Error();
 
   const nextAttach = vi.fn(),
     nextConnect = vi.fn(),
     nextMount = vi.fn(),
-    nextBeforeUpdate = vi.fn(),
-    nextAfterUpdate = vi.fn(),
     nextDestroy = vi.fn();
 
   const errorHandler = vi.fn();
@@ -231,16 +225,6 @@ it('should handle errors thrown in lifecycle hooks', () => {
       });
       onMount(nextMount);
 
-      onBeforeUpdate(() => {
-        throw beforeUpdateError;
-      });
-      onBeforeUpdate(nextBeforeUpdate);
-
-      onAfterUpdate(() => {
-        throw afterUpdateError;
-      });
-      onAfterUpdate(nextAfterUpdate);
-
       onDestroy(() => {
         throw destroyError;
       });
@@ -254,8 +238,6 @@ it('should handle errors thrown in lifecycle hooks', () => {
   expect(nextAttach).not.toHaveBeenCalled();
   expect(nextConnect).not.toHaveBeenCalled();
   expect(nextMount).not.toHaveBeenCalled();
-  expect(nextBeforeUpdate).not.toHaveBeenCalled();
-  expect(nextAfterUpdate).not.toHaveBeenCalled();
   expect(nextDestroy).not.toHaveBeenCalled();
 
   element.attachComponent(instance);
@@ -267,56 +249,10 @@ it('should handle errors thrown in lifecycle hooks', () => {
   expect(nextConnect).toHaveBeenCalledTimes(1);
   expect(nextMount).toHaveBeenCalledTimes(1);
 
-  tick();
-  expect(errorHandler).toHaveBeenCalledTimes(5);
-  expect(errorHandler).toHaveBeenCalledWith(beforeUpdateError);
-  expect(errorHandler).toHaveBeenCalledWith(afterUpdateError);
-  expect(nextBeforeUpdate).toHaveBeenCalledTimes(1);
-  expect(nextAfterUpdate).toHaveBeenCalledTimes(1);
-
   instance.destroy();
-  expect(errorHandler).toHaveBeenCalledTimes(6);
+  expect(errorHandler).toHaveBeenCalledTimes(4);
   expect(errorHandler).toHaveBeenCalledWith(destroyError);
   expect(nextDestroy).toHaveBeenCalledTimes(1);
-});
-
-it('should call update hooks', () => {
-  const beforeUpdate = vi.fn();
-  const afterUpdate = vi.fn();
-
-  let beforeCalledAt = 0;
-  let afterCalledAt = 0;
-
-  const { instance, element } = setupTestElement({
-    props: {
-      foo: { initial: 10 },
-    },
-    setup() {
-      onBeforeUpdate(() => {
-        beforeUpdate();
-        beforeCalledAt = performance.now();
-      });
-      onAfterUpdate(() => {
-        afterUpdate();
-        afterCalledAt = performance.now();
-      });
-      return () => null;
-    },
-  });
-
-  expect(beforeUpdate).not.toHaveBeenCalled();
-  expect(afterUpdate).not.toHaveBeenCalled();
-
-  element.attachComponent(instance);
-  expect(beforeUpdate).not.toHaveBeenCalled();
-  expect(afterUpdate).not.toHaveBeenCalled();
-
-  instance[PROPS].foo = 20;
-  tick();
-  expect(beforeUpdate).toHaveBeenCalled();
-  expect(afterUpdate).toHaveBeenCalled();
-
-  expect(beforeCalledAt < afterCalledAt).toBeTruthy();
 });
 
 it('should call disconnect lifecycle hook', () => {

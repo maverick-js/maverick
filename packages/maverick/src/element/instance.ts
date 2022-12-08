@@ -5,9 +5,7 @@ import { createScopedRunner, provideContextMap, useContextMap } from '../runtime
 import { runAll } from '../std/fn';
 import { noop } from '../std/unit';
 import {
-  AFTER_UPDATE,
   ATTACH,
-  BEFORE_UPDATE,
   CONNECT,
   DESTROY,
   DISCONNECT,
@@ -83,8 +81,6 @@ export function createElementInstance<T extends AnyCustomElement>(
       [ATTACH]: [],
       [CONNECT]: [],
       [MOUNT]: [],
-      [BEFORE_UPDATE]: [],
-      [AFTER_UPDATE]: [],
       [DISCONNECT]: [],
       [DESTROY]: [],
       accessors: () => $$props,

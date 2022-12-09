@@ -1,4 +1,4 @@
-import { effect as $effect, type Effect, scope, type StopEffect } from '@maverick-js/signals';
+import { effect as $effect, scope } from '@maverick-js/signals';
 
 import { noop } from '../std/unit';
 
@@ -8,10 +8,7 @@ import { noop } from '../std/unit';
  *
  * @see {@link https://github.com/maverick-js/signals#effect}
  */
-export function effect(fn: Effect, opts?: { id?: string }): StopEffect {
-  if (__SERVER__) return noop;
-  return $effect(fn, opts);
-}
+export const effect = (__SERVER__ ? noop : $effect) as typeof $effect;
 
 /**
  * Creates a runner that executes functions in the current lexical scope.

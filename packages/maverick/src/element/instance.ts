@@ -141,6 +141,7 @@ function createInstanceProps<Props>(propDefs: CustomElementPropDefinitions<Props
     const $prop = signal((def as any).initial, def);
     Object.defineProperty(props, propName, {
       enumerable: true,
+      configurable: true,
       get() {
         return $prop();
       },

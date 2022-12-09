@@ -115,13 +115,13 @@ export function createElementInstance<T extends AnyCustomElement>(
 
     const $render = instance[MEMBERS]!.$render;
     if ($render) {
-      const render = root(() => {
+      const render = root(function runInstanceRoot() {
         // Create a new root context map to prevent children from overwriting flat context tree.
         provideContextMap(new Map(useContextMap()));
         return scope($render);
       }) as () => any;
 
-      instance[RENDER] = () => {
+      instance[RENDER] = function renderInstance() {
         setCustomElementInstance(instance);
         const result = peek(render);
         setCustomElementInstance(null);

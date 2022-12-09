@@ -14,9 +14,9 @@ export const effect = (__SERVER__ ? noop : $effect) as typeof $effect;
  * Creates a runner that executes functions in the current lexical scope.
  */
 export function createScopedRunner() {
-  let currentFn: (() => any) | undefined;
-  const run = scope(() => currentFn?.());
-  return <T>(fn: () => T) => {
+  let currentFn: (() => any) | undefined,
+    run = scope(() => currentFn?.());
+  return function runWithScope<T>(fn: () => T) {
     currentFn = fn;
     const result = run();
     currentFn = undefined;

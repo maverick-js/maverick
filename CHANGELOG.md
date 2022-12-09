@@ -1,3 +1,20 @@
+# [0.15.0](https://github.com/maverick-js/maverick/compare/v0.14.0...v0.15.0) (2022-12-09)
+
+
+### Bug Fixes
+
+* `CustomElementInstanceHost` -> `CustomElementHost` ([d0bca60](https://github.com/maverick-js/maverick/commit/d0bca608f44e659e1bcb46a0ee490b8bde32a846))
+* add missing JSX runtime type declaration ([cb10dae](https://github.com/maverick-js/maverick/commit/cb10daec962d43798ba6d5a8d86196b122c153ce))
+* **analyze:** `tagname` -> `tag` ([362f780](https://github.com/maverick-js/maverick/commit/362f7806e563935e29d82240b37ed89137eb7c4d))
+* **analyze:** if no initial config set prop default to undefined ([7346577](https://github.com/maverick-js/maverick/commit/7346577db232d4fb72c9c7aca954b5111da35255))
+
+
+### Features
+
+* **analyze:** include element definition meta ([2e58880](https://github.com/maverick-js/maverick/commit/2e58880b879593d8e1a18e7691a2cf3b878025de))
+
+
+
 # [0.14.0](https://github.com/maverick-js/maverick/compare/v0.13.1...v0.14.0) (2022-12-08)
 
 

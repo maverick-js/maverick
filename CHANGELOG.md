@@ -1,3 +1,19 @@
+# [0.16.0](https://github.com/maverick-js/maverick/compare/v0.15.0...v0.16.0) (2022-12-09)
+
+
+### Bug Fixes
+
+* dont wrap re-exported effect ([98c5b45](https://github.com/maverick-js/maverick/commit/98c5b4573a1ba473390db18712cc6b64ff872d9c))
+* element instance accessors should be configurable ([357fa8f](https://github.com/maverick-js/maverick/commit/357fa8ff04aa1cc420d0e41c4bfcf27d0f21e690))
+* name instance functions for debugging ([ac19a40](https://github.com/maverick-js/maverick/commit/ac19a4052997b0ef70fecffe0a82f6b6add167f0))
+
+
+### Features
+
+* bump `@maverick-js/signals` to `5.0.2` ([c3bab3d](https://github.com/maverick-js/maverick/commit/c3bab3d6f31398da47e6869606cdff19e397611d))
+
+
+
 # [0.15.0](https://github.com/maverick-js/maverick/compare/v0.14.0...v0.15.0) (2022-12-09)
 
 

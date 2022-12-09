@@ -20,6 +20,10 @@ function base({ dev = false, server = false } = {}): Options {
         opts.mangleProps = /^_/;
       }
 
+      opts.conditions = dev
+        ? ['development', 'production', 'default']
+        : ['production', 'development', 'default'];
+
       opts.chunkNames = 'chunks/[name]-[hash]';
     },
   };

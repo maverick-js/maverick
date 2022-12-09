@@ -40,10 +40,10 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
     };
 
     components
-      .filter((component) => !isUndefined(component.tagname))
+      .filter((component) => !isUndefined(component.tag))
       .forEach((component) => {
         const tagData: ITagData = {
-          name: component.tagname!.name,
+          name: component.tag!.name,
           description: component.docs,
           attributes: (component.props ?? [])
             .filter((prop) => !!prop.attribute && !prop.readonly && !prop.internal)

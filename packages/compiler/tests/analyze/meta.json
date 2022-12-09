@@ -1,7 +1,7 @@
 [
   {
     "name": "FooElement",
-    "tagname": {
+    "tag": {
       "name": "mk-foo"
     },
     "definition": {

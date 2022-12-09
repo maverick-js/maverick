@@ -102,7 +102,7 @@ export interface FileMeta {
   path: string;
 }
 
-export interface TagNameMeta {
+export interface TagMeta {
   [TS_NODE]: ts.Node;
   name: string;
 }
@@ -121,7 +121,7 @@ export interface ComponentMeta extends Record<string, unknown> {
   [TS_NODE]: ts.Node;
   file: FileMeta;
   name: string;
-  tagname: TagNameMeta;
+  tag: TagMeta;
   definition: DefinitionMeta;
   shadow?: boolean;
   docs?: string;

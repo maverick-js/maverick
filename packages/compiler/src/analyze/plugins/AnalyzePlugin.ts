@@ -1,11 +1,11 @@
 import type ts from 'typescript';
 
-import type { ComponentMeta } from '../meta/component';
+import type { ComponentMeta, TagMeta } from '../meta/component';
 import type { SeenMemberSignatures } from '../utils/walk';
 
 export interface ElementDefintionNode {
   name: string;
-  tagName: ComponentMeta['tagname'];
+  tag: TagMeta;
   statement: ts.VariableStatement;
   variable: ts.VariableDeclaration;
   call: ts.CallExpression;

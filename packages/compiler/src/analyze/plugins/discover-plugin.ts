@@ -79,7 +79,7 @@ export function createDiscoverPlugin(): AnalyzePlugin {
 
             definitions.push({
               name: rootType.name.escapedText as string,
-              tagName: {
+              tag: {
                 [TS_NODE]: tagNameNode,
                 name: tagName.text,
               },

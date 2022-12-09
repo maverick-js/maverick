@@ -6,17 +6,17 @@ import { isUndefined } from '../../utils/unit';
 import { type ComponentMeta, TS_NODE } from '../meta/component';
 
 export function validateComponent(component: ComponentMeta): void {
-  if (isUndefined(component.tagname)) return;
-  const tagError = validateComponentTag(component.tagname.name);
+  if (isUndefined(component.tag)) return;
+  const tagError = validateComponentTag(component.tag.name);
   if (!isUndefined(tagError)) {
-    reportDiagnosticByNode(tagError, component.tagname[TS_NODE], LogLevel.Error);
+    reportDiagnosticByNode(tagError, component.tag[TS_NODE], LogLevel.Error);
   }
 }
 
 export function validateUniqueTagNames(components: ComponentMeta[]): void {
   filterArrayUnique(components, 'tagName').forEach((component) => {
-    const { tagname: tagName } = component;
-    const usedBy = components.filter((c) => c.tagname.name === tagName.name);
+    const { tag: tagName } = component;
+    const usedBy = components.filter((c) => c.tag.name === tagName.name);
     if (usedBy.length > 1) {
       log(
         () =>

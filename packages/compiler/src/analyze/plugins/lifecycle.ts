@@ -115,9 +115,7 @@ export async function runPluginsBuild(plugins: AnalyzePlugin[], definition: Elem
 
     if (component) {
       log(
-        `${formatPluginName(plugin.name)} built meta for ${kleur.blue(
-          component.tagname.name ?? '',
-        )}`,
+        `${formatPluginName(plugin.name)} built meta for ${kleur.blue(component.tag.name ?? '')}`,
         LogLevel.Verbose,
       );
 

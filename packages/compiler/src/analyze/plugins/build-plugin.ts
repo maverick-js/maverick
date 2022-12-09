@@ -34,7 +34,7 @@ export function buildComponentMeta(
   return {
     [TS_NODE]: def.statement,
     name: def.name,
-    tagname: def.tagName,
+    tag: def.tag,
     definition: {
       [TS_NODE]: def.variable,
       name: def.variable.name.getText(),

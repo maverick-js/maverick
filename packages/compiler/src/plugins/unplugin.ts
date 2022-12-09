@@ -48,7 +48,7 @@ export const unplugin = createUnplugin((options: Options = {}) => {
     });
 
   return {
-    name: '@maverick/elements',
+    name: 'maverick.js',
     enforce: 'pre',
     transformInclude(id) {
       return filter(id);
@@ -57,6 +57,13 @@ export const unplugin = createUnplugin((options: Options = {}) => {
       return transformCode(code, id);
     },
     vite: {
+      config() {
+        return {
+          optimizeDeps: {
+            exclude: ['maverick.js'],
+          },
+        };
+      },
       configResolved(config) {
         if (config.env.MODE === 'test') generate = generate ?? 'dom';
         if (config.isProduction) pretty = false;

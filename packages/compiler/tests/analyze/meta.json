@@ -95,6 +95,18 @@
         "attribute": "voo"
       },
       {
+        "name": "zoo",
+        "default": "undefined",
+        "type": {
+          "serialized": "number | undefined",
+          "union": [
+            "number",
+            "undefined"
+          ]
+        },
+        "attribute": "zoo"
+      },
+      {
         "name": "bam",
         "default": "'foo'",
         "type": {

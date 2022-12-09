@@ -17,7 +17,7 @@ import { findDocTag, getDocTags, hasDocTag } from './doctags';
 export interface PropMetaInfo {
   attribute?: string;
   reflect?: boolean;
-  value?: ts.Node | false;
+  value?: string | false;
 }
 
 export function buildPropsMeta(
@@ -44,7 +44,8 @@ export function buildPropsMeta(
       let info: PropMetaInfo = {};
 
       if (definition) {
-        info.value = getPropertyAssignmentValue(checker, definition, 'initial');
+        info.value =
+          getPropertyAssignmentValue(checker, definition, 'initial')?.getText() ?? 'undefined';
 
         const attr = getValueNode(
             checker,
@@ -136,7 +137,7 @@ export function buildPropMeta(
   }
 
   if (!$default && info?.value) {
-    $default = info.value.getText();
+    $default = info.value;
   }
 
   return {

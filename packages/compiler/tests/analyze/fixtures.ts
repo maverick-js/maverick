@@ -14,6 +14,7 @@ type FooProps = {
   baxHux: Bar;
   /** @defaultValue null */
   huxBux: string | null;
+  zoo: number | undefined;
 } & {
   /**
    * This is the bam docs.
@@ -120,6 +121,7 @@ export const FooElement = defineCustomElement<FooElement>({
       bam: { initial: 'foo' },
       show: { initial: () => 'foo' },
     },
+    zoo: {},
   },
   cssvars: {
     foo: 0,

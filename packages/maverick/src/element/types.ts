@@ -1,8 +1,8 @@
 import type { Constructor, Simplify } from 'type-fest';
 
-import type { ContextMap, JSX, ReadSignal, SignalOptions, WriteSignal } from '../runtime';
+import type { ContextMap, JSX, ReadSignal, Scope, SignalOptions, WriteSignal } from '../runtime';
 import type { CSS } from './css';
-import type { HOST, MEMBERS, PROPS, RENDER } from './internal';
+import type { HOST, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
 import type { ElementLifecycleManager } from './lifecycle';
 
 export type AttributeValue = string | null;
@@ -213,6 +213,8 @@ export type AnyCustomElementInstance = CustomElementInstance<AnyCustomElement>;
 
 export interface CustomElementInstance<T extends AnyCustomElement> extends ElementLifecycleManager {
   /** @internal */
+  [SCOPE]: Scope | null;
+  /** @internal */
   [PROPS]: InferCustomElementProps<T>;
   /** @internal */
   [MEMBERS]?: Record<string, any>;
@@ -240,10 +242,6 @@ export interface CustomElementInstance<T extends AnyCustomElement> extends Eleme
    * of sync between the host framework and internally which will cause inconsistent states.**
    */
   readonly accessors: () => InferCustomElementProps<T>;
-  /**
-   * Runs given function inside instance scope.
-   */
-  readonly run: <T>(fn: () => T) => T;
 }
 
 export interface CustomElementHost<T extends AnyCustomElement> {

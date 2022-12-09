@@ -1,6 +1,16 @@
-import { effect, getScheduler, isWriteSignal, root, tick, untrack } from '@maverick-js/signals';
+import {
+  Dispose,
+  effect,
+  getScope,
+  isWriteSignal,
+  root,
+  Scope,
+  scoped,
+  tick,
+  untrack,
+} from '@maverick-js/signals';
 
-import { createScopedRunner, hydrate, hydration, render } from '../runtime';
+import { hydrate, hydration, render } from '../runtime';
 import { $$_create_element } from '../runtime/dom/internal';
 import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';
@@ -8,17 +18,7 @@ import { camelToKebabCase } from '../std/string';
 import { isBoolean, isFunction } from '../std/unit';
 import { adoptCSS } from './css';
 import { createElementInstance } from './instance';
-import {
-  ATTACH,
-  CONNECT,
-  DESTROY,
-  DISCONNECT,
-  HOST,
-  MEMBERS,
-  MOUNT,
-  PROPS,
-  RENDER,
-} from './internal';
+import { ATTACH, CONNECT, DESTROY, HOST, MEMBERS, MOUNT, PROPS, RENDER, SCOPE } from './internal';
 import type {
   AnyCustomElement,
   AnyCustomElementDefinition,
@@ -32,8 +32,7 @@ import type {
   InferCustomElementProps,
 } from './types';
 
-const scheduler = getScheduler(),
-  MOUNTED = Symbol(__DEV__ ? 'MOUNTED' : 0);
+const MOUNTED = Symbol(__DEV__ ? 'MOUNTED' : 0);
 
 export function createHTMLElement<T extends AnyCustomElement>(
   definition: CustomElementDefinition<T>,
@@ -71,8 +70,9 @@ export function createHTMLElement<T extends AnyCustomElement>(
     private _destroyed = false;
     private _instance: AnyCustomElementInstance | null = null;
     private _onEventDispatch?: (eventType: string) => void;
-    /** Dynamic disconnect callbacks returned from `onConnect` */
-    private _disconnectCallbacks: (() => void)[] = [];
+
+    private _connectScope: Scope | null = null;
+    private _disconnectCallbacks: Dispose[] = [];
 
     private get _hydrate() {
       return this.hasAttribute('mk-h');
@@ -122,31 +122,38 @@ export function createHTMLElement<T extends AnyCustomElement>(
       instance.host[PROPS].$connected.set(true);
 
       if (instance[CONNECT].length) {
-        instance.run(() => {
+        scoped(() => {
+          // Create new connect root scope so we can dispose of it on disconnect.
           root((dispose) => {
-            const run = createScopedRunner();
+            this._connectScope = getScope()!;
 
             for (const connectCallback of instance[CONNECT]) {
-              const disconnectCallback = run(connectCallback);
-              if (isFunction(disconnectCallback)) {
-                this._disconnectCallbacks.push(() => run(disconnectCallback));
-              }
+              // Running in `scoped` to ensure any errors are only contained to a single hook.
+              scoped(() => {
+                const disconnectCallback = connectCallback();
+                if (typeof disconnectCallback === 'function') {
+                  this._disconnectCallbacks.push(disconnectCallback);
+                }
+              }, this._connectScope);
             }
 
             this._disconnectCallbacks.push(dispose);
           });
-        });
+        }, instance[SCOPE]);
       }
 
       // Mount
       if (!instance.host.$mounted) {
         instance.host[PROPS].$mounted.set(true);
+        tick();
 
         for (const mountCallback of instance[MOUNT]) {
-          const destroyCallback = mountCallback();
-          if (isFunction(destroyCallback)) {
-            instance[DESTROY].push(() => instance.run(destroyCallback));
-          }
+          scoped(() => {
+            const destroyCallback = mountCallback();
+            if (typeof destroyCallback === 'function') {
+              instance[DESTROY].push(destroyCallback);
+            }
+          }, instance[SCOPE]);
         }
 
         instance[MOUNT].length = 0;
@@ -154,7 +161,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
 
         if (this[MOUNT]) {
           runAll(this[MOUNT]);
-          this[MOUNT] = undefined;
+          this[MOUNT] = null;
         }
 
         this[MOUNTED] = true;
@@ -167,9 +174,13 @@ export function createHTMLElement<T extends AnyCustomElement>(
       if (!instance?.host.$connected || this._destroyed) return;
 
       instance.host[PROPS].$connected.set(false);
-      runAll(instance[DISCONNECT]);
-      runAll(this._disconnectCallbacks);
-      this._disconnectCallbacks.length = 0;
+      tick();
+
+      for (const disconnectCallback of this._disconnectCallbacks) {
+        scoped(disconnectCallback, this._connectScope);
+      }
+
+      this._connectScope = null;
       tick();
 
       if (!this._delegate) {
@@ -255,14 +266,11 @@ export function createHTMLElement<T extends AnyCustomElement>(
       this._instance = instance;
 
       for (const attachCallback of instance[ATTACH]) {
-        const destroyCallback = attachCallback();
-        if (isFunction(destroyCallback)) {
-          instance[DESTROY].push(() => instance.run(destroyCallback));
-        }
+        scoped(attachCallback, instance[SCOPE]);
       }
 
       if (reflectedProps.size) {
-        instance.run(() => {
+        scoped(() => {
           // Reflected props.
           for (const propName of reflectedProps) {
             const attrName = propToAttr.get(propName)!;
@@ -273,7 +281,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
               setAttribute(this, attrName, attrValue);
             });
           }
-        });
+        }, instance[SCOPE]);
       }
 
       if (this._root && $render) {
@@ -285,6 +293,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
       }
 
       instance[DESTROY].push(() => {
+        this.disconnectedCallback();
         this._instance = null;
         this._destroyed = true;
       });
@@ -338,7 +347,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
         let run = () => this._attachComponent();
         for (const dep of deps) {
           const next = run;
-          run = () => dep.instance!.run(next);
+          run = () => scoped(next, dep.instance![SCOPE]);
         }
 
         run();

@@ -1,4 +1,4 @@
-import { ATTACH, CONNECT, DESTROY, DISCONNECT, getCustomElementInstance, MOUNT } from './internal';
+import { ATTACH, CONNECT, DESTROY, getCustomElementInstance, MOUNT } from './internal';
 
 export type ElementLifecycleCallback = () => any;
 
@@ -6,12 +6,11 @@ export type ElementLifecycleManager = {
   [ATTACH]: (() => any)[];
   [CONNECT]: (() => any)[];
   [MOUNT]: (() => any)[];
-  [DISCONNECT]: (() => any)[];
   [DESTROY]: (() => any)[];
 };
 
 /**
- * The given callback is invoked when the component has attached to a host element.
+ * The given callback is invoked when the component instance has attached to a host element.
  *
  * - This hook will only run once when the component is attached.
  * - This hook may be called while the host element is not connected to the DOM yet.
@@ -20,38 +19,23 @@ export type ElementLifecycleManager = {
 export const onAttach = createLifecycleMethod(ATTACH);
 
 /**
- * The given callback is invoked when the component has connected to the DOM. If a function is
- * returned from the invoked callback, it will be run when the component disconnects from the DOM.
+ * The given callback is invoked when the host element has connected to the DOM.
  *
- * - This hook can run more than once as the component disconnects and re-connects to the DOM.
+ * - This hook can run more than once as the host disconnects and re-connects to the DOM.
+ * - If a function is returned it will be invoked when the host disconnects from the DOM.
  */
 export const onConnect = createLifecycleMethod(CONNECT);
 
 /**
- * The given callback is invoked when the component has connected to the DOM and rendered its
+ * The given callback is invoked when the host element has connected to the DOM and rendered its
  * contents.
  *
  * - This hook will only run once after the first connect.
+ * - If a function is returned it will be called when the instance is destroyed.
  */
 export const onMount = createLifecycleMethod(MOUNT);
 
-/**
- * The given callback is invoked when the component has disconnected from the DOM.
- *
- * - This hook can run more than once as the component disconnects and re-connects to the DOM.
- */
-export const onDisconnect = createLifecycleMethod(DISCONNECT);
-
-/**
- * The given callback is invoked when the component is destroyed either by _not_ re-connecting
- * to the DOM after a animation frame, or when destroyed by the application.
- *
- * - This hook will only run once.
- */
-export const onDestroy = createLifecycleMethod(DESTROY);
-
 function createLifecycleMethod(type: keyof ElementLifecycleManager) {
-  const isConnect = type === CONNECT;
   return (callback: ElementLifecycleCallback) => {
     if (__SERVER__ && type !== ATTACH) return;
 
@@ -62,6 +46,6 @@ function createLifecycleMethod(type: keyof ElementLifecycleManager) {
       return;
     }
 
-    instance[type].push(isConnect ? callback : () => instance.run(callback));
+    instance[type].push(callback);
   };
 }

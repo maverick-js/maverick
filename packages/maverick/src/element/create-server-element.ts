@@ -1,11 +1,10 @@
-import { renderToString, tick } from '../runtime';
+import { renderToString, scoped, tick } from '../runtime';
 import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
-import { runAll } from '../std/fn';
 import { escape } from '../std/html';
 import { camelToKebabCase } from '../std/string';
 import { isBoolean, isFunction } from '../std/unit';
-import { ATTACH, HOST, PROPS, RENDER } from './internal';
+import { ATTACH, HOST, PROPS, RENDER, SCOPE } from './internal';
 import type {
   AnyCustomElement,
   AnyCustomElementDefinition,
@@ -99,7 +98,10 @@ export function createServerElement<T extends AnyCustomElement>(
 
       instance.host.el = this as any;
       this._instance = instance;
-      runAll(instance[ATTACH]);
+
+      for (const attachCallback of instance[ATTACH]) {
+        scoped(attachCallback, instance[SCOPE]);
+      }
 
       // prop reflection.
       for (const propName of reflectedProps.keys()) {

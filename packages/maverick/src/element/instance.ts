@@ -1,19 +1,19 @@
-import { peek, root, scope, signal, tick } from '@maverick-js/signals';
+import { getScope, root, Scope, scoped, signal, tick } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
-import { createScopedRunner, provideContextMap, useContextMap } from '../runtime';
+import { provideContextMap, useContextMap } from '../runtime';
 import { runAll } from '../std/fn';
 import { noop } from '../std/unit';
 import {
   ATTACH,
   CONNECT,
   DESTROY,
-  DISCONNECT,
   LIFECYCLES,
   MEMBERS,
   MOUNT,
   PROPS,
   RENDER,
+  SCOPE,
   setCustomElementInstance,
 } from './internal';
 import type {
@@ -77,11 +77,11 @@ export function createElementInstance<T extends AnyCustomElement>(
             }
           : (noop as any),
       }),
+      [SCOPE]: getScope()!,
       [PROPS]: $$props,
       [ATTACH]: [],
       [CONNECT]: [],
       [MOUNT]: [],
-      [DISCONNECT]: [],
       [DESTROY]: [],
       accessors: () => $$props,
       destroy() {
@@ -89,10 +89,15 @@ export function createElementInstance<T extends AnyCustomElement>(
 
         if (!__SERVER__) {
           $connected.set(false);
-          runAll(instance[DISCONNECT]);
           $mounted.set(false);
-          runAll(instance[DESTROY]);
           tick();
+
+          for (const destroyCallback of instance[DESTROY]) {
+            scoped(destroyCallback, instance[SCOPE]);
+          }
+
+          tick();
+
           for (const type of LIFECYCLES) instance[type].length = 0;
           dispose();
         } else {
@@ -100,13 +105,13 @@ export function createElementInstance<T extends AnyCustomElement>(
           dispose();
         }
 
+        instance[SCOPE] = null;
         instance[MEMBERS] = undefined;
         instance[RENDER] = undefined;
 
         host.el = null;
         destroyed = true;
       },
-      run: createScopedRunner(),
     };
 
     setCustomElementInstance(instance);
@@ -115,16 +120,23 @@ export function createElementInstance<T extends AnyCustomElement>(
 
     const $render = instance[MEMBERS]!.$render;
     if ($render) {
-      const render = root(function runInstanceRoot() {
-        // Create a new root context map to prevent children from overwriting flat context tree.
-        provideContextMap(new Map(useContextMap()));
-        return scope($render);
-      }) as () => any;
+      let scope!: Scope;
 
-      instance[RENDER] = function renderInstance() {
-        setCustomElementInstance(instance);
-        const result = peek(render);
-        setCustomElementInstance(null);
+      // Create a new root context to prevent children from overwriting flat context tree.
+      root(() => {
+        provideContextMap(new Map(useContextMap()));
+        scope = getScope()!;
+      });
+
+      instance[RENDER] = function render() {
+        let result = null;
+
+        scoped(() => {
+          setCustomElementInstance(instance);
+          result = $render();
+          setCustomElementInstance(null);
+        }, scope);
+
         return result;
       };
     }

@@ -1,4 +1,4 @@
-import { effect as $effect, scope } from '@maverick-js/signals';
+import { effect as $effect } from '@maverick-js/signals';
 
 import { noop } from '../std/unit';
 
@@ -9,20 +9,6 @@ import { noop } from '../std/unit';
  * @see {@link https://github.com/maverick-js/signals#effect}
  */
 export const effect = (__SERVER__ ? noop : $effect) as typeof $effect;
-
-/**
- * Creates a runner that executes functions in the current lexical scope.
- */
-export function createScopedRunner() {
-  let currentFn: (() => any) | undefined,
-    run = scope(() => currentFn?.());
-  return function runWithScope<T>(fn: () => T) {
-    currentFn = fn;
-    const result = run();
-    currentFn = undefined;
-    return result;
-  };
-}
 
 export * from '@maverick-js/signals';
 export * from './store';

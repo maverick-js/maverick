@@ -1,3 +1,13 @@
+## [0.16.2](https://github.com/maverick-js/maverick/compare/v0.16.1...v0.16.2) (2022-12-09)
+
+
+### Bug Fixes
+
+* exclude maverick from vite optimized deps ([66f1515](https://github.com/maverick-js/maverick/commit/66f1515b860ff8aa4b5e5590f4e2d46bacc5c234))
+* prod signals being used in dev bundle ([6e121d4](https://github.com/maverick-js/maverick/commit/6e121d40101a825de2f070ffe744b02472435a30))
+
+
+
 ## [0.16.1](https://github.com/maverick-js/maverick/compare/v0.16.0...v0.16.1) (2022-12-09)
 
 

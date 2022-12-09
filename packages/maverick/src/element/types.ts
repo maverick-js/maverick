@@ -218,14 +218,10 @@ export interface CustomElementInstance<T extends AnyCustomElement> extends Eleme
   [MEMBERS]?: Record<string, any>;
   /** @internal */
   [RENDER]?: () => JSX.Element;
-  readonly host: CustomElementInstanceHost<T> & {
-    /** @internal */
-    [PROPS]: {
-      $connected: WriteSignal<boolean>;
-      $mounted: WriteSignal<boolean>;
-      $children: ReadSignal<boolean> | WriteSignal<boolean>;
-    };
-  };
+  /**
+   * Contains the custom host element itself and additional lifecycle state props.
+   */
+  readonly host: CustomElementHost<T>;
   /**
    * Component properties where each value is a readonly signal. Do note destructure this
    * object because it will result in a loss of reactivity.
@@ -250,7 +246,13 @@ export interface CustomElementInstance<T extends AnyCustomElement> extends Eleme
   readonly run: <T>(fn: () => T) => T;
 }
 
-export interface CustomElementInstanceHost<T extends AnyCustomElement> {
+export interface CustomElementHost<T extends AnyCustomElement> {
+  /** @internal */
+  [PROPS]: {
+    $connected: WriteSignal<boolean>;
+    $mounted: WriteSignal<boolean>;
+    $children: ReadSignal<boolean> | WriteSignal<boolean>;
+  };
   /**
    * The custom element this component is attached to. This is safe to call server-side with the
    * limited API isted below.

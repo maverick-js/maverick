@@ -4,6 +4,9 @@
     "tagname": {
       "name": "mk-foo"
     },
+    "definition": {
+      "name": "FooElementDefinition"
+    },
     "file": {
       "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/compiler/tests/analyze/fixtures.ts"
     },

@@ -35,6 +35,10 @@ export function buildComponentMeta(
     [TS_NODE]: def.statement,
     name: def.name,
     tagname: def.tagName,
+    definition: {
+      [TS_NODE]: def.variable,
+      name: def.variable.name.getText(),
+    },
     file: buildFileMeta(def.statement),
     shadow: buildShadowRootMeta(checker, def.declaration),
     docs: getDocs(checker, def.types.root.name),

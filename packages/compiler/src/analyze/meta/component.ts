@@ -112,11 +112,17 @@ export interface MembersMeta {
   methods?: MethodMeta[];
 }
 
+export interface DefinitionMeta {
+  [TS_NODE]: ts.VariableDeclaration;
+  name: string;
+}
+
 export interface ComponentMeta extends Record<string, unknown> {
   [TS_NODE]: ts.Node;
   file: FileMeta;
   name: string;
   tagname: TagNameMeta;
+  definition: DefinitionMeta;
   shadow?: boolean;
   docs?: string;
   doctags?: DocTagMeta[];

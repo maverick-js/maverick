@@ -1,3 +1,12 @@
+## [0.16.4](https://github.com/maverick-js/maverick/compare/v0.16.3...v0.16.4) (2022-12-10)
+
+
+### Bug Fixes
+
+* throw error on cyclic trigger event chain ([fd0342f](https://github.com/maverick-js/maverick/commit/fd0342f1d7947088fde7678a606c86308cfa1fa6))
+
+
+
 ## [0.16.3](https://github.com/maverick-js/maverick/compare/v0.16.2...v0.16.3) (2022-12-09)
 
 

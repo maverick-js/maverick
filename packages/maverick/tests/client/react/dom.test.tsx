@@ -251,29 +251,29 @@ it('should update event callbacks', () => {
 
   // it should add listener.
   act(() => {
-    element.dispatchEvent(new DOMEvent('foo-event'));
+    element.dispatchEvent(new DOMEvent<void>('foo-event'));
   });
 
   expect(state.textContent).toBe('1');
 
   // it should update listener.
   act(() => {
-    element.dispatchEvent(new DOMEvent('reset-event'));
-    element.dispatchEvent(new DOMEvent('foo-event'));
+    element.dispatchEvent(new DOMEvent<void>('reset-event'));
+    element.dispatchEvent(new DOMEvent<void>('foo-event'));
   });
 
   expect(state.textContent).toBe('2');
 
   // it should remove listener.
   act(() => {
-    element.dispatchEvent(new DOMEvent('foo-event'));
-    element.dispatchEvent(new DOMEvent('foo-event'));
+    element.dispatchEvent(new DOMEvent<void>('foo-event'));
+    element.dispatchEvent(new DOMEvent<void>('foo-event'));
   });
 
   expect(state.textContent).toBe('2');
 
   act(() => {
-    element.dispatchEvent(new DOMEvent('reset-event'));
+    element.dispatchEvent(new DOMEvent<void>('reset-event'));
   });
 
   expect(state.textContent).toBe('0');

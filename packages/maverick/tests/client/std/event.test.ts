@@ -9,42 +9,42 @@ import {
 it('should identify dom event', () => {
   expect(isDOMEvent(null)).toBeFalsy();
   expect(isDOMEvent(new MouseEvent('foo'))).toBeFalsy();
-  expect(isDOMEvent(new DOMEvent('foo'))).toBeTruthy();
+  expect(isDOMEvent(new DOMEvent<void>('foo'))).toBeTruthy();
 });
 
 it('should define event detail', () => {
-  const event = new DOMEvent('foo', { detail: 10 });
+  const event = new DOMEvent<number>('foo', { detail: 10 });
   expect(event.detail).toBe(10);
 });
 
 it('should define trigger event', () => {
   const triggerEvent = new MouseEvent('foo');
-  const event = new DOMEvent('foo', { detail: null, triggerEvent });
+  const event = new DOMEvent<void>('foo', { triggerEvent });
   expect(event.triggerEvent).toBe(triggerEvent);
 });
 
 it('should return self as origin event', () => {
-  const event = new DOMEvent('foo');
+  const event = new DOMEvent<void>('foo');
   expect(event.originEvent).toBe(event);
 });
 
 it('should return shallow origin event', () => {
   const triggerEvent = new MouseEvent('click');
-  const event = new DOMEvent('click', { detail: null, triggerEvent });
+  const event = new DOMEvent<void>('click', { triggerEvent });
   expect(event.originEvent).toBe(triggerEvent);
 });
 
 it('should return deep origin event', () => {
   const originEvent = new MouseEvent('click');
-  const triggerEvent = new DOMEvent('click', { detail: null, triggerEvent: originEvent });
-  const event = new DOMEvent('click', { detail: null, triggerEvent });
+  const triggerEvent = new DOMEvent<void>('click', { triggerEvent: originEvent });
+  const event = new DOMEvent<void>('click', { triggerEvent });
   expect(event.originEvent).toBe(originEvent);
 });
 
 it('should walk event chain', () => {
-  const eventA = new DOMEvent('event-a');
-  const eventB = new DOMEvent('event-b', { detail: null, triggerEvent: eventA });
-  const eventC = new DOMEvent('event-c', { detail: null, triggerEvent: eventB });
+  const eventA = new DOMEvent<void>('event-a');
+  const eventB = new DOMEvent<void>('event-b', { triggerEvent: eventA });
+  const eventC = new DOMEvent<void>('event-c', { triggerEvent: eventB });
   const callback = vi.fn();
   walkTriggerEventChain(eventC, callback);
   expect(callback).toBeCalledTimes(2);
@@ -53,18 +53,50 @@ it('should walk event chain', () => {
 });
 
 it('should find trigger event', () => {
-  const eventA = new DOMEvent('event-a');
-  const eventB = new DOMEvent('event-b', { detail: null, triggerEvent: eventA });
-  const eventC = new DOMEvent('event-c', { detail: null, triggerEvent: eventB });
-  expect(findTriggerEvent(eventC, 'event-b')).toBeTruthy();
-  expect(findTriggerEvent(eventC, 'event-invalid')).toBeFalsy();
+  const eventA = new DOMEvent<void>('a');
+  const eventB = new DOMEvent<void>('b', { triggerEvent: eventA });
+  const eventC = new DOMEvent<void>('c', { triggerEvent: eventB });
+  expect(findTriggerEvent(eventC, 'b')).toBeTruthy();
+  expect(findTriggerEvent(eventC, 'invalid')).toBeFalsy();
 });
 
 it('should append trigger event', () => {
-  const eventA = new DOMEvent('event-a');
-  const eventB = new DOMEvent('event-b', { detail: null, triggerEvent: eventA });
-  const eventC = new DOMEvent('event-c');
-  appendTriggerEvent(eventC, eventB);
-  expect(eventC.triggerEvent).toBe(eventB);
-  expect(eventB.triggerEvent).toBe(eventA);
+  const triggerA = new DOMEvent<void>('a');
+  const event = new DOMEvent<void>('event', { triggerEvent: triggerA });
+
+  const triggerB = new DOMEvent<void>('b');
+  appendTriggerEvent(event, triggerB);
+
+  const triggerC = new DOMEvent<void>('c');
+  appendTriggerEvent(event, triggerC);
+
+  let result: string[] = [];
+  walkTriggerEventChain(event, (event) => {
+    result.push(event.type);
+  });
+
+  expect(result).toEqual(['a', 'b', 'c']);
+});
+
+it('should throw if attempting to append event as trigger on itself', () => {
+  const event = new DOMEvent<void>('event');
+  expect(() => {
+    appendTriggerEvent(event, event);
+  }).toThrow(/cyclic/);
+});
+
+it('should throw if trigger event chain is cyclic', () => {
+  const a = new DOMEvent<void>('a');
+  const b = new DOMEvent<void>('b', { triggerEvent: a });
+
+  expect(() => {
+    appendTriggerEvent(a, b);
+  }).toThrow(/cyclic/);
+
+  const c = new DOMEvent<void>('c', { triggerEvent: a });
+  const d = new DOMEvent<void>('d', { triggerEvent: c });
+
+  expect(() => {
+    appendTriggerEvent(a, d);
+  }).toThrow(/cyclic/);
 });

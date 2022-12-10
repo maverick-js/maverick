@@ -35,15 +35,20 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
    */
   readonly isOriginTrusted!: boolean;
 
-  constructor(type: string, init?: DOMEventInit<Detail>) {
+  constructor(
+    type: string,
+    ...init: Detail extends void | undefined | never
+      ? [init?: Partial<DOMEventInit<Detail>>]
+      : [init: DOMEventInit<Detail>]
+  ) {
     super(type, init);
 
     Object.defineProperty(this, DOM_EVENT, {
       get: () => true,
     });
 
-    defineEventProperty(this, 'detail', () => init?.detail);
-    defineEventProperty(this, 'triggerEvent', () => init?.triggerEvent);
+    defineEventProperty(this, 'detail', () => init[0]?.detail);
+    defineEventProperty(this, 'triggerEvent', () => init[0]?.triggerEvent);
     defineEventProperty(this, 'originEvent', () => getOriginEvent(this) ?? this);
     defineEventProperty(this, 'isOriginTrusted', () => getOriginEvent(this)?.isTrusted ?? false);
   }
@@ -147,6 +152,13 @@ export function hasTriggerEvent(event: Event, type: string): boolean {
  */
 export function appendTriggerEvent(event: DOMEvent, triggerEvent?: Event) {
   const origin = (getOriginEvent(event) ?? event) as DOMEvent;
+
+  if (event === origin) {
+    throw Error(
+      __DEV__ ? '[maverick] attemping to append event as a trigger on itself (cyclic)' : '',
+    );
+  }
+
   defineEventProperty(origin, 'triggerEvent', () => triggerEvent);
 }
 

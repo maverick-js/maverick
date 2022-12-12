@@ -1,8 +1,16 @@
 import type { Constructor, Simplify } from 'type-fest';
 
-import type { ContextMap, JSX, ReadSignal, Scope, SignalOptions, WriteSignal } from '../runtime';
+import type {
+  ContextMap,
+  JSX,
+  ReadSignal,
+  SCOPE,
+  Scope,
+  SignalOptions,
+  WriteSignal,
+} from '../runtime';
 import type { CSS } from './css';
-import type { HOST, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
+import type { HOST, MEMBERS, PROPS, RENDER } from './internal';
 import type { ElementLifecycleManager } from './lifecycle';
 
 export type AttributeValue = string | null;
@@ -204,6 +212,7 @@ export type InferCustomElementMembers<T> = T extends AnyCustomElement
   : never;
 
 export interface CustomElementInstanceInit<Props = {}> {
+  scope?: Scope;
   props?: Readonly<Partial<Props>>;
   context?: ContextMap;
   children?: ReadSignal<boolean>;

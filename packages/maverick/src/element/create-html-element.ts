@@ -4,6 +4,7 @@ import {
   getScope,
   isWriteSignal,
   root,
+  SCOPE,
   Scope,
   scoped,
   tick,
@@ -18,7 +19,7 @@ import { camelToKebabCase } from '../std/string';
 import { isBoolean, isFunction } from '../std/unit';
 import { adoptCSS } from './css';
 import { createElementInstance } from './instance';
-import { ATTACH, CONNECT, DESTROY, HOST, MEMBERS, MOUNT, PROPS, RENDER, SCOPE } from './internal';
+import { ATTACH, CONNECT, DESTROY, HOST, MEMBERS, MOUNT, PROPS, RENDER } from './internal';
 import type {
   AnyCustomElement,
   AnyCustomElementDefinition,
@@ -101,7 +102,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
       const instance = this._instance;
 
       // If no host framework is available which generally occurs loading over a CDN.
-      if (!this._delegate && !instance) return this._nonDelegateSetup();
+      if (!this._delegate && !instance) return this._setup();
 
       // Could be called once element is no longer connected.
       if (!instance || !this.isConnected || instance.host.$connected) return;
@@ -120,6 +121,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
 
       // Connect
       instance.host[PROPS].$connected.set(true);
+      tick();
 
       if (instance[CONNECT].length) {
         scoped(() => {
@@ -157,7 +159,6 @@ export function createHTMLElement<T extends AnyCustomElement>(
         }
 
         instance[MOUNT].length = 0;
-        tick();
 
         if (this[MOUNT]) {
           runAll(this[MOUNT]);
@@ -166,6 +167,9 @@ export function createHTMLElement<T extends AnyCustomElement>(
 
         this[MOUNTED] = true;
       }
+
+      tick();
+      return;
     }
 
     disconnectedCallback() {
@@ -317,45 +321,44 @@ export function createHTMLElement<T extends AnyCustomElement>(
     }
 
     private _pendingSetup = false;
-    private _nonDelegateSetup() {
+    private async _setup() {
       if (this._pendingSetup) return;
+      this._pendingSetup = true;
 
-      const prefix = definition.tagName.split('-', 1)[0] + '-',
-        deps: HTMLCustomElement[] = [],
-        whenDepsMounted: Promise<void>[] = [];
+      const parent = this._findParent();
 
-      let node: Node | null = this.parentNode;
+      // Wait for parent custom element to be defined and mounted.
+      if (parent) {
+        await customElements.whenDefined(parent.localName);
+        parent[MOUNTED] || (await new Promise((res) => (parent[MOUNT] ??= []).push(res)));
+      }
+
+      // Skip setting up if we disconnected while waiting for parent to mount.
+      if (this.isConnected) {
+        // Create instance and attach parent scope.
+        const instance = createElementInstance(definition, {
+          scope: parent?.instance![SCOPE]!,
+        });
+
+        this.attachComponent(instance);
+      }
+
+      this._pendingSetup = false;
+    }
+
+    private _findParent(): HTMLCustomElement | null {
+      let node: Node | null = this.parentNode,
+        prefix = definition.tagName.split('-', 1)[0] + '-';
+
       while (node) {
         if (node.nodeType === 1 && (node as T).localName.startsWith(prefix)) {
-          const dep = node as HTMLCustomElement;
-          deps.push(dep);
-          whenDepsMounted.push(
-            customElements
-              .whenDefined(dep.localName)
-              .then(() => dep[MOUNTED] || new Promise((res) => (dep[MOUNT] ??= []).push(res))),
-          );
+          return node as HTMLCustomElement;
         }
 
         node = node.parentNode;
       }
 
-      this._pendingSetup = true;
-      Promise.all(whenDepsMounted).then(() => {
-        this._pendingSetup = false;
-        if (!this.isConnected) return;
-
-        let run = () => this._attachComponent();
-        for (const dep of deps) {
-          const next = run;
-          run = () => scoped(next, dep.instance![SCOPE]);
-        }
-
-        run();
-      });
-    }
-
-    private _attachComponent(init?: CustomElementInstanceInit<Props>) {
-      this.attachComponent(createElementInstance(definition, init));
+      return null;
     }
   }
 

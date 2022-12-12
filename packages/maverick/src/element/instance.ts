@@ -1,8 +1,7 @@
-import { getScope, root, Scope, scoped, signal, tick } from '@maverick-js/signals';
+import { getScope, root, SCOPE, Scope, scoped, signal, tick } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
 import { provideContextMap, useContextMap } from '../runtime';
-import { runAll } from '../std/fn';
 import { noop } from '../std/unit';
 import {
   ATTACH,
@@ -13,7 +12,6 @@ import {
   MOUNT,
   PROPS,
   RENDER,
-  SCOPE,
   setCustomElementInstance,
 } from './internal';
 import type {
@@ -33,6 +31,7 @@ export function createElementInstance<T extends AnyCustomElement>(
   type Props = InferCustomElementProps<T>;
 
   return root((dispose) => {
+    if (init.scope) getScope()![SCOPE] = init.scope;
     if (init.context) provideContextMap(init.context);
 
     let destroyed = false,

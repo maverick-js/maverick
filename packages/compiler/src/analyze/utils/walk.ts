@@ -105,7 +105,7 @@ export function walkSignatures(
               const declarations = getDeclarations(checker, type.expression);
               if (declarations) {
                 for (const declaration of declarations) {
-                  walkSignatures(checker, declaration, members);
+                  walkSignatures(checker, declaration, members, ignoredIdentifiers);
                 }
               }
             }
@@ -131,17 +131,17 @@ export function walkSignatures(
         const declarations = getDeclarations(checker, node.typeName);
         if (declarations) {
           for (const declaration of declarations) {
-            walkSignatures(checker, declaration, members);
+            walkSignatures(checker, declaration, members, ignoredIdentifiers);
           }
         }
       }
     }
   } else if (ts.isIntersectionTypeNode(node)) {
     for (const type of node.types) {
-      walkSignatures(checker, type, members);
+      walkSignatures(checker, type, members, ignoredIdentifiers);
     }
   } else if (ts.isTypeAliasDeclaration(node)) {
-    walkSignatures(checker, node.type, members);
+    walkSignatures(checker, node.type, members, ignoredIdentifiers);
   }
 
   return members;

@@ -1,3 +1,14 @@
+# [0.17.0](https://github.com/maverick-js/maverick/compare/v0.16.4...v0.17.0) (2022-12-12)
+
+
+### Bug Fixes
+
+* bump `@maverick-js/signals` to `5.0.7` ([5308e32](https://github.com/maverick-js/maverick/commit/5308e32f705b281eeda19b9a7327b3227229716c))
+* **compiler:** analyzer should not walk ignored signature identifiers ([f13cecc](https://github.com/maverick-js/maverick/commit/f13cecca485319ee4e08cf293613558c085739ff))
+* no nested scoped calls during non-delegate setup ([aec1199](https://github.com/maverick-js/maverick/commit/aec11991df1289c48e530e1304f953fe7151f467))
+
+
+
 ## [0.16.4](https://github.com/maverick-js/maverick/compare/v0.16.3...v0.16.4) (2022-12-10)
 
 

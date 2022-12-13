@@ -27,17 +27,7 @@ export function createServerElement<T extends AnyCustomElement>(
   type Props = InferCustomElementProps<T>;
 
   const propDefs = (definition.props ?? {}) as CustomElementPropDefinitions<Props>;
-  const propToAttr = new Map<string, string>();
   const reflectedProps = new Map<string, string>();
-
-  for (const propName of Object.keys(propDefs)) {
-    const def = propDefs[propName];
-    const converter = propDefs[propName].type?.from;
-    if (def.attribute !== false && converter) {
-      const attrName = def.attribute ?? camelToKebabCase(propName);
-      propToAttr.set(propName, attrName);
-    }
-  }
 
   for (const propName of Object.keys(propDefs)) {
     const def = propDefs[propName];
@@ -76,15 +66,6 @@ export function createServerElement<T extends AnyCustomElement>(
         parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
       }
 
-      for (const propName of propToAttr.keys()) {
-        const attrName = propToAttr.get(propName)!;
-        if (this.hasAttribute(attrName)) {
-          const convert = propDefs[propName].type!.from! as (value: string | null) => any;
-          const attrValue = this.getAttribute(attrName);
-          instance[PROPS][propName as keyof Props] = convert(attrValue);
-        }
-      }
-
       if (definition.cssvars) {
         const vars = isFunction(definition.cssvars)
           ? definition.cssvars(instance.props)
@@ -108,7 +89,8 @@ export function createServerElement<T extends AnyCustomElement>(
         const convert = propDefs[propName]!.type?.to;
         const attrName = reflectedProps.get(propName)!;
         const propValue = instance.props[propName];
-        setAttribute(this as any, attrName, convert ? convert(propValue) : propValue + '');
+        const attrValue = convert ? convert(propValue) : propValue;
+        setAttribute(this, attrName, attrValue);
       }
 
       tick();

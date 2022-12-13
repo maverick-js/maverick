@@ -81,8 +81,8 @@ export function inferAttributeType(value: unknown): CustomElementAttributeType<a
     case 'function':
       return FUNCTION;
     case 'object':
-      return OBJECT;
+      return isArray(value) ? ARRAY : OBJECT;
     default:
-      return isArray(value) ? ARRAY : STRING;
+      return STRING;
   }
 }

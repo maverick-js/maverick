@@ -125,26 +125,6 @@ it('should forward props', () => {
   );
 });
 
-it('should forward attrs to props', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo',
-    // @ts-expect-error
-    props: {
-      foo: { initial: 10 },
-    },
-    setup:
-      ({ props }) =>
-      () =>
-        <div>{props.foo}</div>,
-  });
-
-  const result = renderToString(() => <CustomElement foo={100} $element={element} />).code;
-
-  expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo foo=\\"100\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
-  );
-});
-
 it('should set inner html', () => {
   const element = defineCustomElement({
     tagName: 'mk-foo-10',

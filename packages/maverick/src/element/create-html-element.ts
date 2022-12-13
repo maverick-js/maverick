@@ -25,7 +25,6 @@ import type {
   AnyCustomElementDefinition,
   AnyCustomElementInstance,
   CustomElementDefinition,
-  CustomElementInstanceInit,
   CustomElementPropDefinitions,
   HostElement,
   HTMLCustomElement,
@@ -225,17 +224,6 @@ export function createHTMLElement<T extends AnyCustomElement>(
         adoptCSS(this._root as ShadowRoot, definition.css);
       }
 
-      for (const attrName of attrToProp.keys()) {
-        if (this.hasAttribute(attrName)) {
-          const propName = attrToProp.get(attrName)! as keyof Props;
-          const convert = propDefs[propName].type?.from;
-          if (convert) {
-            const attrValue = this.getAttribute(attrName);
-            instance[PROPS][propName] = convert(attrValue);
-          }
-        }
-      }
-
       if (definition.cssvars) {
         const vars = isFunction(definition.cssvars)
           ? definition.cssvars(instance.props)
@@ -281,8 +269,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
             const convert = propDefs[propName]!.type?.to;
             effect(() => {
               const propValue = instance![PROPS][propName];
-              const attrValue = convert?.(propValue) ?? propValue + '';
-              setAttribute(this, attrName, attrValue);
+              setAttribute(this, attrName, convert ? convert(propValue) : propValue);
             });
           }
         }, instance[SCOPE]);
@@ -337,6 +324,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
       if (this.isConnected) {
         // Create instance and attach parent scope.
         const instance = createElementInstance(definition, {
+          props: this._resolvePropsFromAttrs(),
           scope: parent?.instance![SCOPE]!,
         });
 
@@ -359,6 +347,23 @@ export function createHTMLElement<T extends AnyCustomElement>(
       }
 
       return null;
+    }
+
+    private _resolvePropsFromAttrs() {
+      const props = {} as Partial<Props>;
+
+      for (const attrName of attrToProp.keys()) {
+        if (this.hasAttribute(attrName)) {
+          const propName = attrToProp.get(attrName)! as keyof Props;
+          const convert = propDefs[propName].type?.from;
+          if (convert) {
+            const attrValue = this.getAttribute(attrName);
+            props[propName] = convert(attrValue);
+          }
+        }
+      }
+
+      return props;
     }
   }
 

@@ -49,18 +49,6 @@ it('should observe attributes', () => {
   expect(element.foo).toBe(10);
 });
 
-it('should initialize from attribute', () => {
-  const { instance, element } = setupTestElement({
-    props: {
-      foo: { initial: 1 },
-    },
-  });
-
-  element.setAttribute('foo', '10');
-  element.attachComponent(instance);
-  expect(element.foo).toBe(10);
-});
-
 it('should reflect props', () => {
   const { instance, element } = setupTestElement({
     props: {
@@ -75,6 +63,10 @@ it('should reflect props', () => {
 
   tick();
   expect(element.getAttribute('foo')).toBe('200');
+
+  instance[PROPS].foo = null;
+  tick();
+  expect(element.hasAttribute('foo')).toBe(false);
 });
 
 it('should call connect lifecycle hook', () => {

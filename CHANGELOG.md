@@ -1,3 +1,12 @@
+## [0.17.3](https://github.com/maverick-js/maverick/compare/v0.17.2...v0.17.3) (2022-12-13)
+
+
+### Bug Fixes
+
+* log warning if overwriting existing trigger event ([2dbb29e](https://github.com/maverick-js/maverick/commit/2dbb29e27ba260b0be1ab6c104b9c807a204a4d0))
+
+
+
 ## [0.17.2](https://github.com/maverick-js/maverick/compare/v0.17.1...v0.17.2) (2022-12-13)
 
 

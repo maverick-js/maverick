@@ -1,3 +1,12 @@
+## [0.17.2](https://github.com/maverick-js/maverick/compare/v0.17.1...v0.17.2) (2022-12-13)
+
+
+### Bug Fixes
+
+* append trigger should not throw on initial append ([645babf](https://github.com/maverick-js/maverick/commit/645babf14723363b5080db25945cb95fd6bb9300))
+
+
+
 ## [0.17.1](https://github.com/maverick-js/maverick/compare/v0.17.0...v0.17.1) (2022-12-13)
 
 

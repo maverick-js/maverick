@@ -158,6 +158,18 @@ export function appendTriggerEvent(event: DOMEvent, triggerEvent?: Event) {
     );
   }
 
+  if (__DEV__ && typeof origin.triggerEvent !== 'undefined') {
+    console.warn(
+      `[maverick] overwriting existing trigger event: \`${origin.triggerEvent.type}\` -> \`${triggerEvent?.type}\`\n\n`,
+      'Event:\n',
+      event,
+      'Origin Event:\n',
+      origin,
+      'Trigger Event:\n',
+      triggerEvent,
+    );
+  }
+
   Object.defineProperty(origin, 'triggerEvent', {
     enumerable: true,
     configurable: true,

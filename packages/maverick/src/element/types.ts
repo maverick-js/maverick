@@ -17,7 +17,7 @@ export type AttributeValue = string | null;
 
 export interface EmptyRecord extends Record<string, never> {}
 
-export interface CustomElementAttributeConverter<Value = unknown> {
+export interface CustomElementAttributeType<Value = unknown> {
   readonly from: ((value: AttributeValue) => Value) | false;
   readonly to?: (value: Value) => AttributeValue;
 }
@@ -43,9 +43,10 @@ export type CustomElementPropDefinition<Value = unknown> = SignalOptions<Value> 
      */
     reflect?: boolean;
     /**
-     * Convert between an attribute value and property value.
+     * Convert between an attribute value and property value. If not specified it will be inferred
+     * from the initial value.
      */
-    converter?: CustomElementAttributeConverter<Value>;
+    type?: CustomElementAttributeType<Value>;
   };
 
 export type CustomElementPropDefinitions<Props> = Readonly<{

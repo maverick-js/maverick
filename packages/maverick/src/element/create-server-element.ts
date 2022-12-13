@@ -32,7 +32,7 @@ export function createServerElement<T extends AnyCustomElement>(
 
   for (const propName of Object.keys(propDefs)) {
     const def = propDefs[propName];
-    const converter = propDefs[propName].converter?.from;
+    const converter = propDefs[propName].type?.from;
     if (def.attribute !== false && converter) {
       const attrName = def.attribute ?? camelToKebabCase(propName);
       propToAttr.set(propName, attrName);
@@ -79,7 +79,7 @@ export function createServerElement<T extends AnyCustomElement>(
       for (const propName of propToAttr.keys()) {
         const attrName = propToAttr.get(propName)!;
         if (this.hasAttribute(attrName)) {
-          const convert = propDefs[propName].converter!.from! as (value: string | null) => any;
+          const convert = propDefs[propName].type!.from! as (value: string | null) => any;
           const attrValue = this.getAttribute(attrName);
           instance[PROPS][propName as keyof Props] = convert(attrValue);
         }
@@ -105,7 +105,7 @@ export function createServerElement<T extends AnyCustomElement>(
 
       // prop reflection.
       for (const propName of reflectedProps.keys()) {
-        const convert = propDefs[propName]!.converter?.to;
+        const convert = propDefs[propName]!.type?.to;
         const attrName = reflectedProps.get(propName)!;
         const propValue = instance.props[propName];
         setAttribute(this as any, attrName, convert ? convert(propValue) : propValue + '');

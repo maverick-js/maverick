@@ -4,7 +4,7 @@ import { isArray, isFunction } from '../std/unit';
 import { isHostElement } from './create-html-element';
 import type {
   AnyCustomElement,
-  CustomElementAttributeConverter,
+  CustomElementAttributeType,
   CustomElementDeclaration,
   CustomElementDefinition,
   CustomElementInstance,
@@ -31,8 +31,8 @@ export function defineCustomElement<T extends AnyCustomElement>(
 
   if ('props' in definition) {
     for (const prop of Object.values(definition.props) as Writable<CustomElementPropDefinition>[]) {
-      if (prop.attribute !== false && !prop.converter) {
-        prop.converter = createConverter(prop.initial);
+      if (prop.attribute !== false && !prop.type) {
+        prop.type = inferAttributeType(prop.initial);
       }
     }
   }
@@ -40,45 +40,49 @@ export function defineCustomElement<T extends AnyCustomElement>(
   return definition;
 }
 
-const STRING_CONVERTER: CustomElementAttributeConverter<string> = {
+export const STRING: CustomElementAttributeType<string> = {
   from: (v) => (v === null ? '' : v + ''),
 };
 
-const NUMBER_CONVERTER: CustomElementAttributeConverter<number> = {
+export const NUMBER: CustomElementAttributeType<number> = {
   from: (v) => (v === null ? 0 : Number(v)),
 };
 
-const BOOLEAN_CONVERTER: CustomElementAttributeConverter<boolean> = {
+export const BOOLEAN: CustomElementAttributeType<boolean> = {
   from: (v) => v !== null,
   to: (v) => (v ? '' : null),
 };
 
-const FUNCTION_CONVERTER: CustomElementAttributeConverter<() => void> = {
+export const FUNCTION: CustomElementAttributeType<() => void> = {
   from: false,
   to: () => null,
 };
 
-const ARRAY_CONVERTER: CustomElementAttributeConverter<unknown[]> = {
+export const ARRAY: CustomElementAttributeType<unknown[]> = {
   from: (v) => (v === null ? [] : JSON.parse(v)),
   to: (v) => JSON.stringify(v),
 };
 
-const OBJECT_CONVERTER: CustomElementAttributeConverter<object> = {
+export const OBJECT: CustomElementAttributeType<object> = {
   from: (v) => (v === null ? {} : JSON.parse(v)),
   to: (v) => JSON.stringify(v),
 };
 
-function createConverter(value: unknown): CustomElementAttributeConverter<any> {
+export function inferAttributeType(value: unknown): CustomElementAttributeType<any> {
   switch (typeof value) {
+    case 'undefined':
+      return STRING;
     case 'string':
-      return STRING_CONVERTER;
+      return STRING;
     case 'boolean':
-      return BOOLEAN_CONVERTER;
+      return BOOLEAN;
     case 'number':
-      return NUMBER_CONVERTER;
+      return NUMBER;
     case 'function':
-      return FUNCTION_CONVERTER;
+      return FUNCTION;
+    case 'object':
+      return OBJECT;
     default:
-      return isArray(value) ? ARRAY_CONVERTER : OBJECT_CONVERTER;
+      return isArray(value) ? ARRAY : STRING;
   }
 }

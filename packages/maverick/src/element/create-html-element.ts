@@ -94,7 +94,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
     attributeChangedCallback(name, _, newValue) {
       if (!this._instance) return;
       const propName = attrToProp.get(name)! as keyof Props;
-      const from = propDefs[propName]?.converter?.from;
+      const from = propDefs[propName]?.type?.from;
       if (from) this._instance[PROPS][propName] = from(newValue);
     }
 
@@ -228,7 +228,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
       for (const attrName of attrToProp.keys()) {
         if (this.hasAttribute(attrName)) {
           const propName = attrToProp.get(attrName)! as keyof Props;
-          const convert = propDefs[propName].converter?.from;
+          const convert = propDefs[propName].type?.from;
           if (convert) {
             const attrValue = this.getAttribute(attrName);
             instance[PROPS][propName] = convert(attrValue);
@@ -278,7 +278,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
           // Reflected props.
           for (const propName of reflectedProps) {
             const attrName = propToAttr.get(propName)!;
-            const convert = propDefs[propName]!.converter?.to;
+            const convert = propDefs[propName]!.type?.to;
             effect(() => {
               const propValue = instance![PROPS][propName];
               const attrValue = convert?.(propValue) ?? propValue + '';

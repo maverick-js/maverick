@@ -18,11 +18,11 @@ it('should create default string converter', () => {
     props: { foo: { initial: 'foo' } },
   } as any);
   const props = defs.props!;
-  expect(isFunction(props.foo.converter?.from)).toBeTruthy();
-  expect(isFunction(props.foo.converter?.to)).toBeFalsy();
-  if (isFunction(props.foo.converter?.from)) {
-    expect(props.foo.converter!.from(null)).toEqual('');
-    expect(props.foo.converter!.from('foo')).toEqual('foo');
+  expect(isFunction(props.foo.type?.from)).toBeTruthy();
+  expect(isFunction(props.foo.type?.to)).toBeFalsy();
+  if (isFunction(props.foo.type?.from)) {
+    expect(props.foo.type!.from(null)).toEqual('');
+    expect(props.foo.type!.from('foo')).toEqual('foo');
   }
 });
 
@@ -32,11 +32,11 @@ it('should create default number converter', () => {
     props: { foo: { initial: 0 } },
   } as any);
   const props = defs.props!;
-  expect(isFunction(props.foo.converter?.from)).toBeTruthy();
-  expect(isFunction(props.foo.converter?.to)).toBeFalsy();
-  if (isFunction(props.foo.converter?.from)) {
-    expect(props.foo.converter!.from(null)).toEqual(0);
-    expect(props.foo.converter!.from('10')).toEqual(10);
+  expect(isFunction(props.foo.type?.from)).toBeTruthy();
+  expect(isFunction(props.foo.type?.to)).toBeFalsy();
+  if (isFunction(props.foo.type?.from)) {
+    expect(props.foo.type!.from(null)).toEqual(0);
+    expect(props.foo.type!.from('10')).toEqual(10);
   }
 });
 
@@ -46,16 +46,16 @@ it('should create default boolean converter', () => {
     props: { foo: { initial: true } },
   } as any);
   const props = defs.props!;
-  expect(isFunction(props.foo.converter?.from)).toBeTruthy();
-  expect(isFunction(props.foo.converter?.to)).toBeTruthy();
-  if (isFunction(props.foo.converter?.from)) {
-    expect(props.foo.converter!.from(null)).toEqual(false);
-    expect(props.foo.converter!.from('true')).toEqual(true);
-    expect(props.foo.converter!.from('false')).toEqual(true);
+  expect(isFunction(props.foo.type?.from)).toBeTruthy();
+  expect(isFunction(props.foo.type?.to)).toBeTruthy();
+  if (isFunction(props.foo.type?.from)) {
+    expect(props.foo.type!.from(null)).toEqual(false);
+    expect(props.foo.type!.from('true')).toEqual(true);
+    expect(props.foo.type!.from('false')).toEqual(true);
   }
-  if (isFunction(props.foo.converter?.to)) {
-    expect(props.foo.converter!.to(true)).toEqual('');
-    expect(props.foo.converter!.to(false)).toEqual(null);
+  if (isFunction(props.foo.type?.to)) {
+    expect(props.foo.type!.to(true)).toEqual('');
+    expect(props.foo.type!.to(false)).toEqual(null);
   }
 });
 
@@ -66,10 +66,10 @@ it('should create default function converter', () => {
     props: { foo: { initial: fn } },
   } as any);
   const props = defs.props!;
-  expect(isFunction(props.foo.converter?.from)).toBeFalsy();
-  expect(isFunction(props.foo.converter?.to)).toBeTruthy();
-  if (isFunction(props.foo.converter?.to)) {
-    expect(props.foo.converter!.to(() => {})).toEqual(null);
+  expect(isFunction(props.foo.type?.from)).toBeFalsy();
+  expect(isFunction(props.foo.type?.to)).toBeTruthy();
+  if (isFunction(props.foo.type?.to)) {
+    expect(props.foo.type!.to(() => {})).toEqual(null);
   }
 });
 
@@ -80,14 +80,14 @@ it('should create default array converter', () => {
     props: { foo: { initial: value } },
   } as any);
   const props = defs.props!;
-  expect(isFunction(props.foo.converter?.from)).toBeTruthy();
-  expect(isFunction(props.foo.converter?.to)).toBeTruthy();
-  if (isFunction(props.foo.converter?.from)) {
-    expect(props.foo.converter!.from(JSON.stringify(value))).toEqual(value);
-    expect(props.foo.converter!.from(null)).toEqual([]);
+  expect(isFunction(props.foo.type?.from)).toBeTruthy();
+  expect(isFunction(props.foo.type?.to)).toBeTruthy();
+  if (isFunction(props.foo.type?.from)) {
+    expect(props.foo.type!.from(JSON.stringify(value))).toEqual(value);
+    expect(props.foo.type!.from(null)).toEqual([]);
   }
-  if (isFunction(props.foo.converter?.to)) {
-    expect(props.foo.converter!.to(value)).toEqual(JSON.stringify(value));
+  if (isFunction(props.foo.type?.to)) {
+    expect(props.foo.type!.to(value)).toEqual(JSON.stringify(value));
   }
 });
 
@@ -98,14 +98,14 @@ it('should create default object converter', () => {
     props: { foo: { initial: value } },
   } as any);
   const props = defs.props!;
-  expect(isFunction(props.foo.converter?.from)).toBeTruthy();
-  expect(isFunction(props.foo.converter?.to)).toBeTruthy();
-  if (isFunction(props.foo.converter?.from)) {
-    expect(props.foo.converter!.from(JSON.stringify(value))).toEqual(value);
-    expect(props.foo.converter!.from(null)).toEqual({});
+  expect(isFunction(props.foo.type?.from)).toBeTruthy();
+  expect(isFunction(props.foo.type?.to)).toBeTruthy();
+  if (isFunction(props.foo.type?.from)) {
+    expect(props.foo.type!.from(JSON.stringify(value))).toEqual(value);
+    expect(props.foo.type!.from(null)).toEqual({});
   }
-  if (isFunction(props.foo.converter?.to)) {
-    expect(props.foo.converter!.to(value)).toEqual(JSON.stringify(value));
+  if (isFunction(props.foo.type?.to)) {
+    expect(props.foo.type!.to(value)).toEqual(JSON.stringify(value));
   }
 });
 
@@ -114,5 +114,5 @@ it('should _not_ create converter if attribute is false', () => {
     tagName: 'mk-foo',
     props: { foo: { initial: [], attribute: false } },
   } as any);
-  expect(definition.props!.foo.converter).toBeUndefined();
+  expect(definition.props!.foo.type).toBeUndefined();
 });

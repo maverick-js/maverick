@@ -1,3 +1,14 @@
+## [0.17.1](https://github.com/maverick-js/maverick/compare/v0.17.0...v0.17.1) (2022-12-13)
+
+
+### Bug Fixes
+
+* attr `converter` -> `type` and export defaults ([7d064be](https://github.com/maverick-js/maverick/commit/7d064be466a1a83f84c690c063ba67705febb06d))
+* forward event init to super ([031c529](https://github.com/maverick-js/maverick/commit/031c529a128dead8aa257ac1c219e8293fe9cb74))
+* initialize attrs correctly ([6e369a5](https://github.com/maverick-js/maverick/commit/6e369a5e19623026308aaeb5b4fc298a88faf1f4))
+
+
+
 # [0.17.0](https://github.com/maverick-js/maverick/compare/v0.16.4...v0.17.0) (2022-12-12)
 
 

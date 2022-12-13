@@ -6,6 +6,24 @@ import {
   walkTriggerEventChain,
 } from 'maverick.js/std';
 
+it('should init dom event', () => {
+  const triggerEvent = new MouseEvent('click');
+
+  const event = new DOMEvent('foo', {
+    detail: 0,
+    bubbles: true,
+    composed: true,
+    triggerEvent,
+  });
+
+  expect(event.detail).toBe(0);
+  expect(event.bubbles).toBe(true);
+  expect(event.composed).toBe(true);
+  expect(event.triggerEvent).toBe(triggerEvent);
+  expect(event.originEvent).toBe(triggerEvent);
+  expect(event.isOriginTrusted).toBe(false);
+});
+
 it('should identify dom event', () => {
   expect(isDOMEvent(null)).toBeFalsy();
   expect(isDOMEvent(new MouseEvent('foo'))).toBeFalsy();

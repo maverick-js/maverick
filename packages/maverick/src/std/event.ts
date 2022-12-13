@@ -13,6 +13,8 @@ export interface DOMEventInit<Detail = unknown> extends EventInit {
 }
 
 export class DOMEvent<Detail = unknown> extends DOMEventBase {
+  [DOM_EVENT] = true;
+
   /**
    * The event detail.
    */
@@ -27,13 +29,17 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
    * Walks up the event chain (following each `triggerEvent`) and returns the origin event
    * that started the chain.
    */
-  readonly originEvent!: Event;
+  get originEvent() {
+    return getOriginEvent(this) ?? this;
+  }
 
   /**
    * Walks up the event chain (following each `triggerEvent`) and determines whether the initial
    * event was triggered by the end user (ie: check whether `isTrusted` on the `originEvent` `true`).
    */
-  readonly isOriginTrusted!: boolean;
+  get isOriginTrusted() {
+    return getOriginEvent(this)?.isTrusted ?? false;
+  }
 
   constructor(
     type: string,
@@ -41,16 +47,9 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
       ? [init?: Partial<DOMEventInit<Detail>>]
       : [init: DOMEventInit<Detail>]
   ) {
-    super(type, init);
-
-    Object.defineProperty(this, DOM_EVENT, {
-      get: () => true,
-    });
-
-    defineEventProperty(this, 'detail', () => init[0]?.detail);
-    defineEventProperty(this, 'triggerEvent', () => init[0]?.triggerEvent);
-    defineEventProperty(this, 'originEvent', () => getOriginEvent(this) ?? this);
-    defineEventProperty(this, 'isOriginTrusted', () => getOriginEvent(this)?.isTrusted ?? false);
+    super(type, init[0]);
+    this.detail = init[0]?.detail!;
+    this.triggerEvent = init[0]?.triggerEvent;
   }
 }
 
@@ -159,18 +158,10 @@ export function appendTriggerEvent(event: DOMEvent, triggerEvent?: Event) {
     );
   }
 
-  defineEventProperty(origin, 'triggerEvent', () => triggerEvent);
-}
-
-function defineEventProperty<T extends keyof DOMEvent>(
-  event: DOMEvent,
-  prop: T,
-  value: () => DOMEvent[T],
-) {
-  Object.defineProperty(event, prop, {
+  Object.defineProperty(origin, 'triggerEvent', {
     enumerable: true,
     configurable: true,
-    get: value,
+    get: () => triggerEvent,
   });
 }
 

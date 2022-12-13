@@ -78,6 +78,14 @@ it('should find trigger event', () => {
   expect(findTriggerEvent(eventC, 'invalid')).toBeFalsy();
 });
 
+it('should not throw if appending initial trigger event', () => {
+  const event = new DOMEvent<void>('event');
+  expect(() => {
+    const triggerEvent = new DOMEvent<void>('a');
+    appendTriggerEvent(event, triggerEvent);
+  }).not.toThrow();
+});
+
 it('should append trigger event', () => {
   const triggerA = new DOMEvent<void>('a');
   const event = new DOMEvent<void>('event', { triggerEvent: triggerA });
@@ -108,13 +116,13 @@ it('should throw if trigger event chain is cyclic', () => {
   const b = new DOMEvent<void>('b', { triggerEvent: a });
 
   expect(() => {
-    appendTriggerEvent(a, b);
+    appendTriggerEvent(b, a);
   }).toThrow(/cyclic/);
 
   const c = new DOMEvent<void>('c', { triggerEvent: a });
   const d = new DOMEvent<void>('d', { triggerEvent: c });
 
   expect(() => {
-    appendTriggerEvent(a, d);
+    appendTriggerEvent(d, a);
   }).toThrow(/cyclic/);
 });

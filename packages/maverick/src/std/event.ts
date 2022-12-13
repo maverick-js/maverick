@@ -150,9 +150,9 @@ export function hasTriggerEvent(event: Event, type: string): boolean {
  * @param triggerEvent - The trigger event that will becoming the new origin event.
  */
 export function appendTriggerEvent(event: DOMEvent, triggerEvent?: Event) {
-  const origin = (getOriginEvent(event) ?? event) as DOMEvent;
+  const origin = (getOriginEvent(event) as DOMEvent) ?? event;
 
-  if (event === origin) {
+  if (origin === triggerEvent) {
     throw Error(
       __DEV__ ? '[maverick] attemping to append event as a trigger on itself (cyclic)' : '',
     );

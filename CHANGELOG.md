@@ -1,3 +1,12 @@
+## [0.18.2](https://github.com/maverick-js/maverick/compare/v0.18.1...v0.18.2) (2022-12-15)
+
+
+### Bug Fixes
+
+* **analyzer:** walk generic heritage types ([1d1d670](https://github.com/maverick-js/maverick/commit/1d1d670f2af6fb88b44e03774afc3f5c64deb91c))
+
+
+
 ## [0.18.1](https://github.com/maverick-js/maverick/compare/v0.18.0...v0.18.1) (2022-12-15)
 
 

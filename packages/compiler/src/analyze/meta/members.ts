@@ -13,12 +13,12 @@ export function buildMembersMeta(
     methods: MethodMeta[] = [];
 
   for (const [name, node] of members.props) {
-    const prop = buildPropMeta(checker, name, undefined, node);
+    const prop = buildPropMeta(checker, name, undefined, node.signature, { type: node.type });
     if (prop) props.push(prop);
   }
 
   for (const [name, node] of members.methods) {
-    const method = buildMethodMeta(checker, name, node);
+    const method = buildMethodMeta(checker, name, node.signature, { type: node.type });
     if (method) methods.push(method);
   }
 

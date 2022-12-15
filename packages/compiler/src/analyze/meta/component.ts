@@ -10,8 +10,8 @@ export interface TypeMeta {
 export interface PropMeta {
   [TS_NODE]: ts.Node;
   name: string;
-  default: string;
   type: TypeMeta;
+  default?: string;
   docs?: string;
   doctags?: DocTagMeta[];
   required?: boolean;

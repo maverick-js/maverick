@@ -38,14 +38,15 @@ export function buildCSSVarsMeta(
       members = walkSignatures(checker, typeRoot);
 
     for (const [name, prop] of members.props) {
-      if (!prop.type) continue;
+      const signature = prop.signature;
+      if (!prop.type && !signature.type) continue;
 
       const valueNode = props?.props.has(name)
           ? getValueNode(checker, props.props.get(name)!.value)
           : null,
-        docs = getDocs(checker, prop.name as ts.Identifier),
-        doctags = getDocTags(prop),
-        type = buildTypeMeta(checker, prop.type);
+        docs = getDocs(checker, signature.name as ts.Identifier),
+        doctags = getDocTags(signature),
+        type = buildTypeMeta(checker, signature.type!, prop.type);
 
       let internal!: CSSVarMeta['internal'],
         required!: CSSVarMeta['required'],
@@ -67,7 +68,7 @@ export function buildCSSVarsMeta(
       }
 
       meta.set(name, {
-        [TS_NODE]: prop,
+        [TS_NODE]: signature,
         name,
         default: $default,
         type,

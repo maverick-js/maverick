@@ -18,16 +18,19 @@ export function buildEventsMeta(
     members = walkSignatures(checker, typesRoot);
 
   for (const [name, prop] of members.props) {
-    if (!prop.type) continue;
+    const signature = prop.signature;
+    if (!prop.type && !signature.type) continue;
 
     const isTypeReference =
-        prop.type && ts.isTypeReferenceNode(prop.type) && ts.isIdentifier(prop.type.typeName),
-      declaration = isTypeReference ? getDeclaration(checker, prop.type.typeName) : undefined,
+        signature.type &&
+        ts.isTypeReferenceNode(signature.type!) &&
+        ts.isIdentifier(signature.type.typeName),
+      declaration = isTypeReference ? getDeclaration(checker, signature.type.typeName) : undefined,
       docs =
-        getDocs(checker, prop.name as ts.Identifier) ??
-        (isTypeReference ? getDocs(checker, prop.type.typeName) : undefined),
-      doctags = getDocTags(prop) ?? (isTypeReference ? getDocTags(declaration) : undefined),
-      type = buildTypeMeta(checker, prop.type);
+        getDocs(checker, signature.name as ts.Identifier) ??
+        (isTypeReference ? getDocs(checker, signature.type.typeName) : undefined),
+      doctags = getDocTags(signature) ?? (isTypeReference ? getDocTags(declaration) : undefined),
+      type = buildTypeMeta(checker, signature.type!, prop.type);
 
     let internal!: EventMeta['internal'],
       deprecated!: EventMeta['deprecated'],
@@ -59,7 +62,7 @@ export function buildEventsMeta(
     }
 
     meta.set(name, {
-      [TS_NODE]: prop,
+      [TS_NODE]: signature,
       name,
       type,
       detail,

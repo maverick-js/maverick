@@ -6,22 +6,27 @@ import { buildTypeMeta, serializeType } from '../utils/types';
 import { type MethodMeta, type ParameterMeta, TS_NODE } from './component';
 import { getDocTags, hasDocTag } from './doctags';
 
+export interface MethodMetaInfo {
+  type?: ts.Type;
+}
+
 export function buildMethodMeta(
   checker: ts.TypeChecker,
   name: string,
-  node: ts.MethodSignature | ts.MethodDeclaration | ts.FunctionDeclaration,
+  declaration: ts.MethodSignature | ts.MethodDeclaration | ts.FunctionDeclaration,
+  info?: MethodMetaInfo,
 ): MethodMeta | undefined {
-  const docs = getDocs(checker, node.name as ts.Identifier),
-    doctags = getDocTags(node),
-    signature = checker.getSignatureFromDeclaration(node)!,
+  const docs = getDocs(checker, declaration.name as ts.Identifier),
+    doctags = getDocTags(declaration),
+    signature = checker.getSignatureFromDeclaration(declaration)!,
     returnType = checker.getReturnTypeOfSignature(signature);
 
-  const parameters: ParameterMeta[] = node.parameters
+  const parameters: ParameterMeta[] = declaration.parameters
     .filter((parameter) => parameter.type)
     .map((parameter) => ({
       [TS_NODE]: parameter,
       name: (parameter.name as ts.Identifier).escapedText as string,
-      type: buildTypeMeta(checker, parameter.type!),
+      type: buildTypeMeta(checker, parameter.type!, info?.type),
       optional: !isUndefined(parameter.questionToken) ? true : undefined,
       default: parameter.initializer?.getText(),
     }));
@@ -34,7 +39,7 @@ export function buildMethodMeta(
   }
 
   return {
-    [TS_NODE]: node,
+    [TS_NODE]: declaration,
     name,
     docs,
     doctags,
@@ -45,7 +50,7 @@ export function buildMethodMeta(
       [TS_NODE]: signature,
       type: checker.signatureToString(
         signature,
-        node,
+        declaration,
         ts.TypeFormatFlags.WriteArrowStyleSignature | ts.TypeFormatFlags.NoTruncation,
         ts.SignatureKind.Call,
       ),

@@ -32,6 +32,32 @@
     ],
     "props": [
       {
+        "name": "moo",
+        "type": {
+          "serialized": "string"
+        },
+        "docs": "This is the moo docs.",
+        "attribute": "moo"
+      },
+      {
+        "name": "mooBoo",
+        "default": "1",
+        "type": {
+          "serialized": "0 | 1",
+          "union": [
+            "0",
+            "1"
+          ]
+        },
+        "docs": "This is the moo boo docs.",
+        "doctags": [
+          {
+            "name": "footag"
+          }
+        ],
+        "attribute": "moo-boo"
+      },
+      {
         "name": "foo",
         "default": "0",
         "type": {

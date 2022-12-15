@@ -81,8 +81,20 @@ export function walkProperties(
 
 export type SeenMemberSignatures = {
   heritage: Map<string, ts.TypeReferenceNode | ts.ExpressionWithTypeArguments>;
-  props: Map<string, ts.PropertySignature>;
-  methods: Map<string, ts.MethodSignature>;
+  props: Map<
+    string,
+    {
+      signature: ts.PropertySignature;
+      type?: ts.Type;
+    }
+  >;
+  methods: Map<
+    string,
+    {
+      signature: ts.MethodSignature;
+      type?: ts.Type;
+    }
+  >;
 };
 
 export function walkSignatures(
@@ -94,38 +106,70 @@ export function walkSignatures(
     methods: new Map(),
   },
   ignoredIdentifiers = new Set<string>(),
-) {
+): SeenMemberSignatures {
   if (ts.isTypeLiteralNode(node) || ts.isInterfaceDeclaration(node)) {
-    if (ts.isInterfaceDeclaration(node) && node.heritageClauses) {
-      for (const clause of node.heritageClauses) {
-        for (const type of clause.types) {
-          if (ts.isIdentifier(type.expression)) {
-            members.heritage.set(type.expression.escapedText as string, type);
-            if (!ignoredIdentifiers.has(type.expression.escapedText as string)) {
-              const declarations = getDeclarations(checker, type.expression);
-              if (declarations) {
-                for (const declaration of declarations) {
-                  walkSignatures(checker, declaration, members, ignoredIdentifiers);
+    if (ts.isInterfaceDeclaration(node) && node.typeParameters) {
+      const type = checker.getTypeAtLocation(node);
+      for (const prop of checker.getPropertiesOfType(type)) {
+        const declaration = prop.declarations?.[0];
+        if (declaration) {
+          const type = checker.getTypeOfSymbolAtLocation(prop, declaration);
+          if (ts.isPropertySignature(declaration)) {
+            const name = ts.isIdentifier(declaration.name) ? declaration.name.escapedText : null;
+            if (name) members.props.set(name, { signature: declaration, type });
+          } else if (ts.isMethodSignature(declaration)) {
+            const name = ts.isIdentifier(declaration.name) ? declaration.name.escapedText : null;
+            if (name) members.methods.set(name, { signature: declaration, type });
+          }
+        }
+      }
+    } else {
+      if (ts.isInterfaceDeclaration(node) && node.heritageClauses) {
+        for (const clause of node.heritageClauses) {
+          for (const type of clause.types) {
+            if (ts.isIdentifier(type.expression)) {
+              members.heritage.set(type.expression.escapedText as string, type);
+              if (!ignoredIdentifiers.has(type.expression.escapedText as string)) {
+                const declarations = getDeclarations(checker, type.expression);
+                if (declarations) {
+                  for (const declaration of declarations) {
+                    walkSignatures(checker, declaration, members, ignoredIdentifiers);
+                  }
                 }
               }
             }
           }
         }
       }
-    }
 
-    for (const member of node.members) {
-      const name = member.name && ts.isIdentifier(member.name) ? member.name.escapedText : null;
-      if (name) {
-        if (ts.isPropertySignature(member)) {
-          members.props.set(name, member);
-        } else if (ts.isMethodSignature(member)) {
-          members.methods.set(name, member);
+      for (const member of node.members) {
+        const name = member.name && ts.isIdentifier(member.name) ? member.name.escapedText : null;
+        if (name) {
+          if (ts.isPropertySignature(member)) {
+            members.props.set(name, { signature: member });
+          } else if (ts.isMethodSignature(member)) {
+            members.methods.set(name, { signature: member });
+          }
         }
       }
     }
   } else if (ts.isTypeReferenceNode(node)) {
-    if (ts.isIdentifier(node.typeName)) {
+    if (node.typeArguments) {
+      const type = checker.getTypeAtLocation(node);
+      for (const prop of checker.getPropertiesOfType(type)) {
+        const declaration = prop.declarations?.[0];
+        if (declaration) {
+          const type = checker.getTypeOfSymbolAtLocation(prop, declaration);
+          if (ts.isPropertySignature(declaration)) {
+            const name = ts.isIdentifier(declaration.name) ? declaration.name.escapedText : null;
+            if (name) members.props.set(name, { signature: declaration, type });
+          } else if (ts.isMethodSignature(declaration)) {
+            const name = ts.isIdentifier(declaration.name) ? declaration.name.escapedText : null;
+            if (name) members.methods.set(name, { signature: declaration, type });
+          }
+        }
+      }
+    } else if (ts.isIdentifier(node.typeName)) {
       members.heritage.set(node.typeName.escapedText as string, node);
       if (!ignoredIdentifiers.has(node.typeName.escapedText as string)) {
         const declarations = getDeclarations(checker, node.typeName);

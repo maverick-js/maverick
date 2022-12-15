@@ -18,6 +18,7 @@ export interface PropMetaInfo {
   attribute?: string;
   reflect?: boolean;
   value?: string | false;
+  type?: ts.Type;
 }
 
 export function buildPropsMeta(
@@ -34,14 +35,17 @@ export function buildPropsMeta(
     const props = getPropertyAssignmentValue(checker, declarationRoot, 'props'),
       defs = props ? walkProperties(checker, props) : null;
 
-    for (const [name, signatureNode] of members.props) {
-      if (!signatureNode.type) continue;
+    for (const [name, prop] of members.props) {
+      const signature = prop.signature;
+      if (!signature.type) continue;
 
       const valueNode = defs?.props.get(name),
         value = valueNode ? getValueNode(checker, valueNode.value) ?? valueNode.value : null,
         definition = value && ts.isObjectLiteralExpression(value) ? value : false;
 
-      let info: PropMetaInfo = {};
+      let info: PropMetaInfo = {
+        type: prop.type,
+      };
 
       if (definition) {
         info.value =
@@ -70,8 +74,8 @@ export function buildPropsMeta(
         info.attribute = camelToKebabCase(name);
       }
 
-      const prop = buildPropMeta(checker, name, valueNode?.assignment, signatureNode, info);
-      if (prop) meta.push(prop);
+      const propMeta = buildPropMeta(checker, name, valueNode?.assignment, signature, info);
+      if (propMeta) meta.push(propMeta);
     }
   }
 
@@ -81,30 +85,29 @@ export function buildPropsMeta(
 export function buildPropMeta(
   checker: ts.TypeChecker,
   name: string,
-  valueNode:
+  declaration:
     | ts.VariableDeclaration
     | ts.PropertyAssignment
     | ts.GetAccessorDeclaration
     | ts.PropertySignature
     | ts.ShorthandPropertyAssignment
     | undefined,
-  typeNode: ts.PropertySignature,
+  signature: ts.PropertySignature,
   info?: PropMetaInfo,
 ): PropMeta | undefined {
-  const valueIdentifier = valueNode?.name as ts.Identifier | undefined,
-    typeIdentifier = typeNode.name as ts.Identifier,
-    symbol = valueIdentifier ? checker.getSymbolAtLocation(valueIdentifier) : undefined,
-    isGetAccessor = valueNode && ts.isGetAccessor(valueNode),
+  const identifier = declaration?.name as ts.Identifier | undefined,
+    sigIdentifier = signature.name as ts.Identifier,
+    symbol = identifier ? checker.getSymbolAtLocation(identifier) : undefined,
+    isGetAccessor = declaration && ts.isGetAccessor(declaration),
     hasSetAccessor =
-      valueNode && ts.isGetAccessor(valueNode)
+      declaration && ts.isGetAccessor(declaration)
         ? !!symbol?.declarations!.some(ts.isSetAccessorDeclaration)
         : undefined,
     docs =
-      getDocs(checker, typeIdentifier) ??
-      (valueIdentifier ? getDocs(checker, valueIdentifier) : undefined),
-    doctags = getDocTags(typeNode) ?? (valueNode ? getDocTags(valueNode) : undefined),
+      getDocs(checker, sigIdentifier) ?? (identifier ? getDocs(checker, identifier) : undefined),
+    doctags = getDocTags(signature) ?? (declaration ? getDocTags(declaration) : undefined),
     readonly =
-      !!typeNode.modifiers?.some((mod) => mod.kind === ts.SyntaxKind.ReadonlyKeyword) ||
+      !!signature.modifiers?.some((mod) => mod.kind === ts.SyntaxKind.ReadonlyKeyword) ||
       (isGetAccessor && !hasSetAccessor) ||
       (!hasSetAccessor && doctags && hasDocTag(doctags, 'readonly'));
 
@@ -141,10 +144,10 @@ export function buildPropMeta(
   }
 
   return {
-    [TS_NODE]: typeNode,
+    [TS_NODE]: signature,
     name,
-    default: $default,
-    type: buildTypeMeta(checker, typeNode.type!),
+    default: $default?.length ? $default : undefined,
+    type: buildTypeMeta(checker, signature.type!, info?.type),
     docs,
     doctags,
     required,

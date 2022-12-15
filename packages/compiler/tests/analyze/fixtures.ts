@@ -12,6 +12,7 @@ export const FooElementDefinition = defineCustomElement<FooElement>({
     lux: { initial: 20, attribute: false },
     baxHux: { initial: 30, reflect: true },
     huxBux: { initial: huxBux, attribute: 'voo', reflect: false },
+    mooBoo: { initial: 1 },
     ...{
       bam: { initial: 'foo' },
       show: { initial: () => 'foo' },

@@ -1,8 +1,22 @@
 import type { HTMLCustomElement } from '../../../maverick/src/element';
 import type { DOMEvent } from '../../../maverick/src/std';
 
-type FooProps = {
-  /** This is the foo prop docs. */
+interface MooProps<T> {
+  /** This is the moo docs. */
+  moo: T;
+  /**
+   * This is the moo boo docs.
+   *
+   * @footag
+   */
+  mooBoo: 0 | 1;
+  mooHux: boolean;
+}
+
+type FooProps = Pick<MooProps<string>, 'moo' | 'mooBoo'> & {
+  /**
+   * This is the foo prop docs.
+   */
   foo: number;
   bar: number;
   lux: number;

@@ -216,7 +216,6 @@ export interface CustomElementInstanceInit<Props = {}> {
   scope?: Scope;
   props?: Readonly<Partial<Props>>;
   context?: ContextMap;
-  children?: ReadSignal<boolean>;
 }
 
 export type AnyCustomElementInstance = CustomElementInstance<AnyCustomElement>;
@@ -259,7 +258,6 @@ export interface CustomElementHost<T extends AnyCustomElement> {
   [PROPS]: {
     $connected: WriteSignal<boolean>;
     $mounted: WriteSignal<boolean>;
-    $children: ReadSignal<boolean> | WriteSignal<boolean>;
   };
   /**
    * The custom element this component is attached to. This is safe to call server-side with the
@@ -283,11 +281,6 @@ export interface CustomElementHost<T extends AnyCustomElement> {
    * content in its shadow root. This is a reactive signal call.
    */
   $mounted: boolean;
-  /**
-   * Whether there is any child nodes in the associated custom element's light DOM. If `false`
-   * you can return fallback content. This is a reactive signal call.
-   */
-  $children: boolean;
 }
 
 // Conditional checks are simply ensuring props, cssvars, and setup are only required when needed.

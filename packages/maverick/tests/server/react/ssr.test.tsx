@@ -53,40 +53,6 @@ it('should render with children', () => {
   );
 });
 
-it('should notify host of children', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo-4',
-    setup:
-      ({ host }) =>
-      () =>
-        !host.$children && <div>Test</div>,
-  });
-
-  const Component = createReactElement(element);
-  const Root = React.createElement(Component, {}, React.createElement('div', {}, 'content'));
-
-  expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo-4 mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root><div>content</div></mk-foo-4>"',
-  );
-});
-
-it('should notify host of _no_ children', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo-5',
-    setup:
-      ({ host }) =>
-      () =>
-        !host.$children && <div>Test</div>,
-  });
-
-  const Component = createReactElement(element);
-  const Root = React.createElement(Component, { className: 'foo bar' });
-
-  expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo-5 class=\\"foo bar\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-foo-5>"',
-  );
-});
-
 it('should render with class', () => {
   const element = defineCustomElement({
     tagName: 'mk-foo-6',

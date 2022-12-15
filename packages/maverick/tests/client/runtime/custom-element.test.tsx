@@ -27,11 +27,11 @@ it('should render empty custom element', () => {
   `);
 });
 
-it('should render custom element', async () => {
+it('should render custom element', () => {
   const Foo = defineCustomElement({
     tagName: `mk-foo-1`,
-    setup: ({ host }) => {
-      return () => !host.$children && <div>Internal</div>;
+    setup: () => {
+      return () => <div>Internal</div>;
     },
   });
 
@@ -39,15 +39,16 @@ it('should render custom element', async () => {
   const $children = signal(<div>Foo</div>, { id: '$children' });
   render(() => <CustomElement $element={Foo}>{$children}</CustomElement>, { target: root });
 
-  await tick();
+  tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-foo-1
         mk-d=""
       >
         <shadow-root>
-          <!--$$-->
-          <!--/$-->
+          <div>
+            Internal
+          </div>
         </shadow-root>
         <!--$$-->
         <div>
@@ -59,18 +60,16 @@ it('should render custom element', async () => {
   `);
 
   $children.set(null);
-  await tick();
+  tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-foo-1
         mk-d=""
       >
         <shadow-root>
-          <!--$$-->
           <div>
             Internal
           </div>
-          <!--/$-->
         </shadow-root>
         <!--$$-->
         <!--/$-->
@@ -79,15 +78,16 @@ it('should render custom element', async () => {
   `);
 
   $children.set(<div>Bar</div>);
-  await tick();
+  tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
       <mk-foo-1
         mk-d=""
       >
         <shadow-root>
-          <!--$$-->
-          <!--/$-->
+          <div>
+            Internal
+          </div>
         </shadow-root>
         <!--$$-->
         <div>

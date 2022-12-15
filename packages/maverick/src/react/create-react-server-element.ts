@@ -44,7 +44,6 @@ export function createReactServerElement(definition: AnyCustomElementDefinition)
     const instance = createElementInstance(definition, {
       props: $props,
       context: contextMap,
-      children: () => !!props.children,
     });
 
     host.attachComponent(instance);

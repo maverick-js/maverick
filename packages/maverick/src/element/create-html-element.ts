@@ -2,7 +2,6 @@ import {
   Dispose,
   effect,
   getScope,
-  isWriteSignal,
   root,
   SCOPE,
   Scope,
@@ -236,19 +235,6 @@ export function createHTMLElement<T extends AnyCustomElement>(
             setStyle(this, varName, vars[name]);
           }
         }
-      }
-
-      const $children = instance.host[PROPS].$children;
-      if (isWriteSignal($children)) {
-        const onMutation = () => {
-          $children.set(this.childElementCount > 1);
-          tick();
-        };
-
-        onMutation();
-        const observer = new MutationObserver(onMutation);
-        observer.observe(this, { childList: true });
-        instance[DESTROY].push(() => observer.disconnect());
       }
 
       Object.defineProperties(this, Object.getOwnPropertyDescriptors(instance[MEMBERS]));

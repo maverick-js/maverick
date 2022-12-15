@@ -263,38 +263,6 @@ it('should throw if lifecycle hook called outside setup', () => {
   }).toThrowError(/called outside of element setup/);
 });
 
-it('should detect children during initial render', () => {
-  const { container, element } = setupTestElement(
-    {
-      setup({ host }) {
-        return () => {
-          expect(host.$children).toBeTruthy();
-          return null;
-        };
-      },
-    },
-    { append: false, delegate: false },
-  );
-
-  const child = document.createElement('div');
-  element.appendChild(child);
-  container.append(element);
-});
-
-it('should _not_ detect children during initial render', () => {
-  setupTestElement(
-    {
-      setup({ host }) {
-        return () => {
-          expect(host.$children).toBeFalsy();
-          return null;
-        };
-      },
-    },
-    { delegate: false },
-  );
-});
-
 it('should discover events on dispatch', () => {
   const { instance, element } = setupTestElement();
 

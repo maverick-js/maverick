@@ -45,9 +45,8 @@ export function createElementInstance<T extends AnyCustomElement>(
       }
     }
 
-    const $connected = signal(false);
-    const $mounted = signal(false);
-    const $children = init.children ?? signal(false);
+    const $connected = signal(false),
+      $mounted = signal(false);
 
     const host: AnyCustomElementInstance['host'] = {
       el: null,
@@ -57,13 +56,9 @@ export function createElementInstance<T extends AnyCustomElement>(
       get $mounted() {
         return $mounted();
       },
-      get $children() {
-        return $children();
-      },
       [PROPS]: {
         $connected,
         $mounted,
-        $children,
       },
     };
 

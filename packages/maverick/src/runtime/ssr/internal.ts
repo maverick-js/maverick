@@ -69,11 +69,7 @@ export function $$_custom_element(
   const hasInnerHTML = !!props?.innerHTML,
     innerHTML = hasInnerHTML ? resolve(props.innerHTML) : null,
     children = hasInnerHTML ? innerHTML! : resolve(props?.$children),
-    hasChildElements = children.replace(/<!(.*?)>/g, '').length > 0,
-    instance = createElementInstance(definition, {
-      props,
-      children: () => hasChildElements,
-    });
+    instance = createElementInstance(definition, { props });
 
   host.attachComponent(instance);
 

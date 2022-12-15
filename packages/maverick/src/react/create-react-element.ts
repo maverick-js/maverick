@@ -1,4 +1,4 @@
-import { signal, tick } from '@maverick-js/signals';
+import { tick } from '@maverick-js/signals';
 import * as React from 'react';
 
 import { registerCustomElement } from '../element/create-html-element';
@@ -51,7 +51,6 @@ function createReactClientElement<
     private _instance: AnyCustomElementInstance;
     private _element: HTMLCustomElement | null = null;
     private _context!: ContextMap;
-    private _children = signal(false);
     private _ref?: React.RefCallback<HTMLCustomElement>;
     private _forwardedRef?: React.Ref<HTMLCustomElement>;
     private _listeners = new Map<string, EventListenerObject>();
@@ -62,7 +61,6 @@ function createReactClientElement<
       this._instance = createElementInstance(definition, {
         props,
         context: this._context,
-        children: () => this._children(),
       });
     }
 
@@ -122,7 +120,6 @@ function createReactClientElement<
         }
       }
 
-      this._children.set(!!children);
       tick();
 
       return WithContextMap(

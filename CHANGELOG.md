@@ -1,3 +1,17 @@
+# [0.18.0](https://github.com/maverick-js/maverick/compare/v0.17.3...v0.18.0) (2022-12-15)
+
+
+### Bug Fixes
+
+* remove host instance `$children` support ([7c01621](https://github.com/maverick-js/maverick/commit/7c0162102b5914f02ecd0b473d04355c02fd2527))
+
+
+### Features
+
+* **analyzer:** support walking generic types ([15b2f04](https://github.com/maverick-js/maverick/commit/15b2f04365ca8b8e9ed4c34fd566207fc8a79e77))
+
+
+
 ## [0.17.3](https://github.com/maverick-js/maverick/compare/v0.17.2...v0.17.3) (2022-12-13)
 
 

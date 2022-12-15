@@ -2,7 +2,7 @@
   "name": "@maverick-js/compiler",
   "description": "Maverick toolchain including the analyzer and compiler.",
   "license": "MIT",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "type": "module",
   "module": "./dist/index.js",
   "files": [

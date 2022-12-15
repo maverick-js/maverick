@@ -1,3 +1,12 @@
+## [0.18.1](https://github.com/maverick-js/maverick/compare/v0.18.0...v0.18.1) (2022-12-15)
+
+
+### Bug Fixes
+
+* **analyzer:** resolve event detail using ts checker ([2937cdb](https://github.com/maverick-js/maverick/commit/2937cdb88cf7ce396639d7e5e6667861c7edcde1))
+
+
+
 # [0.18.0](https://github.com/maverick-js/maverick/compare/v0.17.3...v0.18.0) (2022-12-15)
 
 

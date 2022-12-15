@@ -130,10 +130,14 @@ export function walkSignatures(
             if (ts.isIdentifier(type.expression)) {
               members.heritage.set(type.expression.escapedText as string, type);
               if (!ignoredIdentifiers.has(type.expression.escapedText as string)) {
-                const declarations = getDeclarations(checker, type.expression);
-                if (declarations) {
-                  for (const declaration of declarations) {
-                    walkSignatures(checker, declaration, members, ignoredIdentifiers);
+                if (type.typeArguments) {
+                  walkSignatures(checker, type, members, ignoredIdentifiers);
+                } else {
+                  const declarations = getDeclarations(checker, type.expression);
+                  if (declarations) {
+                    for (const declaration of declarations) {
+                      walkSignatures(checker, declaration, members, ignoredIdentifiers);
+                    }
                   }
                 }
               }
@@ -153,7 +157,7 @@ export function walkSignatures(
         }
       }
     }
-  } else if (ts.isTypeReferenceNode(node)) {
+  } else if (ts.isExpressionWithTypeArguments(node) || ts.isTypeReferenceNode(node)) {
     if (node.typeArguments) {
       const type = checker.getTypeAtLocation(node);
       for (const prop of checker.getPropertiesOfType(type)) {
@@ -169,7 +173,7 @@ export function walkSignatures(
           }
         }
       }
-    } else if (ts.isIdentifier(node.typeName)) {
+    } else if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) {
       members.heritage.set(node.typeName.escapedText as string, node);
       if (!ignoredIdentifiers.has(node.typeName.escapedText as string)) {
         const declarations = getDeclarations(checker, node.typeName);

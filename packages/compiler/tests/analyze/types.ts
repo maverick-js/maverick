@@ -97,7 +97,19 @@ interface FooCSSVars {
 
 type Bar = string | null;
 
-interface BarElement extends HTMLCustomElement<FooProps, FooEvents, FooCSSVars> {}
+interface LuxProps {
+  jux: string;
+  /**
+   * This is the loo prop docs.
+   */
+  loo: number;
+}
+
+interface BaxProps extends Pick<LuxProps, 'loo'> {
+  jax: number;
+}
+
+interface BarElement extends HTMLCustomElement<FooProps & BaxProps, FooEvents, FooCSSVars> {}
 
 /**
  * This is the `FooElement` documentation.

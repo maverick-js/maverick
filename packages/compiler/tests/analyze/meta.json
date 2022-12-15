@@ -157,6 +157,21 @@
           "serialized": "() => string"
         },
         "attribute": "show"
+      },
+      {
+        "name": "loo",
+        "type": {
+          "serialized": "number"
+        },
+        "docs": "This is the loo prop docs.",
+        "attribute": "loo"
+      },
+      {
+        "name": "jax",
+        "type": {
+          "serialized": "number"
+        },
+        "attribute": "jax"
       }
     ],
     "events": [

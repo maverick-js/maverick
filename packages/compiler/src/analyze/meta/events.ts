@@ -3,7 +3,7 @@ import ts from 'typescript';
 import type { ElementDefintionNode } from '../plugins/AnalyzePlugin';
 import { getDeclaration } from '../utils/declaration';
 import { getDocs } from '../utils/docs';
-import { buildTypeMeta } from '../utils/types';
+import { buildTypeMeta, serializeType } from '../utils/types';
 import { walkSignatures } from '../utils/walk';
 import { type EventMeta, TS_NODE } from './component';
 import { getDocTags, hasDocTag } from './doctags';
@@ -51,7 +51,16 @@ export function buildEventsMeta(
           ?.getText() ?? 'unknown'
       : 'unknown';
 
-    const detail = domEvent.match(/DOMEvent<(.*)>/)?.[1] ?? domEvent;
+    const detailType = signature.type
+        ? checker.getPropertyOfType(checker.getTypeAtLocation(signature.type!), 'detail')
+        : null,
+      detail =
+        detailType && detailType.declarations?.[0]
+          ? serializeType(
+              checker,
+              checker.getTypeOfSymbolAtLocation(detailType, detailType.declarations[0]),
+            )
+          : 'unknown';
 
     if (doctags) {
       if (hasDocTag(doctags, 'internal')) internal = true;

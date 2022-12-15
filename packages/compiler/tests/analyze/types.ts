@@ -43,7 +43,8 @@ type FooProps = Pick<MooProps<string>, 'moo' | 'mooBoo'> & {
   show: () => string;
 };
 
-interface FooEvent extends DOMEvent<boolean> {}
+interface BaseEvent extends DOMEvent<boolean> {}
+interface FooEvent extends BaseEvent {}
 
 /**
  * This is the `Baz` event docs.

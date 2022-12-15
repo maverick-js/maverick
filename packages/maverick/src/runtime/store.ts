@@ -5,6 +5,7 @@ import type { AnyRecord } from './types';
 export interface Store<Record extends AnyRecord> {
   initial: Record;
   create(): Record;
+  reset(record: Record, filter?: (key: keyof Record) => boolean): void;
 }
 
 /**
@@ -50,6 +51,13 @@ export function createStore<Record extends AnyRecord>(initial: Record): Store<Re
       }
 
       return store;
+    },
+    reset: (record, filter) => {
+      for (const name of Object.keys(record)) {
+        if (!descriptors[name].get && (!filter || filter(name))) {
+          record[name as keyof Record] = initial[name];
+        }
+      }
     },
   };
 }

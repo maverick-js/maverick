@@ -20,4 +20,18 @@ it('should create store', () => {
   foo.a = 2;
   expect(foo.b).toBe(2);
   expect(foo.c).toBe(4);
+
+  store.reset(foo);
+
+  expect(foo.a).toBe(1);
+  expect(foo.b).toBe(2);
+  expect(foo.c).toBe(3);
+
+  foo.a = 4;
+  foo.b = 4;
+  store.reset(foo, (key) => key !== 'b');
+
+  expect(foo.a).toBe(1);
+  expect(foo.b).toBe(4);
+  expect(foo.c).toBe(5);
 });

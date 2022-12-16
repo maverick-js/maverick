@@ -278,7 +278,8 @@
             "null",
             "string"
           ]
-        }
+        },
+        "readonly": true
       }
     ],
     "cssparts": [

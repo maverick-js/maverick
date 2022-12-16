@@ -92,7 +92,7 @@ interface FooCSSVars {
    */
   foo: 0 | 1;
   bar: string;
-  baz: Bar;
+  readonly baz: Bar;
 }
 
 type Bar = string | null;

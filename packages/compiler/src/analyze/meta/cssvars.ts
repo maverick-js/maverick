@@ -52,7 +52,9 @@ export function buildCSSVarsMeta(
         required!: CSSVarMeta['required'],
         deprecated!: CSSVarMeta['deprecated'],
         $default!: CSSVarMeta['default'],
-        readonly: CSSVarMeta['readonly'] = valueNode ? ts.isArrowFunction(valueNode) : false;
+        readonly: CSSVarMeta['readonly'] =
+          !!signature.modifiers?.some((mod) => mod.kind === ts.SyntaxKind.ReadonlyKeyword) ||
+          (!!valueNode && ts.isArrowFunction(valueNode));
 
       if (doctags) {
         if (hasDocTag(doctags, 'internal')) internal = true;

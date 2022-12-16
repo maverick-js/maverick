@@ -1,11 +1,26 @@
 import type {
   AnyCustomElement,
   AnyCustomElementDefinition,
+  InferCustomElement,
   InferCustomElementCSSProps,
   InferCustomElementEvents,
-  InferCustomElementFromDefinition,
 } from '../../element/types';
+import type { PickWritable } from '../../std/types';
 import type { JSX } from '../jsx';
+
+export type HostElementProps<Definition extends AnyCustomElementDefinition> = {
+  /** Custom element defintion. */
+  $element?: Definition;
+  $children?: JSX.Element;
+} & HostElementAttributes<InferCustomElement<Definition>>;
+
+export type HostElementAttributes<CustomElement extends AnyCustomElement> =
+  JSX.HTMLElementAttributes<
+    CustomElement,
+    {},
+    InferCustomElementEvents<CustomElement>,
+    Partial<PickWritable<InferCustomElementCSSProps<CustomElement>>>
+  >;
 
 /**
  * The `HostElement` component can be used at the top of a setup's render function to set
@@ -24,20 +39,8 @@ import type { JSX } from '../jsx';
  * });
  * ```
  */
-export function HostElement<
-  Definition extends AnyCustomElementDefinition,
-  CustomElement extends AnyCustomElement = InferCustomElementFromDefinition<Definition>,
->(
-  props: {
-    /** Custom element defintion. */
-    $element?: Definition;
-    $children?: JSX.Element;
-  } & JSX.HTMLElementAttributes<
-    CustomElement,
-    {},
-    InferCustomElementEvents<CustomElement>,
-    InferCustomElementCSSProps<CustomElement>
-  >,
+export function HostElement<Definition extends AnyCustomElementDefinition>(
+  props: HostElementProps<Definition>,
 ): JSX.Element {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;

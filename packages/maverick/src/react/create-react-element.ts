@@ -9,7 +9,7 @@ import type {
   AnyCustomElementDefinition,
   AnyCustomElementInstance,
   HTMLCustomElement,
-  InferCustomElementFromDefinition,
+  InferCustomElement,
 } from '../element/types';
 import type { ContextMap } from '../runtime';
 import { $$_attach_declarative_shadow_dom } from '../runtime/dom';
@@ -26,7 +26,7 @@ export type ReactElementInit = {
 export function createReactElement<Definition extends AnyCustomElementDefinition>(
   definition: Definition,
   init?: ReactElementInit,
-): ReactElement<InferCustomElementFromDefinition<Definition>> {
+): ReactElement<InferCustomElement<Definition>> {
   return __SERVER__
     ? createReactServerElement(definition)
     : createReactClientElement(definition, init);
@@ -36,7 +36,7 @@ const SETUP = Symbol();
 
 function createReactClientElement<
   T extends AnyCustomElementDefinition,
-  R extends AnyCustomElement = InferCustomElementFromDefinition<T>,
+  R extends AnyCustomElement = InferCustomElement<T>,
 >(definition: T, init?: ReactElementInit): ReactElement<R> {
   registerCustomElement(definition);
 

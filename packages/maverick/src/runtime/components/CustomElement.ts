@@ -1,12 +1,27 @@
 import type {
   AnyCustomElement,
   AnyCustomElementDefinition,
+  InferCustomElement,
   InferCustomElementCSSProps,
   InferCustomElementEvents,
-  InferCustomElementFromDefinition,
   InferCustomElementProps,
 } from '../../element/types';
+import type { PickWritable } from '../../std/types';
 import type { JSX } from '../jsx';
+
+export type CustomElementProps<Definition extends AnyCustomElementDefinition> = {
+  /** Custom element defintion. */
+  $element: Definition;
+  $children?: JSX.Element;
+} & CustomElementAttributes<InferCustomElement<Definition>>;
+
+export type CustomElementAttributes<CustomElement extends AnyCustomElement> =
+  JSX.HTMLElementAttributes<
+    CustomElement,
+    Partial<InferCustomElementProps<CustomElement>>,
+    InferCustomElementEvents<CustomElement>,
+    PickWritable<InferCustomElementCSSProps<CustomElement>>
+  >;
 
 /**
  * Takes an element definition and renders a custom element. This is a virtual component meaning
@@ -23,21 +38,9 @@ import type { JSX } from '../jsx';
  * ```
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements}
  */
-export function CustomElement<
-  Definition extends AnyCustomElementDefinition,
-  CustomElement extends AnyCustomElement = InferCustomElementFromDefinition<Definition>,
->(
-  props: {
-    /** Custom element defintion. */
-    $element: Definition;
-    $children?: JSX.Element;
-  } & JSX.HTMLElementAttributes<
-    CustomElement,
-    Partial<InferCustomElementProps<CustomElement>>,
-    InferCustomElementEvents<CustomElement>,
-    InferCustomElementCSSProps<CustomElement>
-  >,
-): CustomElement {
+export function CustomElement<Definition extends AnyCustomElementDefinition>(
+  props: CustomElementProps<Definition>,
+): InferCustomElement<Definition> {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;
 }

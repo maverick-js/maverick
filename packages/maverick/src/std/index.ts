@@ -10,3 +10,4 @@ export * from './promise';
 export * from './string';
 export * from './timing';
 export * from './unit';
+export * from './types';

@@ -9,6 +9,7 @@ import type {
   SignalOptions,
   WriteSignal,
 } from '../runtime';
+import type { WritableKeys } from '../std/types';
 import type { CSS } from './css';
 import type { HOST, MEMBERS, PROPS, RENDER } from './internal';
 import type { ElementLifecycleManager } from './lifecycle';
@@ -115,7 +116,7 @@ export interface CustomElementDefinition<T extends AnyCustomElement>
   is: (node?: Node | null) => node is T;
 }
 
-export type InferCustomElementFromDefinition<T> = T extends CustomElementDefinition<infer Element>
+export type InferCustomElement<T> = T extends CustomElementDefinition<infer Element>
   ? Element
   : never;
 
@@ -205,7 +206,7 @@ export type InferCustomElementCSSProps<T> = T extends HTMLCustomElement<any, any
   : never;
 
 export type InferCustomElementCSSVars<T> = T extends HTMLCustomElement<any, any, infer CSSVars>
-  ? { [Var in keyof CSSVars as `--${Var & string}`]: CSSVars[Var] }
+  ? { [Var in WritableKeys<CSSVars> as `--${Var & string}`]: CSSVars[Var] }
   : never;
 
 export type InferCustomElementMembers<T> = T extends AnyCustomElement

@@ -84,6 +84,7 @@ export function buildCSSVarsMeta(
         required!: CSSVarMeta['required'],
         deprecated!: CSSVarMeta['deprecated'],
         $default!: CSSVarMeta['default'],
+        optional: CSSVarMeta['optional'] = !!signature.questionToken,
         readonly: CSSVarMeta['readonly'] =
           !!signature.modifiers?.some((mod) => mod.kind === ts.SyntaxKind.ReadonlyKeyword) ||
           (!!valueNode && (ts.isMethodDeclaration(valueNode) || ts.isArrowFunction(valueNode)));
@@ -92,7 +93,8 @@ export function buildCSSVarsMeta(
         if (hasDocTag(doctags, 'internal')) internal = true;
         if (hasDocTag(doctags, 'deprecated')) deprecated = true;
         if (hasDocTag(doctags, 'required')) required = true;
-        if (hasDocTag(doctags, 'readonly')) readonly = true;
+        if (!readonly && hasDocTag(doctags, 'readonly')) readonly = true;
+        if (!optional && hasDocTag(doctags, 'optional')) optional = true;
         $default =
           findDocTag(doctags, 'default')?.text ?? findDocTag(doctags, 'defaultValue')?.text ?? '';
       }
@@ -111,6 +113,7 @@ export function buildCSSVarsMeta(
         internal,
         deprecated,
         readonly: readonly ? true : undefined,
+        optional: optional ? true : undefined,
         required,
       });
     }

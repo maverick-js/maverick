@@ -75,6 +75,7 @@ export interface CSSVarMeta {
   doctags?: DocTagMeta[];
   required?: boolean;
   readonly?: boolean;
+  optional?: boolean;
   internal?: boolean;
   deprecated?: boolean;
 }

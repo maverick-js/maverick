@@ -288,7 +288,8 @@
             "text": "1"
           }
         ],
-        "readonly": true
+        "readonly": true,
+        "optional": true
       }
     ],
     "cssparts": [

@@ -90,7 +90,7 @@ interface FooCSSVars {
   bar: string;
   readonly baz: Bar;
   /** @defaultValue 1 */
-  readonly bax: number;
+  readonly bax?: number;
 }
 
 type Bar = string | null;

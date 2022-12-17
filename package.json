@@ -20,7 +20,8 @@
     "test:compiler:watch": "pnpm -F compiler test:watch",
     "test:server": "pnpm -F maverick.js test:server",
     "test:server:watch": "pnpm -F maverick.js test:server:watch",
-    "test:all": "pnpm test:client && pnpm test:server && pnpm test:compiler",
+    "test:runtime": "pnpm test:client && pnpm test:server",
+    "test:all": "pnpm test:runtime && pnpm test:compiler",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "release": "pnpm build && pnpm build:compiler && node ./.scripts/release.js"
   },

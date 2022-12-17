@@ -25,9 +25,7 @@ export function $$_create_template(html: string) {
 }
 
 /** @internal */
-export function $$_create_fragment() {
-  return createFragment();
-}
+export const $$_create_fragment = createFragment;
 
 /** @internal */
 export function $$_create_walker(
@@ -127,14 +125,10 @@ export function $$_attach_declarative_shadow_dom(element: AnyCustomElement) {
 }
 
 /** @internal */
-export function $$_insert(parent: Element, value: JSX.Element, before?: Element) {
-  insert(parent, value, before);
-}
+export const $$_insert = insert;
 
 /** @internal */
-export function $$_insert_at_marker(marker: StartMarker, value: JSX.Element) {
-  insertExpression(marker, value);
-}
+export const $$_insert_at_marker = insertExpression;
 
 /** @internal */
 export function $$_create_component<T = any>(
@@ -155,15 +149,11 @@ export function $$_ref(element: Element, ref: JSX.Ref | JSX.RefArray) {
 
 /** @internal */
 export function $$_directive(element: Element, directive: JSX.Directive, args: unknown[]) {
-  if (isFunction(directive)) {
-    directive(element, ...args);
-  }
+  if (isFunction(directive)) directive(element, ...args);
 }
 
 /** @internal */
-export function $$_attr(element: Element, name: string, value: unknown) {
-  setAttribute(element, name, value);
-}
+export const $$_attr = setAttribute;
 
 /** @internal */
 export function $$_prop(element: Element, name: string, value: unknown) {
@@ -180,14 +170,10 @@ export function $$_inner_html(element: Element, value: unknown) {
 }
 
 /** @internal */
-export function $$_class(element: Element, name: string, value: unknown) {
-  toggleClass(element, name, value);
-}
+export const $$_class = toggleClass;
 
 /** @internal */
-export function $$_style(element: HTMLElement, name: string, value: unknown) {
-  setStyle(element, name, value);
-}
+export const $$_style = setStyle;
 
 /** @internal */
 export function $$_cssvar(element: HTMLElement, name: string, value: unknown) {
@@ -214,10 +200,7 @@ export function $$_spread(element: Element, props: Record<string, unknown>) {
 }
 
 /** @internal */
-export function $$_merge_props(...sources: Record<string, unknown>[]) {
-  // @ts-expect-error - unknown rest length.
-  return mergeProperties(...sources);
-}
+export const $$_merge_props = mergeProperties;
 
 /** @internal */
 export function $$_listen(target: EventTarget, type: string, handler: unknown, capture = false) {

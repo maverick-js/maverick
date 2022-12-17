@@ -41,7 +41,7 @@ export type HostElementAttributes<CustomElement extends AnyCustomElement> =
  */
 export function HostElement<Definition extends AnyCustomElementDefinition>(
   props: HostElementProps<Definition>,
-): JSX.Element {
+): InferCustomElement<Definition> {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;
 }

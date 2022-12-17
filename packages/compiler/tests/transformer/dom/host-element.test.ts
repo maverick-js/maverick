@@ -19,7 +19,7 @@ it('should compile attribute', () => {
 
       $$_attr($$_host, \\"foo\\", id);
 
-      return;
+      return $$_host;
     })()"
   `);
 });
@@ -33,7 +33,7 @@ it('should compile $prop', () => {
 
       $$_prop($$_host, \\"foo\\", \\"1\\");
 
-      return;
+      return $$_host;
     })()"
   `);
 });
@@ -47,7 +47,7 @@ it('should compile $class', () => {
 
       $$_class($$_host, \\"foo\\", \\"...\\");
 
-      return;
+      return $$_host;
     })()"
   `);
 });
@@ -61,7 +61,7 @@ it('should compile $style', () => {
 
       $$_style($$_host, \\"foo\\", \\"...\\");
 
-      return;
+      return $$_host;
     })()"
   `);
 });
@@ -75,7 +75,7 @@ it('should compile $cssvar', () => {
 
       $$_cssvar($$_host, \\"foo\\", \\"...\\");
 
-      return;
+      return $$_host;
     })()"
   `);
 });
@@ -89,7 +89,7 @@ it('should compile $on', () => {
 
       $$_listen($$_host, \\"foo\\", handler);
 
-      return;
+      return $$_host;
     })()"
   `);
 });
@@ -103,7 +103,7 @@ it('should compile $ref', () => {
 
       $$_ref($$_host, handler);
 
-      return;
+      return $$_host;
     })()"
   `);
 });
@@ -117,7 +117,7 @@ it('should compile $use', () => {
 
       $$_directive($$_host, foo, [arg1, arg2]);
 
-      return;
+      return $$_host;
     })()"
   `);
 });

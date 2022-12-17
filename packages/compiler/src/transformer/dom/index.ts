@@ -532,7 +532,7 @@ export const dom: ASTSerializer = {
               isFirstNodeHostElement
                 ? childrenFragment
                   ? expressions[expressions.length - 1]
-                  : ''
+                  : ID.host
                 : returnId ?? createRootId()
             }`,
             ctx.scoped && '})()',

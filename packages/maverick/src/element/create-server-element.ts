@@ -69,10 +69,12 @@ export function createServerElement<T extends AnyCustomElement>(
         parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
       }
 
-      const { $attrs, $cssvars } = instance.host[PROPS];
+      const { $attrs, $styles } = instance.host[PROPS];
+      for (const name of Object.keys($attrs!)) setAttribute(this, name, $attrs![name]);
+      for (const name of Object.keys($styles!)) setStyle(this, name, $styles![name]);
 
-      for (const name of Object.keys($attrs)) setAttribute(this, name, $attrs[name]);
-      for (const name of Object.keys($cssvars)) setStyle(this, `--${name}`, $cssvars[name]);
+      instance.host[PROPS].$attrs = null;
+      instance.host[PROPS].$styles = null;
 
       (instance.host as Writable<CustomElementHost<T>>).el = this as any;
       this._instance = instance;

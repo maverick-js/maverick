@@ -259,7 +259,7 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
-  export type CSSValue = string | number | null | undefined;
+  export type CSSValue = string | number | false | null | undefined;
 
   export type CSSRecord = Record<string, CSSValue>;
 

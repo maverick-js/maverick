@@ -225,13 +225,15 @@ export function createHTMLElement<T extends AnyCustomElement>(
         adoptCSS(this._root as ShadowRoot, definition.css);
       }
 
-      const { $attrs, $cssvars } = instance.host[PROPS];
+      const { $attrs, $styles } = instance.host[PROPS];
+      for (const name of Object.keys($attrs!)) setAttribute(this, name, $attrs![name]);
+      for (const name of Object.keys($styles!)) setStyle(this, name, $styles![name]);
 
-      for (const name of Object.keys($attrs)) setAttribute(this, name, $attrs[name]);
-      for (const name of Object.keys($cssvars)) setStyle(this, `--${name}`, $cssvars[name]);
+      instance.host[PROPS].$attrs = null;
+      instance.host[PROPS].$styles = null;
 
       Object.defineProperties(this, Object.getOwnPropertyDescriptors(instance[MEMBERS]));
-      instance[MEMBERS] = undefined;
+      instance[MEMBERS] = null;
 
       (instance.host as Writable<CustomElementHost<T>>).el = this as unknown as T;
       this._instance = instance;

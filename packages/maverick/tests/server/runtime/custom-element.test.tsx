@@ -169,15 +169,40 @@ it('should render `setAttributes`', () => {
   `);
 });
 
-it('should render `setCSSVars`', () => {
+it('should render `setStyles`', () => {
   const Foo = defineCustomElement({
     tagName: `mk-foo-2`,
     setup({ host }) {
+      host.setStyles({
+        flex: '1',
+        'flex-basis': null,
+        'align-self': false,
+        'z-index': () => 10,
+      });
+    },
+  });
+
+  const instance = createElementInstance(Foo);
+  const element = new (createServerElement(Foo))();
+  element.attachComponent(instance);
+
+  expect(element.style.tokens).toMatchInlineSnapshot(`
+    Map {
+      "flex" => "1",
+      "z-index" => "10",
+    }
+  `);
+});
+
+it('should render `setCSSVars`', () => {
+  const Foo = defineCustomElement({
+    tagName: `mk-foo-3`,
+    setup({ host }) {
       host.setCSSVars({
-        foo: () => 10,
-        bar: 'none',
-        baz: false,
-        bax: null,
+        '--foo': () => 10,
+        '--bar': 'none',
+        '--baz': false,
+        '--bax': null,
       });
     },
   });

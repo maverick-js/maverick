@@ -303,23 +303,15 @@ it('should render `setAttributes`', () => {
   `);
 });
 
-it('should render `setCSSVars`', () => {
-  interface FooCSSVars {
-    foo: number;
-    bar: string;
-    baz?: number | null;
-    bux?: boolean;
-  }
-
-  interface FooElement extends HTMLCustomElement<{}, {}, FooCSSVars> {}
-
-  const Foo = defineCustomElement<FooElement>({
+it('should render `setStyles`', () => {
+  const Foo = defineCustomElement({
     tagName: `mk-foo-2`,
     setup({ host }) {
-      host.setCSSVars({
-        foo: () => 10,
-        bar: 'none',
-        baz: null,
+      host.setStyles({
+        flex: '1',
+        'flex-basis': null,
+        'align-self': false,
+        'z-index': () => 10,
       });
     },
   });
@@ -332,6 +324,40 @@ it('should render `setCSSVars`', () => {
 
   expect(element).toMatchInlineSnapshot(`
     <mk-foo-2
+      style="flex: 1; z-index: 10;"
+    />
+  `);
+});
+
+it('should render `setCSSVars`', () => {
+  interface FooCSSVars {
+    foo: number;
+    bar: string;
+    baz?: number | null;
+    bux?: boolean;
+  }
+
+  interface FooElement extends HTMLCustomElement<{}, {}, FooCSSVars> {}
+
+  const Foo = defineCustomElement<FooElement>({
+    tagName: `mk-foo-3`,
+    setup({ host }) {
+      host.setCSSVars({
+        '--foo': () => 10,
+        '--bar': 'none',
+        '--baz': null,
+      });
+    },
+  });
+
+  registerCustomElement(Foo);
+
+  const instance = createElementInstance(Foo);
+  const element = document.createElement(Foo.tagName) as HTMLCustomElement;
+  element.attachComponent(instance);
+
+  expect(element).toMatchInlineSnapshot(`
+    <mk-foo-3
       style="--foo: 10; --bar: none;"
     />
   `);

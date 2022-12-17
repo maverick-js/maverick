@@ -1,4 +1,4 @@
-import type { Constructor, Simplify } from 'type-fest';
+import type { Constructor, KebabCase, Simplify } from 'type-fest';
 
 import type {
   ContextMap,
@@ -215,9 +215,9 @@ export interface CustomElementInstance<T extends AnyCustomElement> extends Eleme
   /** @internal */
   [PROPS]: InferCustomElementProps<T>;
   /** @internal */
-  [MEMBERS]?: Record<string, any>;
+  [MEMBERS]?: Record<string, any> | null;
   /** @internal */
-  [RENDER]?: () => JSX.Element;
+  [RENDER]?: (() => JSX.Element) | null;
   /**
    * Contains an API for retrieving and interacting with the host element.
    */
@@ -247,8 +247,8 @@ export interface AnyCustomElementHost extends CustomElementHost<AnyCustomElement
 export interface CustomElementHost<T extends AnyCustomElement> {
   /** @internal */
   [PROPS]: {
-    $attrs: HostAttributesRecord;
-    $cssvars: HostCSSVarsRecord<InferCustomElementCSSProps<T>>;
+    $attrs: HostAttributesRecord | null;
+    $styles: HostStylesRecord | null;
     $connected: WriteSignal<boolean>;
     $mounted: WriteSignal<boolean>;
   };
@@ -293,6 +293,11 @@ export interface CustomElementHost<T extends AnyCustomElement> {
    */
   setAttributes(attributes: HostAttributesRecord): void;
   /**
+   * This method can be used to specify styles that should set be set on the host element. Any
+   * styles that are assigned to a function will be considered a signal and updated accordingly.
+   */
+  setStyles(styles: HostStylesRecord): void;
+  /**
    * This method is used to satisfy the CSS variables contract specified on the current
    * custom element definition. Other CSS variables can be set via the `setStyles` method.
    */
@@ -302,8 +307,14 @@ export interface CustomElementHost<T extends AnyCustomElement> {
 export type HostAttributesRecord = JSX.LowercasedSignalAttributes<JSX.HTMLProperties> &
   JSX.ARIAAttributes & { [attrName: string]: JSX.AttrValue | ReadSignal<JSX.AttrValue> };
 
+export type HostStylesRecord = {
+  [Prop in keyof JSX.CSSProperties as KebabCase<Prop & string>]:
+    | JSX.CSSProperties[Prop]
+    | ReadSignal<JSX.CSSProperties[Prop]>;
+};
+
 export type HostCSSVarsRecord<CSSVars> = {
-  [Var in keyof CSSVars]: CSSVars[Var] | ReadSignal<CSSVars[Var]>;
+  [Var in keyof CSSVars as `--${Var & string}`]: CSSVars[Var] | ReadSignal<CSSVars[Var]>;
 };
 
 // Conditional checks are simply ensuring props and setup are only required when needed.

@@ -49,7 +49,9 @@ export function createElementInstance<T extends AnyCustomElement>(
     const $connected = signal(false),
       $mounted = signal(false),
       $attrs = {},
-      $cssvars = {};
+      $styles = {},
+      setAttributes = (attrs) => void Object.assign($attrs, attrs),
+      setStyles = (styles) => void Object.assign($styles, styles);
 
     const host: AnyCustomElementInstance['host'] = {
       el: null,
@@ -64,16 +66,13 @@ export function createElementInstance<T extends AnyCustomElement>(
       },
       [PROPS]: {
         $attrs,
-        $cssvars,
+        $styles,
         $connected,
         $mounted,
       },
-      setAttributes(attrs) {
-        Object.assign($attrs, attrs);
-      },
-      setCSSVars(vars) {
-        Object.assign($cssvars, vars);
-      },
+      setAttributes,
+      setStyles,
+      setCSSVars: setStyles,
     };
 
     const instance: Writable<AnyCustomElementInstance> = {
@@ -114,8 +113,8 @@ export function createElementInstance<T extends AnyCustomElement>(
         }
 
         instance[SCOPE] = null;
-        instance[MEMBERS] = undefined;
-        instance[RENDER] = undefined;
+        instance[MEMBERS] = null;
+        instance[RENDER] = null;
 
         (host as Writable<AnyCustomElementHost>).el = null;
         destroyed = true;

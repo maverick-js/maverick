@@ -1,3 +1,24 @@
+# [0.20.0](https://github.com/maverick-js/maverick/compare/v0.19.0...v0.20.0) (2022-12-17)
+
+
+### Bug Fixes
+
+* **analyze:** detect readonly modifier on cssvars ([5014e50](https://github.com/maverick-js/maverick/commit/5014e50437ad76545cce20f5ee1af2790634d426))
+* **compiler:** `<HostElement>` should return element ([8c3fa88](https://github.com/maverick-js/maverick/commit/8c3fa88805b8069e86908e0596d01e61c5adfabb))
+* **runtime:** clean up `HostElement`/`CustomElement` signatures ([3f1ec2e](https://github.com/maverick-js/maverick/commit/3f1ec2efad6db5276423cc8d83b1ac3a8557358b))
+* **runtime:** flatten some internal function calls ([7449b40](https://github.com/maverick-js/maverick/commit/7449b4072563ee4d1101cd56870d8c75cff274e3))
+
+
+### Features
+
+* **analyze:** add `optional` to cssvar meta ([f9c36d4](https://github.com/maverick-js/maverick/commit/f9c36d43b0ba21103bc36e5c89a46d298013190d))
+* **element:** add `$el` property to custom element host ([204ea23](https://github.com/maverick-js/maverick/commit/204ea23ce0f1bfddac9d03abb12bb857ec9b6447))
+* **element:** add `setAttributes` method to custom element host ([12680eb](https://github.com/maverick-js/maverick/commit/12680eb3ed5621ec1db847c7ee537e6925a02bb2))
+* **element:** add `setStyles` method on custom element host ([871338e](https://github.com/maverick-js/maverick/commit/871338e971ad458a279509676b7bdcb315df4ec6))
+* **element:** move `cssvars` from definition to host ([515e252](https://github.com/maverick-js/maverick/commit/515e25241b852e6ee5e34fda51001498d04f87a3))
+
+
+
 # [0.19.0](https://github.com/maverick-js/maverick/compare/v0.18.2...v0.19.0) (2022-12-16)
 
 

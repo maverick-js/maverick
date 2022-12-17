@@ -268,7 +268,9 @@ export namespace JSX {
   };
 
   export type StyleAttributes = {
-    [P in keyof CSSProperties as `$style:${KebabCase<Stringify<P>>}`]: Value<CSSProperties[P]>;
+    [Prop in keyof CSSProperties as `$style:${KebabCase<Stringify<Prop>>}`]: Value<
+      CSSProperties[Prop]
+    >;
   };
 
   export type AnyCSSProperty = {

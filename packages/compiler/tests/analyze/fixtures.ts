@@ -19,9 +19,11 @@ export const FooElementDefinition = defineCustomElement<FooElement>({
     },
     zoo: {},
   },
-  cssvars: {
-    foo: 0,
-    bar: '1',
-    baz: BAZ_CSS_VAR,
+  setup({ host }) {
+    host.setCSSVars({
+      foo: () => 0,
+      bar: '1',
+      baz: BAZ_CSS_VAR,
+    });
   },
 });

@@ -145,10 +145,11 @@ it('should set inner html', () => {
 it('should render css vars', () => {
   const Button = defineCustomElement({
     tagName: `mk-button-5`,
-    // @ts-expect-error
-    cssvars: {
-      foo: 10,
-      bar: 'none',
+    setup({ host }) {
+      host.setCSSVars({
+        foo: () => 10,
+        bar: 'none',
+      });
     },
   });
 
@@ -160,27 +161,6 @@ it('should render css vars', () => {
     Map {
       "--foo" => "10",
       "--bar" => "none",
-    }
-  `);
-});
-
-it('should render css vars builder', () => {
-  const Button = defineCustomElement({
-    tagName: `mk-button-6`,
-    // @ts-expect-error
-    props: { foo: { initial: 100 } },
-    cssvars: (props) => ({
-      foo: () => props.foo,
-    }),
-  });
-
-  const instance = createElementInstance(Button);
-  const element = new (createServerElement(Button))();
-  element.attachComponent(instance);
-
-  expect(element.style.tokens).toMatchInlineSnapshot(`
-    Map {
-      "--foo" => "100",
     }
   `);
 });

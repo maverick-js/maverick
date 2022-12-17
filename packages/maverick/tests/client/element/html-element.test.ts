@@ -277,12 +277,21 @@ it('should discover events on dispatch', () => {
 });
 
 it('should render css vars', () => {
-  const Button = defineCustomElement({
+  interface FooCSSVars {
+    foo: number;
+    bar: string;
+    baz?: number;
+  }
+
+  interface Foo extends HTMLCustomElement<{}, {}, FooCSSVars> {}
+
+  const Button = defineCustomElement<Foo>({
     tagName: `mk-button-5`,
-    // @ts-expect-error
-    cssvars: {
-      foo: 10,
-      bar: 'none',
+    setup({ host }) {
+      host.setCSSVars({
+        foo: () => 10,
+        bar: 'none',
+      });
     },
   });
 
@@ -295,37 +304,6 @@ it('should render css vars', () => {
   expect(element).toMatchInlineSnapshot(`
     <mk-button-5
       style="--foo: 10; --bar: none;"
-    />
-  `);
-});
-
-it('should render css vars builder', () => {
-  const Button = defineCustomElement({
-    tagName: `mk-button-6`,
-    props: { foo: { initial: 0 } },
-    cssvars: (props) => ({
-      foo: () => props.foo,
-    }),
-  } as any);
-
-  registerCustomElement(Button);
-
-  const instance = createElementInstance(Button);
-  const element = document.createElement(Button.tagName) as HTMLCustomElement;
-  element.attachComponent(instance);
-
-  expect(element).toMatchInlineSnapshot(`
-    <mk-button-6
-      style="--foo: 0;"
-    />
-  `);
-
-  instance[PROPS].foo = 100;
-  tick();
-
-  expect(element).toMatchInlineSnapshot(`
-    <mk-button-6
-      style="--foo: 100;"
     />
   `);
 });

@@ -246,7 +246,7 @@
     "cssvars": [
       {
         "name": "foo",
-        "default": "1",
+        "default": "() => 0",
         "type": {
           "serialized": "0 | 1",
           "union": [
@@ -255,12 +255,7 @@
           ]
         },
         "docs": "This is the foo docs.",
-        "doctags": [
-          {
-            "name": "defaultValue",
-            "text": "1"
-          }
-        ]
+        "readonly": true
       },
       {
         "name": "bar",
@@ -279,6 +274,20 @@
             "string"
           ]
         },
+        "readonly": true
+      },
+      {
+        "name": "bax",
+        "default": "1",
+        "type": {
+          "serialized": "number"
+        },
+        "doctags": [
+          {
+            "name": "defaultValue",
+            "text": "1"
+          }
+        ],
         "readonly": true
       }
     ],

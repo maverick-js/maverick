@@ -18,8 +18,40 @@ export function buildCSSVarsMeta(
   typeRoot?: ElementDefintionNode['types']['cssvars'],
   parentDocTags?: DocTagMeta[],
 ) {
-  const meta = new Map<string, CSSVarMeta>(),
-    vars = getValueNode(checker, getPropertyAssignmentValue(checker, declarationRoot, 'cssvars'));
+  const meta = new Map<string, CSSVarMeta>();
+
+  let vars: ts.Node | undefined;
+
+  const setup = getValueNode(
+    checker,
+    getPropertyAssignmentValue(checker, declarationRoot, 'setup'),
+  );
+
+  // Find `host.setCSSVars(...)`
+  if (
+    setup &&
+    (ts.isMethodDeclaration(setup) || ts.isArrowFunction(setup)) &&
+    setup.body &&
+    ts.isBlock(setup.body)
+  ) {
+    function findSetCSSVars(node: ts.Node) {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isPropertyAccessExpression(node.expression) &&
+        ts.isIdentifier(node.expression.expression) &&
+        node.expression.expression.escapedText === 'host' &&
+        ts.isIdentifier(node.expression.name) &&
+        node.expression.name.escapedText === 'setCSSVars' &&
+        node.arguments[0]
+      ) {
+        vars = getValueNode(checker, node.arguments[0]);
+      }
+
+      ts.forEachChild(node, findSetCSSVars);
+    }
+
+    ts.forEachChild(setup.body, findSetCSSVars);
+  }
 
   if (parentDocTags?.length) {
     const cssvars = buildMetaFromDocTags(
@@ -54,7 +86,7 @@ export function buildCSSVarsMeta(
         $default!: CSSVarMeta['default'],
         readonly: CSSVarMeta['readonly'] =
           !!signature.modifiers?.some((mod) => mod.kind === ts.SyntaxKind.ReadonlyKeyword) ||
-          (!!valueNode && ts.isArrowFunction(valueNode));
+          (!!valueNode && (ts.isMethodDeclaration(valueNode) || ts.isArrowFunction(valueNode)));
 
       if (doctags) {
         if (hasDocTag(doctags, 'internal')) internal = true;

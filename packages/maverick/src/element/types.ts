@@ -54,12 +54,6 @@ export type CustomElementPropDefinitions<Props> = Readonly<{
   [Prop in keyof Props]: CustomElementPropDefinition<Props[Prop]>;
 }>;
 
-export interface CustomElementCSSVarsBuilder<Props, CSSVars> {
-  (props: Readonly<Props>): Partial<{
-    [P in keyof CSSVars]: CSSVars[P] | ReadSignal<CSSVars[P]>;
-  }>;
-}
-
 export type AnyCustomElementDeclaration = CustomElementDeclaration<AnyCustomElement>;
 
 export interface CustomElementDeclaration<T extends AnyCustomElement> {
@@ -79,16 +73,10 @@ export interface CustomElementDeclaration<T extends AnyCustomElement> {
    */
   css?: CSS[];
   /**
-   * Component properties. Note that these are not exposed on the custom element, only members
-   * returned from the `setup` function are.
+   * Component properties. Note that these props are not exposed on the custom element, only
+   * members returned from the `setup` function are.
    */
   props: CustomElementPropDefinitions<InferCustomElementProps<T>>;
-  /**
-   * CSS variables that should be initialized during setup.
-   */
-  cssvars:
-    | InferCustomElementCSSProps<T>
-    | CustomElementCSSVarsBuilder<InferCustomElementProps<T>, InferCustomElementCSSProps<T>>;
   /**
    * The setup function is run once the custom element is ready to render. This function must
    * return a render function. Optionally, class members (i.e., props and methods) can be returned
@@ -231,7 +219,7 @@ export interface CustomElementInstance<T extends AnyCustomElement> extends Eleme
   /** @internal */
   [RENDER]?: () => JSX.Element;
   /**
-   * Contains the custom host element itself and additional lifecycle state props.
+   * Contains an API for retrieving and interacting with the host element.
    */
   readonly host: CustomElementHost<T>;
   /**
@@ -239,10 +227,6 @@ export interface CustomElementInstance<T extends AnyCustomElement> extends Eleme
    * object because it will result in a loss of reactivity.
    */
   readonly props: Readonly<InferCustomElementProps<T>>;
-  /**
-   * Permanently destroy component instance.
-   */
-  readonly destroy: () => void;
   /**
    * Returns get/set accessors for all defined properties on this element instance. This method
    * should only be used for exposing properties as members on the HTML element so consumers can
@@ -252,16 +236,21 @@ export interface CustomElementInstance<T extends AnyCustomElement> extends Eleme
    * of sync between the host framework and internally which will cause inconsistent states.**
    */
   readonly accessors: () => InferCustomElementProps<T>;
+  /**
+   * Permanently destroy component instance.
+   */
+  destroy(): void;
 }
 
 export interface CustomElementHost<T extends AnyCustomElement> {
   /** @internal */
   [PROPS]: {
+    $cssvars: HostCSSVarsRecord<InferCustomElementCSSProps<T>>;
     $connected: WriteSignal<boolean>;
     $mounted: WriteSignal<boolean>;
   };
   /**
-   * The custom element this component is attached to. This is safe to call server-side with the
+   * The custom element this component is attached to. This is safe to use server-side with the
    * limited API isted below.
    *
    * **Important:** Only specific DOM APIs are safe to call server-side. This includes:
@@ -271,32 +260,40 @@ export interface CustomElementHost<T extends AnyCustomElement> {
    * - Styles: `style` API
    * - Events (noops): `addEventListener`, `removeEventListener`, and `dispatchEvent`
    */
-  el: T | null;
+  readonly el: T | null;
   /**
-   * Whether the custom element associated with this component has connected to the DOM. This is
-   * a reactive signal call.
+   * Whether the custom element associated with this component has connected to the DOM.
+   *
+   * @signal
    */
-  $connected: boolean;
+  readonly $connected: boolean;
   /**
    * Whether the custom element associated with this component has mounted the DOM and rendered
-   * content in its shadow root. This is a reactive signal call.
+   * content in its host element or shadow root.
+   *
+   * @signal
    */
-  $mounted: boolean;
+  readonly $mounted: boolean;
+  /**
+   * This method is used to satisfy the CSS variables contract specified on the current
+   * custom element definition. Other CSS variables can be set via the `setStyles` method.
+   */
+  setCSSVars(vars: HostCSSVarsRecord<InferCustomElementCSSProps<T>>): void;
 }
 
-// Conditional checks are simply ensuring props, cssvars, and setup are only required when needed.
+export type HostCSSVarsRecord<CSSVars> = {
+  [Var in keyof CSSVars]: CSSVars[Var] | ReadSignal<CSSVars[Var]>;
+};
+
+// Conditional checks are simply ensuring props and setup are only required when needed.
 export type PartialCustomElementDeclaration<T extends AnyCustomElement> =
   InferCustomElementMembers<T> extends EmptyRecord
     ? Omit<
         CustomElementDeclaration<T>,
-        | (InferCustomElementProps<T> extends Record<string, never> ? 'props' : '')
-        | 'setup'
-        | (InferCustomElementCSSProps<T> extends Record<string, never> ? 'cssvars' : '')
+        (InferCustomElementProps<T> extends Record<string, never> ? 'props' : '') | 'setup'
       > & {
         setup?: CustomElementDeclaration<T>['setup'];
       }
-    : Omit<
-        CustomElementDeclaration<T>,
-        | (InferCustomElementProps<T> extends Record<string, never> ? 'props' : '')
-        | (InferCustomElementCSSProps<T> extends Record<string, never> ? 'cssvars' : '')
-      >;
+    : InferCustomElementProps<T> extends Record<string, never>
+    ? Omit<CustomElementDeclaration<T>, 'props'>
+    : CustomElementDeclaration<T>;

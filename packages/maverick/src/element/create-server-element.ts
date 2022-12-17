@@ -1,15 +1,18 @@
+import type { Writable } from 'type-fest';
+
 import { renderToString, SCOPE, scoped, tick } from '../runtime';
 import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
 import { escape } from '../std/html';
 import { camelToKebabCase } from '../std/string';
-import { isBoolean, isFunction } from '../std/unit';
-import { ATTACH, HOST, RENDER } from './internal';
+import { isBoolean } from '../std/unit';
+import { ATTACH, HOST, PROPS, RENDER } from './internal';
 import type {
   AnyCustomElement,
   AnyCustomElementDefinition,
   AnyCustomElementInstance,
   CustomElementDefinition,
+  CustomElementHost,
   CustomElementPropDefinitions,
   HostElement,
   InferCustomElementProps,
@@ -66,18 +69,13 @@ export function createServerElement<T extends AnyCustomElement>(
         parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
       }
 
-      if (definition.cssvars) {
-        const vars = isFunction(definition.cssvars)
-          ? definition.cssvars(instance.props)
-          : definition.cssvars;
-        for (const name of Object.keys(vars)) {
-          if (isFunction(vars[name]) || !this.style.tokens.has(name)) {
-            setStyle(this, `--${name}`, vars[name]);
-          }
-        }
+      const { $cssvars } = instance.host[PROPS];
+
+      for (const name of Object.keys($cssvars)) {
+        setStyle(this, `--${name}`, $cssvars[name]);
       }
 
-      instance.host.el = this as any;
+      (instance.host as Writable<CustomElementHost<T>>).el = this as any;
       this._instance = instance;
 
       for (const attachCallback of instance[ATTACH]) {

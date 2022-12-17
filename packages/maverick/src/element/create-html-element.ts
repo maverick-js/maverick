@@ -9,13 +9,14 @@ import {
   tick,
   untrack,
 } from '@maverick-js/signals';
+import type { Writable } from 'type-fest';
 
 import { hydrate, hydration, render } from '../runtime';
 import { $$_create_element } from '../runtime/dom/internal';
 import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
-import { isBoolean, isFunction } from '../std/unit';
+import { isBoolean } from '../std/unit';
 import { adoptCSS } from './css';
 import { createElementInstance } from './instance';
 import { ATTACH, CONNECT, DESTROY, HOST, MEMBERS, MOUNT, PROPS, RENDER } from './internal';
@@ -24,6 +25,7 @@ import type {
   AnyCustomElementDefinition,
   AnyCustomElementInstance,
   CustomElementDefinition,
+  CustomElementHost,
   CustomElementPropDefinitions,
   HostElement,
   HTMLCustomElement,
@@ -223,24 +225,16 @@ export function createHTMLElement<T extends AnyCustomElement>(
         adoptCSS(this._root as ShadowRoot, definition.css);
       }
 
-      if (definition.cssvars) {
-        const vars = isFunction(definition.cssvars)
-          ? definition.cssvars(instance.props)
-          : definition.cssvars;
+      const { $cssvars } = instance.host[PROPS];
 
-        const style = getComputedStyle(this);
-        for (const name of Object.keys(vars)) {
-          const varName = `--${name}`;
-          if (isFunction(vars[name]) || !style.getPropertyValue(varName)) {
-            setStyle(this, varName, vars[name]);
-          }
-        }
+      for (const name of Object.keys($cssvars)) {
+        setStyle(this, `--${name}`, $cssvars[name]);
       }
 
       Object.defineProperties(this, Object.getOwnPropertyDescriptors(instance[MEMBERS]));
       instance[MEMBERS] = undefined;
 
-      instance.host.el = this as unknown as T;
+      (instance.host as Writable<CustomElementHost<T>>).el = this as unknown as T;
       this._instance = instance;
 
       for (const attachCallback of instance[ATTACH]) {

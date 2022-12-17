@@ -276,33 +276,62 @@ it('should discover events on dispatch', () => {
   expect(callback).toHaveBeenCalledWith('mk-click');
 });
 
-it('should render css vars', () => {
-  interface FooCSSVars {
-    foo: number;
-    bar: string;
-    baz?: number;
-  }
-
-  interface Foo extends HTMLCustomElement<{}, {}, FooCSSVars> {}
-
-  const Button = defineCustomElement<Foo>({
-    tagName: `mk-button-5`,
+it('should render `setAttributes`', () => {
+  const Foo = defineCustomElement({
+    tagName: `mk-foo-1`,
     setup({ host }) {
-      host.setCSSVars({
+      host.setAttributes({
         foo: () => 10,
         bar: 'none',
+        baz: null,
+        bux: false,
       });
     },
   });
 
-  registerCustomElement(Button);
+  registerCustomElement(Foo);
 
-  const instance = createElementInstance(Button);
-  const element = document.createElement(Button.tagName) as HTMLCustomElement;
+  const instance = createElementInstance(Foo);
+  const element = document.createElement(Foo.tagName) as HTMLCustomElement;
   element.attachComponent(instance);
 
   expect(element).toMatchInlineSnapshot(`
-    <mk-button-5
+    <mk-foo-1
+      bar="none"
+      foo="10"
+    />
+  `);
+});
+
+it('should render `setCSSVars`', () => {
+  interface FooCSSVars {
+    foo: number;
+    bar: string;
+    baz?: number | null;
+    bux?: boolean;
+  }
+
+  interface FooElement extends HTMLCustomElement<{}, {}, FooCSSVars> {}
+
+  const Foo = defineCustomElement<FooElement>({
+    tagName: `mk-foo-2`,
+    setup({ host }) {
+      host.setCSSVars({
+        foo: () => 10,
+        bar: 'none',
+        baz: null,
+      });
+    },
+  });
+
+  registerCustomElement(Foo);
+
+  const instance = createElementInstance(Foo);
+  const element = document.createElement(Foo.tagName) as HTMLCustomElement;
+  element.attachComponent(instance);
+
+  expect(element).toMatchInlineSnapshot(`
+    <mk-foo-2
       style="--foo: 10; --bar: none;"
     />
   `);

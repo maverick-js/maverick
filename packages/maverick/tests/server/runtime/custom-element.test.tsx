@@ -142,19 +142,48 @@ it('should set inner html', () => {
   );
 });
 
-it('should render css vars', () => {
-  const Button = defineCustomElement({
-    tagName: `mk-button-5`,
+it('should render `setAttributes`', () => {
+  const Foo = defineCustomElement({
+    tagName: `mk-foo-1`,
     setup({ host }) {
-      host.setCSSVars({
+      host.setAttributes({
         foo: () => 10,
         bar: 'none',
+        baz: null,
+        bux: false,
       });
     },
   });
 
-  const instance = createElementInstance(Button);
-  const element = new (createServerElement(Button))();
+  const instance = createElementInstance(Foo);
+  const element = new (createServerElement(Foo))();
+  element.attachComponent(instance);
+
+  expect(element.attributes.tokens).toMatchInlineSnapshot(`
+    Map {
+      "mk-h" => "",
+      "mk-d" => "",
+      "foo" => "10",
+      "bar" => "none",
+    }
+  `);
+});
+
+it('should render `setCSSVars`', () => {
+  const Foo = defineCustomElement({
+    tagName: `mk-foo-2`,
+    setup({ host }) {
+      host.setCSSVars({
+        foo: () => 10,
+        bar: 'none',
+        baz: false,
+        bax: null,
+      });
+    },
+  });
+
+  const instance = createElementInstance(Foo);
+  const element = new (createServerElement(Foo))();
   element.attachComponent(instance);
 
   expect(element.style.tokens).toMatchInlineSnapshot(`

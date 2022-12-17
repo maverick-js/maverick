@@ -247,6 +247,7 @@ export interface AnyCustomElementHost extends CustomElementHost<AnyCustomElement
 export interface CustomElementHost<T extends AnyCustomElement> {
   /** @internal */
   [PROPS]: {
+    $attrs: HostAttributesRecord;
     $cssvars: HostCSSVarsRecord<InferCustomElementCSSProps<T>>;
     $connected: WriteSignal<boolean>;
     $mounted: WriteSignal<boolean>;
@@ -287,11 +288,19 @@ export interface CustomElementHost<T extends AnyCustomElement> {
    */
   readonly $mounted: boolean;
   /**
+   * This method can be used to specify attributes that should be set on the host element. Any
+   * attributes that are assigned to a function will be considered a signal and updated accordingly.
+   */
+  setAttributes(attributes: HostAttributesRecord): void;
+  /**
    * This method is used to satisfy the CSS variables contract specified on the current
    * custom element definition. Other CSS variables can be set via the `setStyles` method.
    */
   setCSSVars(vars: HostCSSVarsRecord<InferCustomElementCSSProps<T>>): void;
 }
+
+export type HostAttributesRecord = JSX.LowercasedSignalAttributes<JSX.HTMLProperties> &
+  JSX.ARIAAttributes & { [attrName: string]: JSX.AttrValue | ReadSignal<JSX.AttrValue> };
 
 export type HostCSSVarsRecord<CSSVars> = {
   [Var in keyof CSSVars]: CSSVars[Var] | ReadSignal<CSSVars[Var]>;

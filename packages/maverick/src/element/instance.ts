@@ -48,6 +48,7 @@ export function createElementInstance<T extends AnyCustomElement>(
 
     const $connected = signal(false),
       $mounted = signal(false),
+      $attrs = {},
       $cssvars = {};
 
     const host: AnyCustomElementInstance['host'] = {
@@ -62,9 +63,13 @@ export function createElementInstance<T extends AnyCustomElement>(
         return $mounted();
       },
       [PROPS]: {
+        $attrs,
         $cssvars,
         $connected,
         $mounted,
+      },
+      setAttributes(attrs) {
+        Object.assign($attrs, attrs);
       },
       setCSSVars(vars) {
         Object.assign($cssvars, vars);

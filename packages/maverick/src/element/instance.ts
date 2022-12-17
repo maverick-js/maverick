@@ -16,6 +16,7 @@ import {
 } from './internal';
 import type {
   AnyCustomElement,
+  AnyCustomElementHost,
   AnyCustomElementInstance,
   CustomElementDefinition,
   CustomElementInstance,
@@ -51,6 +52,9 @@ export function createElementInstance<T extends AnyCustomElement>(
 
     const host: AnyCustomElementInstance['host'] = {
       el: null,
+      get $el() {
+        return $connected() ? host.el : null;
+      },
       get $connected() {
         return $connected();
       },
@@ -108,7 +112,7 @@ export function createElementInstance<T extends AnyCustomElement>(
         instance[MEMBERS] = undefined;
         instance[RENDER] = undefined;
 
-        host.el = null;
+        (host as Writable<AnyCustomElementHost>).el = null;
         destroyed = true;
       },
     };

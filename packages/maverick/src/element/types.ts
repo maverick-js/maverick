@@ -242,6 +242,8 @@ export interface CustomElementInstance<T extends AnyCustomElement> extends Eleme
   destroy(): void;
 }
 
+export interface AnyCustomElementHost extends CustomElementHost<AnyCustomElement> {}
+
 export interface CustomElementHost<T extends AnyCustomElement> {
   /** @internal */
   [PROPS]: {
@@ -261,6 +263,16 @@ export interface CustomElementHost<T extends AnyCustomElement> {
    * - Events (noops): `addEventListener`, `removeEventListener`, and `dispatchEvent`
    */
   readonly el: T | null;
+  /**
+   * Returns the custom element this component is attached to. This is a reactive signal call where
+   * the element is set on DOM connection, and set back to `null` on disconnection. In other words,
+   * `$el` is defined when the host element is connected to the DOM.
+   *
+   * Refer to the `el` property for non-reactive version and for notes on server-side usage.
+   *
+   * @signal
+   */
+  readonly $el: T | null;
   /**
    * Whether the custom element associated with this component has connected to the DOM.
    *

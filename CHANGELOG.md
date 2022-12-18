@@ -1,3 +1,17 @@
+# [0.21.0](https://github.com/maverick-js/maverick/compare/v0.20.0...v0.21.0) (2022-12-18)
+
+
+### Bug Fixes
+
+* **runtime:** bundle prod version of `@maverick-js/signals` ([296c693](https://github.com/maverick-js/maverick/commit/296c6933ae97d21dad01a64d053017ba7b496f20))
+
+
+### Features
+
+* bump all deps ([08fad89](https://github.com/maverick-js/maverick/commit/08fad8946dc95787316b88cda52a1f119852e84a))
+
+
+
 # [0.20.0](https://github.com/maverick-js/maverick/compare/v0.19.0...v0.20.0) (2022-12-17)
 
 

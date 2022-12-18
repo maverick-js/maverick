@@ -181,7 +181,7 @@ export const dom: ASTSerializer = {
         const hasReturn = scoped || /^(\[|\(|\$\$|\")/.test(serialized);
         props.push(`get $children() { ${hasReturn ? `return ${serialized}` : serialized} }`);
       },
-      insert = (marker: (() => string) | null, value: string) => {
+      insert = (marker: (() => string) | null, block: string) => {
         const beforeId = ctx.hydratable ? null : getNextElementId();
         const parentId = ctx.hydratable
           ? marker?.() ?? null
@@ -189,7 +189,7 @@ export const dom: ASTSerializer = {
           ? getParentElementId()
           : (currentId ??= getCurrentElementId());
         const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;
-        expressions.push(createFunctionCall(insertId, [parentId, value, beforeId]));
+        expressions.push(createFunctionCall(insertId, [parentId, block, beforeId]));
         ctx.runtime.add(insertId);
       },
       isVirtualElement = () => customElement || hostElement;

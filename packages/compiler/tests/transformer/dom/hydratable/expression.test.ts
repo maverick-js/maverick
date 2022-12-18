@@ -181,3 +181,29 @@ it('should compile fragment containing jsx expression', () => {
     ]"
   `);
 });
+
+it('should compile jsx function expression with return statement', () => {
+  const result = t(`<div>{(id) => {
+    return (<div $on:click={onClick}></div>)
+  }}</div>`);
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_clone, $$_listen, $$_create_template, $$_insert_at_marker } from \\"maverick.js/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><!$></div>\`),
+      $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
+    (() => {
+      const [$$_root, $$_walker] = $$_create_walker($$_templ),
+        $$_expr = $$_walker.nextNode();
+
+      $$_insert_at_marker($$_expr, (id) => {
+        const [$$_root, $$_walker] = $$_create_walker($$_templ_2);
+
+        $$_listen($$_root, \\"click\\", onClick);
+
+        return $$_root;
+      });
+
+      return $$_root;
+    })()"
+  `);
+});

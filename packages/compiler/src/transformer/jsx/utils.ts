@@ -199,11 +199,33 @@ export function serializeParentExpression(
   let code = new MagicString(node.value),
     start = node.ref.getStart() + (ts.isJsxExpression(node.ref) ? 1 : 0);
 
+  const returnStatement =
+    !!node.children &&
+    node.children.length === 1 &&
+    ts.isJsxExpression(node.ref) &&
+    !!node.ref.expression &&
+    ts.isArrowFunction(node.ref.expression) &&
+    ts.isBlock(node.ref.expression.body) &&
+    (node.ref.expression.body.statements.find(ts.isReturnStatement) as ts.ReturnStatement);
+
+  const isAlreadyScoped =
+    returnStatement &&
+    !!returnStatement.expression &&
+    (returnStatement.expression === node.children![0].root ||
+      (ts.isParenthesizedExpression(returnStatement.expression) &&
+        returnStatement.expression.expression === node.children![0].root));
+
   for (const ast of node.children!) {
-    const expression = serializer.serialize(ast, ctx);
+    const expression = serializer.serialize(ast, {
+        ...ctx,
+        scoped: returnStatement ? !isAlreadyScoped : ctx.scoped,
+      }),
+      nodeStart = isAlreadyScoped ? returnStatement.getStart() : ast.root.getStart(),
+      nodeEnd = isAlreadyScoped ? returnStatement.getEnd() : ast.root.getEnd();
+
     code.overwrite(
-      ast.root.getStart() - start,
-      ast.root.getEnd() - start,
+      nodeStart - start,
+      nodeEnd - start,
       hof && expression.startsWith('(') ? `${hof}(() => ${expression})` : expression,
     );
   }

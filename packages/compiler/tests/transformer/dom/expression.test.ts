@@ -170,3 +170,28 @@ it('should compile dynamic conditional jsx expression ', () => {
     })()"
   `);
 });
+
+it('should compile jsx function expression with return statement', () => {
+  const result = t(`<div>{(id) => {
+    return (<div $on:click={onClick}></div>)
+  }}</div>`);
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_listen, $$_create_template, $$_insert } from \\"maverick.js/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`),
+      $$_templ_2 = /* #__PURE__ */ $$_templ;
+    (() => {
+      const $$_root = $$_clone($$_templ);
+
+      $$_insert($$_root, (id) => {
+        const $$_root = $$_clone($$_templ_2);
+
+        $$_listen($$_root, \\"click\\", onClick);
+
+        return $$_root;
+      });
+
+      return $$_root;
+    })()"
+  `);
+});

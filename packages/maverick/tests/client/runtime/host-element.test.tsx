@@ -2,11 +2,11 @@ import { CustomElement, HostElement, render, signal, tick } from 'maverick.js';
 
 import { defineCustomElement } from 'maverick.js/element';
 
-it('should render attributes', () => {
+it.skip('should render attributes', () => {
   const foo = signal(1);
 
   const Button = defineCustomElement({
-    tagName: `mk-button-1`,
+    tagName: `mk-button-100`,
     setup: () => () => <HostElement data-foo={foo} />,
   });
 

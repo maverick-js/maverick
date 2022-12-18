@@ -24,7 +24,7 @@ it('should compile component with element children', () => {
       get $children() {
         const $$_root = $$_clone($$_templ);
 
-        $$_insert($$_root, id, null);
+        $$_insert($$_root, id);
 
         return $$_root;
       },
@@ -90,13 +90,13 @@ it('should insert multiple child components', () => {
 <div>
   <Component />
   <Component />
-  <div>Foo</div>
+  <span>Foo</span>
   <Component />
 </div>`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_clone, $$_insert, $$_create_component, $$_create_template } from \\"maverick.js/dom\\";
 
-    const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><div>Foo</div></div>\`);
+    const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><span>Foo</span></div>\`);
 
     (() => {
       const $$_root = $$_clone($$_templ),
@@ -104,7 +104,7 @@ it('should insert multiple child components', () => {
 
       $$_insert($$_root, $$_create_component(Component), $$_el);
       $$_insert($$_root, $$_create_component(Component), $$_el);
-      $$_insert($$_root, $$_create_component(Component), null);
+      $$_insert($$_root, $$_create_component(Component));
 
       return $$_root;
     })()"
@@ -136,7 +136,7 @@ it('should compile for loop', () => {
               $$_el = $$_root.firstChild;
 
             $$_insert($$_root, item, $$_el);
-            $$_insert($$_root, i, null);
+            $$_insert($$_root, i);
 
             return $$_root;
           })()

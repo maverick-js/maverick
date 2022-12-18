@@ -89,7 +89,7 @@ it('should compile sibling jsx expression', () => {
     (() => {
       const $$_root = $$_clone($$_templ);
 
-      $$_insert($$_root, id, null);
+      $$_insert($$_root, id);
 
       return $$_root;
     })()"

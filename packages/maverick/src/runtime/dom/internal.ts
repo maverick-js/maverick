@@ -63,7 +63,6 @@ export function $$_next_custom_element(
   registerCustomElement(definition);
 
   let next: Comment | undefined;
-
   if (walker) {
     next = walker.nextNode() as Comment;
     const element = next.nextSibling as Element | null;
@@ -73,6 +72,7 @@ export function $$_next_custom_element(
   const element = $$_create_element(tagName);
   element.setAttribute('mk-d', '');
   if (next) insertExpression(next, element);
+
   return element;
 }
 

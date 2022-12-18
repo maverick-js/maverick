@@ -128,7 +128,6 @@ export const dom: ASTSerializer = {
           currentId = ID.root;
           ctx.runtime.add(RUNTIME.clone);
           elementIds[0] = ID.root;
-          hierarchy.push(0);
           initRoot = true;
         }
 
@@ -161,7 +160,7 @@ export const dom: ASTSerializer = {
         const nextSibling = elementChildIndex + 1;
         return element && element.childCount > 1
           ? nextSibling >= element.childElementCount
-            ? 'null'
+            ? ''
             : getElementId([...hierarchy, nextSibling], elementIds, locals)
           : null;
       },
@@ -183,11 +182,7 @@ export const dom: ASTSerializer = {
       },
       insert = (marker: (() => string) | null, block: string) => {
         const beforeId = ctx.hydratable ? null : getNextElementId();
-        const parentId = ctx.hydratable
-          ? marker?.() ?? null
-          : beforeId || elementChildIndex === -1
-          ? getParentElementId()
-          : (currentId ??= getCurrentElementId());
+        const parentId = ctx.hydratable ? marker?.() ?? null : getParentElementId();
         const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;
         expressions.push(createFunctionCall(insertId, [parentId, block, beforeId]));
         ctx.runtime.add(insertId);
@@ -201,13 +196,15 @@ export const dom: ASTSerializer = {
       isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
 
     if (
-      ctx.hydratable &&
       isFirstNodeElement &&
       !firstNode.isComponent &&
       firstNode.tagName !== 'HostElement' &&
       firstNode.tagName !== 'CustomElement'
     ) {
-      template.push(MARKER.element);
+      hierarchy.push(0);
+      if (ctx.hydratable) {
+        template.push(MARKER.element);
+      }
     }
 
     for (let i = 0; i < ast.tree.length; i++) {

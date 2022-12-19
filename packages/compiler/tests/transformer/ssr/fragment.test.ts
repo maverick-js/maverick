@@ -45,15 +45,15 @@ it('should compile fragment with jsx expressions', () => {
       $$_templ_2 = /* #__PURE__ */ [\\"<!$><div>Ignore</div>\\"],
       $$_templ_3 = /* #__PURE__ */ [\\"<!$><div>B</div>\\"],
       $$_templ_4 = /* #__PURE__ */ [\\"\\"],
-      $$_templ_5 = /* #__PURE__ */ [\\"<!$>\\"],
-      $$_templ_6 = /* #__PURE__ */ $$_templ_5;
+      $$_templ_5 = /* #__PURE__ */ $$_templ_4,
+      $$_templ_6 = /* #__PURE__ */ $$_templ_4;
     [
       $$_ssr($$_templ),
       false && $$_ssr($$_templ_2),
       $$_ssr($$_templ_3),
       $$_ssr($$_templ_4, 10 + 20),
       $$_ssr($$_templ_5, $id),
-      $$_ssr($$_templ_6, () => $id() + 2),
+      $$_ssr($$_templ_6, $id() + 2),
     ]"
   `);
 });

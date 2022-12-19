@@ -20,7 +20,7 @@ it('should compile dynamic binary expression', () => {
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div><!$>\\", \\"</div>\\"],
       $$_templ_2 = /* #__PURE__ */ [\\"\\"];
-    $$_ssr($$_templ_2, () => id() > 10 && $$_ssr($$_templ, id))"
+    $$_ssr($$_templ_2, id() > 10 && $$_ssr($$_templ, id))"
   `);
 });
 
@@ -33,7 +33,7 @@ it('should compile conditional expression', () => {
       $$_templ_2 = /* #__PURE__ */ [\\"<!$><div>Bar</div>\\"],
       $$_templ_3 = /* #__PURE__ */ [\\"<!$><div>Baz</div>\\"],
       $$_templ_4 = /* #__PURE__ */ [\\"\\"];
-    $$_ssr($$_templ_4, () => 1 > 2 ? $$_ssr($$_templ, id) : props.id > 10 ? $$_ssr($$_templ_2) : $$_ssr($$_templ_3))"
+    $$_ssr($$_templ_4, 1 > 2 ? $$_ssr($$_templ, id) : props.id > 10 ? $$_ssr($$_templ_2) : $$_ssr($$_templ_3))"
   `);
 });
 
@@ -73,7 +73,7 @@ it('should compile dynamic child jsx expression', () => {
     "import { $$_ssr } from \\"maverick.js/ssr\\";
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div><!$>\\", \\"</div>\\"];
-    $$_ssr($$_templ, () => id() + 10)"
+    $$_ssr($$_templ, id() + 10)"
   `);
 });
 
@@ -95,6 +95,6 @@ it('should compile dynamic conditional jsx expression ', () => {
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div id=\\\\\\"b\\\\\\"></div>\\"],
       $$_templ_2 = /* #__PURE__ */ [\\"<!$><div id=\\\\\\"a\\\\\\"><!$>\\", \\"</div>\\"];
-    $$_ssr($$_templ_2, () => id() > 10 && $$_ssr($$_templ))"
+    $$_ssr($$_templ_2, id() > 10 && $$_ssr($$_templ))"
   `);
 });

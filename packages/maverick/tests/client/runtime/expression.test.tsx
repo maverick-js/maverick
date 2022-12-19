@@ -10,11 +10,10 @@ it('should render expression', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--$$-->
+      <!--~-->
       <div>
         No
       </div>
-      <!--/$-->
     </root>
   `);
 
@@ -23,11 +22,10 @@ it('should render expression', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--$$-->
+      <!--~-->
       <div>
         Yes
       </div>
-      <!--/$-->
     </root>
   `);
 });
@@ -48,7 +46,6 @@ it('should insert expression', () => {
       <div>
         <!--$-->
         No
-        <!--/$-->
       </div>
     </root>
   `);
@@ -63,7 +60,6 @@ it('should insert expression', () => {
         <div>
           Yes
         </div>
-        <!--/$-->
       </div>
     </root>
   `);

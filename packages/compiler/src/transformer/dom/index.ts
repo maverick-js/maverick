@@ -6,6 +6,7 @@ import {
   createFunctionCall,
   createStringLiteral,
   Declarations,
+  selfInvokingFunction,
   trimQuotes,
   trimTrailingSemicolon,
 } from '../../utils/print';
@@ -55,7 +56,6 @@ const RUNTIME = {
   createWalker: '$$_create_walker',
   nextTemplate: '$$_next_template',
   nextElement: '$$_next_element',
-  nextExpression: '$$_next_expression',
   nextCustomElement: '$$_next_custom_element',
   hostElement: '$$_host_element',
   createElement: '$$_create_element',
@@ -75,6 +75,7 @@ const RUNTIME = {
   spread: '$$_spread',
   mergeProps: '$$_merge_props',
   innerHTML: '$$_inner_html',
+  computed: '$$_computed',
   peek: '$$_peek',
 };
 
@@ -90,6 +91,21 @@ const NEXT_MARKER = `${ID.walker}.nextNode()`;
 export const dom: ASTSerializer = {
   name: 'dom',
   serialize(ast, ctx) {
+    const firstNode = ast.tree[0],
+      isFirstNodeElement = isElementNode(firstNode),
+      isFirstNodeExpression = isExpressionNode(firstNode),
+      isFirstNodeHostElement = isFirstNodeElement && firstNode.tagName === 'HostElement',
+      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
+
+    if (
+      isFirstNodeExpression &&
+      !firstNode.dynamic &&
+      !firstNode.children?.length &&
+      !firstNode.observable
+    ) {
+      return firstNode.value;
+    }
+
     let skip = -1,
       initRoot = false,
       innerHTML = false,
@@ -188,12 +204,6 @@ export const dom: ASTSerializer = {
         ctx.runtime.add(insertId);
       },
       isVirtualElement = () => customElement || hostElement;
-
-    const firstNode = ast.tree[0],
-      isFirstNodeElement = isElementNode(firstNode),
-      isFirstNodeExpression = isExpressionNode(firstNode),
-      isFirstNodeHostElement = isFirstNodeElement && firstNode.tagName === 'HostElement',
-      isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
 
     if (
       isFirstNodeElement &&
@@ -480,11 +490,24 @@ export const dom: ASTSerializer = {
           if (shouldInsert) {
             insert(() => locals.create(ID.expression, nextMarker()), expression);
           } else if (ctx.fragment && ctx.hydratable) {
-            if (!node.observable) {
+            if (!node.observable && !node.children?.length) {
               expressions.push(expression);
+            } else if (node.children?.length) {
+              expressions.push(
+                selfInvokingFunction(
+                  [
+                    `const $$_signal = ${createFunctionCall(RUNTIME.computed, [`() => ${code}`])};`,
+                    '$$_signal();',
+                    'return $$_signal;',
+                  ].join(''),
+                ),
+              );
+              ctx.runtime.add(RUNTIME.computed);
             } else {
-              expressions.push(createFunctionCall(RUNTIME.nextExpression, [expression]));
-              ctx.runtime.add(RUNTIME.nextExpression);
+              expressions.push(
+                node.callId ?? createFunctionCall(RUNTIME.computed, [`() => ${code}`]),
+              );
+              ctx.runtime.add(RUNTIME.computed);
             }
           } else {
             expressions.push(expression);

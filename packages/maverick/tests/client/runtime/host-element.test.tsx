@@ -65,6 +65,7 @@ it('should render children', () => {
           <div>
             Bar
           </div>
+          <!--/[]-->
         </shadow-root>
       </mk-button-2>
     </root>

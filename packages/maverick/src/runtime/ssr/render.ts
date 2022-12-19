@@ -24,7 +24,7 @@ export function resolve(node: unknown): string {
     for (let i = 0; i < flattened.length; i++) {
       result += resolve(escape(flattened[i]));
     }
-    return result;
+    return result + '<!/[]>';
   } else if (isString(node) || isNumber(node)) {
     return node + '';
   } else if (node?.[SSR_TEMPLATE]) {

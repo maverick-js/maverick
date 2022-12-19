@@ -417,9 +417,12 @@ export const ssr: ASTSerializer = {
         if (!node.dynamic) {
           template += encode(trimQuotes(node.value));
         } else {
-          if (node !== firstNode || (ctx.fragment && node.observable)) marker();
+          if (!ctx.fragment && (elements.length > 0 || (node !== firstNode && node.observable))) {
+            marker();
+          }
+
           const code = !node.children ? node.value : serializeParentExpression(ssr, node, ctx);
-          commit(node.callId ?? (node.observable ? `() => ${code}` : code));
+          commit(node.callId ?? code);
         }
       } else if (isSpreadNode(node)) {
         merger.push(node);

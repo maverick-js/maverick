@@ -52,28 +52,25 @@ it('should hydrate', () => {
   hydrate(() => <Component />, { target: root });
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$-->
-    <div>
-      Count is
+    <root>
       <!--$-->
-      1
-      <!--/$-->
-      <!--$-->
-      <span>
+      <div>
+        Count is
         <!--$-->
         1
-        <!--/$-->
-      </span>
-      <!--$-->
-      <span>
         <!--$-->
-        1
-        <!--/$-->
-      </span>
-    </div>
-  </root>
-`);
+        <span>
+          <!--$-->
+          1
+        </span>
+        <!--$-->
+        <span>
+          <!--$-->
+          1
+        </span>
+      </div>
+    </root>
+  `);
 
   const a = root.firstElementChild;
   expect(a).toBe(div);
@@ -82,15 +79,14 @@ it('should hydrate', () => {
   const c = b?.nextSibling?.nextSibling;
   expect(c).toBe(countText);
   expect(c?.nextSibling).toBeInstanceOf(Comment);
-  const d = c?.nextSibling?.nextSibling?.nextSibling;
+  const d = c?.nextSibling?.nextSibling;
   expect(d).toBe(spanOne);
   const e = d?.nextSibling?.nextSibling;
   expect(e).toBe(spanTwo);
   expect(e?.nextSibling).toBe(null);
   const f = e?.firstChild?.nextSibling;
   expect(f).toBe(countTextThree);
-  expect(f?.nextSibling).toBeInstanceOf(Comment);
-  expect(f?.nextSibling?.nextSibling).toBe(null);
+  expect(f?.nextSibling).toBe(null);
 
   const clickEvent = new MouseEvent('click');
   div.dispatchEvent(clickEvent);
@@ -109,18 +105,15 @@ it('should hydrate', () => {
         Count is
         <!--$-->
         2
-        <!--/$-->
         <!--$-->
         <span>
           <!--$-->
           2
-          <!--/$-->
         </span>
         <!--$-->
         <span>
           <!--$-->
           2
-          <!--/$-->
         </span>
       </div>
     </root>

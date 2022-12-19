@@ -3,6 +3,7 @@ import type { ConditionalPick, KebabCase } from 'type-fest';
 
 import type { ReadSignal } from './reactivity';
 
+type DOMNode = Node;
 type DOMElement = Element;
 type DOMEvent = Event;
 
@@ -78,6 +79,7 @@ export namespace JSX {
   }
 
   export type Node =
+    | DOMNode
     | DOMElement
     | DocumentFragment
     | string

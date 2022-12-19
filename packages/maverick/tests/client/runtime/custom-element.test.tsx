@@ -54,7 +54,6 @@ it('should render custom element', () => {
         <div>
           Foo
         </div>
-        <!--/$-->
       </mk-foo-1>
     </root>
   `);
@@ -72,7 +71,7 @@ it('should render custom element', () => {
           </div>
         </shadow-root>
         <!--$$-->
-        <!--/$-->
+        <!--~-->
       </mk-foo-1>
     </root>
   `);
@@ -93,7 +92,6 @@ it('should render custom element', () => {
         <div>
           Bar
         </div>
-        <!--/$-->
       </mk-foo-1>
     </root>
   `);

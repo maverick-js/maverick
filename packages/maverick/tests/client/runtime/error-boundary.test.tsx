@@ -13,14 +13,13 @@ it('should return children', () => {
   render(() => <Component />, { target: root });
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <div>
-      Child
-    </div>
-    <!--/$-->
-  </root>
-`);
+    <root>
+      <!--~-->
+      <div>
+        Child
+      </div>
+    </root>
+  `);
 });
 
 it('should handle error', () => {
@@ -44,47 +43,41 @@ it('should handle error', () => {
   render(() => <Component />, { target: root });
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <div>
-      <!--$-->
-      Good
-      <!--/$-->
-    </div>
-    <!--/$-->
-  </root>
-`);
+    <root>
+      <!--~-->
+      <div>
+        <!--$-->
+        Good
+      </div>
+    </root>
+  `);
 
   shouldThrow.set(true);
   tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <div>
-      <!--$-->
-      Bad
-      <!--/$-->
-    </div>
-    <!--/$-->
-  </root>
-`);
+    <root>
+      <!--~-->
+      <div>
+        <!--$-->
+        Bad
+      </div>
+    </root>
+  `);
 
   shouldThrow.set(false); // handled error
   root.firstElementChild?.dispatchEvent(new MouseEvent('click'));
   tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <div>
-      <!--$-->
-      Good
-      <!--/$-->
-    </div>
-    <!--/$-->
-  </root>
-`);
+    <root>
+      <!--~-->
+      <div>
+        <!--$-->
+        Good
+      </div>
+    </root>
+  `);
 });
 
 it('should invoke `onError` property', () => {
@@ -115,16 +108,14 @@ it('should invoke `onError` property', () => {
   render(() => <Component />, { target: root });
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <div>
-      <!--$-->
-      Good
-      <!--/$-->
-    </div>
-    <!--/$-->
-  </root>
-`);
+    <root>
+      <!--~-->
+      <div>
+        <!--$-->
+        Good
+      </div>
+    </root>
+  `);
 
   shouldThrow.set(true);
   tick();
@@ -133,13 +124,11 @@ it('should invoke `onError` property', () => {
   expect(handler).toHaveBeenCalledTimes(1);
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--$$-->
+      <!--~-->
       <div>
         <!--$-->
         Bad
-        <!--/$-->
       </div>
-      <!--/$-->
     </root>
   `);
 
@@ -148,14 +137,12 @@ it('should invoke `onError` property', () => {
   tick();
 
   expect(root).toMatchInlineSnapshot(`
-  <root>
-    <!--$$-->
-    <div>
-      <!--$-->
-      Good
-      <!--/$-->
-    </div>
-    <!--/$-->
-  </root>
-`);
+    <root>
+      <!--~-->
+      <div>
+        <!--$-->
+        Good
+      </div>
+    </root>
+  `);
 });

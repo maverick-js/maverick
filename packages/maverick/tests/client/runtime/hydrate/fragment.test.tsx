@@ -1,10 +1,11 @@
 import { signal, tick } from '@maverick-js/signals';
 import { hydrate } from 'maverick.js';
 
-import { startMarker } from '../utils';
+import { endArrayMarker, startMarker } from '../utils';
 
 it('should hydrate fragment', () => {
-  const $count = signal(0);
+  const $count = signal(0),
+    $show = signal(false);
 
   const clickChildA = vi.fn();
   const clickChildB = vi.fn();
@@ -13,6 +14,7 @@ it('should hydrate fragment', () => {
     <>
       <div $on:click={clickChildA}>A</div>
       {false && <div>Ignore</div>}
+      {$show() && <div>Show</div>}
       <div $on:click={clickChildB}>B</div>
       {$count()}
     </>
@@ -43,6 +45,7 @@ it('should hydrate fragment', () => {
   const textNode = document.createTextNode('0');
   parent.appendChild(startMarker());
   parent.appendChild(textNode);
+  parent.appendChild(endArrayMarker());
 
   const root = document.createElement('root');
   root.appendChild(startMarker());
@@ -63,6 +66,7 @@ it('should hydrate fragment', () => {
         </div>
         <!--$-->
         0
+        <!--/[]-->
       </div>
     </root>
   `);
@@ -84,8 +88,7 @@ it('should hydrate fragment', () => {
         </div>
         <!--$-->
         0
-        <!--/$-->
-        <!--/$-->
+        <!--/[]-->
       </div>
     </root>
   `);
@@ -97,6 +100,7 @@ it('should hydrate fragment', () => {
   expect(clickChildB).toHaveBeenCalledOnce();
 
   $count.set(10);
+  $show.set(true);
   tick();
 
   expect(root).toMatchInlineSnapshot(`
@@ -105,17 +109,41 @@ it('should hydrate fragment', () => {
       <div>
         <!--$-->
         <!--$-->
+        <!--$-->
+        <!--$-->
         <div>
           A
         </div>
-        <!--$-->
+        <div>
+          Show
+        </div>
         <div>
           B
         </div>
-        <!--$-->
         10
-        <!--/$-->
-        <!--/$-->
+      </div>
+    </root>
+  `);
+
+  $count.set(20);
+  $show.set(false);
+  tick();
+
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <!--$-->
+      <div>
+        <!--$-->
+        <!--$-->
+        <!--$-->
+        <!--$-->
+        <div>
+          A
+        </div>
+        <div>
+          B
+        </div>
+        20
       </div>
     </root>
   `);
@@ -125,15 +153,15 @@ it('should hydrate signal fragment', () => {
   const clickChildA = vi.fn();
   const clickChildB = vi.fn();
 
-  const $count = signal(0);
-  const $fragment = signal(() => (
-    <>
-      <div $on:click={clickChildA}>A</div>
-      {false && <div>Ignore</div>}
-      <div $on:click={clickChildB}>B</div>
-      {$count()}
-    </>
-  ));
+  const $count = signal(0),
+    $fragment = signal(() => (
+      <>
+        <div $on:click={clickChildA}>A</div>
+        {false && <div>Ignore</div>}
+        <div $on:click={clickChildB}>B</div>
+        {$count()}
+      </>
+    ));
 
   function Component() {
     return <div>{$fragment()}</div>;
@@ -160,10 +188,7 @@ it('should hydrate signal fragment', () => {
   const textNode = document.createTextNode('0');
   parent.appendChild(startMarker());
   parent.appendChild(textNode);
-
-  // test if closing comments are consumed
-  parent.appendChild(document.createComment('/$'));
-  parent.appendChild(document.createComment('/#'));
+  parent.appendChild(endArrayMarker());
 
   const root = document.createElement('root');
   root.appendChild(startMarker());
@@ -186,10 +211,7 @@ it('should hydrate signal fragment', () => {
         </div>
         <!--$-->
         0
-        <!--/$-->
-        <!--/$-->
-        <!--/$-->
-        <!--/#-->
+        <!--/[]-->
       </div>
     </root>
   `);
@@ -207,8 +229,6 @@ it('should hydrate signal fragment', () => {
       <!--$-->
       <div>
         <!--$-->
-        <!--/$-->
-        <!--/#-->
       </div>
     </root>
   `);
@@ -223,8 +243,7 @@ it('should hydrate signal fragment', () => {
         1
         2
         3
-        <!--/$-->
-        <!--/#-->
+        <!--/[]-->
       </div>
     </root>
   `);

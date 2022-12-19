@@ -13,8 +13,8 @@ import { mergeProperties } from '../../std/object';
 import { observe } from '../../std/signal';
 import { isArray, isFunction } from '../../std/unit';
 import type { JSX } from '../jsx';
-import { onDispose, peek, SCOPE, scoped } from '../reactivity';
-import { createMarkerWalker, insert, insertExpression, type StartMarker } from './insert';
+import { computed, onDispose, peek, SCOPE, scoped } from '../reactivity';
+import { createMarkerWalker, insert, insertExpression } from './insert';
 import { hydration } from './render';
 
 /** @internal */
@@ -46,7 +46,7 @@ export function $$_next_template(fragment: DocumentFragment) {
 
 /** @internal */
 export function $$_next_element(walker: TreeWalker): Node {
-  return walker.nextNode()!.nextSibling!;
+  return walker.nextNode()!.nextSibling as Element;
 }
 
 /** @internal */
@@ -181,12 +181,6 @@ export function $$_cssvar(element: HTMLElement, name: string, value: unknown) {
 }
 
 /** @internal */
-export function $$_next_expression(value: any) {
-  if (hydration) insertExpression(hydration.w.nextNode() as StartMarker, value);
-  return value;
-}
-
-/** @internal */
 export function $$_spread(element: Element, props: Record<string, unknown>) {
   const keys = Object.keys(props);
   for (let i = 0; i < keys.length; i++) {
@@ -208,3 +202,4 @@ export function $$_listen(target: EventTarget, type: string, handler: unknown, c
 }
 
 export const $$_peek = peek;
+export const $$_computed = computed;

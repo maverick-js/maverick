@@ -1,137 +1,190 @@
-import { createComment, createFragment, isDOMNode } from '../../std/dom';
+import { createComment, isDOMNode } from '../../std/dom';
 import { unwrapDeep } from '../../std/signal';
 import { isArray, isFunction, isNumber, isString } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { effect } from '../reactivity';
+import { reconcile } from './reconcile';
 import { hydration } from './render';
 
-const TEXT = Symbol();
-const END_MARKER = Symbol();
-
-// <!--$-->
-export type StartMarker = Comment & {
-  [TEXT]?: Text | null;
-  /** Matching end marker. */
-  [END_MARKER]?: EndMarker;
-};
-
-// <!--/$-->
-export type EndMarker = Comment;
+const ARRAY_END_MARKER = '/[]';
 
 export function insert(
   parent: Node | DocumentFragment,
   value: JSX.Element,
   before: Node | null = null,
 ) {
-  const marker = createComment('$$');
-  if (before === null) parent.appendChild(marker);
-  else parent.insertBefore(marker, before);
+  const marker = createComment('~');
+  parent.insertBefore(marker, before);
   insertExpression(marker, value);
 }
 
-export function insertExpression(start: StartMarker, value: JSX.Element, isSignal = false) {
+export function insertExpression(
+  marker: Comment,
+  value: JSX.Element,
+  current?: JSX.Element,
+  isSignal = false,
+): JSX.Element {
   if (isFunction(value)) {
-    effect(() => void insertExpression(start, unwrapDeep(value), true));
+    let current;
+    effect(() => void (current = insertExpression(marker, unwrapDeep(value), current, true)));
     return;
   } else if (hydration && !isSignal) {
-    start.remove();
+    marker.remove();
     return;
   }
 
-  let lastChild: Node = start,
-    end = start[END_MARKER];
-
-  if (isArray(value)) {
-    // This won't exist yet when hydrating so nodes will stay intact.
-    if (end) removeNodesBetweenMarkers(start, end);
-
-    const flattened = value.flat(10).filter((v) => v || v === '' || v === 0);
-    const hasChildren = flattened.length > 0;
-
-    if (hydration && hasChildren) {
-      lastChild = resolveLastNode(start, flattened.length);
-    } else if (hasChildren) {
-      const fragment = createFragment();
-      for (let i = 0; i < flattened.length; i++) {
-        const child = flattened[i];
-        if (isFunction(child) || isArray(child)) {
-          insert(fragment, child);
-        } else if (child) {
-          fragment.append(child as any);
-        }
-      }
-      lastChild = fragment.lastChild!;
-      start.after(fragment);
-    }
+  if (value === current) {
+    // no-op
   } else if (isDOMNode(value)) {
-    // This won't exist yet when hydrating so nodes will stay intact.
-    if (end) removeNodesBetweenMarkers(start, end);
-    lastChild = value;
-    if (!hydration) start.after(value);
+    current = hydration ? value : updateDOM(marker, current, value);
   } else if (isString(value) || isNumber(value)) {
-    if (start[TEXT]) {
-      start[TEXT].data = value + '';
+    if (isDOMNode(current) && current.nodeType === 3) {
+      current.textContent = value + '';
+    } else if (!hydration) {
+      current = updateDOM(marker, current, document.createTextNode(value + ''));
     } else {
-      if (end) removeNodesBetweenMarkers(start, end);
-      if (!hydration) {
-        lastChild = document.createTextNode(value + '');
-        start.after(lastChild);
-      } else {
-        lastChild = start.nextSibling!;
-      }
-      start[TEXT] = lastChild as Text;
+      current = marker.nextSibling!;
     }
-  } else if (end) {
-    removeNodesBetweenMarkers(start, end);
+  } else if (isArray(value)) {
+    const newNodes: Node[] = [],
+      currentNodes = hydration
+        ? claimArray(marker)
+        : current && isArray(current)
+        ? (current as Node[])
+        : [];
+
+    if (resolveArray(newNodes, value, currentNodes, isSignal)) {
+      effect(() => void (current = insertExpression(marker, newNodes, currentNodes, true)));
+      return () => current;
+    }
+
+    if (hydration) return currentNodes;
+
+    if (newNodes.length === 0) {
+      updateDOM(marker, current);
+    } else if (currentNodes.length) {
+      reconcile(marker.parentElement!, currentNodes, newNodes);
+    } else {
+      current && updateDOM(marker, current);
+      appendArray(marker, newNodes);
+    }
+
+    current = newNodes;
+  } else if (current) {
+    current = updateDOM(marker, current);
   }
 
-  if (!isSignal) {
-    start.remove();
-    return;
-  }
+  if (!isSignal) marker.remove();
+  return current;
+}
 
-  if (!end) {
-    const marker = createComment('/$');
-    start[END_MARKER] = marker;
-    (lastChild as Element).after(marker);
+function isArrayEndMarker(node: Node | null) {
+  return node && node.nodeType === 8 && node.nodeValue === ARRAY_END_MARKER;
+}
+
+function appendArray(marker: Comment, nodes: Node[]) {
+  const parent = marker.parentElement!,
+    len = nodes.length,
+    endMarker = createComment(ARRAY_END_MARKER);
+  if (parent.childNodes.length === 1) {
+    for (let i = 0; i < len; i++) parent.appendChild(nodes[i]);
+    parent.appendChild(endMarker);
+  } else {
+    marker.after(endMarker);
+    for (let i = 0; i < len; i++) parent.insertBefore(nodes[i], endMarker);
   }
 }
 
-function getNodeIndex(node: Node) {
-  // @ts-expect-error
-  return [].indexOf.call(node.parentNode!.childNodes, node);
+function resolveArray(nodes: Node[], values: JSX.Nodes, current: Node[], unwrap: boolean): boolean {
+  let value: JSX.Element,
+    prev,
+    effect = false;
+
+  for (let i = 0; i < values.length; i++) {
+    (value = values[i]), (prev = current[i]);
+
+    if (isDOMNode(value)) {
+      nodes.push(value);
+    } else if (isArray(value)) {
+      effect = resolveArray(nodes, value, (isArray(prev) ? prev : []) as Node[], unwrap) || effect;
+    } else if (isFunction(value)) {
+      if (unwrap) {
+        value = unwrapDeep(value);
+        effect =
+          resolveArray(
+            nodes,
+            isArray(value) ? value : [value],
+            (isArray(prev) ? prev : [prev]) as Node[],
+            true,
+          ) || effect;
+      } else {
+        // Pushing function here is fine as it'll be unwrapped in second pass inside effect.
+        nodes.push(value as any);
+        effect = true;
+      }
+    } else if (value || value === 0) {
+      const text = value + '';
+      if (prev && prev.nodeType === 3 && prev.data === text) {
+        nodes.push(prev);
+      } else {
+        nodes.push(document.createTextNode(text));
+      }
+    }
+  }
+
+  return effect;
 }
 
-function removeNodesBetweenMarkers(start: Node, end: Node) {
-  let next = start.nextSibling,
-    sibling;
+function claimArray(marker: Comment): Node[] {
+  let node: Node | null = marker.nextSibling,
+    nodes: Node[] = [];
 
-  while (next && next !== end) {
-    sibling = next.nextSibling;
-    next.remove();
-    next = sibling;
+  while (node) {
+    if (node.nodeType !== 8) {
+      nodes.push(node);
+    } else if (node.nodeValue === ARRAY_END_MARKER) {
+      nodes.push(node);
+      break;
+    }
+
+    node = node.nextSibling;
   }
 
-  start[TEXT] = null;
+  return nodes;
 }
 
-function resolveLastNode(start: StartMarker, nodesCount: number) {
-  let index = getNodeIndex(start),
-    stop = nodesCount,
-    childNodes = start.parentElement!.childNodes;
+// adapted from: https://github.com/ryansolid/dom-expressions/blob/main/packages/dom-expressions/src/client.js#L485
+function updateDOM(marker: Comment, current: JSX.Element, replace?: Node) {
+  const parent = marker.parentElement!,
+    node = replace || createComment('~');
 
-  while (index < stop && index < childNodes.length) {
-    index++;
-    if (childNodes[index].nodeType === 8) stop++;
+  if (isArray(current) && current.length) {
+    // Quick clear.
+    if (parent.firstChild === marker && isArrayEndMarker(parent.lastChild)) {
+      parent.textContent = '';
+      parent.appendChild(marker);
+      return null;
+    }
+
+    let el: Node,
+      inserted = false,
+      isParent = false;
+
+    for (let i = current.length - 1; i >= 0; i--) {
+      el = current[i] as Node;
+      if (el !== node) {
+        isParent = el.parentNode === parent;
+        if (!inserted && !i) isParent ? parent.replaceChild(node, el) : marker.after(node);
+        else isParent && parent.removeChild(el);
+      } else inserted = true;
+    }
+  } else if (isDOMNode(current)) {
+    parent.replaceChild(node, current);
+  } else {
+    marker.after(node);
   }
 
-  let next = childNodes[index + 1];
-  while (next?.nodeType === 8 && next.textContent === '/$') {
-    index++;
-    next = childNodes[index + 1];
-  }
-
-  return childNodes[index];
+  return node;
 }
 
 export type MarkerWalker = TreeWalker;

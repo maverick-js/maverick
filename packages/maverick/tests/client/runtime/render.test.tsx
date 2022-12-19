@@ -29,6 +29,7 @@ it('should render fragment', () => {
       <div />
       <div />
       <div />
+      <!--/[]-->
     </root>
   `);
 
@@ -70,20 +71,18 @@ it('should render components', () => {
       <div>
         <!--$-->
         Child Text
-        <!--/$-->
       </div>
       <div>
         <!--$-->
         Child Text
-        <!--/$-->
       </div>
       <div>
         Text
       </div>
       <div>
         <!--$-->
-        <!--/$-->
       </div>
+      <!--/[]-->
     </root>
   `);
 
@@ -106,7 +105,6 @@ it('should be reactive', () => {
           Count is 
           <!--$-->
           1
-          <!--/$-->
         </span>
         <!--$-->
         <input
@@ -134,7 +132,6 @@ it('should be reactive', () => {
           Count is 
           <!--$-->
           2
-          <!--/$-->
         </span>
         <!--$-->
         <input
@@ -157,7 +154,6 @@ it('should be reactive', () => {
           Count is 
           <!--$-->
           3
-          <!--/$-->
         </span>
         <!--$-->
         <input
@@ -187,18 +183,16 @@ it('should render signal component', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--$$-->
+      <!--~-->
       <span>
         <!--$-->
         1
-        <!--/$-->
       </span>
       <span>
         <!--$-->
         1
-        <!--/$-->
       </span>
-      <!--/$-->
+      <!--/[]-->
     </root>
   `);
 
@@ -213,14 +207,14 @@ it('should render signal component', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--$$-->
+      <!--~-->
       <span>
         Foo
       </span>
       <span>
         Bar
       </span>
-      <!--/$-->
+      <!--/[]-->
     </root>
   `);
 });

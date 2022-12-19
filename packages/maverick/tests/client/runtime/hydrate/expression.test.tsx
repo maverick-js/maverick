@@ -49,7 +49,6 @@ it('should hydrate expression', () => {
         <div>
           Yes
         </div>
-        <!--/$-->
       </div>
     </root>
   `);
@@ -65,8 +64,8 @@ it('should hydrate expression', () => {
       <!--$-->
       <div>
         <!--$-->
+        <!--$-->
         No
-        <!--/$-->
       </div>
     </root>
   `);

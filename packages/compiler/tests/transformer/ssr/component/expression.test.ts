@@ -2,7 +2,7 @@ import { transform } from 'maverick.js/transformer';
 
 const t = (code: string) => transform(code, { generate: 'ssr' }).code;
 
-it('should compile expression ', () => {
+it.only('should compile expression ', () => {
   const result = t(`
 function Component() {
   return id > 10 ? <div>{id}</div> : 20;

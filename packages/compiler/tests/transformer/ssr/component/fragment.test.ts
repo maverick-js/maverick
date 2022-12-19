@@ -40,13 +40,13 @@ it('should compile component child fragment', () => {
   expect(result).toMatchInlineSnapshot(`
     "import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
 
-    const $$_templ = /* #__PURE__ */ [\\"<!$><div id=\\\\\\"foo\\\\\\"><!$>\\", \\"</div>\\"],
-      $$_templ_2 = /* #__PURE__ */ [\\"<!$><div id=\\\\\\"bar\\\\\\"><!$>\\", \\"</div>\\"],
+    const $$_templ = /* #__PURE__ */ [\\"<!$><div id=\\\\\\"foo\\\\\\">\\", \\"</div>\\"],
+      $$_templ_2 = /* #__PURE__ */ [\\"<!$><div id=\\\\\\"bar\\\\\\">\\", \\"</div>\\"],
       $$_templ_3 = /* #__PURE__ */ [\\"foo\\"],
       $$_templ_4 = /* #__PURE__ */ [\\"\\"],
       $$_templ_5 = /* #__PURE__ */ $$_templ_4,
       $$_templ_6 = /* #__PURE__ */ [\\"<!$><div></div>\\"],
-      $$_templ_7 = /* #__PURE__ */ [\\"<!$>\\"];
+      $$_templ_7 = /* #__PURE__ */ $$_templ_4;
 
     $$_create_component(Component, {
       get $children() {

@@ -135,9 +135,8 @@ it('should insert signal element', () => {
   insert(root, signal);
   expect(root).toMatchInlineSnapshot(`
     <div>
-      <!--$$-->
+      <!--~-->
       <div />
-      <!--/$-->
     </div>
   `);
 });
@@ -152,44 +151,6 @@ it('should insert before given element', () => {
       <div />
       <span />
       <div />
-    </div>
-  `);
-});
-
-it('should remove old nodes on update', () => {
-  const root = element('div');
-  const $element = signal<any>(element('div'));
-
-  insert(root, $element);
-  expect(root).toMatchInlineSnapshot(`
-    <div>
-      <!--$$-->
-      <div />
-      <!--/$-->
-    </div>
-  `);
-
-  const newFragment = document.createDocumentFragment();
-  newFragment.append(element('span'), element('span'), element('span'));
-
-  $element.set(newFragment);
-  tick();
-  expect(root).toMatchInlineSnapshot(`
-    <div>
-      <!--$$-->
-      <span />
-      <span />
-      <span />
-      <!--/$-->
-    </div>
-  `);
-
-  $element.set(null);
-  tick();
-  expect(root).toMatchInlineSnapshot(`
-    <div>
-      <!--$$-->
-      <!--/$-->
     </div>
   `);
 });
@@ -392,7 +353,6 @@ it('should stop expression effect if not observed', () => {
     <root>
       <!--$$-->
       Text
-      <!--/$-->
     </root>
   `);
 });
@@ -407,7 +367,6 @@ it('should _not_ stop expression effect if observed', () => {
     <root>
       <!--$$-->
       10
-      <!--/$-->
     </root>
   `);
   $a.set(20);
@@ -416,7 +375,37 @@ it('should _not_ stop expression effect if observed', () => {
     <root>
       <!--$$-->
       20
-      <!--/$-->
     </root>
+  `);
+});
+
+it('should remove old nodes on update', () => {
+  const root = element('div');
+  const $element = signal<any>(element('div'));
+
+  insert(root, $element);
+  expect(root).toMatchInlineSnapshot(`
+    <div>
+      <!--~-->
+      <div />
+    </div>
+  `);
+
+  $element.set(null);
+  tick();
+  expect(root).toMatchInlineSnapshot(`
+    <div>
+      <!--~-->
+      <!--~-->
+    </div>
+  `);
+
+  $element.set(document.createTextNode('foo'));
+  tick();
+  expect(root).toMatchInlineSnapshot(`
+    <div>
+      <!--~-->
+      foo
+    </div>
   `);
 });

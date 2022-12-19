@@ -105,7 +105,6 @@ it('should update', () => {
             <div>
               <!--$-->
               0
-              <!--/$-->
             </div>
           </shadow-root>
         </mk-foo-4>
@@ -131,7 +130,6 @@ it('should update', () => {
             <div>
               <!--$-->
               1
-              <!--/$-->
             </div>
           </shadow-root>
         </mk-foo-4>

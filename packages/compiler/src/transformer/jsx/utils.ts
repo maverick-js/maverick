@@ -6,6 +6,7 @@ import {
   createFunctionCall,
   createStringLiteral,
   escapeDoubleQuotes,
+  selfInvokingFunction,
   trimQuotes,
 } from '../../utils/print';
 import { isArray } from '../../utils/unit';
@@ -165,11 +166,31 @@ export function serializeChildren(
           ? createAST(child.ref as any)
           : null;
       if (ast) ast.tree.push(child);
-      return child.children
+
+      const expression = child.children
         ? serializeParentExpression(serializer, child, ctx)
         : ast
         ? serializer.serialize(ast, ctx)
         : child.value;
+
+      if (
+        ctx.fragment &&
+        child.observable &&
+        ctx.hydratable &&
+        serializer.name === 'dom' &&
+        child.children?.length
+      ) {
+        ctx.runtime.add('$$_computed');
+        return selfInvokingFunction(
+          [
+            `const $$_signal = ${createFunctionCall('$$_computed', [`() => ${expression}`])};`,
+            '$$_signal();',
+            'return $$_signal;',
+          ].join(''),
+        );
+      }
+
+      return expression;
     }
   });
 

@@ -43,6 +43,10 @@ export function createFunctionCall(id: string, params: (string | number | null)[
   return `${id}(${params.length > 0 ? params.filter((v) => v !== null).join(', ') : ''})`;
 }
 
+export function selfInvokingFunction(block: string) {
+  return `(() => { ${block} })()`;
+}
+
 export function createStringArray(values: string[]) {
   return `[${values.map((e) => `"${e}"`).join(', ')}]`;
 }

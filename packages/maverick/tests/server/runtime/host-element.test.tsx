@@ -30,7 +30,7 @@ it('should render with children', () => {
   const result = renderToString(() => <CustomElement $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Foo</div><!$><div>Bar</div></shadow-root></mk-foo>"',
+    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Foo</div><!$><div>Bar</div><!/[]></shadow-root></mk-foo>"',
   );
 });
 
@@ -49,6 +49,6 @@ it('should render with attributes and children', () => {
   const result = renderToString(() => <CustomElement $element={element} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\" foo=\\"...\\"><shadow-root><!$><div><!$>Text</div><!$><div>Bar</div></shadow-root></mk-foo>"',
+    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\" foo=\\"...\\"><shadow-root><!$><div><!$>Text</div><!$><div>Bar</div><!/[]></shadow-root></mk-foo>"',
   );
 });

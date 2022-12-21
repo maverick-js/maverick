@@ -6,7 +6,8 @@ import { effect } from '../reactivity';
 import { reconcile } from './reconcile';
 import { hydration } from './render';
 
-const ARRAY_END_MARKER = '/[]';
+const QUICK_CLEAR = Symbol(),
+  ARRAY_END_MARKER = '/[]';
 
 export function insert(
   parent: Node | DocumentFragment,
@@ -78,10 +79,6 @@ export function insertExpression(
   return current;
 }
 
-function isArrayEndMarker(node: Node | null) {
-  return node && node.nodeType === 8 && node.nodeValue === ARRAY_END_MARKER;
-}
-
 function appendArray(marker: Comment, nodes: Node[]) {
   const parent = marker.parentElement!,
     len = nodes.length,
@@ -89,6 +86,7 @@ function appendArray(marker: Comment, nodes: Node[]) {
   if (parent.childNodes.length === 1) {
     for (let i = 0; i < len; i++) parent.appendChild(nodes[i]);
     parent.appendChild(endMarker);
+    marker[QUICK_CLEAR] = true;
   } else {
     marker.after(endMarker);
     for (let i = 0; i < len; i++) parent.insertBefore(nodes[i], endMarker);
@@ -143,6 +141,7 @@ function claimArray(marker: Comment): Node[] {
     if (node.nodeType !== 8) {
       nodes.push(node);
     } else if (node.nodeValue === ARRAY_END_MARKER) {
+      if (node.parentNode!.lastChild === node) marker[QUICK_CLEAR] = true;
       nodes.push(node);
       break;
     }
@@ -159,8 +158,7 @@ function updateDOM(marker: Comment, current: JSX.Element, replace?: Node) {
     node = replace || createComment('~');
 
   if (isArray(current) && current.length) {
-    // Quick clear.
-    if (parent.firstChild === marker && isArrayEndMarker(parent.lastChild)) {
+    if (marker[QUICK_CLEAR]) {
       parent.textContent = '';
       parent.appendChild(marker);
       return null;

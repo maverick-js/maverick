@@ -5,14 +5,20 @@
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
+import { isUndefined } from '../std/unit';
 
-const CSS = Symbol(),
-  sheetCache = new WeakMap<TemplateStringsArray, CSSStyleSheet>(),
-  supportsAdoptedStyleSheets =
-    !__SERVER__ &&
-    ShadowRoot &&
-    'adoptedStyleSheets' in Document.prototype &&
-    'replace' in CSSStyleSheet.prototype;
+const CSS = /* #__PURE__ */ Symbol();
+const sheetCache = /* #__PURE__ */ new WeakMap<TemplateStringsArray, CSSStyleSheet>();
+
+let supported;
+const supportsAdoptedStyleSheets = /* #__PURE__ */ () =>
+  !isUndefined(supported)
+    ? supported
+    : (supported =
+        !__SERVER__ &&
+        ShadowRoot &&
+        'adoptedStyleSheets' in Document.prototype &&
+        'replace' in CSSStyleSheet.prototype);
 
 export type CSS = {
   readonly [CSS]?: true;
@@ -66,7 +72,7 @@ function createCSS(css: string, strings?: TemplateStringsArray): CSS {
         return styleSheet;
       } else if (strings && sheetCache.has(strings)) {
         return sheetCache.get(strings);
-      } else if (supportsAdoptedStyleSheets) {
+      } else if (supportsAdoptedStyleSheets()) {
         (styleSheet = new CSSStyleSheet()).replaceSync(css);
         if (strings) sheetCache.set(strings, styleSheet);
         return styleSheet;
@@ -81,7 +87,7 @@ function createCSS(css: string, strings?: TemplateStringsArray): CSS {
 }
 
 export function adoptCSS(root: Document | ShadowRoot, css: CSS[]) {
-  if (supportsAdoptedStyleSheets) {
+  if (supportsAdoptedStyleSheets()) {
     root.adoptedStyleSheets = css.map((css) => css.sheet!);
   } else {
     const style = document.createElement('style');

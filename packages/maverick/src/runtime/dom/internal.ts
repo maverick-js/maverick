@@ -6,6 +6,7 @@ import {
   RENDER,
 } from '../../element';
 import { createElementInstance } from '../../element/instance';
+import { SCOPE } from '../../element/internal';
 import { attachDeclarativeShadowDOM } from '../../std/dom';
 import { createComment, createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
 import { listenEvent } from '../../std/event';
@@ -13,7 +14,7 @@ import { mergeProperties } from '../../std/object';
 import { observe } from '../../std/signal';
 import { isArray, isFunction } from '../../std/unit';
 import type { JSX } from '../jsx';
-import { computed, onDispose, peek, SCOPE, scoped } from '../reactivity';
+import { computed, onDispose, peek, scoped } from '../reactivity';
 import { createMarkerWalker, insert, insertExpression } from './insert';
 import { hydration } from './render';
 

@@ -3,7 +3,6 @@ import {
   effect,
   getScope,
   root,
-  SCOPE,
   Scope,
   scoped,
   tick,
@@ -19,7 +18,7 @@ import { camelToKebabCase } from '../std/string';
 import { isBoolean } from '../std/unit';
 import { adoptCSS } from './css';
 import { createElementInstance } from './instance';
-import { ATTACH, CONNECT, DESTROY, HOST, MEMBERS, MOUNT, PROPS, RENDER } from './internal';
+import { ATTACH, CONNECT, DESTROY, HOST, MEMBERS, MOUNT, PROPS, RENDER, SCOPE } from './internal';
 import type {
   AnyCustomElement,
   AnyCustomElementDefinition,

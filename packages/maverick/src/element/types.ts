@@ -1,17 +1,9 @@
 import type { Constructor, KebabCase, Simplify } from 'type-fest';
 
-import type {
-  ContextMap,
-  JSX,
-  ReadSignal,
-  SCOPE,
-  Scope,
-  SignalOptions,
-  WriteSignal,
-} from '../runtime';
+import type { ContextMap, JSX, ReadSignal, Scope, SignalOptions, WriteSignal } from '../runtime';
 import type { WritableKeys } from '../std/types';
 import type { CSS } from './css';
-import type { HOST, MEMBERS, PROPS, RENDER } from './internal';
+import type { HOST, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
 import type { ElementLifecycleManager } from './lifecycle';
 
 export type AttributeValue = string | null;

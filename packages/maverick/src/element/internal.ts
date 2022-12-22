@@ -17,6 +17,7 @@ export function setCustomElementInstance(host: AnyCustomElementInstance | null) 
 }
 
 // Host
+export const SCOPE = /* #__PURE__ */ Symbol(__DEV__ ? 'SCOPE' : 0);
 export const HOST = /* #__PURE__ */ Symbol(__DEV__ ? 'HOST' : 0);
 export const PROPS = /* #__PURE__ */ Symbol(__DEV__ ? 'PROPS' : 0);
 export const MEMBERS = /* #__PURE__ */ Symbol(__DEV__ ? 'MEMBERS' : 0);

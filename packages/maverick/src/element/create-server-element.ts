@@ -1,12 +1,12 @@
 import type { Writable } from 'type-fest';
 
-import { renderToString, SCOPE, scoped, tick } from '../runtime';
+import { renderToString, scoped, tick } from '../runtime';
 import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
 import { escape } from '../std/html';
 import { camelToKebabCase } from '../std/string';
 import { isBoolean } from '../std/unit';
-import { ATTACH, HOST, PROPS, RENDER } from './internal';
+import { ATTACH, HOST, PROPS, RENDER, SCOPE } from './internal';
 import type {
   AnyCustomElement,
   AnyCustomElementDefinition,

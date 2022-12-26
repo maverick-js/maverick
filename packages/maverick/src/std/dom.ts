@@ -1,5 +1,4 @@
 import type { ServerHTMLElement } from '../element/create-server-element';
-import { observe } from './signal';
 
 export function isDOMNode(node: any): node is Node {
   return node instanceof Node;
@@ -31,16 +30,14 @@ export function createComment(data: string) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
 export function setAttribute(host: Element | ServerHTMLElement, name: string, value: unknown) {
-  observe(value, ($value) => {
-    if (!$value && $value !== '' && $value !== 0) {
-      host.removeAttribute(name);
-    } else {
-      const attrValue = $value + '';
-      if (host.getAttribute(name) !== attrValue) {
-        host.setAttribute(name, attrValue);
-      }
+  if (!value && value !== '' && value !== 0) {
+    host.removeAttribute(name);
+  } else {
+    const attrValue = value + '';
+    if (host.getAttribute(name) !== attrValue) {
+      host.setAttribute(name, attrValue);
     }
-  });
+  }
 }
 
 /**
@@ -52,13 +49,11 @@ export function setAttribute(host: Element | ServerHTMLElement, name: string, va
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
 export function setStyle(host: HTMLElement | ServerHTMLElement, property: string, value: unknown) {
-  observe(value, ($value) => {
-    if (!$value && $value !== 0) {
-      host.style.removeProperty(property);
-    } else {
-      host.style.setProperty(property, $value + '');
-    }
-  });
+  if (!value && value !== 0) {
+    host.style.removeProperty(property);
+  } else {
+    host.style.setProperty(property, value + '');
+  }
 }
 
 /**
@@ -70,9 +65,7 @@ export function setStyle(host: HTMLElement | ServerHTMLElement, property: string
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
 export function toggleClass(host: Element | ServerHTMLElement, name: string, value: unknown) {
-  observe(value, ($value) => {
-    host.classList[$value ? 'add' : 'remove'](name);
-  });
+  host.classList[value ? 'add' : 'remove'](name);
 }
 
 /**

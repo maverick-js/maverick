@@ -23,7 +23,7 @@ it('should compile child fragment', () => {
   `);
 });
 
-it.only('should compile fragment with jsx expressions', () => {
+it('should compile fragment with jsx expressions', () => {
   const result = t(
     `
 <>

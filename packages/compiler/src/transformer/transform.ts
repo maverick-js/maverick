@@ -23,6 +23,7 @@ export type TransformOptions = {
   pretty: boolean;
   sourcemap: boolean | SourceMapOptions;
   generate: 'dom' | 'ssr' | false;
+  delegateEvents: boolean;
 };
 
 export type TransformContext = {
@@ -30,7 +31,9 @@ export type TransformContext = {
   fragment?: boolean;
   globals: Declarations;
   runtime: Set<string>;
+  events: Set<string>;
   hydratable: boolean;
+  delegateEvents: boolean;
 };
 
 export type ASTSerializer = {
@@ -46,6 +49,7 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     pretty = true,
     hydratable = false,
     logLevel = 'warn',
+    delegateEvents = false,
   } = options;
 
   const SSR = generate === 'ssr';
@@ -65,7 +69,9 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     scoped: true,
     globals: new Declarations(),
     runtime: new Set(),
+    events: new Set(),
     hydratable,
+    delegateEvents,
   };
 
   const serialize = (SSR ? ssr : dom).serialize;
@@ -80,6 +86,11 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     );
   }
   logTime('Serialized AST', serializeStartTime, LogLevel.Info);
+
+  if (!SSR && ctx.events.size > 0) {
+    code.append(`\n\n\$\$_delegate_events([${Array.from(ctx.events).join(', ')}]);\n`);
+    ctx.runtime.add('$$_delegate_events');
+  }
 
   if (ctx.runtime.size > 0) {
     code.prepend(

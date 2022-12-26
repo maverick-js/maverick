@@ -19,7 +19,12 @@ import {
   type ExpressionNode,
   StructuralNodeType,
 } from '../ast';
-import { STATICABLE_NAMESPACE, SVG_ELEMENT_TAGNAME, VOID_ELEMENT_TAGNAME } from './constants';
+import {
+  DELEGATED_EVENT_TYPE,
+  STATICABLE_NAMESPACE,
+  SVG_ELEMENT_TAGNAME,
+  VOID_ELEMENT_TAGNAME,
+} from './constants';
 import {
   isJSXElementNode,
   type JSXElementNode,
@@ -202,12 +207,22 @@ function parseElementAttrs(attributes: ts.JsxAttributes, ast: AST, meta: JSXNode
         ast.tree.push(createDirectiveNode({ ref: expression, name, value }));
         meta.dynamic?.();
       } else if (namespace === '$on' || namespace === '$oncapture') {
+        const data =
+          !!initializer &&
+          ts.isJsxExpression(initializer) &&
+          !!initializer.expression &&
+          ts.isArrayLiteralExpression(initializer.expression)
+            ? initializer.expression
+            : null;
+
         ast.tree.push(
           createEventNode({
             ref: expression,
             namespace,
             type: name,
-            value,
+            value: data ? data.elements[0].getText() : value,
+            data: data ? data.elements[1].getText() : undefined,
+            delegate: namespace !== '$oncapture' && DELEGATED_EVENT_TYPE.has(name),
           }),
         );
         meta.dynamic?.();

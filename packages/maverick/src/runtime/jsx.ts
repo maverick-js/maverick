@@ -91,7 +91,10 @@ export namespace JSX {
     | NodeFactory;
 
   export type Nodes = Node[];
-  export type NodeFactory = () => Node;
+
+  export interface NodeFactory {
+    (): Node;
+  }
 
   export type Element = Node | ReadSignal<Node>;
 
@@ -194,10 +197,9 @@ export namespace JSX {
    * ```
    */
   export type OnAttributes<Target extends EventTarget = EventTarget, Events = EventRecord> = {
-    [EventType in keyof Events as `$on:${Stringify<EventType>}`]?: TargetedEventHandler<
-      Target,
-      Events[EventType] & Event
-    >;
+    [EventType in keyof Events as `$on:${Stringify<EventType>}`]?:
+      | TargetedEventHandler<Target, Events[EventType] & Event>
+      | [(data: any, event: Events[EventType]) => void, any];
   } & OnCaptureAttributes<Target, Events>;
 
   export type OnCaptureAttributes<

@@ -103,8 +103,8 @@ it('should update', () => {
         >
           <shadow-root>
             <div>
-              <!--$-->
               0
+              <!--$-->
             </div>
           </shadow-root>
         </mk-foo-4>
@@ -128,8 +128,8 @@ it('should update', () => {
         >
           <shadow-root>
             <div>
-              <!--$-->
               1
+              <!--$-->
             </div>
           </shadow-root>
         </mk-foo-4>
@@ -195,25 +195,26 @@ it('should forward context', () => {
 
   expect(value).toBe(10);
   expect(container).toMatchInlineSnapshot(`
-  <div>
-    <mk-foo-7
-      mk-d="true"
-    >
-      <shadow-root />
-      <div>
-        <mk-child-1
-          mk-d="true"
-        >
-          <shadow-root>
-            <div>
-              10
-            </div>
-          </shadow-root>
-        </mk-child-1>
-      </div>
-    </mk-foo-7>
-  </div>
-`);
+    <div>
+      <mk-foo-7
+        mk-d="true"
+      >
+        <shadow-root />
+        <div>
+          <mk-child-1
+            mk-d="true"
+          >
+            <shadow-root>
+              <div>
+                10
+                <!--$-->
+              </div>
+            </shadow-root>
+          </mk-child-1>
+        </div>
+      </mk-foo-7>
+    </div>
+  `);
 });
 
 it('should update event callbacks', () => {

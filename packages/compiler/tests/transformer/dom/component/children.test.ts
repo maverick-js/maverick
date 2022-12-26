@@ -24,7 +24,7 @@ it('should compile component with element children', () => {
       get $children() {
         const $$_root = $$_clone($$_templ);
 
-        $$_insert($$_root, id);
+        $$_insert($$_root, id, null);
 
         return $$_root;
       },
@@ -104,7 +104,7 @@ it('should insert multiple child components', () => {
 
       $$_insert($$_root, $$_create_component(Component), $$_el);
       $$_insert($$_root, $$_create_component(Component), $$_el);
-      $$_insert($$_root, $$_create_component(Component));
+      $$_insert($$_root, $$_create_component(Component), null);
 
       return $$_root;
     })()"
@@ -136,7 +136,7 @@ it('should compile for loop', () => {
               $$_el = $$_root.firstChild;
 
             $$_insert($$_root, item, $$_el);
-            $$_insert($$_root, i);
+            $$_insert($$_root, i, null);
 
             return $$_root;
           })()

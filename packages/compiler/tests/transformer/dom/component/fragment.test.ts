@@ -23,7 +23,7 @@ it('should insert fragmented child components', () => {
 
       $$_insert($$_root, $$_create_component(Component), $$_el);
       $$_insert($$_root, $$_create_component(Component), $$_el);
-      $$_insert($$_root, $$_create_component(Component));
+      $$_insert($$_root, $$_create_component(Component), null);
 
       return $$_root;
     })()"

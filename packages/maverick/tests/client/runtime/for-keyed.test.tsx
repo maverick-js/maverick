@@ -20,34 +20,32 @@ it('should render keyed loop', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <span>
-        <!--$-->
         a
-        - 
         <!--$-->
+        - 
         0
+        <!--$-->
       </span>
       <span>
-        <!--$-->
         b
-        - 
         <!--$-->
+        - 
         1
+        <!--$-->
       </span>
       <span>
-        <!--$-->
         c
-        - 
         <!--$-->
+        - 
         2
+        <!--$-->
       </span>
-      <!--/[]-->
     </root>
   `);
 
   // Change
-  source.next((p) => {
+  source.set((p) => {
     const tmp = p[1];
     p[1] = p[0];
     p[0] = tmp;
@@ -58,29 +56,27 @@ it('should render keyed loop', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <span>
-        <!--$-->
         b
-        - 
         <!--$-->
+        - 
         0
+        <!--$-->
       </span>
       <span>
-        <!--$-->
         a
-        - 
         <!--$-->
+        - 
         1
+        <!--$-->
       </span>
       <span>
-        <!--$-->
         c
-        - 
         <!--$-->
+        - 
         2
+        <!--$-->
       </span>
-      <!--/[]-->
     </root>
   `);
 
@@ -90,22 +86,20 @@ it('should render keyed loop', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <span>
-        <!--$-->
         b
-        - 
         <!--$-->
+        - 
         0
+        <!--$-->
       </span>
       <span>
-        <!--$-->
         a
-        - 
         <!--$-->
+        - 
         1
+        <!--$-->
       </span>
-      <!--/[]-->
     </root>
   `);
 
@@ -115,36 +109,34 @@ it('should render keyed loop', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <span>
-        <!--$-->
         b
-        - 
         <!--$-->
+        - 
         0
+        <!--$-->
       </span>
       <span>
-        <!--$-->
         a
-        - 
         <!--$-->
+        - 
         1
+        <!--$-->
       </span>
       <span>
-        <!--$-->
         d
-        - 
         <!--$-->
+        - 
         2
+        <!--$-->
       </span>
       <span>
-        <!--$-->
         e
-        - 
         <!--$-->
+        - 
         3
+        <!--$-->
       </span>
-      <!--/[]-->
     </root>
   `);
 
@@ -154,29 +146,27 @@ it('should render keyed loop', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <span>
-        <!--$-->
         a
-        - 
         <!--$-->
+        - 
         0
+        <!--$-->
       </span>
       <span>
-        <!--$-->
         d
-        - 
         <!--$-->
+        - 
         1
+        <!--$-->
       </span>
       <span>
-        <!--$-->
         e
-        - 
         <!--$-->
+        - 
         2
+        <!--$-->
       </span>
-      <!--/[]-->
     </root>
   `);
 
@@ -184,9 +174,5 @@ it('should render keyed loop', () => {
   source.set([]);
   tick();
 
-  expect(root).toMatchInlineSnapshot(`
-    <root>
-      <!--~-->
-    </root>
-  `);
+  expect(root).toMatchInlineSnapshot('<root />');
 });

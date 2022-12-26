@@ -113,9 +113,7 @@ export class Declarations {
   }
 
   update(id: string, value: string) {
-    if (this.all.has(id)) {
-      this.all.set(id, value);
-    }
+    this.all.set(id, value);
   }
 
   has(id: string) {

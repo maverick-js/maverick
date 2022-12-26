@@ -8,7 +8,7 @@ export function InputField(props: InputFieldProps) {
   const $value = signal(1);
 
   const next = () => {
-    $value.next((n) => n + 1);
+    $value.set((n) => n + 1);
   };
 
   props.next(next);

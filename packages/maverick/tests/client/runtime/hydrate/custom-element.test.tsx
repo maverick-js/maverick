@@ -49,7 +49,6 @@ it('should hydrate custom element', () => {
         mk-d=""
         mk-h=""
       >
-        <!--$$-->
         <!--$-->
         <div>
           Foo
@@ -70,11 +69,7 @@ it('should hydrate custom element', () => {
       <mk-foo
         mk-d=""
         mk-h=""
-      >
-        <!--$$-->
-        <!--$-->
-        <!--~-->
-      </mk-foo>
+      />
     </root>
   `);
 });

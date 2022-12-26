@@ -9,6 +9,7 @@ import {
   $$_cssvar,
   $$_directive,
   $$_inner_html,
+  $$_insert,
   $$_listen,
   $$_merge_props,
   $$_prop,
@@ -16,7 +17,7 @@ import {
   $$_spread,
   $$_style,
 } from 'maverick.js/dom';
-import { createMarkerWalker, insert, insertExpression } from 'maverick.js/dom/insert';
+import { createMarkerWalker, insertExpression } from 'maverick.js/dom/insert';
 
 import { element, endMarker, startMarker } from './utils';
 
@@ -74,7 +75,7 @@ it('should return next marked element', () => {
 
 it('should insert string', () => {
   const root = element('div');
-  insert(root, 'apples');
+  $$_insert(root, 'apples');
   expect(root).toMatchInlineSnapshot(`
     <div>
       apples
@@ -85,7 +86,7 @@ it('should insert string', () => {
 
 it('should insert number', () => {
   const root = element('div');
-  insert(root, 100);
+  $$_insert(root, 100);
   expect(root).toMatchInlineSnapshot(`
     <div>
       100
@@ -96,15 +97,15 @@ it('should insert number', () => {
 
 it('should _not_ insert falsy values', () => {
   const root = element('div');
-  insert(root, false);
-  insert(root, null);
-  insert(root, undefined);
+  $$_insert(root, false);
+  $$_insert(root, null);
+  $$_insert(root, undefined);
   expect(root).toMatchInlineSnapshot('<div />');
 });
 
 it('should insert dom node', () => {
   const root = element('div');
-  insert(root, element('span'));
+  $$_insert(root, element('span'));
   expect(root).toMatchInlineSnapshot(`
     <div>
       <span />
@@ -119,7 +120,7 @@ it('should insert dom fragment', () => {
   fragment.append(element('div'));
   fragment.append(element('div'));
 
-  insert(root, fragment);
+  $$_insert(root, fragment);
 
   expect(root).toMatchInlineSnapshot(`
     <div>
@@ -132,10 +133,9 @@ it('should insert dom fragment', () => {
 it('should insert signal element', () => {
   const root = element('div');
   const signal = () => element('div');
-  insert(root, signal);
+  $$_insert(root, signal);
   expect(root).toMatchInlineSnapshot(`
     <div>
-      <!--~-->
       <div />
     </div>
   `);
@@ -145,7 +145,7 @@ it('should insert before given element', () => {
   const root = element('div');
   const before = element('div');
   root.append(element('div'), before);
-  insert(root, element('span'), before);
+  $$_insert(root, element('span'), before);
   expect(root).toMatchInlineSnapshot(`
     <div>
       <div />
@@ -348,11 +348,11 @@ it('should stop expression effect if not observed', () => {
   const root = document.createElement('root');
   const marker = document.createComment('$$');
   root.append(marker);
-  insertExpression(marker, () => 'Text');
+  insertExpression(root, () => 'Text', marker);
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--$$-->
       Text
+      <!--$$-->
     </root>
   `);
 });
@@ -362,19 +362,19 @@ it('should _not_ stop expression effect if observed', () => {
   const marker = document.createComment('$$');
   root.append(marker);
   const $a = signal(10);
-  insertExpression(marker, $a);
+  insertExpression(root, $a, marker);
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--$$-->
       10
+      <!--$$-->
     </root>
   `);
   $a.set(20);
   tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--$$-->
       20
+      <!--$$-->
     </root>
   `);
 });
@@ -383,28 +383,21 @@ it('should remove old nodes on update', () => {
   const root = element('div');
   const $element = signal<any>(element('div'));
 
-  insert(root, $element);
+  $$_insert(root, $element);
   expect(root).toMatchInlineSnapshot(`
     <div>
-      <!--~-->
       <div />
     </div>
   `);
 
   $element.set(null);
   tick();
-  expect(root).toMatchInlineSnapshot(`
-    <div>
-      <!--~-->
-      <!--~-->
-    </div>
-  `);
+  expect(root).toMatchInlineSnapshot('<div />');
 
   $element.set(document.createTextNode('foo'));
   tick();
   expect(root).toMatchInlineSnapshot(`
     <div>
-      <!--~-->
       foo
     </div>
   `);

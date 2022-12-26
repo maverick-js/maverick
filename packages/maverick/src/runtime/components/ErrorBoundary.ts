@@ -54,6 +54,6 @@ export function ErrorBoundary(props: {
         ? peek(() => ($children as any)($error))
         : $children;
     },
-    __DEV__ ? { fallback: null } : undefined,
+    { initial: null, scoped: true },
   );
 }

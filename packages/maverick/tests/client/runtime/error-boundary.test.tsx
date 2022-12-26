@@ -14,7 +14,6 @@ it('should return children', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <div>
         Child
       </div>
@@ -44,10 +43,9 @@ it('should handle error', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <div>
-        <!--$-->
         Good
+        <!--$-->
       </div>
     </root>
   `);
@@ -57,10 +55,9 @@ it('should handle error', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <div>
-        <!--$-->
         Bad
+        <!--$-->
       </div>
     </root>
   `);
@@ -71,10 +68,9 @@ it('should handle error', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <div>
-        <!--$-->
         Good
+        <!--$-->
       </div>
     </root>
   `);
@@ -109,10 +105,9 @@ it('should invoke `onError` property', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <div>
-        <!--$-->
         Good
+        <!--$-->
       </div>
     </root>
   `);
@@ -124,10 +119,9 @@ it('should invoke `onError` property', () => {
   expect(handler).toHaveBeenCalledTimes(1);
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <div>
-        <!--$-->
         Bad
+        <!--$-->
       </div>
     </root>
   `);
@@ -138,10 +132,9 @@ it('should invoke `onError` property', () => {
 
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <!--~-->
       <div>
-        <!--$-->
         Good
+        <!--$-->
       </div>
     </root>
   `);

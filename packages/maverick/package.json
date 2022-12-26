@@ -40,7 +40,7 @@
   "devDependencies": {
     "@edge-runtime/vm": "^2.0.0",
     "@maverick-js/compiler": "workspace:*",
-    "@maverick-js/signals": "^5.0.7",
+    "@maverick-js/signals": "^5.1.3",
     "@types/node": "^18.0.3",
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",

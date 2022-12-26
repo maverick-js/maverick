@@ -4,6 +4,7 @@ import {
   getCustomElementInstance,
   registerCustomElement,
   RENDER,
+  type ServerHTMLElement,
 } from '../../element';
 import { createElementInstance } from '../../element/instance';
 import { SCOPE } from '../../element/internal';
@@ -11,11 +12,11 @@ import { attachDeclarativeShadowDOM } from '../../std/dom';
 import { createComment, createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
 import { listenEvent } from '../../std/event';
 import { mergeProperties } from '../../std/object';
-import { observe } from '../../std/signal';
-import { isArray, isFunction } from '../../std/unit';
+import { unwrapDeep } from '../../std/signal';
+import { isArray, isFunction, isUndefined } from '../../std/unit';
 import type { JSX } from '../jsx';
-import { computed, onDispose, peek, scoped } from '../reactivity';
-import { createMarkerWalker, insert, insertExpression } from './insert';
+import { computed, effect, onDispose, peek, scoped } from '../reactivity';
+import { createMarkerWalker, insertExpression } from './insert';
 import { hydration } from './render';
 
 /** @internal */
@@ -72,7 +73,7 @@ export function $$_next_custom_element(
 
   const element = $$_create_element(tagName);
   element.setAttribute('mk-d', '');
-  if (next) insertExpression(next, element);
+  if (next) insertExpression(next.parentElement!, element, next);
 
   return element;
 }
@@ -92,15 +93,9 @@ export function $$_setup_custom_element(
   if (!props) return;
   if (props.innerHTML) return $$_inner_html(element, props.innerHTML);
 
-  const marker = createComment('$$');
-
-  if (instance[RENDER] && !definition.shadowRoot) {
-    element.firstChild!.after(marker);
-  } else {
-    element.prepend(marker);
+  if (!instance[RENDER] || definition.shadowRoot) {
+    scoped(() => insertExpression(element, props.$children), instance[SCOPE]);
   }
-
-  scoped(() => insertExpression(marker, props.$children), instance[SCOPE]);
 }
 
 /** @internal */
@@ -126,10 +121,12 @@ export function $$_attach_declarative_shadow_dom(element: AnyCustomElement) {
 }
 
 /** @internal */
-export const $$_insert = insert;
+export const $$_insert = insertExpression;
 
 /** @internal */
-export const $$_insert_at_marker = insertExpression;
+export function $$_insert_at_marker(marker: Comment, value: JSX.Element) {
+  insertExpression(marker.parentElement!, value, marker);
+}
 
 /** @internal */
 export function $$_create_component<T = any>(
@@ -154,31 +151,79 @@ export function $$_directive(element: Element, directive: JSX.Directive, args: u
 }
 
 /** @internal */
-export const $$_attr = setAttribute;
+export function $$_attr(element: Element | ServerHTMLElement, name: string, value: unknown) {
+  if (__SERVER__) {
+    setAttribute(element, name, unwrapDeep(value));
+    return;
+  }
+
+  if (isFunction(value)) {
+    effect(() => setAttribute(element, name, value()));
+  } else {
+    setAttribute(element, name, value);
+  }
+}
 
 /** @internal */
 export function $$_prop(element: Element, name: string, value: unknown) {
-  observe(value, (value) => {
+  if (__SERVER__) {
+    element[name] = unwrapDeep(value);
+    return;
+  }
+
+  if (isFunction(value)) {
+    effect(() => void (element[name] = value()));
+  } else {
     element[name] = value;
-  });
+  }
 }
 
 /** @internal */
 export function $$_inner_html(element: Element, value: unknown) {
-  observe(value, (value) => {
-    if (!hydration) element.innerHTML = value + '';
-  });
+  if (isFunction(value)) {
+    effect(() => {
+      if (!hydration) element.innerHTML = value() + '';
+    });
+  } else if (!hydration) {
+    element.innerHTML = value + '';
+  }
 }
 
 /** @internal */
-export const $$_class = toggleClass;
+export function $$_class(element: Element, name: string, value: unknown) {
+  if (__SERVER__) {
+    toggleClass(element, name, unwrapDeep(value));
+    return;
+  }
+
+  if (isFunction(value)) {
+    effect(() => toggleClass(element, name, value()));
+  } else {
+    toggleClass(element, name, value);
+  }
+}
 
 /** @internal */
-export const $$_style = setStyle;
+export function $$_style(
+  element: HTMLElement | ServerHTMLElement,
+  property: string,
+  value: unknown,
+) {
+  if (__SERVER__) {
+    setStyle(element, property, unwrapDeep(value));
+    return;
+  }
+
+  if (isFunction(value)) {
+    effect(() => setStyle(element, property, value()));
+  } else {
+    setStyle(element, property, value);
+  }
+}
 
 /** @internal */
 export function $$_cssvar(element: HTMLElement, name: string, value: unknown) {
-  setStyle(element, `--${name}`, value);
+  $$_style(element, `--${name}`, value);
 }
 
 /** @internal */
@@ -200,6 +245,56 @@ export const $$_merge_props = mergeProperties;
 /** @internal */
 export function $$_listen(target: EventTarget, type: string, handler: unknown, capture = false) {
   if (isFunction(handler)) listenEvent(target, type as any, handler as any, { capture });
+}
+
+const DELEGATED_EVENTS = /* #__PURE__ */ Symbol(__DEV__ ? 'DELEGATED_EVENTS' : 0);
+
+export function $$_delegate_events(
+  types: (keyof GlobalEventHandlersEventMap)[],
+  document = window.document,
+) {
+  const events = (document[DELEGATED_EVENTS] ??= new Set());
+  for (let i = 0, len = types.length; i < len; i++) {
+    const type = types[i];
+    if (!events.has(type)) {
+      events.add(type);
+      document.addEventListener(type, delegated_event_handler);
+    }
+  }
+}
+
+function delegated_event_handler(event: Event) {
+  const eventKey = `$$${event.type}`,
+    dataKey = `$$${event.type}Data`;
+
+  let node = ((event.composedPath && event.composedPath()[0]) || event.target) as any;
+
+  // Reverse Shadow DOM re-targetting.
+  if (event.target !== node) {
+    Object.defineProperty(event, 'target', {
+      configurable: true,
+      value: node,
+    });
+  }
+
+  Object.defineProperty(event, 'currentTarget', {
+    configurable: true,
+    get() {
+      return node || document;
+    },
+  });
+
+  let handler, data;
+  while (node) {
+    handler = node[eventKey];
+
+    if (handler && !node.disabled && isFunction(handler)) {
+      data = node[dataKey];
+      !isUndefined(data) ? handler.call(node, data, event) : handler.call(node, event);
+    }
+
+    node = node.parentNode || node.host;
+  }
 }
 
 export const $$_peek = peek;

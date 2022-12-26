@@ -3,7 +3,6 @@ import {
   CustomElement,
   provideContext,
   render,
-  signal,
   tick,
   useContext,
 } from 'maverick.js';
@@ -27,76 +26,6 @@ it('should render empty custom element', () => {
   `);
 });
 
-it('should render custom element', () => {
-  const Foo = defineCustomElement({
-    tagName: `mk-foo-1`,
-    setup: () => {
-      return () => <div>Internal</div>;
-    },
-  });
-
-  const root = document.createElement('root');
-  const $children = signal(<div>Foo</div>, { id: '$children' });
-  render(() => <CustomElement $element={Foo}>{$children}</CustomElement>, { target: root });
-
-  tick();
-  expect(root).toMatchInlineSnapshot(`
-    <root>
-      <mk-foo-1
-        mk-d=""
-      >
-        <shadow-root>
-          <div>
-            Internal
-          </div>
-        </shadow-root>
-        <!--$$-->
-        <div>
-          Foo
-        </div>
-      </mk-foo-1>
-    </root>
-  `);
-
-  $children.set(null);
-  tick();
-  expect(root).toMatchInlineSnapshot(`
-    <root>
-      <mk-foo-1
-        mk-d=""
-      >
-        <shadow-root>
-          <div>
-            Internal
-          </div>
-        </shadow-root>
-        <!--$$-->
-        <!--~-->
-      </mk-foo-1>
-    </root>
-  `);
-
-  $children.set(<div>Bar</div>);
-  tick();
-  expect(root).toMatchInlineSnapshot(`
-    <root>
-      <mk-foo-1
-        mk-d=""
-      >
-        <shadow-root>
-          <div>
-            Internal
-          </div>
-        </shadow-root>
-        <!--$$-->
-        <div>
-          Bar
-        </div>
-      </mk-foo-1>
-    </root>
-  `);
-});
-
 it('should render custom element with only internal content', () => {
   const Foo = defineCustomElement({
     tagName: `mk-foo-2`,
@@ -104,7 +33,14 @@ it('should render custom element with only internal content', () => {
   });
 
   const root = document.createElement('root');
-  render(() => <CustomElement $element={Foo} />, { target: root });
+  render(
+    () => (
+      <CustomElement $element={Foo}>
+        <div>Foo</div>
+      </CustomElement>
+    ),
+    { target: root },
+  );
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -150,10 +86,7 @@ it('should render custom element with only children', () => {
 it('should render custom element with inner html', () => {
   const Foo = defineCustomElement({
     tagName: `mk-foo-4`,
-    setup:
-      ({ host }) =>
-      () =>
-        !host.$children && <div>Foo</div>,
+    setup: () => () => <div>Foo</div>,
   });
 
   const root = document.createElement('root');

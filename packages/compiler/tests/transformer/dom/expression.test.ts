@@ -89,7 +89,7 @@ it('should compile sibling jsx expression', () => {
     (() => {
       const $$_root = $$_clone($$_templ);
 
-      $$_insert($$_root, id);
+      $$_insert($$_root, id, null);
 
       return $$_root;
     })()"
@@ -148,7 +148,7 @@ it('should compile conditional jsx expression ', () => {
 });
 
 it('should compile dynamic conditional jsx expression ', () => {
-  const result = t(`<div id="a">{id() > 10 && <div id="b" $on:click={id()}></div>}</div>`);
+  const result = t(`<div id="a">{id() > 10 && <div id="b" $on:click={id}></div>}</div>`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_clone, $$_listen, $$_create_template, $$_insert } from \\"maverick.js/dom\\";
 
@@ -161,7 +161,7 @@ it('should compile dynamic conditional jsx expression ', () => {
         id() > 10 && (() => {
           const $$_root = $$_clone($$_templ_2);
 
-          $$_listen($$_root, \\"click\\", id());
+          $$_listen($$_root, \\"click\\", id);
 
           return $$_root;
         })());

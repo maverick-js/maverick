@@ -135,6 +135,8 @@ export type EventNode = {
   namespace: JSXEventNamespace | null;
   type: string;
   value: string;
+  data?: string;
+  delegate: boolean;
 };
 
 export type DirectiveNode = {

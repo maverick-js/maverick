@@ -12,6 +12,7 @@ export type ResolvedOptions = {
   /** Filter files that should be logged verbosely. */
   debug: FilterPattern | undefined;
   hydratable: boolean | ((id: string) => boolean | null) | null;
+  delegateEvents: boolean;
   pretty: boolean | null;
   generate: TransformOptions['generate'] | null;
 };
@@ -27,12 +28,14 @@ function resolveOptions(options: Options): ResolvedOptions {
     hydratable: null,
     generate: null,
     pretty: null,
+    delegateEvents: false,
     ...options,
   };
 }
 
 export const unplugin = createUnplugin((options: Options = {}) => {
-  let { logLevel, include, exclude, debug, hydratable, generate, pretty } = resolveOptions(options);
+  let { logLevel, include, exclude, debug, hydratable, generate, pretty, delegateEvents } =
+    resolveOptions(options);
 
   const filter = createFilter(include, exclude);
   const debugFilter = !isUndefined(debug) ? createFilter(debug) : null;
@@ -44,6 +47,7 @@ export const unplugin = createUnplugin((options: Options = {}) => {
       hydratable: (typeof hydratable === 'boolean' ? hydratable : hydratable?.(filename)) ?? ssr,
       generate: generate ?? (ssr ? 'ssr' : 'dom'),
       pretty: pretty ?? true,
+      delegateEvents,
       sourcemap: true,
     });
 

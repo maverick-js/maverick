@@ -4,6 +4,7 @@ import { renderToString, scoped, tick } from '../runtime';
 import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
 import { escape } from '../std/html';
+import { unwrapDeep } from '../std/signal';
 import { camelToKebabCase } from '../std/string';
 import { isBoolean } from '../std/unit';
 import { ATTACH, HOST, PROPS, RENDER, SCOPE } from './internal';
@@ -70,8 +71,8 @@ export function createServerElement<T extends AnyCustomElement>(
       }
 
       const { $attrs, $styles } = instance.host[PROPS];
-      for (const name of Object.keys($attrs!)) setAttribute(this, name, $attrs![name]);
-      for (const name of Object.keys($styles!)) setStyle(this, name, $styles![name]);
+      for (const name of Object.keys($attrs!)) setAttribute(this, name, unwrapDeep($attrs![name]));
+      for (const name of Object.keys($styles!)) setStyle(this, name, unwrapDeep($styles![name]));
 
       instance.host[PROPS].$attrs = null;
       instance.host[PROPS].$styles = null;
@@ -89,7 +90,12 @@ export function createServerElement<T extends AnyCustomElement>(
         const attrName = reflectedProps.get(propName)!;
         const propValue = instance.props[propName];
         const attrValue = convert ? convert(propValue) : propValue;
-        setAttribute(this, attrName, attrValue);
+        setAttribute(
+          this,
+          attrName,
+          // @ts-expect-error
+          unwrapDeep(attrValue),
+        );
       }
 
       tick();

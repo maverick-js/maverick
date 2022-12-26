@@ -88,7 +88,6 @@ it('should hydrate fragment', () => {
         </div>
         <!--$-->
         0
-        <!--/[]-->
       </div>
     </root>
   `);
@@ -211,7 +210,6 @@ it('should hydrate signal fragment', () => {
         </div>
         <!--$-->
         0
-        <!--/[]-->
       </div>
     </root>
   `);
@@ -229,6 +227,10 @@ it('should hydrate signal fragment', () => {
       <!--$-->
       <div>
         <!--$-->
+        <!--$-->
+        <!--~-->
+        <!--$-->
+        <!--$-->
       </div>
     </root>
   `);
@@ -239,11 +241,14 @@ it('should hydrate signal fragment', () => {
     <root>
       <!--$-->
       <div>
-        <!--$-->
         1
         2
         3
-        <!--/[]-->
+        <!--$-->
+        <!--$-->
+        <!--~-->
+        <!--$-->
+        <!--$-->
       </div>
     </root>
   `);

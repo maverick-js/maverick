@@ -63,7 +63,7 @@ const RUNTIME = {
   insert: '$$_insert',
   insertAtMarker: '$$_insert_at_marker',
   listen: '$$_listen',
-  listenDelegate: '$$_listen_delegate',
+  delegateEvents: '$$_delegate_events',
   clone: '$$_clone',
   directive: '$$_directive',
   ref: '$$_ref',
@@ -176,7 +176,7 @@ export const dom: ASTSerializer = {
         const nextSibling = elementChildIndex + 1;
         return element && element.childCount > 1
           ? nextSibling >= element.childElementCount
-            ? ''
+            ? 'null'
             : getElementId([...hierarchy, nextSibling], elementIds, locals)
           : null;
       },
@@ -466,10 +466,18 @@ export const dom: ASTSerializer = {
         expressions.push(createFunctionCall(RUNTIME.ref, [currentId, node.value]));
         ctx.runtime.add(RUNTIME.ref);
       } else if (isEventNode(node)) {
-        const args = [currentId, createStringLiteral(node.type), node.value];
-        if (node.namespace === '$oncapture') args.push(`1 /* CAPTURE */`);
-        expressions.push(createFunctionCall(RUNTIME.listen, args));
-        ctx.runtime.add(RUNTIME.listen);
+        if (node.delegate && ctx.delegateEvents) {
+          ctx.events.add(createStringLiteral(node.type));
+          expressions.push(`${currentId}.$$${node.type} = ${node.value};`);
+          if (node.data) {
+            expressions.push(`${currentId}.$$${node.type}Data = ${node.data};`);
+          }
+        } else {
+          const args = [currentId, createStringLiteral(node.type), node.value];
+          if (node.namespace === '$oncapture') args.push(`1 /* CAPTURE */`);
+          expressions.push(createFunctionCall(RUNTIME.listen, args));
+          ctx.runtime.add(RUNTIME.listen);
+        }
       } else if (isDirectiveNode(node)) {
         expressions.push(createFunctionCall(RUNTIME.directive, [currentId, node.name, node.value]));
         ctx.runtime.add(RUNTIME.directive);

@@ -2,6 +2,7 @@ import {
   Dispose,
   effect,
   getScope,
+  isFunction,
   root,
   Scope,
   scoped,
@@ -11,8 +12,8 @@ import {
 import type { Writable } from 'type-fest';
 
 import { hydrate, hydration, render } from '../runtime';
-import { $$_attr, $$_create_element, $$_style } from '../runtime/dom/internal';
-import { isDOMElement, setAttribute } from '../std/dom';
+import { $$_create_element } from '../runtime/dom/internal';
+import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
 import { isBoolean } from '../std/unit';
@@ -225,8 +226,22 @@ export function createHTMLElement<T extends AnyCustomElement>(
       }
 
       const { $attrs, $styles } = instance.host[PROPS];
-      for (const name of Object.keys($attrs!)) $$_attr(this, name, $attrs![name]);
-      for (const name of Object.keys($styles!)) $$_style(this, name, $styles![name]);
+
+      for (const name of Object.keys($attrs!)) {
+        if (isFunction($attrs![name])) {
+          effect(() => void setAttribute(this, name, ($attrs![name] as Function)()));
+        } else {
+          setAttribute(this, name, $attrs![name]);
+        }
+      }
+
+      for (const name of Object.keys($styles!)) {
+        if (isFunction($styles![name])) {
+          effect(() => void setStyle(this, name, ($styles![name] as Function)()));
+        } else {
+          setStyle(this, name, $styles![name]);
+        }
+      }
 
       instance.host[PROPS].$attrs = null;
       instance.host[PROPS].$styles = null;

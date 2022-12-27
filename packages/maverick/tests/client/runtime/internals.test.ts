@@ -6,13 +6,11 @@ import {
   $$_clone,
   $$_create_component,
   $$_create_template,
-  $$_cssvar,
   $$_directive,
   $$_inner_html,
   $$_insert,
   $$_listen,
   $$_merge_props,
-  $$_prop,
   $$_ref,
   $$_spread,
   $$_style,
@@ -203,40 +201,6 @@ it('should remove falsy attribute', () => {
   expect(el.getAttribute('foo')).toBe(null);
 });
 
-it('should observe attribute', () => {
-  const el = element('div');
-  const $attr = signal<string | undefined>('foo');
-
-  $$_attr(el, 'foo', $attr);
-  expect(el.getAttribute('foo')).toBe('foo');
-
-  $attr.set(undefined);
-  tick();
-  expect(el.getAttribute('foo')).toBe(null);
-
-  $attr.set('bar');
-  tick();
-  expect(el.getAttribute('foo')).toBe('bar');
-});
-
-it('should set property', () => {
-  const el = element('div');
-  $$_prop(el, 'tabIndex', 1);
-  expect(el.tabIndex).toBe(1);
-});
-
-it('should observe property', () => {
-  const el = element('div');
-  const $prop = signal(10);
-
-  $$_prop(el, 'tabIndex', $prop);
-  expect(el.tabIndex).toBe(10);
-
-  $prop.set(20);
-  tick();
-  expect(el.tabIndex).toBe(20);
-});
-
 it('should set inner html', () => {
   const el = element('div');
   $$_inner_html(el, 'foo');
@@ -267,19 +231,6 @@ it('remove falsy style', () => {
   $$_style(el, 'text-align', 'center');
   $$_style(el, 'text-align', null);
   expect(el.style.textAlign).toBe('');
-});
-
-it('set cssvar', () => {
-  const el = element('div');
-  $$_cssvar(el, 'foo', 'bar');
-  expect(el.style.getPropertyValue('--foo')).toBe('bar');
-});
-
-it('remove falsy cssvar', () => {
-  const el = element('div');
-  $$_cssvar(el, 'foo', 'bar');
-  $$_cssvar(el, 'foo', null);
-  expect(el.style.getPropertyValue('--foo')).toBe('');
 });
 
 it('should spread', () => {

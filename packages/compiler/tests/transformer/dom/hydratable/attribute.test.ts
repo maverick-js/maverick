@@ -61,13 +61,13 @@ it('should compile dynamic attribute', () => {
 it('should compile observable attribute', () => {
   const result = t(`<div foo={id() + 10}></div>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_walker, $$_clone, $$_attr, $$_create_template } from \\"maverick.js/dom\\";
+    "import { $$_create_walker, $$_clone, $$_effect, $$_attr, $$_create_template } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
     (() => {
       const [$$_root, $$_walker] = $$_create_walker($$_templ);
 
-      $$_attr($$_root, \\"foo\\", () => id() + 10);
+      $$_effect(() => $$_attr($$_root, \\"foo\\", id() + 10));
 
       return $$_root;
     })()"

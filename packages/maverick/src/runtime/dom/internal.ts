@@ -4,15 +4,13 @@ import {
   getCustomElementInstance,
   registerCustomElement,
   RENDER,
-  type ServerHTMLElement,
 } from '../../element';
 import { createElementInstance } from '../../element/instance';
 import { SCOPE } from '../../element/internal';
 import { attachDeclarativeShadowDOM } from '../../std/dom';
-import { createComment, createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
+import { createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
 import { listenEvent } from '../../std/event';
 import { mergeProperties } from '../../std/object';
-import { unwrapDeep } from '../../std/signal';
 import { isArray, isFunction, isUndefined } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { computed, effect, onDispose, peek, scoped } from '../reactivity';
@@ -151,32 +149,7 @@ export function $$_directive(element: Element, directive: JSX.Directive, args: u
 }
 
 /** @internal */
-export function $$_attr(element: Element | ServerHTMLElement, name: string, value: unknown) {
-  if (__SERVER__) {
-    setAttribute(element, name, unwrapDeep(value));
-    return;
-  }
-
-  if (isFunction(value)) {
-    effect(() => setAttribute(element, name, value()));
-  } else {
-    setAttribute(element, name, value);
-  }
-}
-
-/** @internal */
-export function $$_prop(element: Element, name: string, value: unknown) {
-  if (__SERVER__) {
-    element[name] = unwrapDeep(value);
-    return;
-  }
-
-  if (isFunction(value)) {
-    effect(() => void (element[name] = value()));
-  } else {
-    element[name] = value;
-  }
-}
+export const $$_attr = setAttribute;
 
 /** @internal */
 export function $$_inner_html(element: Element, value: unknown) {
@@ -190,41 +163,10 @@ export function $$_inner_html(element: Element, value: unknown) {
 }
 
 /** @internal */
-export function $$_class(element: Element, name: string, value: unknown) {
-  if (__SERVER__) {
-    toggleClass(element, name, unwrapDeep(value));
-    return;
-  }
-
-  if (isFunction(value)) {
-    effect(() => toggleClass(element, name, value()));
-  } else {
-    toggleClass(element, name, value);
-  }
-}
+export const $$_class = toggleClass;
 
 /** @internal */
-export function $$_style(
-  element: HTMLElement | ServerHTMLElement,
-  property: string,
-  value: unknown,
-) {
-  if (__SERVER__) {
-    setStyle(element, property, unwrapDeep(value));
-    return;
-  }
-
-  if (isFunction(value)) {
-    effect(() => setStyle(element, property, value()));
-  } else {
-    setStyle(element, property, value);
-  }
-}
-
-/** @internal */
-export function $$_cssvar(element: HTMLElement, name: string, value: unknown) {
-  $$_style(element, `--${name}`, value);
-}
+export const $$_style = setStyle;
 
 /** @internal */
 export function $$_spread(element: Element, props: Record<string, unknown>) {
@@ -232,7 +174,13 @@ export function $$_spread(element: Element, props: Record<string, unknown>) {
   for (let i = 0; i < keys.length; i++) {
     const prop = keys[i];
     if (prop in element) {
-      $$_prop(element, prop, props[prop]);
+      if (isFunction(props[prop])) {
+        effect(() => void (element[prop] = (props[prop] as Function)()));
+      } else {
+        element[prop] = props[prop];
+      }
+    } else if (isFunction(props[prop])) {
+      effect(() => void $$_attr(element, prop, (props[prop] as Function)()));
     } else {
       $$_attr(element, prop, props[prop]);
     }
@@ -298,4 +246,5 @@ function delegated_event_handler(event: Event) {
 }
 
 export const $$_peek = peek;
+export const $$_effect = effect;
 export const $$_computed = computed;

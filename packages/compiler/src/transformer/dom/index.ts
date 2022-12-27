@@ -69,13 +69,12 @@ const RUNTIME = {
   ref: '$$_ref',
   attr: '$$_attr',
   class: '$$_class',
-  prop: '$$_prop',
   style: '$$_style',
-  cssvar: '$$_cssvar',
   spread: '$$_spread',
   mergeProps: '$$_merge_props',
   innerHTML: '$$_inner_html',
   computed: '$$_computed',
+  effect: '$$_effect',
   peek: '$$_peek',
 };
 
@@ -180,14 +179,25 @@ export const dom: ASTSerializer = {
             : getElementId([...hierarchy, nextSibling], elementIds, locals)
           : null;
       },
-      addAttrExpression = (node: AttributeNode, runtimeId: string) => {
-        expressions.push(
-          createFunctionCall(runtimeId, [
-            currentId,
-            createStringLiteral(node.name),
-            node.callId ?? (node.observable ? `() => ${node.value}` : node.value),
-          ]),
-        );
+      addAttrExpression = (node: AttributeNode, runtimeId: string, name: string = node.name) => {
+        if (node.observable) {
+          expressions.push(
+            createFunctionCall(RUNTIME.effect, [
+              `() => ${createFunctionCall(runtimeId, [
+                currentId,
+                createStringLiteral(name),
+                node.value,
+              ])}`,
+            ]),
+          );
+
+          ctx.runtime.add(RUNTIME.effect);
+        } else {
+          expressions.push(
+            createFunctionCall(runtimeId, [currentId, createStringLiteral(name), node.value]),
+          );
+        }
+
         ctx.runtime.add(runtimeId);
       },
       addChildren = (children: ComponentChildren[]) => {
@@ -426,17 +436,21 @@ export const dom: ASTSerializer = {
       } else if (isAttributeNode(node)) {
         if (node.namespace) {
           if (node.namespace === '$prop') {
-            if (node.name === 'innerHTML') {
-              innerHTML = true;
-            }
-
+            if (node.name === 'innerHTML') innerHTML = true;
             if (customElement) {
               props.push(serializeComponentProp(dom, node, ctx));
             } else if (node.name === 'innerHTML') {
               expressions.push(createFunctionCall(RUNTIME.innerHTML, [currentId, node.value]));
               ctx.runtime.add(RUNTIME.innerHTML);
+            } else if (node.observable) {
+              expressions.push(
+                createFunctionCall(RUNTIME.effect, [
+                  `() => void (${currentId}.${node.name} = ${node.value})`,
+                ]),
+              );
+              ctx.runtime.add(RUNTIME.effect);
             } else {
-              addAttrExpression(node, RUNTIME.prop);
+              expressions.push(`${currentId}.${node.name} = ${node.value};`);
             }
           } else if (node.namespace === '$class') {
             addAttrExpression(node, RUNTIME.class);
@@ -450,7 +464,7 @@ export const dom: ASTSerializer = {
             if (!node.dynamic && !isVirtualElement()) {
               styles.push(`--${node.name}: ${trimQuotes(node.value)}`);
             } else {
-              addAttrExpression(node, RUNTIME.cssvar);
+              addAttrExpression(node, RUNTIME.style, `--${node.name}`);
             }
           }
         } else if (!node.dynamic && !isVirtualElement()) {

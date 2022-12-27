@@ -27,11 +27,11 @@ it('should compile attribute', () => {
 it('should compile $prop', () => {
   const result = t(`<HostElement $prop:foo="1" />`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_host_element, $$_prop } from \\"maverick.js/dom\\";
+    "import { $$_host_element } from \\"maverick.js/dom\\";
     (() => {
       const $$_host = $$_host_element();
 
-      $$_prop($$_host, \\"foo\\", \\"1\\");
+      $$_host.foo = \\"1\\";
 
       return $$_host;
     })()"
@@ -69,11 +69,11 @@ it('should compile $style', () => {
 it('should compile $cssvar', () => {
   const result = t(`<HostElement $cssvar:foo="..." />`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_host_element, $$_cssvar } from \\"maverick.js/dom\\";
+    "import { $$_host_element, $$_style } from \\"maverick.js/dom\\";
     (() => {
       const $$_host = $$_host_element();
 
-      $$_cssvar($$_host, \\"foo\\", \\"...\\");
+      $$_style($$_host, \\"--foo\\", \\"...\\");
 
       return $$_host;
     })()"

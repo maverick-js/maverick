@@ -61,14 +61,14 @@ it('should compile child jsx prop expression', () => {
 it('should compile dynamic jsx prop expression', () => {
   const result = t(`<Component foo={<div id={id()}>Foo</div>} />`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_attr, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_effect, $$_attr, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo</div>\`);
     $$_create_component(Component, {
       get foo() {
         const $$_root = $$_clone($$_templ);
 
-        $$_attr($$_root, \\"id\\", id);
+        $$_effect(() => $$_attr($$_root, \\"id\\", id()));
 
         return $$_root;
       },
@@ -79,7 +79,7 @@ it('should compile dynamic jsx prop expression', () => {
 it('should compile multiple jsx prop expressions', () => {
   const result = t(`<Component foo={id > 10 ? <div id={id()}>Foo</div> : <div>Bar</div>} />`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_attr, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_effect, $$_attr, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo</div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<div>Bar</div>\`);
@@ -89,7 +89,7 @@ it('should compile multiple jsx prop expressions', () => {
           ? (() => {
             const $$_root = $$_clone($$_templ);
 
-            $$_attr($$_root, \\"id\\", id);
+            $$_effect(() => $$_attr($$_root, \\"id\\", id()));
 
             return $$_root;
           })()

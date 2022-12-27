@@ -45,13 +45,13 @@ it('should compile with jsx attributes', () => {
     `<CustomElement foo={10} $prop:foo={id()} $class:foo={true} $cssvar:foo={10} $on:click={handler} $element={DEFINITION} />`,
   );
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_element, $$_attr, $$_class, $$_cssvar, $$_listen, $$_setup_custom_element } from \\"maverick.js/dom\\";
+    "import { $$_create_element, $$_attr, $$_class, $$_style, $$_listen, $$_setup_custom_element } from \\"maverick.js/dom\\";
     (() => {
       const $$_el = $$_create_element(DEFINITION.tagName);
 
       $$_attr($$_el, \\"foo\\", 10);
       $$_class($$_el, \\"foo\\", true);
-      $$_cssvar($$_el, \\"foo\\", 10);
+      $$_style($$_el, \\"--foo\\", 10);
       $$_listen($$_el, \\"click\\", handler);
       $$_setup_custom_element($$_el, DEFINITION, { foo: id });
 

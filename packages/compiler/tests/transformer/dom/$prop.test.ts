@@ -21,13 +21,13 @@ it('should compile innerHTML expression', () => {
 it('should compile $prop expression', () => {
   const result = t(`<div $prop:fooBar="baz"></div>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_prop, $$_create_template } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_create_template } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
     (() => {
       const $$_root = $$_clone($$_templ);
 
-      $$_prop($$_root, \\"fooBar\\", \\"baz\\");
+      $$_root.fooBar = \\"baz\\";
 
       return $$_root;
     })()"
@@ -37,13 +37,13 @@ it('should compile $prop expression', () => {
 it('should compile shorthand $prop boolean', () => {
   const result = t(`<button $prop:disabled />`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_prop, $$_create_template } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_create_template } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<button></button>\`);
     (() => {
       const $$_root = $$_clone($$_templ);
 
-      $$_prop($$_root, \\"disabled\\", true);
+      $$_root.disabled = true;
 
       return $$_root;
     })()"
@@ -53,13 +53,13 @@ it('should compile shorthand $prop boolean', () => {
 it('should compile dynamic $prop expression', () => {
   const result = t(`<div $prop:foo={id}></div>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_prop, $$_create_template } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_create_template } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
     (() => {
       const $$_root = $$_clone($$_templ);
 
-      $$_prop($$_root, \\"foo\\", id);
+      $$_root.foo = id;
 
       return $$_root;
     })()"
@@ -69,13 +69,13 @@ it('should compile dynamic $prop expression', () => {
 it('should compile observable $prop expression', () => {
   const result = t(`<div $prop:foo={id()}></div>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_prop, $$_create_template } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_effect, $$_create_template } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
     (() => {
       const $$_root = $$_clone($$_templ);
 
-      $$_prop($$_root, \\"foo\\", id);
+      $$_effect(() => void ($$_root.foo = id()));
 
       return $$_root;
     })()"
@@ -85,13 +85,13 @@ it('should compile observable $prop expression', () => {
 it('should compile property access expression', () => {
   const result = t(`<div foo={props.id}></div>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_attr, $$_create_template } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_effect, $$_attr, $$_create_template } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
     (() => {
       const $$_root = $$_clone($$_templ);
 
-      $$_attr($$_root, \\"foo\\", () => props.id);
+      $$_effect(() => $$_attr($$_root, \\"foo\\", props.id));
 
       return $$_root;
     })()"

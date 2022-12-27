@@ -72,7 +72,7 @@ it('should insert component correctly', () => {
 </table>;
   `);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_prop, $$_attr, $$_listen, $$_create_template, $$_insert, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_effect, $$_attr, $$_listen, $$_create_template, $$_insert, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<table><div><div><a></a></div></div><tbody><div></div></tbody></table>\`),
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<tr><td></td><td><a></a></td><td><a><span></span></a></td><td></td></tr>\`);
@@ -85,7 +85,7 @@ it('should insert component correctly', () => {
         $$_el_4 = $$_el.nextSibling,
         $$_el_5 = $$_el_4.firstChild;
 
-      $$_prop($$_el_3, \\"textContent\\", \\"apples\\");
+      $$_el_3.textContent = \\"apples\\";
       $$_insert(
         $$_el_4,
         $$_create_component(ForKeyed, {
@@ -99,10 +99,10 @@ it('should insert component correctly', () => {
                 $$_el_4 = $$_el_2.nextSibling,
                 $$_el_5 = $$_el_4.firstChild;
 
-              $$_attr($$_root, \\"class\\", () => row.id === $selected() ? \\"danger\\" : \\"\\");
-              $$_prop($$_el, \\"textContent\\", () => row.id);
+              $$_effect(() => $$_attr($$_root, \\"class\\", row.id === $selected() ? \\"danger\\" : \\"\\"));
+              $$_effect(() => void ($$_el.textContent = row.id));
               $$_listen($$_el_3, \\"click\\", () => select(row.id));
-              $$_prop($$_el_3, \\"textContent\\", () => row.label);
+              $$_effect(() => void ($$_el_3.textContent = row.label));
               $$_listen($$_el_5, \\"click\\", () => remove(row.id));
 
               return $$_root;

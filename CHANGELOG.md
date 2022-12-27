@@ -1,3 +1,23 @@
+# [0.22.0](https://github.com/maverick-js/maverick/compare/v0.21.0...v0.22.0) (2022-12-27)
+
+
+### Bug Fixes
+
+* accurate fast array clearing detection ([f49d671](https://github.com/maverick-js/maverick/commit/f49d671917333d24e499070f9bf65da5bc798434))
+* add production node exports ([bb5fcaf](https://github.com/maverick-js/maverick/commit/bb5fcafeaeefc2925b2ce146829a0f5aecdd159a))
+* avoid creating effects in closures to reduce mem usage ([4647429](https://github.com/maverick-js/maverick/commit/464742981cba6dc8f5c32b4381d61f7a7b0b70a4))
+* **compiler:** directly return single jsx expressions that are scoped ([2973921](https://github.com/maverick-js/maverick/commit/297392134e693fbe402f9b219ffa03a09243aa76))
+* **compiler:** non-hydration selectors are incorrect ([a3251d5](https://github.com/maverick-js/maverick/commit/a3251d550bfdd85eadc34e720517b2394eb97a79))
+* mark pure element internals for treeshaking ([a176f32](https://github.com/maverick-js/maverick/commit/a176f32f654e14b29891ed7732f54c6efa85cd6d))
+* **runtime:** rework node insertion to add keyed for loop support ([857b6cf](https://github.com/maverick-js/maverick/commit/857b6cf7da4da9a5b2db53f5389902924894696b))
+
+
+### Features
+
+* faster insertion and added event delegation option ([8c972ae](https://github.com/maverick-js/maverick/commit/8c972aeecd51e5e6aed1e5a8154ccb9a75d6b8ac))
+
+
+
 # [0.21.0](https://github.com/maverick-js/maverick/compare/v0.20.0...v0.21.0) (2022-12-18)
 
 

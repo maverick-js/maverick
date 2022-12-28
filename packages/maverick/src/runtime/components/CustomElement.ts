@@ -1,6 +1,6 @@
 import type {
   AnyCustomElement,
-  AnyCustomElementDefinition,
+  CustomElementDefinition,
   InferCustomElement,
   InferCustomElementCSSProps,
   InferCustomElementEvents,
@@ -9,7 +9,7 @@ import type {
 import type { PickWritable } from '../../std/types';
 import type { JSX } from '../jsx';
 
-export type CustomElementProps<Definition extends AnyCustomElementDefinition> = {
+export type CustomElementProps<Definition extends CustomElementDefinition> = {
   /** Custom element defintion. */
   $element: Definition;
   $children?: JSX.Element;
@@ -38,7 +38,7 @@ export type CustomElementAttributes<CustomElement extends AnyCustomElement> =
  * ```
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements}
  */
-export function CustomElement<Definition extends AnyCustomElementDefinition>(
+export function CustomElement<Definition extends CustomElementDefinition>(
   props: CustomElementProps<Definition>,
 ): InferCustomElement<Definition> {
   // Virtual component so it doesn't return anything, output is determined by the compiler.

@@ -17,9 +17,8 @@ import {
 } from './internal';
 import type {
   AnyCustomElement,
-  AnyCustomElementHost,
-  AnyCustomElementInstance,
   CustomElementDefinition,
+  CustomElementHost,
   CustomElementInstance,
   CustomElementInstanceInit,
   CustomElementPropDefinitions,
@@ -54,7 +53,7 @@ export function createElementInstance<T extends AnyCustomElement>(
       setAttributes = (attrs) => void Object.assign($attrs, attrs),
       setStyles = (styles) => void Object.assign($styles, styles);
 
-    const host: AnyCustomElementInstance['host'] = {
+    const host: CustomElementInstance['host'] = {
       el: null,
       get $el() {
         return $connected() ? host.el : null;
@@ -76,7 +75,7 @@ export function createElementInstance<T extends AnyCustomElement>(
       setCSSVars: setStyles,
     };
 
-    const instance: Writable<AnyCustomElementInstance> = {
+    const instance: Writable<CustomElementInstance> = {
       host,
       props: new Proxy($$props as object, {
         set: __DEV__
@@ -117,7 +116,7 @@ export function createElementInstance<T extends AnyCustomElement>(
         instance[MEMBERS] = null;
         instance[RENDER] = null;
 
-        (host as Writable<AnyCustomElementHost>).el = null;
+        (host as Writable<CustomElementHost>).el = null;
         destroyed = true;
       },
     };

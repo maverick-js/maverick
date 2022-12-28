@@ -3,7 +3,7 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 
-import { AnyCustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
+import { CustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
 import { createReactElement } from 'maverick.js/react';
 import { DOMEvent } from 'maverick.js/std';
 
@@ -288,7 +288,7 @@ afterEach(() => {
 
 let count = 0;
 function render(
-  declaration: Partial<AnyCustomElementDeclaration>,
+  declaration: Partial<CustomElementDeclaration>,
   children?: (element: any) => React.ReactNode,
 ) {
   const definition = defineCustomElement({

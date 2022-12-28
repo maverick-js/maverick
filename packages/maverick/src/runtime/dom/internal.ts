@@ -1,6 +1,6 @@
 import {
   type AnyCustomElement,
-  type AnyCustomElementDefinition,
+  type CustomElementDefinition,
   getCustomElementInstance,
   registerCustomElement,
   RENDER,
@@ -56,7 +56,7 @@ export function $$_host_element() {
 
 /** @internal */
 export function $$_next_custom_element(
-  definition: AnyCustomElementDefinition,
+  definition: CustomElementDefinition,
   walker = hydration?.w,
 ): Node {
   const { tagName } = definition;
@@ -79,7 +79,7 @@ export function $$_next_custom_element(
 /** @internal */
 export function $$_setup_custom_element(
   element: AnyCustomElement,
-  definition: AnyCustomElementDefinition,
+  definition: CustomElementDefinition,
   props?: Record<string, any>,
 ) {
   if (definition.shadowRoot) $$_attach_declarative_shadow_dom(element);

@@ -10,16 +10,15 @@ import { isBoolean } from '../std/unit';
 import { ATTACH, HOST, PROPS, RENDER, SCOPE } from './internal';
 import type {
   AnyCustomElement,
-  AnyCustomElementDefinition,
-  AnyCustomElementInstance,
   CustomElementDefinition,
   CustomElementHost,
+  CustomElementInstance,
   CustomElementPropDefinitions,
   HostElement,
   InferCustomElementProps,
 } from './types';
 
-const registry = new WeakMap<AnyCustomElementDefinition, any>();
+const registry = new WeakMap<CustomElementDefinition, any>();
 
 export function createServerElement<T extends AnyCustomElement>(
   definition: CustomElementDefinition<T>,
@@ -44,7 +43,7 @@ export function createServerElement<T extends AnyCustomElement>(
     [HOST] = true;
 
     /** @internal */
-    _instance: AnyCustomElementInstance | null = null;
+    _instance: CustomElementInstance | null = null;
     /** @internal */
     _ssr?: string;
     /** @internal */
@@ -58,7 +57,7 @@ export function createServerElement<T extends AnyCustomElement>(
       return this._instance;
     }
 
-    attachComponent(instance: AnyCustomElementInstance) {
+    attachComponent(instance: CustomElementInstance) {
       this.setAttribute('mk-h', '');
       this.setAttribute('mk-d', '');
 

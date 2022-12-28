@@ -1,13 +1,13 @@
-import type { AnyCustomElementInstance } from './types';
+import type { CustomElementInstance } from './types';
 
-let _instances: (AnyCustomElementInstance | null)[] = [null];
+let _instances: (CustomElementInstance | null)[] = [null];
 
 /** @internal */
-export function getCustomElementInstance(): AnyCustomElementInstance | null {
+export function getCustomElementInstance(): CustomElementInstance | null {
   return _instances[_instances.length - 1];
 }
 
-export function setCustomElementInstance(host: AnyCustomElementInstance | null) {
+export function setCustomElementInstance(host: CustomElementInstance | null) {
   if (host === null) {
     _instances.pop();
     return;

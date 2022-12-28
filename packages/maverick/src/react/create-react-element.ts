@@ -6,8 +6,8 @@ import { createElementInstance } from '../element/instance';
 import { PROPS } from '../element/internal';
 import type {
   AnyCustomElement,
-  AnyCustomElementDefinition,
-  AnyCustomElementInstance,
+  CustomElementDefinition,
+  CustomElementInstance,
   HTMLCustomElement,
   InferCustomElement,
 } from '../element/types';
@@ -23,7 +23,7 @@ export type ReactElementInit = {
   displayName?: string;
 };
 
-export function createReactElement<Definition extends AnyCustomElementDefinition>(
+export function createReactElement<Definition extends CustomElementDefinition>(
   definition: Definition,
   init?: ReactElementInit,
 ): ReactElement<InferCustomElement<Definition>> {
@@ -35,7 +35,7 @@ export function createReactElement<Definition extends AnyCustomElementDefinition
 const SETUP = Symbol();
 
 function createReactClientElement<
-  T extends AnyCustomElementDefinition,
+  T extends CustomElementDefinition,
   R extends AnyCustomElement = InferCustomElement<T>,
 >(definition: T, init?: ReactElementInit): ReactElement<R> {
   registerCustomElement(definition);
@@ -48,7 +48,7 @@ function createReactClientElement<
     static override contextType = ReactContextMap;
     declare context: React.ContextType<typeof ReactContextMap>;
 
-    private _instance: AnyCustomElementInstance;
+    private _instance: CustomElementInstance;
     private _element: HTMLCustomElement | null = null;
     private _context!: ContextMap;
     private _ref?: React.RefCallback<HTMLCustomElement>;

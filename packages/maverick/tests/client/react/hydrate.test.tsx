@@ -2,7 +2,7 @@ import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 
-import { type AnyCustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
+import { type CustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
 import { createReactElement } from 'maverick.js/react';
 
 it('should hydrate', () => {
@@ -58,7 +58,7 @@ afterEach(() => {
 
 let count = 0;
 function hydrate(
-  declaration: Partial<AnyCustomElementDeclaration>,
+  declaration: Partial<CustomElementDeclaration>,
   children?: (element: any) => React.ReactNode,
 ) {
   const definition = defineCustomElement({

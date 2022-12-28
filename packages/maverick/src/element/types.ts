@@ -46,9 +46,7 @@ export type CustomElementPropDefinitions<Props> = Readonly<{
   [Prop in keyof Props]: CustomElementPropDefinition<Props[Prop]>;
 }>;
 
-export type AnyCustomElementDeclaration = CustomElementDeclaration<AnyCustomElement>;
-
-export interface CustomElementDeclaration<T extends AnyCustomElement> {
+export interface CustomElementDeclaration<T extends AnyCustomElement = AnyCustomElement> {
   /**
    * The tag name of the custom element. Note that custom element names must contain a hypen (e.g.,
    * `foo-bar`).
@@ -83,9 +81,7 @@ export type CustomElementSetup<T extends AnyCustomElement> = (
   ? void | (() => JSX.Element)
   : InferCustomElementMembers<T> & { $render?: () => JSX.Element };
 
-export interface AnyCustomElementDefinition extends CustomElementDefinition<AnyCustomElement> {}
-
-export interface CustomElementDefinition<T extends AnyCustomElement>
+export interface CustomElementDefinition<T extends AnyCustomElement = AnyCustomElement>
   extends Omit<CustomElementDeclaration<T>, 'setup'> {
   /** @internal */
   setup: (instance: NonNullable<T['instance']>) => InferCustomElementMembers<T> & {
@@ -157,13 +153,13 @@ export interface HostElement {
    *
    * @internal
    */
-  readonly instance: AnyCustomElementInstance | null;
+  readonly instance: CustomElementInstance | null;
   /**
    * Associate this element with a Maverick component instance.
    *
    * @internal
    */
-  attachComponent(instance: AnyCustomElementInstance): void;
+  attachComponent(instance: CustomElementInstance): void;
   /**
    * The given `handler` is invoked with the type of event (e.g., `my-event`) when this element
    * dispatches it. Each event type is unique and only passed to the given `handler` once.
@@ -199,9 +195,8 @@ export interface CustomElementInstanceInit<Props = {}> {
   context?: ContextMap;
 }
 
-export type AnyCustomElementInstance = CustomElementInstance<AnyCustomElement>;
-
-export interface CustomElementInstance<T extends AnyCustomElement> extends ElementLifecycleManager {
+export interface CustomElementInstance<T extends AnyCustomElement = AnyCustomElement>
+  extends ElementLifecycleManager {
   /** @internal */
   [SCOPE]: Scope | null;
   /** @internal */
@@ -234,9 +229,7 @@ export interface CustomElementInstance<T extends AnyCustomElement> extends Eleme
   destroy(): void;
 }
 
-export interface AnyCustomElementHost extends CustomElementHost<AnyCustomElement> {}
-
-export interface CustomElementHost<T extends AnyCustomElement> {
+export interface CustomElementHost<T extends AnyCustomElement = AnyCustomElement> {
   /** @internal */
   [PROPS]: {
     $attrs: HostAttributesRecord | null;

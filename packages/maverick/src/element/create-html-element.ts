@@ -22,10 +22,9 @@ import { createElementInstance } from './instance';
 import { ATTACH, CONNECT, DESTROY, HOST, MEMBERS, MOUNT, PROPS, RENDER, SCOPE } from './internal';
 import type {
   AnyCustomElement,
-  AnyCustomElementDefinition,
-  AnyCustomElementInstance,
   CustomElementDefinition,
   CustomElementHost,
+  CustomElementInstance,
   CustomElementPropDefinitions,
   HostElement,
   HTMLCustomElement,
@@ -69,7 +68,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
 
     private _root?: Node | null;
     private _destroyed = false;
-    private _instance: AnyCustomElementInstance | null = null;
+    private _instance: CustomElementInstance | null = null;
     private _onEventDispatch?: (eventType: string) => void;
 
     private _connectScope: Scope | null = null;
@@ -197,7 +196,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
       }
     }
 
-    attachComponent(instance: AnyCustomElementInstance) {
+    attachComponent(instance: CustomElementInstance) {
       if (__DEV__ && this._instance) {
         console.warn(`[maverick] element \`${definition.tagName}\` already has attached component`);
       }
@@ -369,7 +368,7 @@ export function isHostElement(node?: Node | null): node is HTMLCustomElement {
   return !!node?.[HOST];
 }
 
-export function registerCustomElement(definition: AnyCustomElementDefinition) {
+export function registerCustomElement(definition: CustomElementDefinition) {
   if (__SERVER__) return;
   if (!window.customElements.get(definition.tagName)) {
     window.customElements.define(definition.tagName, createHTMLElement(definition));

@@ -1,3 +1,12 @@
+## [0.22.3](https://github.com/maverick-js/maverick/compare/v0.22.2...v0.22.3) (2022-12-28)
+
+
+### Bug Fixes
+
+* **element:** refactor any element types ([dafc3a7](https://github.com/maverick-js/maverick/commit/dafc3a782106c99f722e3918124e60bbd73ec816))
+
+
+
 ## [0.22.2](https://github.com/maverick-js/maverick/compare/v0.22.1...v0.22.2) (2022-12-28)
 
 

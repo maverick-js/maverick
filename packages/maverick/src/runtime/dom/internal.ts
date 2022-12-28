@@ -14,7 +14,7 @@ import { mergeProperties } from '../../std/object';
 import { isArray, isFunction, isUndefined } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { computed, effect, onDispose, peek, scoped } from '../reactivity';
-import { createMarkerWalker, insertExpression } from './insert';
+import { createMarkerWalker, insert } from './insert';
 import { hydration } from './render';
 
 /** @internal */
@@ -71,7 +71,7 @@ export function $$_next_custom_element(
 
   const element = $$_create_element(tagName);
   element.setAttribute('mk-d', '');
-  if (next) insertExpression(next.parentElement!, element, next);
+  if (next) insert(next.parentElement!, element, next);
 
   return element;
 }
@@ -92,7 +92,7 @@ export function $$_setup_custom_element(
   if (props.innerHTML) return $$_inner_html(element, props.innerHTML);
 
   if (!instance[RENDER] || definition.shadowRoot) {
-    scoped(() => insertExpression(element, props.$children), instance[SCOPE]);
+    scoped(() => insert(element, props.$children), instance[SCOPE]);
   }
 }
 
@@ -119,11 +119,11 @@ export function $$_attach_declarative_shadow_dom(element: AnyCustomElement) {
 }
 
 /** @internal */
-export const $$_insert = insertExpression;
+export const $$_insert = insert;
 
 /** @internal */
 export function $$_insert_at_marker(marker: Comment, value: JSX.Element) {
-  insertExpression(marker.parentElement!, value, marker);
+  insert(marker.parentElement!, value, marker);
 }
 
 /** @internal */

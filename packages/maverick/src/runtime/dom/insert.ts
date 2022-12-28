@@ -6,51 +6,28 @@ import { effect } from '../reactivity';
 import { reconcile } from './reconcile';
 import { hydration } from './render';
 
+export function insert(parent: Node, value: JSX.Element, marker?: Node | null): void {
+  if (isFunction(value)) {
+    let current;
+    effect(
+      () => void (current = insertExpression(parent, unwrapDeep(value()), marker, current, true)),
+    );
+  } else if (hydration) {
+    (marker as Comment).remove();
+  } else insertExpression(parent, value, marker);
+}
+
 // adapted from: https://github.com/ryansolid/dom-expressions/blob/main/packages/dom-expressions/src/client.js#L373
 export function insertExpression(
   parent: Node,
   value: JSX.Element,
-  marker?: Node | Comment | null,
+  marker?: Node | null,
   current?: JSX.Element,
   isSignal = false,
 ): JSX.Element {
-  if (isFunction(value)) {
-    let current;
-    effect(
-      () => void (current = insertExpression(parent, unwrapDeep(value), marker, current, true)),
-    );
-    return;
-  } else if (hydration && !isSignal) {
-    (marker as Comment).remove();
-    return;
-  }
+  if (value === current) return current;
 
-  if (value === current) {
-    // no-op
-  } else if (isDOMNode(value)) {
-    if (hydration) {
-      // no-op
-    } else if (marker || isArray(current)) {
-      if (!isUndefined(marker)) return (current = updateDOM(parent, current, marker, value));
-      updateDOM(parent, current, null, value);
-    } else if (!current || !parent.firstChild) {
-      parent.appendChild(value);
-    } else parent.replaceChild(value, parent.firstChild);
-
-    current = value;
-  } else if (isString(value) || isNumber(value)) {
-    if (!isUndefined(marker)) {
-      if (isDOMNode(current) && current.nodeType === 3) {
-        (current as Text).data = value + '';
-      } else if (!hydration) {
-        current = updateDOM(parent, current, marker, document.createTextNode(value + ''));
-      } else {
-        current = (marker as Comment).nextSibling!;
-      }
-    } else if (current !== '' && isString(current)) {
-      current = (parent.firstChild as Text).data = value + '';
-    } else current = parent.textContent = value + '';
-  } else if (isArray(value)) {
+  if (isArray(value)) {
     const newNodes: Node[] = [],
       currentNodes = hydration
         ? claimArray(marker as Comment)
@@ -58,7 +35,7 @@ export function insertExpression(
         ? (current as Node[])
         : [];
 
-    if (resolveArray(newNodes, value, currentNodes, isSignal)) {
+    if (value.length && resolveArray(newNodes, value, currentNodes, isSignal)) {
       effect(() => void (current = insertExpression(parent, newNodes, marker, currentNodes, true)));
       return () => current;
     }
@@ -74,38 +51,65 @@ export function insertExpression(
       appendArray(parent, newNodes, marker);
     }
 
-    current = newNodes;
+    return newNodes;
+  } else if (isString(value) || isNumber(value)) {
+    if (!isUndefined(marker)) {
+      if (isDOMNode(current) && current.nodeType === 3) {
+        (current as Text).data = value + '';
+      } else if (!hydration) {
+        return updateDOM(parent, current, marker, document.createTextNode(value + ''));
+      } else {
+        return (marker as Comment).nextSibling!;
+      }
+    } else if (current !== '' && isString(current)) {
+      return ((parent.firstChild as Text).data = value + '');
+    } else return (parent.textContent = value + '');
+  } else if (isDOMNode(value)) {
+    if (hydration) {
+      // no-op
+    } else if (marker || isArray(current)) {
+      if (!isUndefined(marker)) return (current = updateDOM(parent, current, marker, value));
+      updateDOM(parent, current, null, value);
+    } else if (!current || !parent.firstChild) {
+      parent.appendChild(value);
+    } else parent.replaceChild(value, parent.firstChild);
+
+    return value;
   } else {
-    current = updateDOM(parent, current, marker);
+    return updateDOM(parent, current, marker);
   }
 
   return current;
 }
 
 function appendArray(parent: Node, nodes: Node[], marker?: Node | null) {
-  const len = nodes.length;
   if (isUndefined(marker)) {
-    for (let i = 0; i < len; i++) parent.appendChild(nodes[i]);
+    for (let i = 0; i < nodes.length; i++) parent.appendChild(nodes[i]);
   } else {
-    for (let i = 0; i < len; i++) parent.insertBefore(nodes[i], marker);
+    for (let i = 0; i < nodes.length; i++) parent.insertBefore(nodes[i], marker);
   }
 }
 
-function resolveArray(nodes: Node[], values: JSX.Nodes, current: Node[], unwrap: boolean): boolean {
+function resolveArray(
+  nodes: Node[],
+  values: JSX.Nodes,
+  current: Node[],
+  computed: boolean,
+): boolean {
   let value: JSX.Element,
     prev,
     effect = false;
 
   for (let i = 0; i < values.length; i++) {
     (value = values[i]), (prev = current[i]);
-
     if (isDOMNode(value)) {
       nodes.push(value);
     } else if (isArray(value)) {
-      effect = resolveArray(nodes, value, (isArray(prev) ? prev : []) as Node[], unwrap) || effect;
+      effect =
+        resolveArray(nodes, value, (isArray(prev) ? prev : []) as Node[], computed) || effect;
     } else if (isFunction(value)) {
-      if (unwrap) {
-        value = unwrapDeep(value);
+      if (computed) {
+        value = value();
         effect =
           resolveArray(
             nodes,

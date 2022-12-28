@@ -13,7 +13,9 @@ export function unwrap<T>(fn: T): T extends () => any ? ReturnType<T> : T {
  * the value if the given argument is not a function.
  */
 export function unwrapDeep<T>(fn: T): DeepReturnType<T> {
-  return isFunction(fn) ? (unwrapDeep as any)(fn()) : fn;
+  let value: any = fn;
+  while (typeof value === 'function') value = value();
+  return value;
 }
 
 export type DeepReturnType<T> = T extends () => any

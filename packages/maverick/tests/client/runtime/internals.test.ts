@@ -15,7 +15,7 @@ import {
   $$_spread,
   $$_style,
 } from 'maverick.js/dom';
-import { createMarkerWalker, insertExpression } from 'maverick.js/dom/insert';
+import { createMarkerWalker, insert } from 'maverick.js/dom/insert';
 
 import { element, endMarker, startMarker } from './utils';
 
@@ -299,7 +299,7 @@ it('should stop expression effect if not observed', () => {
   const root = document.createElement('root');
   const marker = document.createComment('$$');
   root.append(marker);
-  insertExpression(root, () => 'Text', marker);
+  insert(root, () => 'Text', marker);
   expect(root).toMatchInlineSnapshot(`
     <root>
       Text
@@ -313,7 +313,7 @@ it('should _not_ stop expression effect if observed', () => {
   const marker = document.createComment('$$');
   root.append(marker);
   const $a = signal(10);
-  insertExpression(root, $a, marker);
+  insert(root, $a, marker);
   expect(root).toMatchInlineSnapshot(`
     <root>
       10

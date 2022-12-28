@@ -1,3 +1,12 @@
+## [0.22.2](https://github.com/maverick-js/maverick/compare/v0.22.1...v0.22.2) (2022-12-28)
+
+
+### Bug Fixes
+
+* refactor insert expression ([3de1835](https://github.com/maverick-js/maverick/commit/3de183534f6b21dfe47628df43f6ee1ae218b262))
+
+
+
 ## [0.22.1](https://github.com/maverick-js/maverick/compare/v0.22.0...v0.22.1) (2022-12-28)
 
 

@@ -92,11 +92,11 @@ it('should compile multiple jsx prop expressions', () => {
 it('should forward single call expression', () => {
   const result = t(`<Component>{() => <div>{id()}</div>}</Component>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_insert, $$_create_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         return () =>
           (() => {
             const $$_root = $$_clone($$_templ);
@@ -105,7 +105,7 @@ it('should forward single call expression', () => {
 
             return $$_root;
           })();
-      },
+      }),
     })"
   `);
 });
@@ -118,13 +118,13 @@ it('should forward multiple call expressions', () => {
 </Component>
 `);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_insert, $$_create_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_templ;
 
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         return [() =>
           (() => {
             const $$_root = $$_clone($$_templ);
@@ -140,7 +140,7 @@ it('should forward multiple call expressions', () => {
 
             return $$_root;
           })()];
-      },
+      }),
     })
     "
   `);

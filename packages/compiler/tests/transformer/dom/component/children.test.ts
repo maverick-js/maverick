@@ -5,11 +5,11 @@ const t = (code: string) => transform(code).code;
 it('should compile component with text children', () => {
   const result = t('<Component>foo 10 bar 20 baz</Component>');
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_children, $$_create_component } from \\"maverick.js/dom\\";
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         return \\"foo 10 bar 20 baz\\";
-      },
+      }),
     })"
   `);
 });
@@ -17,17 +17,17 @@ it('should compile component with text children', () => {
 it('should compile component with element children', () => {
   const result = t(`<Component><div>Foo{id()}</div></Component>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_insert, $$_create_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo</div>\`);
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         const $$_root = $$_clone($$_templ);
 
         $$_insert($$_root, id, null);
 
         return $$_root;
-      },
+      }),
     })"
   `);
 });
@@ -35,14 +35,14 @@ it('should compile component with element children', () => {
 it('should compile component with props and children', () => {
   const result = t(`<Component foo={id}><div></div></Component>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_create_template, $$_clone, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
     $$_create_component(Component, {
       foo: id,
-      $children() {
+      $children: $$_children(() => {
         return $$_clone($$_templ);
-      },
+      }),
     })"
   `);
 });
@@ -62,24 +62,24 @@ it('should compile nested components', () => {
 </Component>
 `);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_create_template, $$_clone, $$_create_component, $$_children } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><span>Text</span></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         return [
           \\"Text\\",
           $$_clone($$_templ),
           $$_create_component(Foo),
           $$_create_component(Bar, {
-            $children() {
+            $children: $$_children(() => {
               return [$$_clone($$_templ_2), $$_create_component(Baz)];
-            },
+            }),
           }),
         ];
-      },
+      }),
     })
     "
   `);
@@ -123,13 +123,13 @@ it('should compile for loop', () => {
   `);
 
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_insert, $$_create_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<span>- </span>\`);
 
       $$_create_component(For, {
       each: source,
-      $children() {
+      $children: $$_children(() => {
         return (item, i) => (
           (() => {
             const $$_root = $$_clone($$_templ),
@@ -141,7 +141,7 @@ it('should compile for loop', () => {
             return $$_root;
           })()
         );
-      },
+      }),
     })
       "
   `);

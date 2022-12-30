@@ -45,14 +45,14 @@ it('should compile component child fragment', () => {
 `,
   );
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_insert, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_insert, $$_create_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div id=\\"foo\\"></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<div id=\\"bar\\"></div>\`),
       $$_templ_3 = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         return [
           (() => {
             const $$_root = $$_clone($$_templ);
@@ -72,7 +72,7 @@ it('should compile component child fragment', () => {
           $$_clone($$_templ_3),
           id,
         ];
-      },
+      }),
     })
     "
   `);

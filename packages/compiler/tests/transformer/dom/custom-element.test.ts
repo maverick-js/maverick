@@ -19,20 +19,20 @@ it('should compile', () => {
 it('should compile with children', () => {
   const result = t(`<CustomElement $element={DEFINITION}><div>{id}</div></CustomElement>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_element, $$_clone, $$_insert, $$_create_template, $$_setup_custom_element } from \\"maverick.js/dom\\";
+    "import { $$_create_element, $$_clone, $$_insert, $$_create_template, $$_children, $$_setup_custom_element } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
     (() => {
       const $$_el = $$_create_element(DEFINITION.tagName);
 
       $$_setup_custom_element($$_el, DEFINITION, {
-        $children() {
+        $children: $$_children(() => {
           const $$_root = $$_clone($$_templ);
 
           $$_insert($$_root, id);
 
           return $$_root;
-        },
+        }),
       });
 
       return $$_el;
@@ -65,7 +65,7 @@ it('should compile as child', () => {
     `<div><div>Foo</div><CustomElement $prop:foo={props.foo} $element={DEFINITION}>{id()}</CustomElement><div></div></div>`,
   );
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_create_element, $$_setup_custom_element, $$_insert, $$_create_template } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_create_element, $$_children, $$_setup_custom_element, $$_insert, $$_create_template } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div><div>Foo</div><div></div></div>\`);
     (() => {
@@ -76,9 +76,9 @@ it('should compile as child', () => {
 
       $$_setup_custom_element($$_el, DEFINITION, {
         foo: props.foo,
-        $children() {
+        $children: $$_children(() => {
           return id();
-        },
+        }),
       });
       $$_insert($$_root, $$_el, $$_el_3);
 

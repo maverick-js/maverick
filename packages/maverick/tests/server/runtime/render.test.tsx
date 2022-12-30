@@ -21,7 +21,7 @@ function Component() {
 }
 
 function ChildComponent(props) {
-  return props.$children();
+  return props.$children;
 }
 
 it('should render to string', () => {

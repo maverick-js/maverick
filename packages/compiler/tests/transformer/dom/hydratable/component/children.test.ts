@@ -5,11 +5,11 @@ const t = (code: string) => transform(code, { hydratable: true }).code;
 it('should compile component with text children', () => {
   const result = t('<Component>foo 10 bar 20 baz</Component>');
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_children, $$_create_component } from \\"maverick.js/dom\\";
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         return \\"foo 10 bar 20 baz\\";
-      },
+      }),
     })"
   `);
 });
@@ -17,18 +17,18 @@ it('should compile component with text children', () => {
 it('should compile component with element children', () => {
   const result = t(`<Component><div>Foo{id()}</div></Component>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div>Foo<!$></div>\`);
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         const [$$_root, $$_walker] = $$_create_walker($$_templ),
           $$_expr = $$_walker.nextNode();
 
         $$_insert_at_marker($$_expr, id);
 
         return $$_root;
-      },
+      }),
     })"
   `);
 });
@@ -36,14 +36,14 @@ it('should compile component with element children', () => {
 it('should compile component with props and children', () => {
   const result = t(`<Component foo={id}><div></div></Component>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_next_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_create_template, $$_next_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
     $$_create_component(Component, {
       foo: id,
-      $children() {
+      $children: $$_children(() => {
         return $$_next_template($$_templ);
-      },
+      }),
     })"
   `);
 });
@@ -60,13 +60,13 @@ it('should compile component child fragment', () => {
 `,
   );
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div id=\\"foo\\"><!$></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<!$><div id=\\"bar\\"><!$></div>\`);
 
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         return [
           (() => {
             const [$$_root, $$_walker] = $$_create_walker($$_templ),
@@ -85,7 +85,7 @@ it('should compile component child fragment', () => {
             return $$_root;
           })(),
         ];
-      },
+      }),
     })
     "
   `);

@@ -64,11 +64,11 @@ function Component() {
 it('should forward single call expression', () => {
   const result = t(`<Component>{() => <div>{id()}</div>}</Component>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><!$></div>\`);
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         return () =>
           (() => {
             const [$$_root, $$_walker] = $$_create_walker($$_templ),
@@ -78,7 +78,7 @@ it('should forward single call expression', () => {
 
             return $$_root;
           })();
-      },
+      }),
     })"
   `);
 });
@@ -91,13 +91,13 @@ it('should forward multiple call expressions', () => {
 </Component>
 `);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><!$></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_templ;
 
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         return [() =>
           (() => {
             const [$$_root, $$_walker] = $$_create_walker($$_templ),
@@ -115,7 +115,7 @@ it('should forward multiple call expressions', () => {
 
             return $$_root;
           })()];
-      },
+      }),
     })
     "
   `);

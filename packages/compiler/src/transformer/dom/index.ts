@@ -60,6 +60,7 @@ const RUNTIME = {
   hostElement: '$$_host_element',
   createElement: '$$_create_element',
   setupCustomElement: '$$_setup_custom_element',
+  children: '$$_children',
   insert: '$$_insert',
   insertAtMarker: '$$_insert_at_marker',
   listen: '$$_listen',
@@ -204,7 +205,10 @@ export const dom: ASTSerializer = {
         const scoped = children.length > 1 || !isAST(children[0]);
         const serialized = serializeChildren(dom, children, { ...ctx, scoped }, true);
         const shouldReturn = scoped || /^(\[|\(|\$\$|\")/.test(serialized);
-        props.push(`$children() { ${shouldReturn ? `return ${serialized}` : serialized} }`);
+        props.push(
+          `$children: $$_children(() => { ${shouldReturn ? `return ${serialized}` : serialized} })`,
+        );
+        ctx.runtime.add(RUNTIME.children);
       },
       insert = (marker: (() => string) | null, block: string) => {
         const beforeId = ctx.hydratable ? null : getNextElementId();

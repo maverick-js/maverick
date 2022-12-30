@@ -38,27 +38,27 @@ it('should compile nested components', () => {
 </Component>
   `);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_children, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><!$></div>\`);
 
     $$_create_component(Component, {
-      $children() {
+      $children: $$_children(() => {
         return [
           \\"Text\\",
           $$_create_component(Foo, {
-            $children() {
+            $children: $$_children(() => {
               const [$$_root, $$_walker] = $$_create_walker($$_templ),
                 $$_expr = $$_walker.nextNode();
 
               $$_insert_at_marker($$_expr, id);
 
               return $$_root;
-            },
+            }),
           }),
           $$_create_component(Bar),
         ];
-      },
+      }),
     })
       "
   `);

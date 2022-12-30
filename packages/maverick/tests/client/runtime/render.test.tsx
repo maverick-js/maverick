@@ -38,11 +38,11 @@ it('should render fragment', () => {
 
 it('should render components', () => {
   function Component(props) {
-    return props.$children();
+    return props.$children;
   }
 
   function ChildComponent(props) {
-    return <div>{props.$children()}</div>;
+    return <div>{props.$children}</div>;
   }
 
   const root = element('root');
@@ -96,21 +96,7 @@ it('should be reactive', () => {
   render(() => input, { target: root });
   tick();
 
-  expect(root).toMatchInlineSnapshot(`
-    <root>
-      <div>
-        <span>
-          Count is 
-          1
-          <!--$-->
-        </span>
-        <!--$-->
-        <input
-          type="number"
-        />
-      </div>
-    </root>
-  `);
+  expect(root).toMatchSnapshot();
 
   const getValueTextNode = () => root.querySelector('span')!.childNodes[1];
 
@@ -123,21 +109,7 @@ it('should be reactive', () => {
   next();
   tick();
 
-  expect(root).toMatchInlineSnapshot(`
-    <root>
-      <div>
-        <span>
-          Count is 
-          2
-          <!--$-->
-        </span>
-        <!--$-->
-        <input
-          type="number"
-        />
-      </div>
-    </root>
-  `);
+  expect(root).toMatchSnapshot();
 
   // it should re-use existing node.
   expect(getValueTextNode()).toBe(valueText);
@@ -145,26 +117,12 @@ it('should be reactive', () => {
   inputElement!.dispatchEvent(new CustomEvent('next'));
   tick();
 
-  expect(root).toMatchInlineSnapshot(`
-    <root>
-      <div>
-        <span>
-          Count is 
-          3
-          <!--$-->
-        </span>
-        <!--$-->
-        <input
-          type="number"
-        />
-      </div>
-    </root>
-  `);
+  expect(root).toMatchSnapshot();
 });
 
 it('should render signal component', () => {
   function Component(props) {
-    return props.$children();
+    return props.$children;
   }
 
   const $count = signal(1);

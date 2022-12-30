@@ -72,7 +72,7 @@ it('should insert component correctly', () => {
 </table>;
   `);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_clone, $$_effect, $$_attr, $$_listen, $$_create_template, $$_insert, $$_create_component } from \\"maverick.js/dom\\";
+    "import { $$_clone, $$_effect, $$_attr, $$_listen, $$_create_template, $$_children, $$_insert, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<table><div><div><a></a></div></div><tbody><div></div></tbody></table>\`),
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<tr><td></td><td><a></a></td><td><a><span></span></a></td><td></td></tr>\`);
@@ -90,7 +90,7 @@ it('should insert component correctly', () => {
         $$_el_4,
         $$_create_component(ForKeyed, {
           each: $data,
-          $children() {
+          $children: $$_children(() => {
             return (row) => {
               const $$_root = $$_clone($$_templ_2),
                 $$_el = $$_root.firstChild,
@@ -107,7 +107,7 @@ it('should insert component correctly', () => {
 
               return $$_root;
             };
-          },
+          }),
         }),
         $$_el_5,
       );

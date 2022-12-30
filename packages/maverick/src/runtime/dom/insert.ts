@@ -6,12 +6,29 @@ import { effect } from '../reactivity';
 import { reconcile } from './reconcile';
 import { hydration } from './render';
 
+export const $CHILDREN = Symbol(__DEV__ ? '$CHILDREN' : 0);
+
 export function insert(parent: Node, value: JSX.Element, marker?: Node | null): void {
-  if (isFunction(value)) {
+  let isSignal = isFunction(value);
+
+  if (isSignal && (value as Function)[$CHILDREN]) {
+    value = (value as () => JSX.Element)();
+    isSignal = isFunction(value);
+  }
+
+  if (isSignal) {
     let current;
     effect(
-      () => void (current = insertExpression(parent, unwrapDeep(value()), marker, current, true)),
+      () =>
+        void (current = insertExpression(
+          parent,
+          unwrapDeep((value as () => JSX.Element)()),
+          marker,
+          current,
+          true,
+        )),
     );
+    return;
   } else if (hydration) {
     (marker as Comment).remove();
   } else insertExpression(parent, value, marker);

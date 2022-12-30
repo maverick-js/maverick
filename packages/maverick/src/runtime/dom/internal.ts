@@ -13,7 +13,7 @@ import { listenEvent } from '../../std/event';
 import { isArray, isFunction, isUndefined } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { computed, effect, onDispose, peek, scoped } from '../reactivity';
-import { createMarkerWalker, insert } from './insert';
+import { $CHILDREN, createMarkerWalker, insert } from './insert';
 import { hydration } from './render';
 
 /** @internal */
@@ -91,7 +91,7 @@ export function $$_setup_custom_element(
   if (props.innerHTML) return $$_inner_html(element, props.innerHTML);
 
   if ((!instance[RENDER] || definition.shadowRoot) && props.$children) {
-    scoped(() => insert(element, props.$children()), instance[SCOPE]);
+    scoped(() => insert(element, props.$children), instance[SCOPE]);
   }
 }
 
@@ -131,6 +131,12 @@ export function $$_create_component<T = any>(
   props: T = {} as any,
 ) {
   return peek(() => component(props));
+}
+
+/** @internal */
+export function $$_children(fn: () => JSX.Element) {
+  fn[$CHILDREN] = true;
+  return fn;
 }
 
 /** @internal */

@@ -41,13 +41,13 @@ it('should compile nested components', () => {
       $$_templ_2 = /* #__PURE__ */ [\\"<!$><div></div>\\"];
 
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return [
           \\"Text\\",
           $$_ssr($$_templ),
           $$_create_component(Foo),
           $$_create_component(Bar, {
-            get $children() {
+            $children() {
               return [$$_ssr($$_templ_2), $$_create_component(Baz)];
             },
           }),

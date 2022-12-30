@@ -6,7 +6,7 @@ it('should compile component with props', () => {
   const result = t(`<Component foo="a" bar={10} boo={true} baz={id()} />`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_component } from \\"maverick.js/ssr\\";
-    $$_create_component(Component, { foo: \\"a\\", bar: 10, boo: true, baz: id })"
+    $$_create_component(Component, { foo: \\"a\\", bar: 10, boo: true, baz: id() })"
   `);
 });
 
@@ -16,11 +16,7 @@ it('should compile jsx prop expression', () => {
     "import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div>Foo</div>\\"];
-    $$_create_component(Component, {
-      get foo() {
-        return $$_ssr($$_templ);
-      },
-    })"
+    $$_create_component(Component, { foo: $$_ssr($$_templ) })"
   `);
 });
 
@@ -30,11 +26,7 @@ it('should compile child jsx prop expression', () => {
     "import { $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div>Foo</div>\\"];
-    $$_create_component(Component, {
-      get foo() {
-        return id > 10 ? $$_ssr($$_templ) : null;
-      },
-    })"
+    $$_create_component(Component, { foo: id > 10 ? $$_ssr($$_templ) : null })"
   `);
 });
 
@@ -44,11 +36,7 @@ it('should compile dynamic jsx prop expression', () => {
     "import { $$_attr, $$_ssr, $$_create_component } from \\"maverick.js/ssr\\";
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\">Foo</div>\\"];
-    $$_create_component(Component, {
-      get foo() {
-        return $$_ssr($$_templ, $$_attr(\\"id\\", id));
-      },
-    })"
+    $$_create_component(Component, { foo: $$_ssr($$_templ, $$_attr(\\"id\\", id)) })"
   `);
 });
 
@@ -59,10 +47,6 @@ it('should compile multiple jsx prop expressions', () => {
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div\\", \\">Foo</div>\\"],
       $$_templ_2 = /* #__PURE__ */ [\\"<!$><div>Bar</div>\\"];
-    $$_create_component(Component, {
-      get foo() {
-        return id > 10 ? $$_ssr($$_templ, $$_attr(\\"id\\", id)) : $$_ssr($$_templ_2);
-      },
-    })"
+    $$_create_component(Component, { foo: id > 10 ? $$_ssr($$_templ, $$_attr(\\"id\\", id)) : $$_ssr($$_templ_2) })"
   `);
 });

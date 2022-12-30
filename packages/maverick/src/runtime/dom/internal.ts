@@ -10,7 +10,6 @@ import { SCOPE } from '../../element/internal';
 import { attachDeclarativeShadowDOM } from '../../std/dom';
 import { createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
 import { listenEvent } from '../../std/event';
-import { mergeProperties } from '../../std/object';
 import { isArray, isFunction, isUndefined } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { computed, effect, onDispose, peek, scoped } from '../reactivity';
@@ -91,8 +90,8 @@ export function $$_setup_custom_element(
   if (!props) return;
   if (props.innerHTML) return $$_inner_html(element, props.innerHTML);
 
-  if (!instance[RENDER] || definition.shadowRoot) {
-    scoped(() => insert(element, props.$children), instance[SCOPE]);
+  if ((!instance[RENDER] || definition.shadowRoot) && props.$children) {
+    scoped(() => insert(element, props.$children()), instance[SCOPE]);
   }
 }
 
@@ -188,7 +187,16 @@ export function $$_spread(element: Element, props: Record<string, unknown>) {
 }
 
 /** @internal */
-export const $$_merge_props = mergeProperties;
+export function $$_merge_props(...sources: Record<string, any>[]) {
+  const target = sources[0] || {};
+
+  for (let i = 1; i < sources.length; i++) {
+    const source = sources[i];
+    if (source) Object.assign(target, source);
+  }
+
+  return target;
+}
 
 /** @internal */
 export function $$_listen(target: EventTarget, type: string, handler: unknown, capture = false) {

@@ -203,8 +203,8 @@ export const dom: ASTSerializer = {
       addChildren = (children: ComponentChildren[]) => {
         const scoped = children.length > 1 || !isAST(children[0]);
         const serialized = serializeChildren(dom, children, { ...ctx, scoped }, true);
-        const hasReturn = scoped || /^(\[|\(|\$\$|\")/.test(serialized);
-        props.push(`get $children() { ${hasReturn ? `return ${serialized}` : serialized} }`);
+        const shouldReturn = scoped || /^(\[|\(|\$\$|\")/.test(serialized);
+        props.push(`$children() { ${shouldReturn ? `return ${serialized}` : serialized} }`);
       },
       insert = (marker: (() => string) | null, block: string) => {
         const beforeId = ctx.hydratable ? null : getNextElementId();

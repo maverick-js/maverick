@@ -1,6 +1,15 @@
 import type { Constructor, KebabCase, Simplify } from 'type-fest';
 
-import type { ContextMap, JSX, ReadSignal, Scope, SignalOptions, WriteSignal } from '../runtime';
+import type {
+  ContextMap,
+  JSX,
+  ReadSignal,
+  ReadSignals,
+  Scope,
+  SignalOptions,
+  WriteSignal,
+  WriteSignals,
+} from '../runtime';
 import type { WritableKeys } from '../std/types';
 import type { CSS } from './css';
 import type { HOST, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
@@ -200,7 +209,7 @@ export interface CustomElementInstance<T extends AnyCustomElement = AnyCustomEle
   /** @internal */
   [SCOPE]: Scope | null;
   /** @internal */
-  [PROPS]: InferCustomElementProps<T>;
+  [PROPS]: WriteSignals<InferCustomElementProps<T>>;
   /** @internal */
   [MEMBERS]?: Record<string, any> | null;
   /** @internal */
@@ -213,7 +222,7 @@ export interface CustomElementInstance<T extends AnyCustomElement = AnyCustomEle
    * Component properties where each value is a readonly signal. Do note destructure this
    * object because it will result in a loss of reactivity.
    */
-  readonly props: Readonly<InferCustomElementProps<T>>;
+  readonly props: ReadSignals<InferCustomElementProps<T>>;
   /**
    * Returns get/set accessors for all defined properties on this element instance. This method
    * should only be used for exposing properties as members on the HTML element so consumers can
@@ -255,23 +264,17 @@ export interface CustomElementHost<T extends AnyCustomElement = AnyCustomElement
    * `$el` is defined when the host element is connected to the DOM.
    *
    * Refer to the `el` property for non-reactive version and for notes on server-side usage.
-   *
-   * @signal
    */
-  readonly $el: T | null;
+  readonly $el: ReadSignal<T | null>;
   /**
    * Whether the custom element associated with this component has connected to the DOM.
-   *
-   * @signal
    */
-  readonly $connected: boolean;
+  readonly $connected: ReadSignal<boolean>;
   /**
    * Whether the custom element associated with this component has mounted the DOM and rendered
    * content in its host element or shadow root.
-   *
-   * @signal
    */
-  readonly $mounted: boolean;
+  readonly $mounted: ReadSignal<boolean>;
   /**
    * This method can be used to specify attributes that should be set on the host element. Any
    * attributes that are assigned to a function will be considered a signal and updated accordingly.

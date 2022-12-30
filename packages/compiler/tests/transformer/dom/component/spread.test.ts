@@ -22,14 +22,6 @@ it('should compile component with props and spread', () => {
   const result = t(`<Component foo="..." {...props} bar={id() + 10} baz={id} {...propsTwo} />`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_component, $$_merge_props } from \\"maverick.js/dom\\";
-    $$_create_component(
-      Component,
-      $$_merge_props({ foo: \\"...\\" }, props, {
-        get bar() {
-          return id() + 10;
-        },
-        baz: id,
-      }, propsTwo),
-    )"
+    $$_create_component(Component, $$_merge_props({ foo: \\"...\\" }, props, { bar: id() + 10, baz: id }, propsTwo))"
   `);
 });

@@ -55,7 +55,7 @@ it('should insert component correctly', () => {
           <tr class={row.id === $selected() ? 'danger' : ''}>
             <td $prop:textContent={row.id} />
             <td>
-              <a $on:click={() => select(row.id)} $prop:textContent={row.label} />
+              <a $on:click={() => select(row.id)} $prop:textContent={row.label()} />
             </td>
             <td>
               <a $on:click={() => remove(row.id)}>
@@ -90,7 +90,7 @@ it('should insert component correctly', () => {
         $$_el_4,
         $$_create_component(ForKeyed, {
           each: $data,
-          get $children() {
+          $children() {
             return (row) => {
               const $$_root = $$_clone($$_templ_2),
                 $$_el = $$_root.firstChild,
@@ -100,9 +100,9 @@ it('should insert component correctly', () => {
                 $$_el_5 = $$_el_4.firstChild;
 
               $$_effect(() => $$_attr($$_root, \\"class\\", row.id === $selected() ? \\"danger\\" : \\"\\"));
-              $$_effect(() => void ($$_el.textContent = row.id));
+              $$_el.textContent = row.id;
               $$_listen($$_el_3, \\"click\\", () => select(row.id));
-              $$_effect(() => void ($$_el_3.textContent = row.label));
+              $$_effect(() => void ($$_el_3.textContent = row.label()));
               $$_listen($$_el_5, \\"click\\", () => remove(row.id));
 
               return $$_root;

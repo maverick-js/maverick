@@ -44,7 +44,7 @@ it('should compile observable $prop expression', () => {
       const [$$_root, $$_walker] = $$_create_walker($$_templ);
 
       $$_effect(() => void ($$_root.foo = id()));
-      $$_effect(() => void ($$_root.bar = props.id));
+      $$_root.bar = props.id;
 
       return $$_root;
     })()"

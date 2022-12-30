@@ -1,5 +1,6 @@
 import { hydrate, type ParentComponent, signal, tick } from 'maverick.js';
 
+import { unwrap } from '../../../../src/std/signal';
 import { element, startMarker, text } from '../utils';
 
 it('should hydrate', () => {
@@ -34,7 +35,7 @@ it('should hydrate', () => {
   const clickHandler = vi.fn();
 
   const ChildComponent: ParentComponent = (props) => {
-    return props.$children;
+    return unwrap(props.$children);
   };
 
   function Component() {

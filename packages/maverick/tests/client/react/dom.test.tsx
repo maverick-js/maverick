@@ -88,9 +88,9 @@ it('should update', () => {
     {
       props: { state: { initial: 0 } },
       setup:
-        ({ props }) =>
+        ({ props: { state } }) =>
         () =>
-          <div>{props.state}</div>,
+          <div>{state()}</div>,
     },
     (el) => React.createElement(Component, {}, el),
   );

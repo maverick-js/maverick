@@ -26,7 +26,7 @@ it('should compile with children', () => {
       const $$_el = $$_next_custom_element(DEFINITION);
 
       $$_setup_custom_element($$_el, DEFINITION, {
-        get $children() {
+        $children() {
           const [$$_root, $$_walker] = $$_create_walker($$_templ),
             $$_expr = $$_walker.nextNode();
 
@@ -54,10 +54,8 @@ it('should compile as child', () => {
         $$_el = $$_next_custom_element(DEFINITION, $$_walker);
 
       $$_setup_custom_element($$_el, DEFINITION, {
-        get foo() {
-          return props.foo;
-        },
-        get $children() {
+        foo: props.foo,
+        $children() {
           return id();
         },
       });

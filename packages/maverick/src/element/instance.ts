@@ -1,8 +1,7 @@
 import { getScope, root, Scope, scoped, signal, tick } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
-import { provideContextMap, useContextMap } from '../runtime';
-import { noop } from '../std/unit';
+import { createAccessors, provideContextMap, useContextMap, WriteSignals } from '../runtime';
 import {
   ATTACH,
   CONNECT,
@@ -35,41 +34,35 @@ export function createElementInstance<T extends AnyCustomElement>(
     if (init.scope) getScope()![SCOPE] = init.scope;
     if (init.context) provideContextMap(init.context);
 
-    let destroyed = false,
-      $$props = 'props' in definition ? createInstanceProps(definition.props) : ({} as Props);
-
-    if (init.props && 'props' in definition) {
-      for (const prop of Object.keys(init.props)) {
-        if (prop in definition.props) {
-          $$props[prop as keyof Props] = init.props[prop]!;
-        }
-      }
-    }
-
-    const $connected = signal(false),
+    let accessors: Props | null = null,
+      destroyed = false,
+      props = 'props' in definition ? createInstanceProps(definition.props) : ({} as Props),
+      $connected = signal(false),
       $mounted = signal(false),
       $attrs = {},
       $styles = {},
       setAttributes = (attrs) => void Object.assign($attrs, attrs),
       setStyles = (styles) => void Object.assign($styles, styles);
 
+    if (init.props && 'props' in definition) {
+      for (const prop of Object.keys(init.props)) {
+        if (prop in definition.props) props[prop].set(init.props[prop]!);
+      }
+    }
+
     const host: CustomElementInstance['host'] = {
-      el: null,
-      get $el() {
-        return $connected() ? host.el : null;
-      },
-      get $connected() {
-        return $connected();
-      },
-      get $mounted() {
-        return $mounted();
-      },
       [PROPS]: {
         $attrs,
         $styles,
         $connected,
         $mounted,
       },
+      el: null,
+      $el() {
+        return $connected() ? host.el : null;
+      },
+      $connected,
+      $mounted,
       setAttributes,
       setStyles,
       setCSSVars: setStyles,
@@ -77,20 +70,14 @@ export function createElementInstance<T extends AnyCustomElement>(
 
     const instance: Writable<CustomElementInstance> = {
       host,
-      props: new Proxy($$props as object, {
-        set: __DEV__
-          ? (_, prop) => {
-              throw Error(`[maverick] attempting to set readonly prop \`${String(prop)}\``);
-            }
-          : (noop as any),
-      }),
+      props: props,
       [SCOPE]: getScope()!,
-      [PROPS]: $$props,
+      [PROPS]: props,
       [ATTACH]: [],
       [CONNECT]: [],
       [MOUNT]: [],
       [DESTROY]: [],
-      accessors: () => $$props,
+      accessors: () => (accessors ??= createAccessors(props) as Props),
       destroy() {
         if (destroyed) return;
 
@@ -153,21 +140,11 @@ export function createElementInstance<T extends AnyCustomElement>(
 }
 
 function createInstanceProps<Props>(propDefs: CustomElementPropDefinitions<Props>) {
-  const props = {} as Props;
+  const props = {} as WriteSignals<Props>;
 
-  for (const propName of Object.keys(propDefs) as (keyof Props)[]) {
-    const def = propDefs![propName];
-    const $prop = signal((def as any).initial, def);
-    Object.defineProperty(props, propName, {
-      enumerable: true,
-      configurable: true,
-      get() {
-        return $prop();
-      },
-      set(value) {
-        $prop.set(value);
-      },
-    });
+  for (const name of Object.keys(propDefs) as (keyof Props)[]) {
+    const def = propDefs![name];
+    props[name] = signal((def as any).initial, def);
   }
 
   return props;

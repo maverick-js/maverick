@@ -114,7 +114,7 @@ it('should forward props', () => {
     setup:
       ({ props }) =>
       () =>
-        <div>{props.foo}</div>,
+        <div>{props.foo()}</div>,
   });
 
   const Component = createReactElement(element);

@@ -7,7 +7,7 @@ it('should compile component with text children', () => {
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_component } from \\"maverick.js/ssr\\";
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return \\"foo 10 bar 20 baz\\";
       },
     })"
@@ -21,7 +21,7 @@ it('should compile component with element children', () => {
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><div>Foo<!$>\\", \\"</div>\\"];
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return $$_ssr($$_templ, id);
       },
     })"
@@ -36,7 +36,7 @@ it('should compile component with props and children', () => {
     const $$_templ = /* #__PURE__ */ [\\"<!$><div></div>\\"];
     $$_create_component(Component, {
       foo: id,
-      get $children() {
+      $children() {
         return $$_ssr($$_templ);
       },
     })"

@@ -1,6 +1,6 @@
-import { isFunction } from '../../std/unit';
+import { unwrap } from '../../std/signal';
 import type { JSX } from '../jsx';
-import { computed, onError, peek, type ReadSignal, signal } from '../reactivity';
+import { computed, isFunction, onError, peek, type ReadSignal, signal } from '../reactivity';
 
 export type ErrorSignal<T = unknown> = ReadSignal<T | null> & { handled(): void };
 export type ErrorBoundaryHandler<T = unknown> = (error: ErrorSignal<T>) => JSX.Element;
@@ -39,20 +39,17 @@ export function ErrorBoundary(props: {
 
   return computed(
     () => {
-      const $children = props.$children;
+      const $children = unwrap(props.$children) as (() => JSX.Element) | ErrorBoundaryHandler;
 
       onError((error) => {
-        if (__DEV__ && (!isFunction($children) || $children.length === 0)) {
-          console.error(error);
-        }
-
+        if (__DEV__ && $children.length === 0) console.error(error);
         $e.set(error);
         props.onError?.(error, $error.handled);
       });
 
       return isFunction($children) && $children.length > 0
-        ? peek(() => ($children as any)($error))
-        : $children;
+        ? peek(() => ($children as ErrorBoundaryHandler)($error))
+        : ($children as JSX.Element);
     },
     { initial: null, scoped: true },
   );

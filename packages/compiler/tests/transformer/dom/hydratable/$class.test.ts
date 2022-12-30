@@ -28,7 +28,7 @@ it('should compile observable $class expression', () => {
       const [$$_root, $$_walker] = $$_create_walker($$_templ);
 
       $$_effect(() => $$_class($$_root, \\"foo\\", id()));
-      $$_effect(() => $$_class($$_root, \\"bar\\", props.id));
+      $$_class($$_root, \\"bar\\", props.id);
 
       return $$_root;
     })()"

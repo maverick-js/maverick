@@ -40,7 +40,7 @@
   "devDependencies": {
     "@edge-runtime/vm": "^2.0.0",
     "@maverick-js/compiler": "workspace:*",
-    "@maverick-js/signals": "^5.1.6",
+    "@maverick-js/signals": "^5.2.0",
     "@types/node": "^18.0.3",
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
@@ -58,7 +58,6 @@
   "exports": {
     ".": {
       "types": "./index.d.ts",
-      "production": "./dist/prod/runtime.js",
       "development": "./dist/dev/runtime.js",
       "test": "./dist/dev/runtime.js",
       "browser": "./dist/prod/runtime.js",
@@ -69,7 +68,6 @@
     },
     "./dom": {
       "types": "./dom.d.ts",
-      "production": "./dist/prod/dom.js",
       "development": "./dist/dev/dom.js",
       "test": "./dist/dev/dom.js",
       "browser": "./dist/prod/dom.js",
@@ -80,7 +78,6 @@
     },
     "./ssr": {
       "types": "./ssr.d.ts",
-      "production": "./dist/prod/ssr.js",
       "development": "./dist/dev/ssr.js",
       "test": "./dist/dev/ssr.js",
       "require": "./dist/server/ssr.cjs",
@@ -90,7 +87,6 @@
     },
     "./element": {
       "types": "./element.d.ts",
-      "production": "./dist/prod/element.js",
       "development": "./dist/dev/element.js",
       "test": "./dist/dev/element.js",
       "browser": "./dist/prod/element.js",
@@ -101,7 +97,6 @@
     },
     "./react": {
       "types": "./react.d.ts",
-      "production": "./dist/prod/react.js",
       "development": "./dist/dev/react.js",
       "test": "./dist/dev/react.js",
       "browser": "./dist/prod/react.js",
@@ -112,7 +107,6 @@
     },
     "./std": {
       "types": "./std.d.ts",
-      "production": "./dist/prod/std.js",
       "development": "./dist/dev/std.js",
       "test": "./dist/dev/std.js",
       "browser": "./dist/prod/std.js",

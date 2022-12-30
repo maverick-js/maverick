@@ -43,11 +43,11 @@ it('should compile nested components', () => {
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><!$></div>\`);
 
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return [
           \\"Text\\",
           $$_create_component(Foo, {
-            get $children() {
+            $children() {
               const [$$_root, $$_walker] = $$_create_walker($$_templ),
                 $$_expr = $$_walker.nextNode();
 

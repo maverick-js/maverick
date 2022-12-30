@@ -172,7 +172,7 @@ function parseElementAttrs(attributes: ts.JsxAttributes, ast: AST, meta: JSXNode
 
     if (initializer && isEmptyNode((literal || expression)!)) continue;
 
-    const rawName = attr.name.escapedText as string,
+    let rawName = attr.name.escapedText as string,
       rawNameParts = rawName.split(':'),
       hasValidNamespace = isValidNamespace(rawNameParts[0]),
       namespace = hasValidNamespace ? (rawNameParts[0] as JSXNamespace) : null,

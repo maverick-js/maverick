@@ -20,7 +20,7 @@ it('shoud compile with attrs/props', () => {
     "import { $$_custom_element, $$_ssr } from \\"maverick.js/ssr\\";
 
     const $$_templ = /* #__PURE__ */ [\\"<!$>\\"];
-    $$_ssr($$_templ, $$_custom_element(DEFINITION, { foo: 10, bar: id }, [{ \\"foo\\": 10, \\"bar\\": 20 }]))"
+    $$_ssr($$_templ, $$_custom_element(DEFINITION, { foo: 10, bar: id() }, [{ \\"foo\\": 10, \\"bar\\": 20 }]))"
   `);
 });
 
@@ -34,7 +34,7 @@ it('shoud compile with children', () => {
     $$_ssr(
       $$_templ_2,
       $$_custom_element(DEFINITION, {
-        get $children() {
+        $children() {
           return $$_ssr($$_templ, id);
         },
       }),
@@ -65,7 +65,7 @@ it('shoud compile with inner html', () => {
       $$_templ_2,
       $$_custom_element(DEFINITION, {
         innerHTML: \\"<div>Foo</div>\\",
-        get $children() {
+        $children() {
           return $$_ssr($$_templ);
         },
       }),

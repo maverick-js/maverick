@@ -1,4 +1,5 @@
-import type { ReadSignal, WriteSignal } from '@maverick-js/signals';
+import type { InferSignalValue, ReadSignal, WriteSignal } from '@maverick-js/signals';
+import type { ConditionalExcept, ConditionalPick } from 'type-fest';
 
 import type { JSX } from './jsx';
 
@@ -24,16 +25,18 @@ export type VoidComponentProps<Props = {}> = ComponentProps<Props>;
 
 export interface VoidComponent<Props = {}> extends Component<VoidComponentProps<Props>> {}
 
-export type ReadSignalRecord<Props = Record<string, any>> = {
+export type ReadSignals<Props = Record<string, any>> = {
   [Prop in keyof Props]: ReadSignal<Props[Prop]>;
 };
 
-export type WriteSignalRecord<Props = Record<string, any>> = {
+export type WriteSignals<Props = Record<string, any>> = {
   [Prop in keyof Props]: WriteSignal<Props[Prop]>;
 };
 
-export type InferSignalRecordValues<T> = {
-  [P in keyof T]: T[P] extends ReadSignal<infer R> ? R : never;
+export type SignalAccessors<T> = {
+  [P in keyof ConditionalPick<T, WriteSignal<any>>]: InferSignalValue<T[P]>;
+} & {
+  readonly [P in keyof ConditionalExcept<T, WriteSignal<any>>]: InferSignalValue<T[P]>;
 };
 
 export type AnyRecord = {

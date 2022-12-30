@@ -26,7 +26,7 @@ it('should compile with children', () => {
       const $$_el = $$_create_element(DEFINITION.tagName);
 
       $$_setup_custom_element($$_el, DEFINITION, {
-        get $children() {
+        $children() {
           const $$_root = $$_clone($$_templ);
 
           $$_insert($$_root, id);
@@ -53,7 +53,7 @@ it('should compile with jsx attributes', () => {
       $$_class($$_el, \\"foo\\", true);
       $$_style($$_el, \\"--foo\\", 10);
       $$_listen($$_el, \\"click\\", handler);
-      $$_setup_custom_element($$_el, DEFINITION, { foo: id });
+      $$_setup_custom_element($$_el, DEFINITION, { foo: id() });
 
       return $$_el;
     })()"
@@ -75,10 +75,8 @@ it('should compile as child', () => {
         $$_el_3 = $$_el_2.nextSibling;
 
       $$_setup_custom_element($$_el, DEFINITION, {
-        get foo() {
-          return props.foo;
-        },
-        get $children() {
+        foo: props.foo,
+        $children() {
           return id();
         },
       });

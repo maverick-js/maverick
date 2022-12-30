@@ -47,20 +47,19 @@ it('should compile conditional expression', () => {
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<div>Bar</div>\`),
       $$_templ_3 = /* #__PURE__ */ $$_create_template(\`<div>Baz</div>\`);
-    (() =>
-      1 > 2
-        ? $$_peek(() =>
-          (() => {
-            const $$_root = $$_clone($$_templ);
+    1 > 2
+      ? $$_peek(() =>
+        (() => {
+          const $$_root = $$_clone($$_templ);
 
-            $$_insert($$_root, id);
+          $$_insert($$_root, id);
 
-            return $$_root;
-          })()
-        )
-        : props.id > 10
-        ? $$_clone($$_templ_2)
-        : $$_clone($$_templ_3))"
+          return $$_root;
+        })()
+      )
+      : props.id > 10
+      ? $$_clone($$_templ_2)
+      : $$_clone($$_templ_3)"
   `);
 });
 

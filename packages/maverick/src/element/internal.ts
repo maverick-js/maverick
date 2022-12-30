@@ -8,7 +8,7 @@ export function getCustomElementInstance(): CustomElementInstance | null {
 }
 
 export function setCustomElementInstance(host: CustomElementInstance | null) {
-  if (host === null) {
+  if (!host) {
     _instances.pop();
     return;
   }

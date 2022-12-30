@@ -22,7 +22,7 @@ export function For<Item, Element extends JSX.Element>(props: {
 }): ReadSignal<Element[]> {
   return computedMap(
     () => unwrap(props.each),
-    props.$children,
+    unwrap(props.$children),
     __DEV__ ? { id: 'For' } : undefined,
   );
 }
@@ -46,7 +46,7 @@ export function ForKeyed<Item, Element extends JSX.Element>(props: {
 }): ReadSignal<Element[]> {
   return computedKeyedMap(
     () => unwrap(props.each),
-    props.$children,
+    unwrap(props.$children),
     __DEV__ ? { id: 'ForKeyed' } : undefined,
   );
 }

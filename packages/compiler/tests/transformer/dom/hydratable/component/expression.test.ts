@@ -68,7 +68,7 @@ it('should forward single call expression', () => {
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><!$></div>\`);
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return () =>
           (() => {
             const [$$_root, $$_walker] = $$_create_walker($$_templ),
@@ -97,7 +97,7 @@ it('should forward multiple call expressions', () => {
       $$_templ_2 = /* #__PURE__ */ $$_templ;
 
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return [() =>
           (() => {
             const [$$_root, $$_walker] = $$_create_walker($$_templ),

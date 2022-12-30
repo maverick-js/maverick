@@ -131,21 +131,11 @@ export function serializeComponentProp(
   node: AttributeNode,
   ctx: TransformContext,
 ) {
-  if (!node.children && (!node.observable || node.callId)) {
-    return `${node.name}: ${node.callId ?? node.value}`;
+  if (!node.children) {
+    return `${node.name}: ${node.value}`;
   } else {
-    const scoped = !node.children || node.children.length > 1;
-
-    const serialized = !node.children
-      ? node.value
-      : serializeParentExpression(serializer, node, { ...ctx, scoped });
-
-    const hasReturn =
-      scoped ||
-      (node.children && node.children[0].root.getStart() > node.ref.getStart()) ||
-      /^(\[|\(|\$\$|\")/.test(serialized);
-
-    return `get ${node.name}() { ${hasReturn ? 'return' : ''} ${serialized}; }`;
+    const serialized = serializeParentExpression(serializer, node, { ...ctx, scoped: true });
+    return `${node.name}: ${serialized}`;
   }
 }
 
@@ -204,7 +194,7 @@ export function serializeComponentChildrenProp(
   children: ComponentChildren[],
   ctx: TransformContext,
 ) {
-  return `get $children() { return ${serializeChildren(serializer, children, ctx, true)} }`;
+  return `$children() { return ${serializeChildren(serializer, children, ctx, true)} }`;
 }
 
 export function serializeParentExpression(

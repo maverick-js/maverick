@@ -38,11 +38,11 @@ it('should render fragment', () => {
 
 it('should render components', () => {
   function Component(props) {
-    return props.$children;
+    return props.$children();
   }
 
   function ChildComponent(props) {
-    return <div>{props.$children}</div>;
+    return <div>{props.$children()}</div>;
   }
 
   const root = element('root');
@@ -164,7 +164,7 @@ it('should be reactive', () => {
 
 it('should render signal component', () => {
   function Component(props) {
-    return props.$children;
+    return props.$children();
   }
 
   const $count = signal(1);

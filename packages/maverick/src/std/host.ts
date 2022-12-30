@@ -9,5 +9,5 @@ export function useHostConnected(): () => boolean {
     );
   }
 
-  return () => instance.host.$connected;
+  return () => instance.host.$connected();
 }

@@ -52,7 +52,7 @@ it('should compile component child fragment', () => {
       $$_templ_3 = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
 
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return [
           (() => {
             const $$_root = $$_clone($$_templ);

@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import { type AST } from '../transformer/ast';
+import type { AST } from '../transformer/ast';
 import { buildAST } from '../transformer/jsx/parse';
 import { isJSXElementNode } from '../transformer/jsx/parse-jsx';
 
@@ -14,12 +14,12 @@ export function hasChildType(node: ts.Node, check: (child: ts.Node) => boolean) 
 }
 
 export function resolveExpressionChildren(expression: ts.Expression) {
-  let observable = ts.isCallExpression(expression) || ts.isPropertyAccessExpression(expression),
+  let observable = ts.isCallExpression(expression),
     children: AST[] | undefined,
     isJSXExpression = !observable && (isJSXElementNode(expression) || ts.isJsxFragment(expression));
 
   const parse = (node: ts.Node) => {
-    if (!observable && (ts.isCallExpression(node) || ts.isPropertyAccessExpression(node))) {
+    if (!observable && ts.isCallExpression(node)) {
       observable = true;
     } else if (isJSXElementNode(node) || ts.isJsxFragment(node)) {
       if (!children) children = [];

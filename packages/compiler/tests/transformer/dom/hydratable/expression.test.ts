@@ -49,21 +49,20 @@ it('should compile dynamic conditional expression', () => {
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><!$></div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<!$><div>Bar</div>\`),
       $$_templ_3 = /* #__PURE__ */ $$_create_template(\`<!$><div>Baz</div>\`);
-    (() =>
-      1 > 2
-        ? $$_peek(() =>
-          (() => {
-            const [$$_root, $$_walker] = $$_create_walker($$_templ),
-              $$_expr = $$_walker.nextNode();
+    1 > 2
+      ? $$_peek(() =>
+        (() => {
+          const [$$_root, $$_walker] = $$_create_walker($$_templ),
+            $$_expr = $$_walker.nextNode();
 
-            $$_insert_at_marker($$_expr, id);
+          $$_insert_at_marker($$_expr, id);
 
-            return $$_root;
-          })()
-        )
-        : props.id > 10
-        ? $$_next_template($$_templ_2)
-        : $$_next_template($$_templ_3))"
+          return $$_root;
+        })()
+      )
+      : props.id > 10
+      ? $$_next_template($$_templ_2)
+      : $$_next_template($$_templ_3)"
   `);
 });
 

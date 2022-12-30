@@ -115,7 +115,7 @@ it('should forward props', () => {
     setup:
       ({ props }) =>
       () =>
-        <div>{props.foo}</div>,
+        <div>{props.foo()}</div>,
   });
 
   const result = renderToString(() => <CustomElement $prop:foo={100} $element={element} />).code;

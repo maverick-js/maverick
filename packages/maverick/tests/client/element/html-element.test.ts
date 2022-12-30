@@ -46,7 +46,7 @@ it('should observe attributes', () => {
 
   element.attachComponent(instance);
   element.setAttribute('foo', '10');
-  expect(element.foo).toBe(10);
+  expect(element.foo()).toBe(10);
 });
 
 it('should reflect props', () => {
@@ -59,12 +59,12 @@ it('should reflect props', () => {
   element.attachComponent(instance);
 
   expect(element.getAttribute('foo')).toBe('100');
-  instance[PROPS].foo = 200;
+  instance[PROPS].foo.set(200);
 
   tick();
   expect(element.getAttribute('foo')).toBe('200');
 
-  instance[PROPS].foo = null;
+  instance[PROPS].foo.set(null);
   tick();
   expect(element.hasAttribute('foo')).toBe(false);
 });
@@ -105,12 +105,12 @@ it('should call connect lifecycle hook', () => {
 
   element.attachComponent(instance);
 
-  expect(instance.host.$connected).toBeTruthy();
+  expect(instance.host.$connected()).toBeTruthy();
   expect(connect).toHaveBeenCalledTimes(1);
   expect(disconnect).not.toHaveBeenCalled();
 
   element.remove();
-  expect(instance.host.$connected).toBeFalsy();
+  expect(instance.host.$connected()).toBeFalsy();
   expect(connect).toHaveBeenCalledTimes(1);
   expect(disconnect).toHaveBeenCalledTimes(1);
 });
@@ -168,22 +168,22 @@ it('should call mount lifecycle hook', () => {
   expect(destroy).not.toHaveBeenCalled();
 
   element.attachComponent(instance);
-  expect(instance.host.$mounted).toBeTruthy();
+  expect(instance.host.$mounted()).toBeTruthy();
   expect(mount).toHaveBeenCalledTimes(1);
   expect(destroy).not.toHaveBeenCalled();
 
   instance.destroy();
-  expect(instance.host.$mounted).toBeFalsy();
+  expect(instance.host.$mounted()).toBeFalsy();
   expect(mount).toHaveBeenCalledTimes(1);
   expect(destroy).toHaveBeenCalledTimes(1);
 });
 
 it('should handle errors thrown in lifecycle hooks', () => {
-  const attachError = Error(),
-    connectError = Error(),
-    disconnectError = Error(),
-    mountError = Error(),
-    destroyError = Error();
+  const attachError = Error('attach'),
+    connectError = Error('connect'),
+    disconnectError = Error('disconnect'),
+    mountError = Error('mount'),
+    destroyError = Error('destroy');
 
   const nextAttach = vi.fn(),
     nextConnect = vi.fn(),
@@ -195,7 +195,9 @@ it('should handle errors thrown in lifecycle hooks', () => {
 
   const { instance, element } = setupTestElement({
     setup() {
-      onError(errorHandler);
+      onError((e) => {
+        errorHandler(e);
+      });
 
       onAttach(() => {
         throw attachError;

@@ -49,7 +49,7 @@ it('should compile component child fragment', () => {
       $$_templ_7 = /* #__PURE__ */ $$_templ_4;
 
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return [
           $$_ssr($$_templ, id),
           $$_ssr($$_templ_2, id),

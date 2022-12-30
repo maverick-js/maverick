@@ -1,5 +1,6 @@
 import { computed, signal } from './reactivity';
 
+export * from './accessors';
 export * from './types';
 export * from './reactivity';
 export * from './components/CustomElement';

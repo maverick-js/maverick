@@ -36,11 +36,7 @@ it('should compile jsx prop expression', () => {
     "import { $$_create_template, $$_clone, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo</div>\`);
-    $$_create_component(Component, {
-      get foo() {
-        return $$_clone($$_templ);
-      },
-    })"
+    $$_create_component(Component, { foo: $$_clone($$_templ) })"
   `);
 });
 
@@ -50,11 +46,7 @@ it('should compile child jsx prop expression', () => {
     "import { $$_create_template, $$_clone, $$_create_component } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo</div>\`);
-    $$_create_component(Component, {
-      get foo() {
-        return id > 10 ? $$_clone($$_templ) : null;
-      },
-    })"
+    $$_create_component(Component, { foo: id > 10 ? $$_clone($$_templ) : null })"
   `);
 });
 
@@ -65,13 +57,13 @@ it('should compile dynamic jsx prop expression', () => {
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo</div>\`);
     $$_create_component(Component, {
-      get foo() {
+      foo: (() => {
         const $$_root = $$_clone($$_templ);
 
         $$_effect(() => $$_attr($$_root, \\"id\\", id()));
 
         return $$_root;
-      },
+      })(),
     })"
   `);
 });
@@ -84,17 +76,15 @@ it('should compile multiple jsx prop expressions', () => {
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div>Foo</div>\`),
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<div>Bar</div>\`);
     $$_create_component(Component, {
-      get foo() {
-        return id > 10
-          ? (() => {
-            const $$_root = $$_clone($$_templ);
+      foo: id > 10
+        ? (() => {
+          const $$_root = $$_clone($$_templ);
 
-            $$_effect(() => $$_attr($$_root, \\"id\\", id()));
+          $$_effect(() => $$_attr($$_root, \\"id\\", id()));
 
-            return $$_root;
-          })()
-          : $$_clone($$_templ_2);
-      },
+          return $$_root;
+        })()
+        : $$_clone($$_templ_2),
     })"
   `);
 });
@@ -106,7 +96,7 @@ it('should forward single call expression', () => {
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return () =>
           (() => {
             const $$_root = $$_clone($$_templ);
@@ -134,7 +124,7 @@ it('should forward multiple call expressions', () => {
       $$_templ_2 = /* #__PURE__ */ $$_templ;
 
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return [() =>
           (() => {
             const $$_root = $$_clone($$_templ);

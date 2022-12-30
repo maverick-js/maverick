@@ -25,7 +25,6 @@ import type {
   CustomElementDefinition,
   CustomElementHost,
   CustomElementInstance,
-  CustomElementPropDefinitions,
   HostElement,
   HTMLCustomElement,
   HTMLCustomElementConstructor,
@@ -45,20 +44,27 @@ export function createHTMLElement<T extends AnyCustomElement>(
 
   type Props = InferCustomElementProps<T>;
 
-  const propDefs = (definition.props ?? {}) as CustomElementPropDefinitions<Props>;
-  const attrToProp = new Map<string, string>();
-  const propToAttr = new Map<string, string>();
-  const dispatchedEvents = new Set<string>();
-  const reflectedProps = new Set<string>();
+  let attrToProp: Map<string, string> | null = null,
+    propToAttr: Map<string, string> | null = null,
+    dispatchedEvents: Set<string> | null = null,
+    reflectedProps: Set<string> | null = null;
 
-  for (const propName of Object.keys(propDefs)) {
-    const def = propDefs[propName];
-    const attr = def.attribute;
-    if (attr !== false) {
-      const attrName = attr ?? camelToKebabCase(propName);
-      attrToProp.set(attrName, propName);
-      propToAttr.set(propName, attrName);
-      if (def.reflect) reflectedProps.add(propName);
+  if (definition.props) {
+    attrToProp = new Map();
+    propToAttr = new Map();
+
+    for (const propName of Object.keys(definition.props)) {
+      const def = definition.props[propName];
+      const attr = def.attribute;
+      if (attr !== false) {
+        const attrName = attr ?? camelToKebabCase(propName);
+        attrToProp.set(attrName, propName);
+        propToAttr.set(propName, attrName);
+        if (def.reflect) {
+          if (!reflectedProps) reflectedProps = new Set();
+          reflectedProps.add(propName);
+        }
+      }
     }
   }
 
@@ -87,14 +93,14 @@ export function createHTMLElement<T extends AnyCustomElement>(
     }
 
     static get observedAttributes() {
-      return Array.from(attrToProp.keys());
+      return attrToProp ? Array.from(attrToProp.keys()) : [];
     }
 
     attributeChangedCallback(name, _, newValue) {
-      if (!this._instance) return;
+      if (!this._instance || !attrToProp) return;
       const propName = attrToProp.get(name)! as keyof Props;
-      const from = propDefs[propName]?.type?.from;
-      if (from) this._instance[PROPS][propName] = from(newValue);
+      const from = definition.props![propName]?.type?.from;
+      if (from) this._instance[PROPS][propName].set(from(newValue));
     }
 
     connectedCallback() {
@@ -104,7 +110,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
       if (!this._delegate && !instance) return this._setup();
 
       // Could be called once element is no longer connected.
-      if (!instance || !this.isConnected || instance.host.$connected) return;
+      if (!instance || !this.isConnected || instance.host.$connected()) return;
 
       if (this._destroyed) {
         if (__DEV__) {
@@ -144,7 +150,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
       }
 
       // Mount
-      if (!instance.host.$mounted) {
+      if (!instance.host.$mounted()) {
         instance.host[PROPS].$mounted.set(true);
         tick();
 
@@ -174,7 +180,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
     disconnectedCallback() {
       const instance = this._instance;
 
-      if (!instance?.host.$connected || this._destroyed) return;
+      if (!instance?.host.$connected() || this._destroyed) return;
 
       instance.host[PROPS].$connected.set(false);
       tick();
@@ -228,7 +234,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
 
       for (const name of Object.keys($attrs!)) {
         if (isFunction($attrs![name])) {
-          effect(() => void setAttribute(this, name, ($attrs![name] as Function)()));
+          effect(() => setAttribute(this, name, ($attrs![name] as Function)()));
         } else {
           setAttribute(this, name, $attrs![name]);
         }
@@ -236,7 +242,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
 
       for (const name of Object.keys($styles!)) {
         if (isFunction($styles![name])) {
-          effect(() => void setStyle(this, name, ($styles![name] as Function)()));
+          effect(() => setStyle(this, name, ($styles![name] as Function)()));
         } else {
           setStyle(this, name, $styles![name]);
         }
@@ -255,14 +261,14 @@ export function createHTMLElement<T extends AnyCustomElement>(
         scoped(attachCallback, instance[SCOPE]);
       }
 
-      if (reflectedProps.size) {
+      if (reflectedProps) {
         scoped(() => {
           // Reflected props.
-          for (const propName of reflectedProps) {
-            const attrName = propToAttr.get(propName)!;
-            const convert = propDefs[propName]!.type?.to;
+          for (const propName of reflectedProps!) {
+            const attrName = propToAttr!.get(propName)!;
+            const convert = definition.props![propName]!.type?.to;
             effect(() => {
-              const propValue = instance![PROPS][propName];
+              const propValue = instance![PROPS][propName]();
               setAttribute(this, attrName, convert ? convert(propValue) : propValue);
             });
           }
@@ -288,11 +294,13 @@ export function createHTMLElement<T extends AnyCustomElement>(
     }
 
     onEventDispatch(callback: (eventType: string) => void) {
-      for (const eventType of dispatchedEvents) callback(eventType);
+      if (dispatchedEvents) for (const eventType of dispatchedEvents) callback(eventType);
       this._onEventDispatch = callback;
     }
 
     override dispatchEvent(event: Event): boolean {
+      if (!dispatchedEvents) dispatchedEvents = new Set();
+
       if (!dispatchedEvents.has(event.type)) {
         this._onEventDispatch?.(event.type);
         dispatchedEvents.add(event.type);
@@ -346,13 +354,15 @@ export function createHTMLElement<T extends AnyCustomElement>(
     private _resolvePropsFromAttrs() {
       const props = {} as Partial<Props>;
 
-      for (const attrName of attrToProp.keys()) {
-        if (this.hasAttribute(attrName)) {
-          const propName = attrToProp.get(attrName)! as keyof Props;
-          const convert = propDefs[propName].type?.from;
-          if (convert) {
-            const attrValue = this.getAttribute(attrName);
-            props[propName] = convert(attrValue);
+      if (attrToProp) {
+        for (const attrName of attrToProp.keys()) {
+          if (this.hasAttribute(attrName)) {
+            const propName = attrToProp.get(attrName)! as keyof Props;
+            const convert = definition.props![propName].type?.from;
+            if (convert) {
+              const attrValue = this.getAttribute(attrName);
+              props[propName] = convert(attrValue);
+            }
           }
         }
       }

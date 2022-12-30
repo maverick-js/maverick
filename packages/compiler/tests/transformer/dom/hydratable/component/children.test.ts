@@ -7,7 +7,7 @@ it('should compile component with text children', () => {
   expect(result).toMatchInlineSnapshot(`
     "import { $$_create_component } from \\"maverick.js/dom\\";
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return \\"foo 10 bar 20 baz\\";
       },
     })"
@@ -21,7 +21,7 @@ it('should compile component with element children', () => {
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div>Foo<!$></div>\`);
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         const [$$_root, $$_walker] = $$_create_walker($$_templ),
           $$_expr = $$_walker.nextNode();
 
@@ -41,7 +41,7 @@ it('should compile component with props and children', () => {
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
     $$_create_component(Component, {
       foo: id,
-      get $children() {
+      $children() {
         return $$_next_template($$_templ);
       },
     })"
@@ -66,7 +66,7 @@ it('should compile component child fragment', () => {
       $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<!$><div id=\\"bar\\"><!$></div>\`);
 
     $$_create_component(Component, {
-      get $children() {
+      $children() {
         return [
           (() => {
             const [$$_root, $$_walker] = $$_create_walker($$_templ),

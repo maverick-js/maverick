@@ -1,21 +1,20 @@
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import { createUnplugin } from 'unplugin';
 
-import { transform, type TransformOptions } from '../transformer';
+import { transform, TransformFeatures, type TransformOptions } from '../transformer';
 import type { LogLevelName } from '../utils/logger';
 import { isUndefined } from '../utils/unit';
 
-export type ResolvedOptions = {
+export interface ResolvedOptions extends TransformFeatures {
   logLevel: LogLevelName;
   include: FilterPattern;
   exclude: FilterPattern;
   /** Filter files that should be logged verbosely. */
   debug: FilterPattern | undefined;
   hydratable: boolean | ((id: string) => boolean | null) | null;
-  delegateEvents: boolean;
   pretty: boolean | null;
   generate: TransformOptions['generate'] | null;
-};
+}
 
 export type Options = Partial<ResolvedOptions>;
 
@@ -29,13 +28,23 @@ function resolveOptions(options: Options): ResolvedOptions {
     generate: null,
     pretty: null,
     delegateEvents: false,
+    groupDOMEffects: false,
     ...options,
   };
 }
 
 export const unplugin = createUnplugin((options: Options = {}) => {
-  let { logLevel, include, exclude, debug, hydratable, generate, pretty, delegateEvents } =
-    resolveOptions(options);
+  let {
+    logLevel,
+    include,
+    exclude,
+    debug,
+    hydratable,
+    generate,
+    pretty,
+    delegateEvents,
+    groupDOMEffects,
+  } = resolveOptions(options);
 
   const filter = createFilter(include, exclude);
   const debugFilter = !isUndefined(debug) ? createFilter(debug) : null;
@@ -46,9 +55,10 @@ export const unplugin = createUnplugin((options: Options = {}) => {
       filename,
       hydratable: (typeof hydratable === 'boolean' ? hydratable : hydratable?.(filename)) ?? ssr,
       generate: generate ?? (ssr ? 'ssr' : 'dom'),
+      sourcemap: true,
       pretty: pretty ?? true,
       delegateEvents,
-      sourcemap: true,
+      groupDOMEffects,
     });
 
   return {

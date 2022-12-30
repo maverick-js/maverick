@@ -16,30 +16,33 @@ import { parseJSX } from './jsx/parse-jsx';
 import { overwrite } from './jsx/utils';
 import { ssr } from './ssr';
 
-export type TransformOptions = {
+export interface TransformOptions extends TransformFeatures {
   logLevel: LogLevelName;
   filename: string;
   hydratable: boolean;
   pretty: boolean;
   sourcemap: boolean | SourceMapOptions;
   generate: 'dom' | 'ssr' | false;
-  delegateEvents: boolean;
-};
+}
 
-export type TransformContext = {
+export interface TransformContext extends TransformFeatures {
   scoped: boolean;
   fragment?: boolean;
   globals: Declarations;
   runtime: Set<string>;
   events: Set<string>;
   hydratable: boolean;
-  delegateEvents: boolean;
-};
+}
 
-export type ASTSerializer = {
+export interface TransformFeatures {
+  delegateEvents: boolean;
+  groupDOMEffects: boolean;
+}
+
+export interface ASTSerializer {
   name: string;
   serialize(ast: AST, context: TransformContext): string;
-};
+}
 
 export function transform(source: string, options: Partial<TransformOptions> = {}) {
   const {
@@ -50,6 +53,7 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     hydratable = false,
     logLevel = 'warn',
     delegateEvents = false,
+    groupDOMEffects = false,
   } = options;
 
   const SSR = generate === 'ssr';
@@ -72,6 +76,7 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     events: new Set(),
     hydratable,
     delegateEvents,
+    groupDOMEffects,
   };
 
   const serialize = (SSR ? ssr : dom).serialize;

@@ -109,6 +109,7 @@ export const dom: ASTSerializer = {
     let skip = -1,
       initRoot = false,
       innerHTML = false,
+      textContent = false,
       childrenFragment = false,
       currentId!: string,
       component!: ElementNode | undefined,
@@ -122,6 +123,7 @@ export const dom: ASTSerializer = {
       styles: string[] = [],
       spreads: string[] = [],
       expressions: string[] = [],
+      groupedEffects: string[] = [],
       template: string[] = [],
       elements: ElementNode[] = [],
       locals = new Declarations(),
@@ -182,17 +184,17 @@ export const dom: ASTSerializer = {
       },
       addAttrExpression = (node: AttributeNode, runtimeId: string, name: string = node.name) => {
         if (node.observable) {
-          expressions.push(
-            createFunctionCall(RUNTIME.effect, [
-              `() => ${createFunctionCall(runtimeId, [
-                currentId,
-                createStringLiteral(name),
-                node.value,
-              ])}`,
-            ]),
-          );
-
-          ctx.runtime.add(RUNTIME.effect);
+          const expression = createFunctionCall(runtimeId, [
+            currentId,
+            createStringLiteral(name),
+            node.value,
+          ]);
+          if (ctx.groupDOMEffects) {
+            groupedEffects.push(expression);
+          } else {
+            expressions.push(createFunctionCall(RUNTIME.effect, [`() => ${expression}`]));
+            ctx.runtime.add(RUNTIME.effect);
+          }
         } else {
           expressions.push(
             createFunctionCall(runtimeId, [currentId, createStringLiteral(name), node.value]),
@@ -355,7 +357,12 @@ export const dom: ASTSerializer = {
           } else {
             const element = elements.pop();
             if (element) {
-              template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
+              if (textContent) {
+                template.push(' ');
+                textContent = false;
+              }
+
+              if (!element.isVoid) template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
             }
           }
 
@@ -447,12 +454,25 @@ export const dom: ASTSerializer = {
               expressions.push(createFunctionCall(RUNTIME.innerHTML, [currentId, node.value]));
               ctx.runtime.add(RUNTIME.innerHTML);
             } else if (node.observable) {
-              expressions.push(
-                createFunctionCall(RUNTIME.effect, [
-                  `() => void (${currentId}.${node.name} = ${node.value})`,
-                ]),
-              );
-              ctx.runtime.add(RUNTIME.effect);
+              if (ctx.groupDOMEffects) {
+                if (node.name === 'textContent') {
+                  textContent = true;
+                  groupedEffects.push(
+                    `${getElementId([...hierarchy, 0, 0], elementIds, locals)}.data = ${
+                      node.value
+                    }`,
+                  );
+                } else {
+                  groupedEffects.push(`${currentId}.${node.name} = ${node.value}`);
+                }
+              } else {
+                expressions.push(
+                  createFunctionCall(RUNTIME.effect, [
+                    `() => void (${currentId}.${node.name} = ${node.value})`,
+                  ]),
+                );
+                ctx.runtime.add(RUNTIME.effect);
+              }
             } else {
               expressions.push(`${currentId}.${node.name} = ${node.value};`);
             }
@@ -559,6 +579,13 @@ export const dom: ASTSerializer = {
     } else if (templateId) {
       ctx.globals.update(templateId, createFunctionCall(RUNTIME.createFragment));
       ctx.runtime.add(RUNTIME.createFragment);
+    }
+
+    if (groupedEffects.length) {
+      expressions.push(
+        createFunctionCall(RUNTIME.effect, [`() => { ${groupedEffects.join(';')} }`]),
+      );
+      ctx.runtime.add(RUNTIME.effect);
     }
 
     if (locals.size > 1 || expressions.length) {

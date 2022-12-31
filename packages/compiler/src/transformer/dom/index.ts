@@ -362,7 +362,7 @@ export const dom: ASTSerializer = {
                 textContent = false;
               }
 
-              if (!element.isVoid) template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
+              template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
             }
           }
 

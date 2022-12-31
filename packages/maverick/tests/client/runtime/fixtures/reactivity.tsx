@@ -16,7 +16,7 @@ export function InputField(props: InputFieldProps) {
   return (
     <div>
       <span>Count is {$value()}</span>
-      <input type="number" $prop:value={$value} $on:next={next} />
+      <input type="number" $prop:value={$value()} $on:next={next} />
     </div>
   );
 }

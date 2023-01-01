@@ -9,7 +9,7 @@ const DOM_EVENT = Symbol('DOM_EVENT'),
 
 export interface DOMEventInit<Detail = unknown> extends EventInit {
   readonly detail: Detail;
-  readonly triggerEvent?: Event;
+  readonly trigger?: Event;
 }
 
 export class DOMEvent<Detail = unknown> extends DOMEventBase {
@@ -23,10 +23,10 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
   /**
    * The preceding event that was responsible for this event being fired.
    */
-  readonly triggerEvent?: Event;
+  readonly trigger?: Event;
 
   /**
-   * Walks up the event chain (following each `triggerEvent`) and returns the origin event
+   * Walks up the event chain (following each `trigger`) and returns the origin event
    * that started the chain.
    */
   get originEvent() {
@@ -34,7 +34,7 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
   }
 
   /**
-   * Walks up the event chain (following each `triggerEvent`) and determines whether the initial
+   * Walks up the event chain (following each `trigger`) and determines whether the initial
    * event was triggered by the end user (ie: check whether `isTrusted` on the `originEvent` `true`).
    */
   get isOriginTrusted() {
@@ -49,7 +49,7 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
   ) {
     super(type, init[0]);
     this.detail = init[0]?.detail!;
-    this.triggerEvent = init[0]?.triggerEvent;
+    this.trigger = init[0]?.trigger;
   }
 }
 
@@ -84,17 +84,17 @@ export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {
 }
 
 /**
- * Walks up the event chain (following each `triggerEvent`) and returns the origin event that
+ * Walks up the event chain (following each `trigger`) and returns the origin event that
  * started the chain.
  */
 export function getOriginEvent(event: DOMEvent): Event | undefined {
-  let triggerEvent = event.triggerEvent as DOMEvent;
+  let trigger = event.trigger as DOMEvent;
 
-  while (triggerEvent && triggerEvent.triggerEvent) {
-    triggerEvent = triggerEvent.triggerEvent as DOMEvent;
+  while (trigger && trigger.trigger) {
+    trigger = trigger.trigger as DOMEvent;
   }
 
-  return triggerEvent;
+  return trigger;
 }
 
 /**
@@ -110,12 +110,12 @@ export function walkTriggerEventChain<T>(
 ): [event: Event, value: NonNullable<T>] | undefined {
   if (!isDOMEvent(event)) return;
 
-  let triggerEvent = event.triggerEvent as DOMEvent;
+  let trigger = event.trigger as DOMEvent;
 
-  while (triggerEvent) {
-    const returnValue = callback(triggerEvent);
-    if (returnValue) return [triggerEvent, returnValue];
-    triggerEvent = triggerEvent.triggerEvent as DOMEvent;
+  while (trigger) {
+    const returnValue = callback(trigger);
+    if (returnValue) return [trigger, returnValue];
+    trigger = trigger.trigger as DOMEvent;
   }
 
   return;
@@ -142,38 +142,38 @@ export function hasTriggerEvent(event: Event, type: string): boolean {
 }
 
 /**
- * Appends the given `triggerEvent` to the event chain. This means the new origin event will be
- * the origin of the given `triggerEvent`, or the `triggerEvent` itself (if no chain exists on the
+ * Appends the given `trigger` to the event chain. This means the new origin event will be
+ * the origin of the given `trigger`, or the `trigger` itself (if no chain exists on the
  * trigger).
  *
  * @param event - The event on which to extend the trigger event chain.
- * @param triggerEvent - The trigger event that will becoming the new origin event.
+ * @param trigger - The trigger event that will becoming the new origin event.
  */
-export function appendTriggerEvent(event: DOMEvent, triggerEvent?: Event) {
+export function appendTriggerEvent(event: DOMEvent, trigger?: Event) {
   const origin = (getOriginEvent(event) as DOMEvent) ?? event;
 
-  if (origin === triggerEvent) {
+  if (origin === trigger) {
     throw Error(
       __DEV__ ? '[maverick] attemping to append event as a trigger on itself (cyclic)' : '',
     );
   }
 
-  if (__DEV__ && typeof origin.triggerEvent !== 'undefined') {
+  if (__DEV__ && typeof origin.trigger !== 'undefined') {
     console.warn(
-      `[maverick] overwriting existing trigger event: \`${origin.triggerEvent.type}\` -> \`${triggerEvent?.type}\`\n\n`,
+      `[maverick] overwriting existing trigger event: \`${origin.trigger.type}\` -> \`${trigger?.type}\`\n\n`,
       'Event:\n',
       event,
       'Origin Event:\n',
       origin,
       'Trigger Event:\n',
-      triggerEvent,
+      trigger,
     );
   }
 
-  Object.defineProperty(origin, 'triggerEvent', {
+  Object.defineProperty(origin, 'trigger', {
     enumerable: true,
     configurable: true,
-    get: () => triggerEvent,
+    get: () => trigger,
   });
 }
 

@@ -1,3 +1,21 @@
+# [0.23.0](https://github.com/maverick-js/maverick/compare/v0.22.3...v0.23.0) (2023-01-01)
+
+
+### Bug Fixes
+
+* auto-unwrap JSX $children ([3198466](https://github.com/maverick-js/maverick/commit/31984664343f349a7a752933185a5b541733c8ee))
+* regression dom transformer close element tags ([1b7f4cb](https://github.com/maverick-js/maverick/commit/1b7f4cbd847329dd5d7990e4bf61b8b3c8483f09))
+* remove props getters and forward props as-is ([f2f4006](https://github.com/maverick-js/maverick/commit/f2f40066ca1057a8a290d370f83d9eb26b22d4cf))
+
+
+### Features
+
+* bump `@maverick-js/signals` to `5.3.0` ([899aa88](https://github.com/maverick-js/maverick/commit/899aa8863f87606312fcf5a20b3fa2fae2e7242a))
+* bump `@maverick-js/signals` to `5.4.0` ([e2c7c86](https://github.com/maverick-js/maverick/commit/e2c7c86e6b88b06b4babd54fdff27e937bb8092e))
+* new `groupDOMEffects` transform option ([fd0494c](https://github.com/maverick-js/maverick/commit/fd0494ca0fc9e9aadada25119717800cdcbe7995))
+
+
+
 ## [0.22.3](https://github.com/maverick-js/maverick/compare/v0.22.2...v0.22.3) (2022-12-28)
 
 

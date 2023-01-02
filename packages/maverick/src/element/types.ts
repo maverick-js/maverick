@@ -1,4 +1,4 @@
-import type { Constructor, KebabCase, Simplify } from 'type-fest';
+import type { Constructor, Simplify } from 'type-fest';
 
 import type {
   ContextMap,
@@ -288,20 +288,15 @@ export interface CustomElementHost<T extends AnyCustomElement = AnyCustomElement
    * This method is used to satisfy the CSS variables contract specified on the current
    * custom element definition. Other CSS variables can be set via the `setStyles` method.
    */
-  setCSSVars(vars: HostCSSVarsRecord<InferCustomElementCSSProps<T>>): void;
+  setCSSVars(vars: CSSVarsRecord<InferCustomElementCSSProps<T>>): void;
 }
 
-export type AttributesRecord = JSX.LowercasedSignalAttributes<JSX.HTMLProperties> &
-  JSX.ARIAAttributes & { [attrName: string]: JSX.AttrValue | ReadSignal<JSX.AttrValue> };
+export interface AttributesRecord extends JSX.HTMLAttrs, JSX.ARIAAttributes, JSX.AttrsRecord {}
 
-export type StylesRecord = {
-  [Prop in keyof JSX.CSSProperties as KebabCase<Prop & string>]:
-    | JSX.CSSProperties[Prop]
-    | ReadSignal<JSX.CSSProperties[Prop]>;
-};
+export interface StylesRecord extends JSX.CSSStyles {}
 
-export type HostCSSVarsRecord<CSSVars> = {
-  [Var in keyof CSSVars as `--${Var & string}`]: CSSVars[Var] | ReadSignal<CSSVars[Var]>;
+export type CSSVarsRecord<CSSVars> = {
+  [Var in keyof CSSVars as `--${Var & string}`]: JSX.Observable<CSSVars[Var]>;
 };
 
 // Conditional checks are simply ensuring props and setup are only required when needed.

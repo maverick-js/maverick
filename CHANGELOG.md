@@ -1,3 +1,12 @@
+## [0.23.4](https://github.com/maverick-js/maverick/compare/v0.23.3...v0.23.4) (2023-01-02)
+
+
+### Bug Fixes
+
+* improve element attrs/style types ([29da1a7](https://github.com/maverick-js/maverick/commit/29da1a782ceb28e73629e9f02d413ed0d076ba91))
+
+
+
 ## [0.23.3](https://github.com/maverick-js/maverick/compare/v0.23.2...v0.23.3) (2023-01-02)
 
 

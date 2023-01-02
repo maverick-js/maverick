@@ -1,3 +1,13 @@
+## [0.23.1](https://github.com/maverick-js/maverick/compare/v0.23.0...v0.23.1) (2023-01-02)
+
+
+### Bug Fixes
+
+* bump `@maverick-js/signals` to `5.4.1` ([74ffdd1](https://github.com/maverick-js/maverick/commit/74ffdd1cf5f3ec4aa5d26178ab24f868a2e8af09))
+* rename `triggerEvent` -> `trigger` ([74549ef](https://github.com/maverick-js/maverick/commit/74549ef56a8d5352ac87cf9941ea6399df214bb3))
+
+
+
 # [0.23.0](https://github.com/maverick-js/maverick/compare/v0.22.3...v0.23.0) (2023-01-01)
 
 

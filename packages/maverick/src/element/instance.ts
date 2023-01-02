@@ -36,7 +36,7 @@ export function createElementInstance<T extends AnyCustomElement>(
 
     let accessors: Props | null = null,
       destroyed = false,
-      props = 'props' in definition ? createInstanceProps(definition.props) : ({} as Props),
+      $props = 'props' in definition ? createInstanceProps(definition.props) : {},
       $connected = signal(false),
       $mounted = signal(false),
       $attrs = {},
@@ -46,7 +46,7 @@ export function createElementInstance<T extends AnyCustomElement>(
 
     if (init.props && 'props' in definition) {
       for (const prop of Object.keys(init.props)) {
-        if (prop in definition.props) props[prop].set(init.props[prop]!);
+        if (prop in definition.props) $props['$' + prop].set(init.props[prop]!);
       }
     }
 
@@ -70,14 +70,14 @@ export function createElementInstance<T extends AnyCustomElement>(
 
     const instance: Writable<CustomElementInstance> = {
       host,
-      props: props,
+      props: $props,
       [SCOPE]: getScope()!,
-      [PROPS]: props,
+      [PROPS]: $props,
       [ATTACH]: [],
       [CONNECT]: [],
       [MOUNT]: [],
       [DESTROY]: [],
-      accessors: () => (accessors ??= createAccessors(props) as Props),
+      accessors: () => (accessors ??= createAccessors($props) as Props),
       destroy() {
         if (destroyed) return;
 
@@ -144,7 +144,7 @@ function createInstanceProps<Props>(propDefs: CustomElementPropDefinitions<Props
 
   for (const name of Object.keys(propDefs) as (keyof Props)[]) {
     const def = propDefs![name];
-    props[name] = signal((def as any).initial, def);
+    props['$' + (name as string)] = signal((def as any).initial, def);
   }
 
   return props;

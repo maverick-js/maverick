@@ -100,7 +100,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
       if (!this._instance || !attrToProp) return;
       const propName = attrToProp.get(name)! as keyof Props;
       const from = definition.props![propName]?.type?.from;
-      if (from) this._instance[PROPS][propName].set(from(newValue));
+      if (from) this._instance[PROPS]['$' + (propName as string)].set(from(newValue));
     }
 
     connectedCallback() {
@@ -268,7 +268,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
             const attrName = propToAttr!.get(propName)!;
             const convert = definition.props![propName]!.type?.to;
             effect(() => {
-              const propValue = instance![PROPS][propName]();
+              const propValue = instance![PROPS]['$' + propName]();
               setAttribute(this, attrName, convert ? convert(propValue) : propValue);
             });
           }

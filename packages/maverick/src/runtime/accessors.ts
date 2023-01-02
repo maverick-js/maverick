@@ -1,11 +1,11 @@
 import type { WriteSignal } from '@maverick-js/signals';
 
-import type { ReadSignals, SignalAccessors } from './types';
+import type { ReadSignalRecord, SignalAccessorRecord } from './types';
 
-export function createAccessors<Record extends ReadSignals>(
+export function createAccessors<Record extends ReadSignalRecord>(
   record: Record,
-): SignalAccessors<Record> {
-  const accessors = {} as SignalAccessors<Record>;
+): SignalAccessorRecord<Record> {
+  const accessors = {} as SignalAccessorRecord<Record>;
 
   for (const name of Object.keys(record)) {
     Object.defineProperty(accessors, name, {

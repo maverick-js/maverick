@@ -25,15 +25,23 @@ export type VoidComponentProps<Props = {}> = ComponentProps<Props>;
 
 export interface VoidComponent<Props = {}> extends Component<VoidComponentProps<Props>> {}
 
-export type ReadSignals<Props = Record<string, any>> = {
-  [Prop in keyof Props]: ReadSignal<Props[Prop]>;
+export type Signals<Props = Record<string, any>> = {
+  [Prop in keyof Props as `$${Prop & string}`]: ReadSignal<Props[Prop]>;
 };
 
 export type WriteSignals<Props = Record<string, any>> = {
+  [Prop in keyof Props as `$${Prop & string}`]: WriteSignal<Props[Prop]>;
+};
+
+export type ReadSignalRecord<Props = Record<string, any>> = {
+  [Prop in keyof Props]: ReadSignal<Props[Prop]>;
+};
+
+export type WriteSignalRecord<Props = Record<string, any>> = {
   [Prop in keyof Props]: WriteSignal<Props[Prop]>;
 };
 
-export type SignalAccessors<T> = {
+export type SignalAccessorRecord<T> = {
   [P in keyof ConditionalPick<T, WriteSignal<any>>]: InferSignalValue<T[P]>;
 } & {
   readonly [P in keyof ConditionalExcept<T, WriteSignal<any>>]: InferSignalValue<T[P]>;

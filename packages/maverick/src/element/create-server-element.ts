@@ -87,7 +87,7 @@ export function createServerElement<T extends AnyCustomElement>(
       for (const propName of reflectedProps.keys()) {
         const convert = propDefs[propName]!.type?.to;
         const attrName = reflectedProps.get(propName)!;
-        const propValue = instance.props[propName]();
+        const propValue = instance.props['$' + propName]();
         const attrValue = convert ? convert(propValue) : propValue;
         setAttribute(
           this,

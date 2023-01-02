@@ -13,11 +13,11 @@ it('should create props', () => {
 
   const instance = createElementInstance(definition);
 
-  expect(instance.props.foo()).toBe(10);
-  expect(instance.props.bar()).toBe(20);
+  expect(instance.props.$foo()).toBe(10);
+  expect(instance.props.$bar()).toBe(20);
 
-  expect(instance[PROPS].foo()).toBe(10);
-  expect(instance[PROPS].bar()).toBe(20);
+  expect(instance[PROPS].$foo()).toBe(10);
+  expect(instance[PROPS].$bar()).toBe(20);
 });
 
 it('should forward props', () => {
@@ -36,8 +36,8 @@ it('should forward props', () => {
     },
   });
 
-  expect(instance.props.foo()).toBe(20);
-  expect(instance.props.bar()).toBe(40);
+  expect(instance.props.$foo()).toBe(20);
+  expect(instance.props.$bar()).toBe(40);
 });
 
 it('should forward context map', () => {

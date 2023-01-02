@@ -46,7 +46,7 @@ it('should observe attributes', () => {
 
   element.attachComponent(instance);
   element.setAttribute('foo', '10');
-  expect(element.foo()).toBe(10);
+  expect(element.$foo()).toBe(10);
 });
 
 it('should reflect props', () => {
@@ -59,12 +59,12 @@ it('should reflect props', () => {
   element.attachComponent(instance);
 
   expect(element.getAttribute('foo')).toBe('100');
-  instance[PROPS].foo.set(200);
+  instance[PROPS].$foo.set(200);
 
   tick();
   expect(element.getAttribute('foo')).toBe('200');
 
-  instance[PROPS].foo.set(null);
+  instance[PROPS].$foo.set(null);
   tick();
   expect(element.hasAttribute('foo')).toBe(false);
 });

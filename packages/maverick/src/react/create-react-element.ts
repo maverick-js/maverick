@@ -107,14 +107,14 @@ function createReactClientElement<
       const { __forwardedRef, className, children, ...restProps } = this.props;
 
       const props = { class: className, ref: this._ref };
-      const $$props = this._instance[PROPS];
+      const $props = this._instance[PROPS];
 
       for (const prop of Object.keys(restProps)) {
         const value = restProps[prop];
         if (eventCallbacks.has(prop)) {
           this._updateEventListener(eventCallbacks.get(prop)!, value);
         } else if (definedProps.has(prop)) {
-          $$props[prop].set(value);
+          $props['$' + prop].set(value);
         } else {
           props[prop] = value;
         }

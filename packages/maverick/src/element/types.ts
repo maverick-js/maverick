@@ -4,9 +4,9 @@ import type {
   ContextMap,
   JSX,
   ReadSignal,
-  ReadSignals,
   Scope,
   SignalOptions,
+  Signals,
   WriteSignal,
   WriteSignals,
 } from '../runtime';
@@ -219,10 +219,9 @@ export interface CustomElementInstance<T extends AnyCustomElement = AnyCustomEle
    */
   readonly host: CustomElementHost<T>;
   /**
-   * Component properties where each value is a readonly signal. Do note destructure this
-   * object because it will result in a loss of reactivity.
+   * Component properties where each value is a readonly signal.
    */
-  readonly props: ReadSignals<InferCustomElementProps<T>>;
+  readonly props: Signals<InferCustomElementProps<T>>;
   /**
    * Returns get/set accessors for all defined properties on this element instance. This method
    * should only be used for exposing properties as members on the HTML element so consumers can
@@ -241,8 +240,8 @@ export interface CustomElementInstance<T extends AnyCustomElement = AnyCustomEle
 export interface CustomElementHost<T extends AnyCustomElement = AnyCustomElement> {
   /** @internal */
   [PROPS]: {
-    $attrs: HostAttributesRecord | null;
-    $styles: HostStylesRecord | null;
+    $attrs: AttributesRecord | null;
+    $styles: StylesRecord | null;
     $connected: WriteSignal<boolean>;
     $mounted: WriteSignal<boolean>;
   };
@@ -279,12 +278,12 @@ export interface CustomElementHost<T extends AnyCustomElement = AnyCustomElement
    * This method can be used to specify attributes that should be set on the host element. Any
    * attributes that are assigned to a function will be considered a signal and updated accordingly.
    */
-  setAttributes(attributes: HostAttributesRecord): void;
+  setAttributes(attributes: AttributesRecord): void;
   /**
    * This method can be used to specify styles that should set be set on the host element. Any
    * styles that are assigned to a function will be considered a signal and updated accordingly.
    */
-  setStyles(styles: HostStylesRecord): void;
+  setStyles(styles: StylesRecord): void;
   /**
    * This method is used to satisfy the CSS variables contract specified on the current
    * custom element definition. Other CSS variables can be set via the `setStyles` method.
@@ -292,10 +291,10 @@ export interface CustomElementHost<T extends AnyCustomElement = AnyCustomElement
   setCSSVars(vars: HostCSSVarsRecord<InferCustomElementCSSProps<T>>): void;
 }
 
-export type HostAttributesRecord = JSX.LowercasedSignalAttributes<JSX.HTMLProperties> &
+export type AttributesRecord = JSX.LowercasedSignalAttributes<JSX.HTMLProperties> &
   JSX.ARIAAttributes & { [attrName: string]: JSX.AttrValue | ReadSignal<JSX.AttrValue> };
 
-export type HostStylesRecord = {
+export type StylesRecord = {
   [Prop in keyof JSX.CSSProperties as KebabCase<Prop & string>]:
     | JSX.CSSProperties[Prop]
     | ReadSignal<JSX.CSSProperties[Prop]>;

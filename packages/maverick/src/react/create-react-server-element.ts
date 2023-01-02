@@ -17,8 +17,8 @@ export function createReactServerElement(definition: CustomElementDefinition): a
   return ({ className, style, ...props }: any = {}) => {
     const host = new ServerElement();
 
-    const $attrs: Record<string, any> = {};
-    const $props: Record<string, any> = {};
+    const _attrs: Record<string, any> = {};
+    const _props: Record<string, any> = {};
 
     if (className) {
       host.setAttribute('class', className + '');
@@ -32,9 +32,9 @@ export function createReactServerElement(definition: CustomElementDefinition): a
 
     for (const prop of Object.keys(props)) {
       if (prop in propDefs) {
-        $props[prop] = props[prop];
+        _props[prop] = props[prop];
       } else {
-        $attrs[prop] = props[prop];
+        _attrs[prop] = props[prop];
       }
     }
 
@@ -42,7 +42,7 @@ export function createReactServerElement(definition: CustomElementDefinition): a
     const contextMap = providedContextMap ?? new Map();
 
     const instance = createElementInstance(definition, {
-      props: $props,
+      props: _props,
       context: contextMap,
     });
 
@@ -51,10 +51,10 @@ export function createReactServerElement(definition: CustomElementDefinition): a
     const innerHTML = host.renderInnerHTML();
 
     if (host.hasAttribute('style')) {
-      $attrs.style = {};
+      _attrs.style = {};
 
       for (const [name, value] of host.style.tokens) {
-        $attrs.style[name.startsWith('--') ? name : kebabToCamelCase(name)] = value;
+        _attrs.style[name.startsWith('--') ? name : kebabToCamelCase(name)] = value;
       }
 
       host.removeAttribute('style');
@@ -66,7 +66,7 @@ export function createReactServerElement(definition: CustomElementDefinition): a
       React.createElement(
         definition.tagName,
         {
-          ...$attrs,
+          ..._attrs,
           ...Object.fromEntries(host.attributes.tokens),
           'mk-d': '',
           'mk-h': '',

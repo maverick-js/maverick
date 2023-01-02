@@ -1,3 +1,12 @@
+## [0.23.3](https://github.com/maverick-js/maverick/compare/v0.23.2...v0.23.3) (2023-01-02)
+
+
+### Bug Fixes
+
+* prefix host element prop signals with `$` ([5f0c4e8](https://github.com/maverick-js/maverick/commit/5f0c4e8e60d298a6f574dc5f94883df22c703c4f))
+
+
+
 ## [0.23.2](https://github.com/maverick-js/maverick/compare/v0.23.1...v0.23.2) (2023-01-02)
 
 

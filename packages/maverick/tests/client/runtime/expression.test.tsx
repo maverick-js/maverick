@@ -1,5 +1,6 @@
 import { signal, tick } from '@maverick-js/signals';
-import { render } from 'maverick.js';
+
+import { render } from 'maverick.js/dom';
 
 it('should render expression', () => {
   const count = signal(0);

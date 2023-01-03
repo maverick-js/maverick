@@ -11,7 +11,7 @@ import {
 } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
-import { hydration, Hydrator, Renderer } from '../runtime';
+import { hydration, Hydrator, Renderer } from '../runtime/dom';
 import { $$_create_element } from '../runtime/dom/internal';
 import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';

@@ -1,5 +1,6 @@
-import { CustomElement, hydrate, signal, tick } from 'maverick.js';
+import { CustomElement, signal, tick } from 'maverick.js';
 
+import { hydrate } from 'maverick.js/dom';
 import { defineCustomElement } from 'maverick.js/element';
 
 import { startMarker } from '../utils';

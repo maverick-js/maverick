@@ -1,7 +1,7 @@
 import type { Writable } from 'type-fest';
 
-import { renderToString, scoped, tick } from '../runtime';
-import { parseClassAttr, parseStyleAttr } from '../runtime/ssr';
+import { scoped, tick } from '../runtime';
+import { parseClassAttr, parseStyleAttr, renderToString } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
 import { escape } from '../std/html';
 import { unwrapDeep } from '../std/signal';

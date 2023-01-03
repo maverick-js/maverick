@@ -13,7 +13,7 @@ export function renderToString<T>(root: () => T) {
 }
 
 /** @internal */
-export const SSR_TEMPLATE = Symbol();
+export const SSR_TEMPLATE = /* #__PURE__ */ Symbol();
 
 export function resolve(node: unknown): string {
   if (isFunction(node)) {

@@ -1,5 +1,6 @@
-import { CustomElement, HostElement, render, signal, tick } from 'maverick.js';
+import { CustomElement, HostElement, signal, tick } from 'maverick.js';
 
+import { render } from 'maverick.js/dom';
 import { defineCustomElement } from 'maverick.js/element';
 
 it.skip('should render attributes', () => {

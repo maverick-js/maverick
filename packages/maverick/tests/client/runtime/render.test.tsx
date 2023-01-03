@@ -1,4 +1,6 @@
-import { render, signal, tick } from 'maverick.js';
+import { signal, tick } from 'maverick.js';
+
+import { render } from 'maverick.js/dom';
 
 import { Element, Fragment } from './fixtures/primitives';
 import { InputField } from './fixtures/reactivity';

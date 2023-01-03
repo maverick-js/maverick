@@ -1,4 +1,6 @@
-import { ForKeyed, render, signal, tick } from 'maverick.js';
+import { ForKeyed, signal, tick } from 'maverick.js';
+
+import { render } from 'maverick.js/dom';
 
 it('should render keyed loop', () => {
   const source = signal([{ id: 'a' }, { id: 'b' }, { id: 'c' }]);

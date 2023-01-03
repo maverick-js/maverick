@@ -1,4 +1,6 @@
-import { hydrate, type ParentComponent, signal, tick } from 'maverick.js';
+import { type ParentComponent, signal, tick } from 'maverick.js';
+
+import { hydrate } from 'maverick.js/dom';
 
 import { element, startMarker, text } from '../utils';
 

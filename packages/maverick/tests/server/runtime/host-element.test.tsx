@@ -1,6 +1,7 @@
-import { CustomElement, HostElement, renderToString } from 'maverick.js';
+import { CustomElement, HostElement } from 'maverick.js';
 
 import { defineCustomElement } from 'maverick.js/element';
+import { renderToString } from 'maverick.js/ssr';
 
 it('should render attributes', () => {
   const element = defineCustomElement({

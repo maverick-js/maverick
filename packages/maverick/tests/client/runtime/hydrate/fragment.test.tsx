@@ -1,5 +1,6 @@
 import { signal, tick } from '@maverick-js/signals';
-import { hydrate } from 'maverick.js';
+
+import { hydrate } from 'maverick.js/dom';
 
 import { endArrayMarker, startMarker } from '../utils';
 

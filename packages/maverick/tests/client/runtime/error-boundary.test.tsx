@@ -1,4 +1,6 @@
-import { effect, ErrorBoundary, render, signal, tick } from 'maverick.js';
+import { effect, ErrorBoundary, signal, tick } from 'maverick.js';
+
+import { render } from 'maverick.js/dom';
 
 it('should return children', () => {
   function Component() {

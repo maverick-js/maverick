@@ -17,6 +17,7 @@ export function createFragment() {
 }
 
 export function createComment(data: string) {
+  if (__SERVER__) return data as unknown as Comment;
   return document.createComment(data);
 }
 

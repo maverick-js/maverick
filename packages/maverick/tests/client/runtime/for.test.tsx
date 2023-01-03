@@ -1,4 +1,6 @@
-import { For, render, signal, tick } from 'maverick.js';
+import { For, signal, tick } from 'maverick.js';
+
+import { render } from 'maverick.js/dom';
 
 it('should render non-keyed loop', () => {
   const source = signal([1, 2, 3]);

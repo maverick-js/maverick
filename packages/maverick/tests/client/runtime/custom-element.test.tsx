@@ -1,12 +1,6 @@
-import {
-  createContext,
-  CustomElement,
-  provideContext,
-  render,
-  tick,
-  useContext,
-} from 'maverick.js';
+import { createContext, CustomElement, provideContext, tick, useContext } from 'maverick.js';
 
+import { render } from 'maverick.js/dom';
 import { defineCustomElement } from 'maverick.js/element';
 
 afterEach(() => {

@@ -54,6 +54,26 @@ export class DOMEvent<Detail = unknown> extends DOMEventBase {
 }
 
 /**
+ * Type-safe utility for creating and returning a `DOMEvent` for the given target. Only events
+ * declared on the given `target` are allowed.
+ */
+export function createEvent<
+  Target extends EventTarget,
+  Events = Target extends HTMLCustomElement<any, infer ElementEvents>
+    ? ElementEvents
+    : Record<string, DOMEventInit>,
+  EventType extends keyof Events = keyof Events,
+>(
+  target: Target | null,
+  event: EventType,
+  ...init: InferEventDetail<Events[EventType]> extends void | undefined | never
+    ? [init?: Partial<InferEventInit<Events[EventType]>>]
+    : [init: InferEventInit<Events[EventType]>]
+): Events[EventType] {
+  return new DOMEvent(event as string, init[0] as DOMEventInit) as Events[EventType];
+}
+
+/**
  * Creates a `DOMEvent` and dispatches it from the given `target`. This function is typed to
  * match all events declared on the given `target` (must be a `HTMLCustomElement`).
  */

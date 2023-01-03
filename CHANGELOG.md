@@ -1,3 +1,12 @@
+# [0.24.0](https://github.com/maverick-js/maverick/compare/v0.23.4...v0.24.0) (2023-01-03)
+
+
+### Features
+
+* **std:** add `createEvent` utility ([f2ed9c1](https://github.com/maverick-js/maverick/commit/f2ed9c19b41c84b4d6957ab2c23c3e1db5f9bc2e))
+
+
+
 ## [0.23.4](https://github.com/maverick-js/maverick/compare/v0.23.3...v0.23.4) (2023-01-02)
 
 

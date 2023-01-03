@@ -1,7 +1,7 @@
 import type { Constructor } from 'type-fest';
 
 import type { HTMLCustomElement } from '../element/types';
-import { type Dispose, type JSX, onDispose } from '../runtime';
+import { type Dispose, type JSX, onDispose, ReadSignal } from '../runtime';
 import { noop } from './unit';
 
 const DOM_EVENT = Symbol('DOM_EVENT'),
@@ -64,7 +64,7 @@ export function createEvent<
     : Record<string, DOMEventInit>,
   EventType extends keyof Events = keyof Events,
 >(
-  target: Target | null,
+  target: Target | null | ReadSignal<Target | null>,
   event: EventType,
   ...init: InferEventDetail<Events[EventType]> extends void | undefined | never
     ? [init?: Partial<InferEventInit<Events[EventType]>>]

@@ -1,3 +1,12 @@
+## [0.24.1](https://github.com/maverick-js/maverick/compare/v0.24.0...v0.24.1) (2023-01-03)
+
+
+### Bug Fixes
+
+* **std:** allow target to be read signal for `createEvent` ([25f545c](https://github.com/maverick-js/maverick/commit/25f545c5fd9028f5cceebed4e42e3c459fad04f5))
+
+
+
 # [0.24.0](https://github.com/maverick-js/maverick/compare/v0.23.4...v0.24.0) (2023-01-03)
 
 

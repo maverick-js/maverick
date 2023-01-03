@@ -3,15 +3,14 @@ import { unwrapDeep } from '../../std/signal';
 import { isArray, isFunction, isNumber, isString, isUndefined } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { effect } from '../reactivity';
+import { $$CHILDREN } from './internal';
 import { reconcile } from './reconcile';
 import { hydration } from './render';
-
-export const $CHILDREN = Symbol(__DEV__ ? '$CHILDREN' : 0);
 
 export function insert(parent: Node, value: JSX.Element, marker?: Node | null): void {
   let isSignal = isFunction(value);
 
-  if (isSignal && (value as Function)[$CHILDREN]) {
+  if (isSignal && (value as Function)[$$CHILDREN]) {
     value = (value as () => JSX.Element)();
     isSignal = isFunction(value);
   }
@@ -35,7 +34,7 @@ export function insert(parent: Node, value: JSX.Element, marker?: Node | null): 
 }
 
 // adapted from: https://github.com/ryansolid/dom-expressions/blob/main/packages/dom-expressions/src/client.js#L373
-export function insertExpression(
+function insertExpression(
   parent: Node,
   value: JSX.Element,
   marker?: Node | null,
@@ -203,9 +202,3 @@ function updateDOM(parent: Node, current: JSX.Element, marker?: Node | null, rep
 
   return node;
 }
-
-export type MarkerWalker = TreeWalker;
-
-export const createMarkerWalker = (root: Node): MarkerWalker =>
-  // @ts-expect-error - filter accepts `boolean` but not typed.
-  document.createTreeWalker(root, NodeFilter.SHOW_COMMENT, (node) => node.nodeValue === '$');

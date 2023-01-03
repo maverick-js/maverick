@@ -5,4 +5,5 @@ export * from './create-server-element';
 export * from './css';
 export * from './define';
 export * from './lifecycle';
+export * from './register';
 export * from './types';

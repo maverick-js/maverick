@@ -96,9 +96,6 @@ export interface CustomElementDefinition<T extends AnyCustomElement = AnyCustomE
   setup: (instance: NonNullable<T['instance']>) => InferCustomElementMembers<T> & {
     $render?: () => JSX.Element;
   };
-
-  /** Whether the given `node` was created using this element defintion. */
-  is: (node?: Node | null) => node is T;
 }
 
 export type InferCustomElement<T> = T extends CustomElementDefinition<infer Element>

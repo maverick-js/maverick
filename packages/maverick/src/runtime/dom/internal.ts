@@ -13,8 +13,9 @@ import { listenEvent } from '../../std/event';
 import { isArray, isFunction, isUndefined } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { computed, effect, onDispose, peek, scoped } from '../reactivity';
-import { $CHILDREN, createMarkerWalker, insert } from './insert';
+import { insert } from './insert';
 import { hydration } from './render';
+import { createMarkerWalker } from './walker';
 
 /** @internal */
 export function $$_create_template(html: string) {
@@ -133,9 +134,11 @@ export function $$_create_component<T = any>(
   return peek(() => component(props));
 }
 
+export const $$CHILDREN = /* #__PURE__ */ Symbol(__DEV__ ? '$$CHILDREN' : 0);
+
 /** @internal */
 export function $$_children(fn: () => JSX.Element) {
-  fn[$CHILDREN] = true;
+  fn[$$CHILDREN] = true;
   return fn;
 }
 

@@ -11,30 +11,36 @@ import {
 } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
-import { hydrate, hydration, render } from '../runtime';
+import { hydration, Hydrator, Renderer } from '../runtime';
 import { $$_create_element } from '../runtime/dom/internal';
 import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
 import { isBoolean } from '../std/unit';
-import { adoptCSS } from './css';
+import type { StylesheetAdopter } from './css';
 import { createElementInstance } from './instance';
-import { ATTACH, CONNECT, DESTROY, HOST, MEMBERS, MOUNT, PROPS, RENDER, SCOPE } from './internal';
+import { ATTACH, CONNECT, DESTROY, MEMBERS, MOUNT, PROPS, RENDER, SCOPE } from './internal';
 import type {
   AnyCustomElement,
   CustomElementDefinition,
   CustomElementHost,
   CustomElementInstance,
   HostElement,
-  HTMLCustomElement,
   HTMLCustomElementConstructor,
   InferCustomElementProps,
 } from './types';
 
 const MOUNTED = Symbol(__DEV__ ? 'MOUNTED' : 0);
 
+export interface CreateHTMLElementOptions {
+  hydrate: Hydrator;
+  render: Renderer;
+  adoptCSS?: StylesheetAdopter;
+}
+
 export function createHTMLElement<T extends AnyCustomElement>(
   definition: CustomElementDefinition<T>,
+  options?: CreateHTMLElementOptions,
 ): HTMLCustomElementConstructor<T> {
   if (__SERVER__) {
     throw Error(
@@ -69,9 +75,6 @@ export function createHTMLElement<T extends AnyCustomElement>(
   }
 
   class HTMLCustomElement extends HTMLElement implements HostElement {
-    /** @internal */
-    [HOST] = true;
-
     private _root?: Node | null;
     private _destroyed = false;
     private _instance: CustomElementInstance | null = null;
@@ -226,8 +229,16 @@ export function createHTMLElement<T extends AnyCustomElement>(
           : resolveShadowRootElement(this)
         : null;
 
-      if (!hydration && definition.shadowRoot && definition.css) {
-        adoptCSS(this._root as ShadowRoot, definition.css);
+      if (__DEV__ && definition.css && !options?.adoptCSS) {
+        console.warn(
+          `[maverick] \`css\` was provided for \`${definition.tagName}\` but element registration` +
+            " doesn't support adopting stylesheets. Resolve this by registering element with" +
+            ' `registerElement` instead of lite or headless.',
+        );
+      }
+
+      if (!hydration && definition.shadowRoot && definition.css && options?.adoptCSS) {
+        options.adoptCSS(this._root as ShadowRoot, definition.css);
       }
 
       const { $attrs, $styles } = instance.host[PROPS];
@@ -275,8 +286,8 @@ export function createHTMLElement<T extends AnyCustomElement>(
         }, instance[SCOPE]);
       }
 
-      if (this._root && $render) {
-        const renderer = this._hydrate ? hydrate : render;
+      if (this._root && options && $render) {
+        const renderer = this._hydrate ? options.hydrate : options.render;
         renderer($render, {
           target: this._root,
           resume: !definition.shadowRoot,
@@ -372,17 +383,6 @@ export function createHTMLElement<T extends AnyCustomElement>(
   }
 
   return HTMLCustomElement as any;
-}
-
-export function isHostElement(node?: Node | null): node is HTMLCustomElement {
-  return !!node?.[HOST];
-}
-
-export function registerCustomElement(definition: CustomElementDefinition) {
-  if (__SERVER__) return;
-  if (!window.customElements.get(definition.tagName)) {
-    window.customElements.define(definition.tagName, createHTMLElement(definition));
-  }
 }
 
 function resolveShadowRootElement(root: Element) {

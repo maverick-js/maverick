@@ -42,7 +42,6 @@ export function reconcile(parent: Node, nodesA: Node[], nodesB: Node[]) {
       const node = nodesA[--endA].nextSibling;
       parent.insertBefore(nodesB[startB++], nodesA[startA++].nextSibling);
       parent.insertBefore(nodesB[--endB], node);
-
       nodesA[endA] = nodesB[endB];
     }
     // fallback to map

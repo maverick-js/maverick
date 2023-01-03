@@ -18,7 +18,7 @@
     "noEmit": false,
     "noImplicitAny": false,
     "noImplicitOverride": true,
-    "noImplicitReturns": true,
+    "noImplicitReturns": false,
     "noUnusedParameters": false,
     "preserveWatchOutput": true,
     "skipLibCheck": true,

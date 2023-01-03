@@ -86,6 +86,10 @@ function createCSS(css: string, strings?: TemplateStringsArray): CSS {
   };
 }
 
+export interface StylesheetAdopter {
+  (root: Document | ShadowRoot, css: CSS[]);
+}
+
 export function adoptCSS(root: Document | ShadowRoot, css: CSS[]) {
   if (supportsAdoptedStyleSheets()) {
     root.adoptedStyleSheets = css.map((css) => css.sheet!);

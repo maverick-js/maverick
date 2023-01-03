@@ -1,9 +1,9 @@
 import { tick } from '@maverick-js/signals';
 import * as React from 'react';
 
-import { registerCustomElement } from '../element/create-html-element';
 import { createElementInstance } from '../element/instance';
 import { PROPS } from '../element/internal';
+import { registerCustomElement } from '../element/register';
 import type {
   AnyCustomElement,
   CustomElementDefinition,

@@ -15,7 +15,8 @@ import {
   $$_spread,
   $$_style,
 } from 'maverick.js/dom';
-import { createMarkerWalker, insert } from 'maverick.js/dom/insert';
+import { insert } from 'maverick.js/dom/insert';
+import { createMarkerWalker } from 'maverick.js/dom/walker';
 
 import { element, endMarker, startMarker } from './utils';
 

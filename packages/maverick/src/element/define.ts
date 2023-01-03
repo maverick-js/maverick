@@ -1,7 +1,6 @@
 import type { Writable } from 'type-fest';
 
 import { isArray, isFunction } from '../std/unit';
-import { isHostElement } from './create-html-element';
 import type {
   AnyCustomElement,
   CustomElementAttributeType,
@@ -24,9 +23,6 @@ export function defineCustomElement<T extends AnyCustomElement>(
         ) ?? {};
       return isFunction(setup) ? { $render: setup } : setup;
     },
-    is: __SERVER__
-      ? (node): node is never => false
-      : (node): node is T => isHostElement(node) && node.localName === definition.tagName,
   } as CustomElementDefinition<T>;
 
   if ('props' in definition) {

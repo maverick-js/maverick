@@ -14,6 +14,7 @@ import { isArray, isFunction, isUndefined } from '../../std/unit';
 import type { JSX } from '../jsx';
 import { computed, effect, onDispose, peek, scoped } from '../reactivity';
 import { insert } from './insert';
+import { insertLite } from './insert-lite';
 import { hydration } from './render';
 import { createMarkerWalker } from './walker';
 
@@ -124,6 +125,14 @@ export const $$_insert = insert;
 /** @internal */
 export function $$_insert_at_marker(marker: Comment, value: JSX.Element) {
   insert(marker.parentElement!, value, marker);
+}
+
+/** @internal */
+export const $$_insert_lite = insertLite;
+
+/** @internal */
+export function $$_insert_at_marker_lite(marker: Comment, value: JSX.Element) {
+  insertLite(marker.parentElement!, value, marker);
 }
 
 /** @internal */

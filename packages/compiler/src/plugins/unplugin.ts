@@ -27,6 +27,7 @@ function resolveOptions(options: Options): ResolvedOptions {
     hydratable: null,
     generate: null,
     pretty: null,
+    diffArrays: true,
     delegateEvents: false,
     groupDOMEffects: false,
     ...options,
@@ -42,6 +43,7 @@ export const unplugin = createUnplugin((options: Options = {}) => {
     hydratable,
     generate,
     pretty,
+    diffArrays,
     delegateEvents,
     groupDOMEffects,
   } = resolveOptions(options);
@@ -57,6 +59,7 @@ export const unplugin = createUnplugin((options: Options = {}) => {
       generate: generate ?? (ssr ? 'ssr' : 'dom'),
       sourcemap: true,
       pretty: pretty ?? true,
+      diffArrays,
       delegateEvents,
       groupDOMEffects,
     });

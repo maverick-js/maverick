@@ -35,6 +35,7 @@ export interface TransformContext extends TransformFeatures {
 }
 
 export interface TransformFeatures {
+  diffArrays: boolean;
   delegateEvents: boolean;
   groupDOMEffects: boolean;
 }
@@ -52,6 +53,7 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     pretty = true,
     hydratable = false,
     logLevel = 'warn',
+    diffArrays = true,
     delegateEvents = false,
     groupDOMEffects = false,
   } = options;
@@ -75,6 +77,7 @@ export function transform(source: string, options: Partial<TransformOptions> = {
     runtime: new Set(),
     events: new Set(),
     hydratable,
+    diffArrays,
     delegateEvents,
     groupDOMEffects,
   };

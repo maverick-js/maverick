@@ -194,3 +194,19 @@ it('should compile jsx function expression with return statement', () => {
     })()"
   `);
 });
+
+it('should lite insert expression', () => {
+  const result = transform(`<div>{id}</div>`, { diffArrays: false }).code;
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_insert_lite, $$_create_template } from \\"maverick.js/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_create_template(\`<div></div>\`);
+    (() => {
+      const $$_root = $$_clone($$_templ);
+
+      $$_insert_lite($$_root, id);
+
+      return $$_root;
+    })()"
+  `);
+});

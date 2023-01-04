@@ -62,7 +62,9 @@ const RUNTIME = {
   setupCustomElement: '$$_setup_custom_element',
   children: '$$_children',
   insert: '$$_insert',
+  insertLite: '$$_insert_lite',
   insertAtMarker: '$$_insert_at_marker',
+  insertAtMarkerLite: '$$_insert_at_marker_lite',
   listen: '$$_listen',
   delegateEvents: '$$_delegate_events',
   clone: '$$_clone',
@@ -215,7 +217,13 @@ export const dom: ASTSerializer = {
       insert = (marker: (() => string) | null, block: string) => {
         const beforeId = ctx.hydratable ? null : getNextElementId();
         const parentId = ctx.hydratable ? marker?.() ?? null : getParentElementId();
-        const insertId = ctx.hydratable ? RUNTIME.insertAtMarker : RUNTIME.insert;
+        const insertId = ctx.hydratable
+          ? !ctx.diffArrays
+            ? RUNTIME.insertAtMarkerLite
+            : RUNTIME.insertAtMarker
+          : !ctx.diffArrays
+          ? RUNTIME.insertLite
+          : RUNTIME.insert;
         expressions.push(createFunctionCall(insertId, [parentId, block, beforeId]));
         ctx.runtime.add(insertId);
       },

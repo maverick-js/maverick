@@ -1,3 +1,12 @@
+## [0.25.2](https://github.com/maverick-js/maverick/compare/v0.25.1...v0.25.2) (2023-01-04)
+
+
+### Bug Fixes
+
+* explicitly re-export from `@maverick-js/signals` ([0be44b2](https://github.com/maverick-js/maverick/commit/0be44b28cbd451fa1a47a89571d1e03e5d98e6ba))
+
+
+
 ## [0.25.1](https://github.com/maverick-js/maverick/compare/v0.25.0...v0.25.1) (2023-01-04)
 
 

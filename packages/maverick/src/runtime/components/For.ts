@@ -1,6 +1,8 @@
+import { computedKeyedMap, computedMap } from '@maverick-js/signals/map';
+
 import { unwrap } from '../../std/signal';
 import type { JSX } from '../jsx';
-import { computedKeyedMap, computedMap, type Maybe, type ReadSignal } from '../reactivity';
+import type { Maybe, ReadSignal } from '../reactivity';
 
 /**
  * Non-keyed list iteration where rendered nodes are keyed to an array index. This is useful when

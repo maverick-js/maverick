@@ -1,3 +1,12 @@
+## [0.25.1](https://github.com/maverick-js/maverick/compare/v0.25.0...v0.25.1) (2023-01-04)
+
+
+### Bug Fixes
+
+* move `@maverick-js/signals` from dev-deps to deps ([11bfca4](https://github.com/maverick-js/maverick/commit/11bfca44b409d82e8402067b13c90699156a21d0))
+
+
+
 # [0.25.0](https://github.com/maverick-js/maverick/compare/v0.24.1...v0.25.0) (2023-01-04)
 
 

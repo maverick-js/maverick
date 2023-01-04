@@ -32,15 +32,15 @@ import type {
 
 const MOUNTED = Symbol(__DEV__ ? 'MOUNTED' : 0);
 
-export interface CreateHTMLElementOptions {
-  hydrate: Hydrator;
+export interface CustomHTMLElementInit {
   render: Renderer;
+  hydrate: Hydrator;
   adoptCSS?: StylesheetAdopter;
 }
 
 export function createHTMLElement<T extends AnyCustomElement>(
   definition: CustomElementDefinition<T>,
-  options?: CreateHTMLElementOptions,
+  init?: CustomHTMLElementInit,
 ): HTMLCustomElementConstructor<T> {
   if (__SERVER__) {
     throw Error(
@@ -229,7 +229,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
           : resolveShadowRootElement(this)
         : null;
 
-      if (__DEV__ && definition.css && !options?.adoptCSS) {
+      if (__DEV__ && definition.css && !init?.adoptCSS) {
         console.warn(
           `[maverick] \`css\` was provided for \`${definition.tagName}\` but element registration` +
             " doesn't support adopting stylesheets. Resolve this by registering element with" +
@@ -237,8 +237,8 @@ export function createHTMLElement<T extends AnyCustomElement>(
         );
       }
 
-      if (!hydration && definition.shadowRoot && definition.css && options?.adoptCSS) {
-        options.adoptCSS(this._root as ShadowRoot, definition.css);
+      if (!hydration && definition.shadowRoot && definition.css && init?.adoptCSS) {
+        init.adoptCSS(this._root as ShadowRoot, definition.css);
       }
 
       const { $attrs, $styles } = instance.host[PROPS];
@@ -286,8 +286,8 @@ export function createHTMLElement<T extends AnyCustomElement>(
         }, instance[SCOPE]);
       }
 
-      if (this._root && options && $render) {
-        const renderer = this._hydrate ? options.hydrate : options.render;
+      if (this._root && init && $render) {
+        const renderer = this._hydrate ? init.hydrate : init.render;
         renderer($render, {
           target: this._root,
           resume: !definition.shadowRoot,

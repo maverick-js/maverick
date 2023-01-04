@@ -3,7 +3,11 @@ import * as React from 'react';
 
 import { createElementInstance } from '../element/instance';
 import { PROPS } from '../element/internal';
-import { registerCustomElement } from '../element/register';
+import {
+  CustomElementRegistrar,
+  registerCustomElement,
+  registerLiteCustomElement,
+} from '../element/register';
 import type {
   AnyCustomElement,
   CustomElementDefinition,
@@ -19,9 +23,9 @@ import type { ReactElement, ReactElementProps } from './types';
 import { ReactContextMap } from './use-react-context';
 import { setRef, WithContextMap } from './utils';
 
-export type ReactElementInit = {
+export interface ReactElementInit {
   displayName?: string;
-};
+}
 
 export function createReactElement<Definition extends CustomElementDefinition>(
   definition: Definition,
@@ -29,7 +33,16 @@ export function createReactElement<Definition extends CustomElementDefinition>(
 ): ReactElement<InferCustomElement<Definition>> {
   return __SERVER__
     ? createReactServerElement(definition)
-    : createReactClientElement(definition, init);
+    : createReactClientElement(registerCustomElement, definition, init);
+}
+
+export function createLiteReactElement<Definition extends CustomElementDefinition>(
+  definition: Definition,
+  init?: ReactElementInit,
+): ReactElement<InferCustomElement<Definition>> {
+  return __SERVER__
+    ? createReactServerElement(definition)
+    : createReactClientElement(registerLiteCustomElement, definition, init);
 }
 
 const SETUP = Symbol();
@@ -37,7 +50,11 @@ const SETUP = Symbol();
 function createReactClientElement<
   T extends CustomElementDefinition,
   R extends AnyCustomElement = InferCustomElement<T>,
->(definition: T, init?: ReactElementInit): ReactElement<R> {
+>(
+  registerCustomElement: CustomElementRegistrar,
+  definition: T,
+  init?: ReactElementInit,
+): ReactElement<R> {
   registerCustomElement(definition);
 
   const definedProps = new Set(Object.keys(definition.props ?? {})),

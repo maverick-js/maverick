@@ -1,3 +1,22 @@
+# [0.25.0](https://github.com/maverick-js/maverick/compare/v0.24.1...v0.25.0) (2023-01-04)
+
+
+### Bug Fixes
+
+* **element:** remove prop reflection opt in favour of host api ([aa69ade](https://github.com/maverick-js/maverick/commit/aa69ade5132ed6f56c84866e3c5c7a2836fdf896))
+* **element:** share base custom element class across all definitions ([b562672](https://github.com/maverick-js/maverick/commit/b5626720e9161836fcb5985be83b0b44ed720a63))
+* move render functions to respective env bundles ([ab17bbd](https://github.com/maverick-js/maverick/commit/ab17bbdac242561c04af421b599063d9520142c0))
+
+
+### Features
+
+* bump `@maverick-js/signals` to `5.5.0` ([7c6453c](https://github.com/maverick-js/maverick/commit/7c6453c291ff610f6b60db97edf77a16aa9785fb))
+* **compiler:** new `diffArrays` transform feature ([8c105d8](https://github.com/maverick-js/maverick/commit/8c105d881b78735d293e8a4726b20b57f2448959))
+* **element:** new custom element registration types ([fb0a0f7](https://github.com/maverick-js/maverick/commit/fb0a0f718fd9976fc6a09839db6b651427334f25))
+* **react:** new `createLiteReactElement` ([542035b](https://github.com/maverick-js/maverick/commit/542035bbd5e496955a89b05b3a9e4a1a1b90034a))
+
+
+
 ## [0.24.1](https://github.com/maverick-js/maverick/compare/v0.24.0...v0.24.1) (2023-01-03)
 
 

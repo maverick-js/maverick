@@ -15,139 +15,19 @@ import type {
   HostElement,
 } from './types';
 
-const registry = new WeakMap<CustomElementDefinition, any>();
+const registry = new WeakMap<CustomElementDefinition, typeof ServerCustomElement>();
 
 export function createServerElement<T extends AnyCustomElement>(
   definition: CustomElementDefinition<T>,
-) {
-  if (registry.has(definition)) {
-    return registry.get(definition) as typeof ServerCustomElement;
+): typeof ServerCustomElement<T> {
+  if (registry.has(definition)) return registry.get(definition)!;
+
+  class MaverickElement extends ServerCustomElement<T> {
+    static override _definition = definition;
   }
 
-  class ServerCustomElement implements ServerHTMLElement, HostElement {
-    /** @internal */
-    [HOST] = true;
-
-    /** @internal */
-    _instance: CustomElementInstance | null = null;
-    /** @internal */
-    _ssr?: string;
-    /** @internal */
-    _rendered = false;
-
-    readonly attributes = new Attributes();
-    readonly style = new Style();
-    readonly classList = new ClassList();
-
-    get instance() {
-      return this._instance;
-    }
-
-    attachComponent(instance: CustomElementInstance) {
-      this.setAttribute('mk-h', '');
-      this.setAttribute('mk-d', '');
-
-      if (this.hasAttribute('class')) {
-        parseClassAttr(this.classList.tokens, this.getAttribute('class')!);
-      }
-
-      if (this.hasAttribute('style')) {
-        parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
-      }
-
-      const { $attrs, $styles } = instance.host[PROPS];
-      for (const name of Object.keys($attrs!)) setAttribute(this, name, unwrapDeep($attrs![name]));
-      for (const name of Object.keys($styles!)) setStyle(this, name, unwrapDeep($styles![name]));
-
-      instance.host[PROPS].$attrs = null;
-      instance.host[PROPS].$styles = null;
-
-      (instance.host as Writable<CustomElementHost<T>>).el = this as any;
-      this._instance = instance;
-
-      for (const attachCallback of instance[ATTACH]) {
-        scoped(attachCallback, instance[SCOPE]);
-      }
-
-      tick();
-
-      const $render = instance[RENDER];
-      this._rendered = !!$render;
-      this._ssr = $render ? renderToString($render).code : '';
-
-      if (this.classList.length > 0) {
-        this.setAttribute('class', this.classList.toString());
-      }
-
-      if (this.style.length > 0) {
-        this.setAttribute('style', this.style.toString());
-      }
-
-      instance.destroy();
-    }
-
-    render(): string {
-      if (typeof this._ssr !== 'string') {
-        throw Error('[maverick] called `render` before attaching component');
-      }
-
-      const innerHTML = this.renderInnerHTML();
-
-      return this._rendered || (definition.shadowRoot && definition.css)
-        ? definition.shadowRoot
-          ? `<template shadowroot="${this.getShadowRootMode()}">${innerHTML}</template>`
-          : `<shadow-root>${innerHTML}</shadow-root>`
-        : innerHTML;
-    }
-
-    renderInnerHTML() {
-      if (typeof this._ssr !== 'string') {
-        throw Error('[maverick] called `renderInnerHTML` before attaching component');
-      }
-
-      const styleTag =
-        definition.shadowRoot && definition.css
-          ? `<style>${definition.css.map((css) => css.text).join('')}</style>`
-          : '';
-
-      return styleTag + this._ssr;
-    }
-
-    getShadowRootMode() {
-      return definition.shadowRoot
-        ? isBoolean(definition.shadowRoot)
-          ? 'open'
-          : definition.shadowRoot.mode
-        : 'open';
-    }
-
-    getAttribute(name: string): string | null {
-      return this.attributes.getAttribute(name);
-    }
-
-    setAttribute(name: string, value: string): void {
-      this.attributes.setAttribute(name, value);
-    }
-
-    hasAttribute(name: string): boolean {
-      return this.attributes.hasAttribute(name);
-    }
-
-    removeAttribute(name: string): void {
-      return this.attributes.removeAttribute(name);
-    }
-
-    dispatchEvent() {
-      return false;
-    }
-
-    onEventDispatch() {}
-    addEventListener() {}
-    removeEventListener() {}
-  }
-
-  registry.set(definition, ServerCustomElement);
-  return ServerCustomElement;
+  registry.set(definition, MaverickElement);
+  return MaverickElement;
 }
 
 export interface ServerHTMLElement
@@ -169,6 +49,136 @@ export interface ServerHTMLElement
     HTMLElement['style'],
     'length' | 'getPropertyValue' | 'removeProperty' | 'setProperty'
   > & { toString(): string };
+}
+
+class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
+  implements ServerHTMLElement, HostElement
+{
+  /** @internal */
+  [HOST] = true;
+
+  static _definition: CustomElementDefinition;
+
+  /** @internal */
+  _instance: CustomElementInstance | null = null;
+  /** @internal */
+  _ssr?: string;
+  /** @internal */
+  _rendered = false;
+
+  readonly attributes = new Attributes();
+  readonly style = new Style();
+  readonly classList = new ClassList();
+
+  get instance() {
+    return this._instance;
+  }
+
+  attachComponent(instance: CustomElementInstance) {
+    this.setAttribute('mk-h', '');
+    this.setAttribute('mk-d', '');
+
+    if (this.hasAttribute('class')) {
+      parseClassAttr(this.classList.tokens, this.getAttribute('class')!);
+    }
+
+    if (this.hasAttribute('style')) {
+      parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
+    }
+
+    const { $attrs, $styles } = instance.host[PROPS];
+    for (const name of Object.keys($attrs!)) setAttribute(this, name, unwrapDeep($attrs![name]));
+    for (const name of Object.keys($styles!)) setStyle(this, name, unwrapDeep($styles![name]));
+
+    instance.host[PROPS].$attrs = null;
+    instance.host[PROPS].$styles = null;
+
+    (instance.host as Writable<CustomElementHost<T>>).el = this as any;
+    this._instance = instance;
+
+    for (const attachCallback of instance[ATTACH]) {
+      scoped(attachCallback, instance[SCOPE]);
+    }
+
+    tick();
+
+    const $render = instance[RENDER];
+    this._rendered = !!$render;
+    this._ssr = $render ? renderToString($render).code : '';
+
+    if (this.classList.length > 0) {
+      this.setAttribute('class', this.classList.toString());
+    }
+
+    if (this.style.length > 0) {
+      this.setAttribute('style', this.style.toString());
+    }
+
+    instance.destroy();
+  }
+
+  render(): string {
+    if (typeof this._ssr !== 'string') {
+      throw Error('[maverick] called `render` before attaching component');
+    }
+
+    const innerHTML = this.renderInnerHTML();
+    const definition = (this.constructor as typeof ServerCustomElement)._definition;
+
+    return this._rendered || (definition.shadowRoot && definition.css)
+      ? definition.shadowRoot
+        ? `<template shadowroot="${this.getShadowRootMode()}">${innerHTML}</template>`
+        : `<shadow-root>${innerHTML}</shadow-root>`
+      : innerHTML;
+  }
+
+  renderInnerHTML() {
+    if (typeof this._ssr !== 'string') {
+      throw Error('[maverick] called `renderInnerHTML` before attaching component');
+    }
+
+    const definition = (this.constructor as typeof ServerCustomElement)._definition;
+
+    const styleTag =
+      definition.shadowRoot && definition.css
+        ? `<style>${definition.css.map((css) => css.text).join('')}</style>`
+        : '';
+
+    return styleTag + this._ssr;
+  }
+
+  getShadowRootMode() {
+    const definition = (this.constructor as typeof ServerCustomElement)._definition;
+    return definition.shadowRoot
+      ? isBoolean(definition.shadowRoot)
+        ? 'open'
+        : definition.shadowRoot.mode
+      : 'open';
+  }
+
+  getAttribute(name: string): string | null {
+    return this.attributes.getAttribute(name);
+  }
+
+  setAttribute(name: string, value: string): void {
+    this.attributes.setAttribute(name, value);
+  }
+
+  hasAttribute(name: string): boolean {
+    return this.attributes.hasAttribute(name);
+  }
+
+  removeAttribute(name: string): void {
+    return this.attributes.removeAttribute(name);
+  }
+
+  dispatchEvent() {
+    return false;
+  }
+
+  onEventDispatch() {}
+  addEventListener() {}
+  removeEventListener() {}
 }
 
 class Attributes {

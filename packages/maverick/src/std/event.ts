@@ -4,15 +4,15 @@ import type { HTMLCustomElement } from '../element/types';
 import { type Dispose, type JSX, onDispose, ReadSignal } from '../runtime';
 import { noop } from './unit';
 
-const DOM_EVENT = Symbol('DOM_EVENT'),
-  DOMEventBase: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event;
+const EVENT: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event,
+  DOM_EVENT = Symbol('DOM_EVENT');
 
 export interface DOMEventInit<Detail = unknown> extends EventInit {
   readonly detail: Detail;
   readonly trigger?: Event;
 }
 
-export class DOMEvent<Detail = unknown> extends DOMEventBase {
+export class DOMEvent<Detail = unknown> extends EVENT {
   [DOM_EVENT] = true;
 
   /**

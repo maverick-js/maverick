@@ -1,9 +1,9 @@
 import { flattenArray } from '../../std/array';
 import { createComment, createFragment, isDOMNode } from '../../std/dom';
 import { unwrapDeep } from '../../std/signal';
-import { isArray, isNumber, isString } from '../../std/unit';
+import { isArray, isFunction, isNumber, isString } from '../../std/unit';
 import type { JSX } from '../jsx';
-import { effect, isFunction } from '../reactivity';
+import { effect } from '../reactivity';
 import { $$CHILDREN } from './internal';
 import { hydration } from './render';
 

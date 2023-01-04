@@ -1,6 +1,7 @@
 import { unwrap } from '../../std/signal';
+import { isFunction } from '../../std/unit';
 import type { JSX } from '../jsx';
-import { computed, isFunction, onError, peek, type ReadSignal, signal } from '../reactivity';
+import { computed, onError, peek, type ReadSignal, signal } from '../reactivity';
 
 export type ErrorSignal<T = unknown> = ReadSignal<T | null> & { handled(): void };
 export type ErrorBoundaryHandler<T = unknown> = (error: ErrorSignal<T>) => JSX.Element;

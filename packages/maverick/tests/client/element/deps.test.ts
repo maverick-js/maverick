@@ -1,11 +1,5 @@
-import {
-  createContext,
-  getContext,
-  onError,
-  provideContext,
-  setContext,
-  useContext,
-} from 'maverick.js';
+import { getContext, setContext } from '@maverick-js/signals';
+import { createContext, onError, provideContext, useContext } from 'maverick.js';
 
 import {
   createElementInstance,

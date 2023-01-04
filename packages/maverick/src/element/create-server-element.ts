@@ -5,7 +5,6 @@ import { parseClassAttr, parseStyleAttr, renderToString } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
 import { escape } from '../std/html';
 import { unwrapDeep } from '../std/signal';
-import { camelToKebabCase } from '../std/string';
 import { isBoolean } from '../std/unit';
 import { ATTACH, HOST, PROPS, RENDER, SCOPE } from './internal';
 import type {
@@ -13,9 +12,7 @@ import type {
   CustomElementDefinition,
   CustomElementHost,
   CustomElementInstance,
-  CustomElementPropDefinitions,
   HostElement,
-  InferCustomElementProps,
 } from './types';
 
 const registry = new WeakMap<CustomElementDefinition, any>();
@@ -25,17 +22,6 @@ export function createServerElement<T extends AnyCustomElement>(
 ) {
   if (registry.has(definition)) {
     return registry.get(definition) as typeof ServerCustomElement;
-  }
-
-  type Props = InferCustomElementProps<T>;
-
-  const propDefs = (definition.props ?? {}) as CustomElementPropDefinitions<Props>;
-  const reflectedProps = new Map<string, string>();
-
-  for (const propName of Object.keys(propDefs)) {
-    const def = propDefs[propName];
-    if (!def.reflect || def.attribute === false) continue;
-    reflectedProps.set(def.attribute ?? camelToKebabCase(propName), propName);
   }
 
   class ServerCustomElement implements ServerHTMLElement, HostElement {
@@ -81,20 +67,6 @@ export function createServerElement<T extends AnyCustomElement>(
 
       for (const attachCallback of instance[ATTACH]) {
         scoped(attachCallback, instance[SCOPE]);
-      }
-
-      // prop reflection.
-      for (const propName of reflectedProps.keys()) {
-        const convert = propDefs[propName]!.type?.to;
-        const attrName = reflectedProps.get(propName)!;
-        const propValue = instance.props['$' + propName]();
-        const attrValue = convert ? convert(propValue) : propValue;
-        setAttribute(
-          this,
-          attrName,
-          // @ts-expect-error
-          unwrapDeep(attrValue),
-        );
       }
 
       tick();

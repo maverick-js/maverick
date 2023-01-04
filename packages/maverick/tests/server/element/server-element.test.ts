@@ -101,26 +101,6 @@ it('should render styles', () => {
   `);
 });
 
-it('should reflect props', () => {
-  const { instance, host } = setupTestElement({
-    props: {
-      foo: { initial: 10, reflect: true },
-      bar: { initial: 20, reflect: true },
-    },
-  });
-
-  host.attachComponent(instance);
-
-  expect(host.attributes.tokens).toMatchInlineSnapshot(`
-    Map {
-      "mk-h" => "",
-      "mk-d" => "",
-      "foo" => "10",
-      "bar" => "20",
-    }
-  `);
-});
-
 it('should noop dom events api', () => {
   const { instance, host } = setupTestElement({
     setup({ host }) {

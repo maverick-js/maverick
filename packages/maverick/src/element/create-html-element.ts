@@ -52,8 +52,7 @@ export function createHTMLElement<T extends AnyCustomElement>(
 
   let attrToProp: Map<string, string> | null = null,
     propToAttr: Map<string, string> | null = null,
-    dispatchedEvents: Set<string> | null = null,
-    reflectedProps: Set<string> | null = null;
+    dispatchedEvents: Set<string> | null = null;
 
   if (definition.props) {
     attrToProp = new Map();
@@ -66,10 +65,6 @@ export function createHTMLElement<T extends AnyCustomElement>(
         const attrName = attr ?? camelToKebabCase(propName);
         attrToProp.set(attrName, propName);
         propToAttr.set(propName, attrName);
-        if (def.reflect) {
-          if (!reflectedProps) reflectedProps = new Set();
-          reflectedProps.add(propName);
-        }
       }
     }
   }
@@ -270,20 +265,6 @@ export function createHTMLElement<T extends AnyCustomElement>(
 
       for (const attachCallback of instance[ATTACH]) {
         scoped(attachCallback, instance[SCOPE]);
-      }
-
-      if (reflectedProps) {
-        scoped(() => {
-          // Reflected props.
-          for (const propName of reflectedProps!) {
-            const attrName = propToAttr!.get(propName)!;
-            const convert = definition.props![propName]!.type?.to;
-            effect(() => {
-              const propValue = instance![PROPS]['$' + propName]();
-              setAttribute(this, attrName, convert ? convert(propValue) : propValue);
-            });
-          }
-        }, instance[SCOPE]);
       }
 
       if (this._root && init && $render) {

@@ -49,26 +49,6 @@ it('should observe attributes', () => {
   expect(element.$foo()).toBe(10);
 });
 
-it('should reflect props', () => {
-  const { instance, element } = setupTestElement({
-    props: {
-      foo: { initial: 100, reflect: true },
-    },
-  });
-
-  element.attachComponent(instance);
-
-  expect(element.getAttribute('foo')).toBe('100');
-  instance[PROPS].$foo.set(200);
-
-  tick();
-  expect(element.getAttribute('foo')).toBe('200');
-
-  instance[PROPS].$foo.set(null);
-  tick();
-  expect(element.hasAttribute('foo')).toBe(false);
-});
-
 it('should call connect lifecycle hook', () => {
   const attach = vi.fn();
   const Context = createContext<number>();

@@ -40,11 +40,6 @@ export type CustomElementPropDefinition<Value = unknown> = SignalOptions<Value> 
      */
     attribute?: string | false;
     /**
-     * Whether the property value should be reflected back to the attribute. By default this
-     * is `false`.
-     */
-    reflect?: boolean;
-    /**
      * Convert between an attribute value and property value. If not specified it will be inferred
      * from the initial value.
      */

@@ -12,11 +12,11 @@ export function isDOMFragment(node: any): node is DocumentFragment {
   return isDOMNode(node) && node.nodeType === 11;
 }
 
-export function createFragment() {
+export function createFragment(): DocumentFragment {
   return document.createDocumentFragment();
 }
 
-export function createComment(data: string) {
+export function createComment(data: string): Comment {
   if (__SERVER__) return data as unknown as Comment;
   return document.createComment(data);
 }

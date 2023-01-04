@@ -44,7 +44,7 @@ export default defineConfig([
   {
     ...base({ dev: false }),
     entry,
-    dts: { resolve: [/maverick/] },
+    dts: true,
   },
   {
     ...base({ server: true }),

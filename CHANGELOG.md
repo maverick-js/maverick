@@ -1,3 +1,12 @@
+## [0.25.4](https://github.com/maverick-js/maverick/compare/v0.25.3...v0.25.4) (2023-01-05)
+
+
+### Bug Fixes
+
+* **runtime:** bump `@maverick-js/signals` to `5.5.1` ([f22872c](https://github.com/maverick-js/maverick/commit/f22872c7adf43c8891de220fa0a61a12efd62121))
+
+
+
 ## [0.25.3](https://github.com/maverick-js/maverick/compare/v0.25.2...v0.25.3) (2023-01-05)
 
 

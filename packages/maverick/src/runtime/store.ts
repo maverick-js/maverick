@@ -45,6 +45,7 @@ export function createStore<Record extends AnyRecord>(initial: Record): Store<Re
         const $value = descriptors[name].get || signal(initial[name]);
         Object.defineProperty(store, name, {
           enumerable: true,
+          configurable: true,
           get: $value,
           set: ($value as WriteSignal<any>).set,
         });

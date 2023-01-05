@@ -1,3 +1,12 @@
+## [0.25.3](https://github.com/maverick-js/maverick/compare/v0.25.2...v0.25.3) (2023-01-05)
+
+
+### Bug Fixes
+
+* make store props configurable ([36bdc2b](https://github.com/maverick-js/maverick/commit/36bdc2b3526ab5471cd77a571b0aa5869a1281ba))
+
+
+
 ## [0.25.2](https://github.com/maverick-js/maverick/compare/v0.25.1...v0.25.2) (2023-01-04)
 
 

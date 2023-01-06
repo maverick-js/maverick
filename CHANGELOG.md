@@ -1,3 +1,12 @@
+# [0.26.0](https://github.com/maverick-js/maverick/compare/v0.25.7...v0.26.0) (2023-01-06)
+
+
+### Features
+
+* **runtime:** bump `@maverick-js/signals` to `5.6.0` ([bbed8fa](https://github.com/maverick-js/maverick/commit/bbed8fa413611d0e718ff064361dc2de71799208))
+
+
+
 ## [0.25.7](https://github.com/maverick-js/maverick/compare/v0.25.6...v0.25.7) (2023-01-06)
 
 

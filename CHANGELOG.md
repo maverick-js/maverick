@@ -1,3 +1,12 @@
+## [0.25.5](https://github.com/maverick-js/maverick/compare/v0.25.4...v0.25.5) (2023-01-06)
+
+
+### Bug Fixes
+
+* **runtime:** consume hydration marker node in lite insert ([a81aeb4](https://github.com/maverick-js/maverick/commit/a81aeb4e97ace0b64acbf0ad16a3c41d9db52067))
+
+
+
 ## [0.25.4](https://github.com/maverick-js/maverick/compare/v0.25.3...v0.25.4) (2023-01-05)
 
 

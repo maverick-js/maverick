@@ -3,12 +3,7 @@ import ts from 'typescript';
 import type { ElementDefintionNode } from '../plugins/AnalyzePlugin';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta } from '../utils/types';
-import {
-  getPropertyAssignmentValue,
-  getValueNode,
-  walkProperties,
-  walkSignatures,
-} from '../utils/walk';
+import { walkSignatures } from '../utils/walk';
 import { type CSSVarMeta, type DocTagMeta, TS_NODE } from './component';
 import { buildMetaFromDocTags, findDocTag, getDocTags, hasDocTag } from './doctags';
 
@@ -19,39 +14,6 @@ export function buildCSSVarsMeta(
   parentDocTags?: DocTagMeta[],
 ) {
   const meta = new Map<string, CSSVarMeta>();
-
-  let vars: ts.Node | undefined;
-
-  const setup = getValueNode(
-    checker,
-    getPropertyAssignmentValue(checker, declarationRoot, 'setup'),
-  );
-
-  // Find `host.setCSSVars(...)`
-  if (
-    setup &&
-    (ts.isMethodDeclaration(setup) || ts.isArrowFunction(setup)) &&
-    setup.body &&
-    ts.isBlock(setup.body)
-  ) {
-    function findSetCSSVars(node: ts.Node) {
-      if (
-        ts.isCallExpression(node) &&
-        ts.isPropertyAccessExpression(node.expression) &&
-        ts.isIdentifier(node.expression.expression) &&
-        node.expression.expression.escapedText === 'host' &&
-        ts.isIdentifier(node.expression.name) &&
-        node.expression.name.escapedText === 'setCSSVars' &&
-        node.arguments[0]
-      ) {
-        vars = getValueNode(checker, node.arguments[0]);
-      }
-
-      ts.forEachChild(node, findSetCSSVars);
-    }
-
-    ts.forEachChild(setup.body, findSetCSSVars);
-  }
 
   if (parentDocTags?.length) {
     const cssvars = buildMetaFromDocTags(
@@ -66,17 +28,13 @@ export function buildCSSVarsMeta(
   }
 
   if (typeRoot) {
-    const props = vars ? walkProperties(checker, vars) : null,
-      members = walkSignatures(checker, typeRoot);
+    const members = walkSignatures(checker, typeRoot);
 
     for (const [name, prop] of members.props) {
       const signature = prop.signature;
       if (!prop.type && !signature.type) continue;
 
-      const valueNode = props?.props.has(name)
-          ? getValueNode(checker, props.props.get(name)!.value)
-          : null,
-        docs = getDocs(checker, signature.name as ts.Identifier),
+      const docs = getDocs(checker, signature.name as ts.Identifier),
         doctags = getDocTags(signature),
         type = buildTypeMeta(checker, signature.type!, prop.type);
 
@@ -85,9 +43,9 @@ export function buildCSSVarsMeta(
         deprecated!: CSSVarMeta['deprecated'],
         $default!: CSSVarMeta['default'],
         optional: CSSVarMeta['optional'] = !!signature.questionToken,
-        readonly: CSSVarMeta['readonly'] =
-          !!signature.modifiers?.some((mod) => mod.kind === ts.SyntaxKind.ReadonlyKeyword) ||
-          (!!valueNode && (ts.isMethodDeclaration(valueNode) || ts.isArrowFunction(valueNode)));
+        readonly: CSSVarMeta['readonly'] = !!signature.modifiers?.some(
+          (mod) => mod.kind === ts.SyntaxKind.ReadonlyKeyword,
+        );
 
       if (doctags) {
         if (hasDocTag(doctags, 'internal')) internal = true;
@@ -97,10 +55,6 @@ export function buildCSSVarsMeta(
         if (!optional && hasDocTag(doctags, 'optional')) optional = true;
         $default =
           findDocTag(doctags, 'default')?.text ?? findDocTag(doctags, 'defaultValue')?.text ?? '';
-      }
-
-      if (!$default && valueNode) {
-        $default = valueNode.getText();
       }
 
       meta.set(name, {

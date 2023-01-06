@@ -37,9 +37,14 @@ export function walkProperties(
 ): SeenMembers {
   if (ts.isObjectLiteralExpression(node)) {
     for (const prop of node.properties) {
-      if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
-        const name = prop.name.escapedText as string;
-        members.props.set(name, { assignment: prop, value: prop.initializer });
+      if (ts.isPropertyAssignment(prop)) {
+        const name = ts.isIdentifier(prop.name)
+          ? (prop.name.escapedText as string)
+          : ts.isStringLiteral(prop.name)
+          ? prop.name.text
+          : null;
+
+        if (name) members.props.set(name, { assignment: prop, value: prop.initializer });
       } else if (ts.isMethodDeclaration(prop) && ts.isIdentifier(prop.name)) {
         const name = prop.name.escapedText as string;
         members.methods.set(name, { assignment: prop, value: prop });
@@ -53,14 +58,28 @@ export function walkProperties(
             members.props.set(name, { assignment: prop, value: declaration });
           }
         }
-      } else if (ts.isGetAccessor(prop) && ts.isIdentifier(prop.name)) {
-        const name = prop.name.escapedText as string;
-        if (!members.accessors.has(name)) members.accessors.set(name, {});
-        members.accessors.get(name)!.get = prop;
-      } else if (ts.isSetAccessor(prop) && ts.isIdentifier(prop.name)) {
-        const name = prop.name.escapedText as string;
-        if (!members.accessors.has(name)) members.accessors.set(name, {});
-        members.accessors.get(name)!.set = prop;
+      } else if (ts.isGetAccessor(prop)) {
+        const name = ts.isIdentifier(prop.name)
+          ? (prop.name.escapedText as string)
+          : ts.isStringLiteral(prop.name)
+          ? prop.name.text
+          : null;
+
+        if (name) {
+          if (!members.accessors.has(name)) members.accessors.set(name, {});
+          members.accessors.get(name)!.get = prop;
+        }
+      } else if (ts.isSetAccessor(prop)) {
+        const name = ts.isIdentifier(prop.name)
+          ? (prop.name.escapedText as string)
+          : ts.isStringLiteral(prop.name)
+          ? prop.name.text
+          : null;
+
+        if (name) {
+          if (!members.accessors.has(name)) members.accessors.set(name, {});
+          members.accessors.get(name)!.set = prop;
+        }
       } else {
         walkProperties(checker, prop, members);
       }

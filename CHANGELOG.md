@@ -1,3 +1,12 @@
+## [0.25.7](https://github.com/maverick-js/maverick/compare/v0.25.6...v0.25.7) (2023-01-06)
+
+
+### Bug Fixes
+
+* **react:** include root react declaration file ([ef5e94d](https://github.com/maverick-js/maverick/commit/ef5e94dd44608b872e448634012a45cdd4eb5f78))
+
+
+
 ## [0.25.6](https://github.com/maverick-js/maverick/compare/v0.25.5...v0.25.6) (2023-01-06)
 
 

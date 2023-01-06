@@ -25,6 +25,20 @@ it('should insert before', () => {
   `);
 });
 
+it('should insert at marker', () => {
+  const root = document.createElement('root');
+  const marker = document.createComment('$$');
+  root.appendChild(marker);
+  insertLite(root, () => 'Foo', marker);
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <!--$$-->
+      Foo
+      <!--/$-->
+    </root>
+  `);
+});
+
 it('should insert number', () => {
   const root = document.createElement('root');
   insertLite(root, 100);

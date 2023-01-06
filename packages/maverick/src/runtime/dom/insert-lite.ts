@@ -47,8 +47,10 @@ function addChild(parent: Node, node: Node | DocumentFragment | null, before?: N
 }
 
 function insertEffect(parent: Node, value: JSX.Element, before?: Node | null) {
-  const marker = INSERT_MARKER_NODE.cloneNode() as Comment;
-  addChild(parent, marker, before);
+  const marker = (
+    before && before.nodeType === 8 ? before : INSERT_MARKER_NODE.cloneNode()
+  ) as Comment;
+  if (marker !== before) addChild(parent, marker, before);
   effect(() => void insertExpression(marker, unwrapDeep(value)));
 }
 

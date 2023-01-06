@@ -1,3 +1,14 @@
+## [0.25.6](https://github.com/maverick-js/maverick/compare/v0.25.5...v0.25.6) (2023-01-06)
+
+
+### Bug Fixes
+
+* **analyze:** check for string literal prop names when walking props ([beb02b2](https://github.com/maverick-js/maverick/commit/beb02b226e5223a041e682183ca9b9ced6f38232))
+* **analyze:** dont attempt walking `setCSSVars` anymore ([6ac75cb](https://github.com/maverick-js/maverick/commit/6ac75cb9ee4eb026b8732b2f02a3c54a15e62671))
+* **analyze:** signature walker missing current interface declaration ([a4891d7](https://github.com/maverick-js/maverick/commit/a4891d79032e8ef794d95cfbf436c2a34dba36e1))
+
+
+
 ## [0.25.5](https://github.com/maverick-js/maverick/compare/v0.25.4...v0.25.5) (2023-01-06)
 
 

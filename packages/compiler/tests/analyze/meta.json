@@ -159,22 +159,43 @@
         "attribute": "show"
       },
       {
+        "name": "jax",
+        "type": {
+          "serialized": "number"
+        },
+        "attribute": "jax"
+      },
+      {
         "name": "loo",
         "type": {
           "serialized": "number"
         },
         "docs": "This is the loo prop docs.",
         "attribute": "loo"
-      },
-      {
-        "name": "jax",
-        "type": {
-          "serialized": "number"
-        },
-        "attribute": "jax"
       }
     ],
     "events": [
+      {
+        "name": "foo",
+        "type": {
+          "serialized": "FooEvent"
+        },
+        "detail": "boolean",
+        "docs": "This is the foo event.",
+        "doctags": [
+          {
+            "name": "bubbles"
+          }
+        ],
+        "bubbles": true
+      },
+      {
+        "name": "bar",
+        "type": {
+          "serialized": "DOMEvent<void>"
+        },
+        "detail": "void"
+      },
       {
         "name": "baz",
         "type": {
@@ -220,33 +241,12 @@
           "serialized": "DOMEvent<number | null>"
         },
         "detail": "number | null"
-      },
-      {
-        "name": "foo",
-        "type": {
-          "serialized": "FooEvent"
-        },
-        "detail": "boolean",
-        "docs": "This is the foo event.",
-        "doctags": [
-          {
-            "name": "bubbles"
-          }
-        ],
-        "bubbles": true
-      },
-      {
-        "name": "bar",
-        "type": {
-          "serialized": "DOMEvent<void>"
-        },
-        "detail": "void"
       }
     ],
     "cssvars": [
       {
         "name": "foo",
-        "default": "() => 0",
+        "default": "1",
         "type": {
           "serialized": "0 | 1",
           "union": [
@@ -255,18 +255,21 @@
           ]
         },
         "docs": "This is the foo docs.",
-        "readonly": true
+        "doctags": [
+          {
+            "name": "default",
+            "text": "1"
+          }
+        ]
       },
       {
         "name": "bar",
-        "default": "'1'",
         "type": {
           "serialized": "string"
         }
       },
       {
         "name": "baz",
-        "default": "'baz'",
         "type": {
           "serialized": "string | null",
           "union": [

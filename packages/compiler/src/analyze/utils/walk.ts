@@ -143,19 +143,41 @@ export function walkSignatures(
         }
       }
     } else {
-      if (ts.isInterfaceDeclaration(node) && node.heritageClauses) {
-        for (const clause of node.heritageClauses) {
-          for (const type of clause.types) {
-            if (ts.isIdentifier(type.expression)) {
-              members.heritage.set(type.expression.escapedText as string, type);
-              if (!ignoredIdentifiers.has(type.expression.escapedText as string)) {
-                if (type.typeArguments) {
-                  walkSignatures(checker, type, members, ignoredIdentifiers);
-                } else {
-                  const declarations = getDeclarations(checker, type.expression);
-                  if (declarations) {
-                    for (const declaration of declarations) {
-                      walkSignatures(checker, declaration, members, ignoredIdentifiers);
+      if (ts.isInterfaceDeclaration(node)) {
+        for (const prop of node.members) {
+          if (ts.isPropertySignature(prop)) {
+            const name = ts.isIdentifier(prop.name)
+              ? prop.name.escapedText
+              : ts.isStringLiteral(prop.name)
+              ? prop.name.text
+              : null;
+
+            if (name) members.props.set(name, { signature: prop });
+          } else if (ts.isMethodSignature(prop)) {
+            const name = ts.isIdentifier(prop.name)
+              ? prop.name.escapedText
+              : ts.isStringLiteral(prop.name)
+              ? prop.name.text
+              : null;
+
+            if (name) members.methods.set(name, { signature: prop });
+          }
+        }
+
+        if (node.heritageClauses) {
+          for (const clause of node.heritageClauses) {
+            for (const type of clause.types) {
+              if (ts.isIdentifier(type.expression)) {
+                members.heritage.set(type.expression.escapedText as string, type);
+                if (!ignoredIdentifiers.has(type.expression.escapedText as string)) {
+                  if (type.typeArguments) {
+                    walkSignatures(checker, type, members, ignoredIdentifiers);
+                  } else {
+                    const declarations = getDeclarations(checker, type.expression);
+                    if (declarations) {
+                      for (const declaration of declarations) {
+                        walkSignatures(checker, declaration, members, ignoredIdentifiers);
+                      }
                     }
                   }
                 }

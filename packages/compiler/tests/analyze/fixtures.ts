@@ -1,8 +1,6 @@
 // @ts-nocheck
 import type { FooElement } from './types';
 
-const BAZ_CSS_VAR = 'baz';
-
 export const FooElementDefinition = defineCustomElement<FooElement>({
   tagName: 'mk-foo',
   shadowRoot: true,
@@ -18,12 +16,5 @@ export const FooElementDefinition = defineCustomElement<FooElement>({
       show: { initial: () => 'foo' },
     },
     zoo: {},
-  },
-  setup({ host }) {
-    host.setCSSVars({
-      foo: () => 0,
-      bar: '1',
-      baz: BAZ_CSS_VAR,
-    });
   },
 });

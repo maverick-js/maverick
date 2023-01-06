@@ -85,7 +85,11 @@ type BazEvents = {
 };
 
 interface FooCSSVars {
-  /** This is the foo docs. */
+  /**
+   * This is the foo docs.
+   *
+   * @default 1
+   */
   foo: 0 | 1;
   bar: string;
   readonly baz: Bar;

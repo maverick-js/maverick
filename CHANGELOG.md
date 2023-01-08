@@ -1,3 +1,12 @@
+## [0.26.5](https://github.com/maverick-js/maverick/compare/v0.26.4...v0.26.5) (2023-01-08)
+
+
+### Features
+
+* **analyze:** new `walkComponentDocs` utility ([7c16ce6](https://github.com/maverick-js/maverick/commit/7c16ce628e1808755a74380c900bf4bf43670064))
+
+
+
 ## [0.26.4](https://github.com/maverick-js/maverick/compare/v0.26.3...v0.26.4) (2023-01-08)
 
 

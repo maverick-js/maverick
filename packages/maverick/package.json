@@ -37,7 +37,7 @@
     "test:server:watch": "SERVER=true vitest --watch"
   },
   "dependencies": {
-    "@maverick-js/signals": "^5.6.2",
+    "@maverick-js/signals": "^5.6.3",
     "type-fest": "^2.17.0"
   },
   "devDependencies": {
@@ -59,7 +59,6 @@
   },
   "exports": {
     ".": {
-      "types": "./index.d.ts",
       "development": "./dist/dev/runtime.js",
       "test": "./dist/dev/runtime.js",
       "browser": "./dist/prod/runtime.js",
@@ -69,7 +68,6 @@
       "default": "./dist/prod/runtime.js"
     },
     "./dom": {
-      "types": "./dom.d.ts",
       "development": "./dist/dev/dom.js",
       "test": "./dist/dev/dom.js",
       "browser": "./dist/prod/dom.js",
@@ -79,7 +77,6 @@
       "default": "./dist/prod/dom.js"
     },
     "./ssr": {
-      "types": "./ssr.d.ts",
       "development": "./dist/dev/ssr.js",
       "test": "./dist/dev/ssr.js",
       "require": "./dist/server/ssr.cjs",
@@ -88,7 +85,6 @@
       "default": "./dist/prod/ssr.js"
     },
     "./element": {
-      "types": "./element.d.ts",
       "development": "./dist/dev/element.js",
       "test": "./dist/dev/element.js",
       "browser": "./dist/prod/element.js",
@@ -98,7 +94,6 @@
       "default": "./dist/prod/element.js"
     },
     "./react": {
-      "types": "./react.d.ts",
       "development": "./dist/dev/react.js",
       "test": "./dist/dev/react.js",
       "browser": "./dist/prod/react.js",
@@ -108,7 +103,6 @@
       "default": "./dist/prod/react.js"
     },
     "./std": {
-      "types": "./std.d.ts",
       "development": "./dist/dev/std.js",
       "test": "./dist/dev/std.js",
       "browser": "./dist/prod/std.js",

@@ -63,12 +63,10 @@
   },
   "exports": {
     ".": {
-      "types": "./index.d.ts",
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
     "./analyze": {
-      "types": "./analyze.d.ts",
       "require": "./dist/analyze.cjs",
       "default": "./dist/analyze.js"
     },

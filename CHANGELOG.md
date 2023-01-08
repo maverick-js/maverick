@@ -1,3 +1,12 @@
+## [0.26.4](https://github.com/maverick-js/maverick/compare/v0.26.3...v0.26.4) (2023-01-08)
+
+
+### Features
+
+* **compiler:** include `length` property on class members meta ([921ffd3](https://github.com/maverick-js/maverick/commit/921ffd300b1aa8d0be302b70300295505d311c8e))
+
+
+
 ## [0.26.3](https://github.com/maverick-js/maverick/compare/v0.26.2...v0.26.3) (2023-01-08)
 
 

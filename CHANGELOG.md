@@ -1,3 +1,12 @@
+## [0.26.1](https://github.com/maverick-js/maverick/compare/v0.26.0...v0.26.1) (2023-01-08)
+
+
+### Bug Fixes
+
+* include declaration files as-is in `dist` ([8477b4c](https://github.com/maverick-js/maverick/commit/8477b4ce06f2d68d9b14b5526326ce32909c8bad))
+
+
+
 # [0.26.0](https://github.com/maverick-js/maverick/compare/v0.25.7...v0.26.0) (2023-01-06)
 
 

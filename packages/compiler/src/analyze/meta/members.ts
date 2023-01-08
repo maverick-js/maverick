@@ -26,6 +26,7 @@ export function buildMembersMeta(
     ? {
         props: props.length > 0 ? props : undefined,
         methods: methods.length > 0 ? methods : undefined,
+        length: props.length + methods.length,
       }
     : undefined;
 }

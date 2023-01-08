@@ -111,6 +111,7 @@ export interface TagMeta {
 export interface MembersMeta {
   props?: PropMeta[];
   methods?: MethodMeta[];
+  length: number;
 }
 
 export interface DefinitionMeta {

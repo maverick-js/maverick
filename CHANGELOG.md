@@ -1,3 +1,12 @@
+## [0.26.2](https://github.com/maverick-js/maverick/compare/v0.26.1...v0.26.2) (2023-01-08)
+
+
+### Bug Fixes
+
+* remove redundant types exports ([c7f0f57](https://github.com/maverick-js/maverick/commit/c7f0f57457167109862da505bf171662970edae1))
+
+
+
 ## [0.26.1](https://github.com/maverick-js/maverick/compare/v0.26.0...v0.26.1) (2023-01-08)
 
 

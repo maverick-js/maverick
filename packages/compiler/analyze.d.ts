@@ -1,1 +1,1 @@
-export * from './dist/analyze.js';
+export * from './dist/types/analyze/index.js';

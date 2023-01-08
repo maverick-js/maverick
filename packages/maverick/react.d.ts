@@ -1,1 +1,1 @@
-export * from './dist/prod/react.js';
+export * from './dist/types/react/index.js';

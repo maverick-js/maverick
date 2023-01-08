@@ -1,1 +1,1 @@
-export * from './dist/prod/ssr.js';
+export * from './dist/types/runtime/ssr/index.js';

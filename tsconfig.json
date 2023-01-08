@@ -5,12 +5,10 @@
     "alwaysStrict": true,
     "checkJs": true,
     "declaration": true,
-    "declarationDir": "types",
     "declarationMap": false,
     "emitDeclarationOnly": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "incremental": true,
     "importsNotUsedAsValues": "error",
     "lib": ["es2020"],
     "module": "esnext",
@@ -25,7 +23,6 @@
     "sourceMap": false,
     "strict": true,
     "target": "es2020",
-    "tsBuildInfoFile": ".tsbuildinfo",
     "useDefineForClassFields": false
   },
   "exclude": ["node_modules", "packages/*/dist", "packages/*/*.d.ts"]

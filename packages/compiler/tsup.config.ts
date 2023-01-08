@@ -21,6 +21,5 @@ export default defineConfig([
       cli: './src/cli/index.ts',
       index: './src/index.ts',
     },
-    dts: true,
   },
 ]);

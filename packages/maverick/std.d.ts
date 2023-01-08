@@ -1,1 +1,1 @@
-export * from './dist/prod/std.js';
+export * from './dist/types/std/index.js';

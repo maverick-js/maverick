@@ -1,1 +1,1 @@
-export * from './dist/prod/element.js';
+export * from './dist/types/element/index.js';

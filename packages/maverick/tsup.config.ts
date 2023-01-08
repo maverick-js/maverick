@@ -31,8 +31,4 @@ function base({ dev = false, server = false } = {}): Options {
   };
 }
 
-export default defineConfig([
-  { ...base({ dev: true }) },
-  { ...base({ dev: false }), dts: true },
-  { ...base({ server: true }) },
-]);
+export default defineConfig([base({ dev: true }), base({ dev: false }), base({ server: true })]);

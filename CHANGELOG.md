@@ -1,3 +1,12 @@
+## [0.26.3](https://github.com/maverick-js/maverick/compare/v0.26.2...v0.26.3) (2023-01-08)
+
+
+### Bug Fixes
+
+* **react:** `useReactContext` should return `undefined` instead of throwing ([9106802](https://github.com/maverick-js/maverick/commit/910680252732e5a92ae069df9a210b73ba483348))
+
+
+
 ## [0.26.2](https://github.com/maverick-js/maverick/compare/v0.26.1...v0.26.2) (2023-01-08)
 
 

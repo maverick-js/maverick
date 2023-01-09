@@ -1,3 +1,12 @@
+## [0.26.10](https://github.com/maverick-js/maverick/compare/v0.26.9...v0.26.10) (2023-01-09)
+
+
+### Bug Fixes
+
+* **runtime:** accessors should be `configurable` ([aab995c](https://github.com/maverick-js/maverick/commit/aab995c2ffca828f2eb8ce2adaa7c3498a5ff635))
+
+
+
 ## [0.26.9](https://github.com/maverick-js/maverick/compare/v0.26.8...v0.26.9) (2023-01-09)
 
 

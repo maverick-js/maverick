@@ -41,5 +41,6 @@ export function createRegex(regex: string | RegExp) {
 }
 
 export function isWindow(value: unknown): value is Window {
+  if (__SERVER__) return false;
   return value === window;
 }

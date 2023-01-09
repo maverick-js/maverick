@@ -74,7 +74,7 @@ const requestIdleCallback = __SERVER__
   ? noop
   : __TEST__
   ? run
-  : 'requestIdleCallback' in window
+  : typeof window !== 'undefined' && 'requestIdleCallback' in window
   ? window.requestIdleCallback
   : (cb) => window.requestAnimationFrame(cb);
 

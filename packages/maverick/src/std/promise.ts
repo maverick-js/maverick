@@ -30,8 +30,8 @@ export function timedPromise<T>(
   timeoutMsg: string,
 ): Promise<T> {
   const timer = new Promise((_, reject) => {
-    const timerId = window.setTimeout(() => {
-      window.clearTimeout(timerId);
+    const timerId = setTimeout(() => {
+      clearTimeout(timerId);
       reject(timeoutMsg);
     }, timeout);
   });

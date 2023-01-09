@@ -225,14 +225,15 @@ const DELEGATED_EVENTS = /* #__PURE__ */ Symbol(__DEV__ ? 'DELEGATED_EVENTS' : 0
 
 export function $$_delegate_events(
   types: (keyof GlobalEventHandlersEventMap)[],
-  document = window.document,
+  document = !__SERVER__ ? window.document : null,
 ) {
-  const events = (document[DELEGATED_EVENTS] ??= new Set());
+  if (__SERVER__) return;
+  const events = (document![DELEGATED_EVENTS] ??= new Set());
   for (let i = 0, len = types.length; i < len; i++) {
     const type = types[i];
     if (!events.has(type)) {
       events.add(type);
-      document.addEventListener(type, delegated_event_handler);
+      document!.addEventListener(type, delegated_event_handler);
     }
   }
 }

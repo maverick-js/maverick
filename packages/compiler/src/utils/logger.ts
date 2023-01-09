@@ -1,5 +1,5 @@
 import kleur from 'kleur';
-import normalizePath from 'normalize-path';
+import { normalize } from 'pathe';
 import type { Node, SourceFile } from 'typescript';
 
 import { ms } from './ms';
@@ -174,7 +174,7 @@ export const reportDiagnosticByLine: DiagnosticReporterByLine = (
   line: number,
   level = LogLevel.Info,
 ) => {
-  const sourceFilePath = normalizePath(sourceFile.fileName);
+  const sourceFilePath = normalize(sourceFile.fileName);
   const sourceText = sourceFile.text;
   if (__TEST__) {
     testDiagnostics.push({
@@ -195,7 +195,7 @@ export const reportDiagnosticByNode: DiagnosticReporterByNode = (
   level = LogLevel.Info,
 ) => {
   const sourceFile = node.getSourceFile();
-  const sourceFilePath = normalizePath(sourceFile.fileName);
+  const sourceFilePath = normalize(sourceFile.fileName);
   const sourceText = sourceFile.text;
   const posStart = sourceFile.getLineAndCharacterOfPosition(node.getStart());
   const posEnd = sourceFile.getLineAndCharacterOfPosition(node.getEnd());

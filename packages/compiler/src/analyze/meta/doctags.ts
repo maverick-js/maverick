@@ -1,6 +1,6 @@
 import kleur from 'kleur';
-import normalizePath from 'normalize-path';
 import { dirname, resolve } from 'path';
+import { normalize } from 'pathe';
 import type ts from 'typescript';
 
 import { filterArrayUnique } from '../../utils/array';
@@ -27,7 +27,7 @@ export function resolveDocTagText(node: ts.Node, text?: string | ts.Node[]) {
 
   if (!text || !/^('|")?(\.\/|\.\.\/)/.test(text ?? '')) return text;
 
-  const filePath = normalizePath(node.getSourceFile().fileName);
+  const filePath = normalize(node.getSourceFile().fileName);
   const textPath = escapeQuotes(text);
 
   return resolve(dirname(filePath), textPath);

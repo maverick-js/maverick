@@ -1,10 +1,10 @@
-import normalizePath from 'normalize-path';
 import { dirname, relative, resolve } from 'path';
+import { normalize } from 'pathe';
 
 export const resolvePath = (...pathSegments: string[]): string =>
-  normalizePath(resolve(...pathSegments));
+  normalize(resolve(...pathSegments));
 
 export function resolveRelativePath(from: string, to: string): string {
   const path = relative(dirname(from), to);
-  return normalizePath(path.startsWith('.') ? path : `./${path}`);
+  return normalize(path.startsWith('.') ? path : `./${path}`);
 }

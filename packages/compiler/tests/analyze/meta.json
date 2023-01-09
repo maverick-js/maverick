@@ -307,11 +307,11 @@
     ],
     "slots": [
       {
-        "description": "This is the default slot."
+        "docs": "This is the default slot."
       },
       {
         "name": "foo",
-        "description": "This is the foo slot."
+        "docs": "This is the foo slot."
       }
     ],
     "members": {

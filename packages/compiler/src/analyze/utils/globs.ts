@@ -1,6 +1,6 @@
 import { existsSync, lstatSync } from 'fs';
 import { globbySync } from 'globby';
-import normalizePath from 'normalize-path';
+import { normalize } from 'pathe';
 
 const IGNORE_GLOBS = ['**/node_modules/**', '**/web_modules/**'];
 const DEFAULT_DIR_GLOB = '**/*.{js,jsx,ts,tsx}';
@@ -12,7 +12,7 @@ export async function parseGlobs(globs: string[]): Promise<string[]> {
   }
 
   const filePaths = await expandGlobs(globs);
-  return filePaths.map((filePath) => normalizePath(filePath));
+  return filePaths.map((filePath) => normalize(filePath));
 }
 
 async function expandGlobs(globs: string | string[]): Promise<string[]> {

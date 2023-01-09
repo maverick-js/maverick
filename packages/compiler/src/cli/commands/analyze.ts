@@ -7,13 +7,12 @@ import { createBuildPlugin } from '../../analyze/plugins/build-plugin';
 import { createDiscoverPlugin } from '../../analyze/plugins/discover-plugin';
 import { runPlugins } from '../../analyze/plugins/lifecycle';
 import { parseGlobs } from '../../analyze/utils/globs';
-import { resolveConfigPaths, resolveCorePkgName } from '../../analyze/utils/resolve';
+import { resolveConfigPaths } from '../../analyze/utils/resolve';
 import { clearTerminal, log, LogLevel, logTime } from '../../utils/logger';
 import { isArray, isUndefined } from '../../utils/unit';
 import { compileAndWatch, compileOnce, transpileModuleOnce } from '../compile';
 
 export interface AnalyzeCommandConfig extends Record<string, unknown> {
-  pkgName: string;
   logLevel: string;
   glob?: string[];
   globs?: string[];
@@ -25,9 +24,7 @@ export interface AnalyzeCommandConfig extends Record<string, unknown> {
 
 async function normalizeConfig(config: AnalyzeCommandConfig) {
   const cwd = isUndefined(config.cwd) ? process.cwd() : config.cwd;
-  const normalizedConfig = await resolveConfigPaths(cwd, config);
-  normalizedConfig.pkgName = (await resolveCorePkgName(normalizedConfig.cwd))!;
-  return normalizedConfig;
+  return resolveConfigPaths(cwd, config);
 }
 
 export async function runAnalyzeCommand(analyzeConfig: AnalyzeCommandConfig): Promise<void> {

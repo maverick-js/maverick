@@ -1,12 +1,5 @@
-import { readPackageUp } from 'read-pkg-up';
-
 import { isString, isUndefined } from '../../utils/unit';
 import { resolvePath } from './path';
-
-export async function resolveCorePkgName(root: string): Promise<string | undefined> {
-  const pkg = await readPackageUp({ cwd: root });
-  return pkg?.packageJson.name;
-}
 
 export async function resolveConfigPaths<T extends Record<string, unknown>>(
   cwd: string,

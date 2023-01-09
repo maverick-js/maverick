@@ -1,3 +1,12 @@
+## [0.26.7](https://github.com/maverick-js/maverick/compare/v0.26.6...v0.26.7) (2023-01-09)
+
+
+### Bug Fixes
+
+* **compiler:** move node imports out of main path to avoid vite ssr issues ([ff40441](https://github.com/maverick-js/maverick/commit/ff40441f995923dae157bf58ada4b66490179a64))
+
+
+
 ## [0.26.6](https://github.com/maverick-js/maverick/compare/v0.26.5...v0.26.6) (2023-01-09)
 
 

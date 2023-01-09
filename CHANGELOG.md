@@ -1,3 +1,12 @@
+## [0.26.11](https://github.com/maverick-js/maverick/compare/v0.26.10...v0.26.11) (2023-01-09)
+
+
+### Bug Fixes
+
+* rework package exports fields ([99da62b](https://github.com/maverick-js/maverick/commit/99da62b0e1bac02e2b657a6829266759c873498f))
+
+
+
 ## [0.26.10](https://github.com/maverick-js/maverick/compare/v0.26.9...v0.26.10) (2023-01-09)
 
 

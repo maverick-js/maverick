@@ -1,3 +1,12 @@
+## [0.26.8](https://github.com/maverick-js/maverick/compare/v0.26.7...v0.26.8) (2023-01-09)
+
+
+### Bug Fixes
+
+* **std:** more cautious `window` checks incase loaded for ssr ([2224ae3](https://github.com/maverick-js/maverick/commit/2224ae3c0810e53fd4e8801acf11d4148ff98e4a))
+
+
+
 ## [0.26.7](https://github.com/maverick-js/maverick/compare/v0.26.6...v0.26.7) (2023-01-09)
 
 

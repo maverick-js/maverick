@@ -74,15 +74,15 @@ export const unplugin = createUnplugin((options: Options = {}) => {
       return transformCode(code, id);
     },
     vite: {
-      config() {
+      config(config) {
         return {
-          optimizeDeps: {
-            exclude: ['maverick.js'],
+          resolve: {
+            conditions: config.mode === 'test' && generate !== 'ssr' ? ['test'] : undefined,
           },
         };
       },
       configResolved(config) {
-        if (config.env.MODE === 'test') generate = generate ?? 'dom';
+        if (config.mode === 'test') generate = generate ?? 'dom';
         if (config.isProduction) pretty = false;
       },
       transform(code, id, options) {

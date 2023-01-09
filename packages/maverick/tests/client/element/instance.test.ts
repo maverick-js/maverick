@@ -55,3 +55,26 @@ it('should forward context map', () => {
   context.set(FooContext.id, 20);
   createElementInstance(definition, { context });
 });
+
+it('should create accessors', () => {
+  const definition = defineCustomElement({
+    tagName: 'mk-foo-4',
+    props: {
+      foo: { initial: 0 },
+      bar: { initial: 'bar' },
+      baz: { initial: false },
+    },
+    setup({ accessors }) {
+      const descriptors = Object.getOwnPropertyDescriptors(accessors());
+      expect(descriptors.foo.get && descriptors.foo.set).toBeDefined();
+      expect(descriptors.bar.get && descriptors.bar.set).toBeDefined();
+      expect(descriptors.baz.get && descriptors.baz.set).toBeDefined();
+
+      expect(accessors().foo).toBe(0);
+      expect(accessors().bar).toBe('bar');
+      expect(accessors().baz).toBe(false);
+    },
+  } as any);
+
+  createElementInstance(definition);
+});

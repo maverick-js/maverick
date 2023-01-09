@@ -36,7 +36,8 @@ export function createElementInstance<T extends AnyCustomElement>(
 
     let accessors: Props | null = null,
       destroyed = false,
-      $props = 'props' in definition ? createInstanceProps(definition.props) : {},
+      hasProps = 'props' in definition,
+      $props = hasProps ? createInstanceProps(definition.props) : {},
       $connected = signal(false),
       $mounted = signal(false),
       $attrs = {},
@@ -44,7 +45,7 @@ export function createElementInstance<T extends AnyCustomElement>(
       setAttributes = (attrs) => void Object.assign($attrs, attrs),
       setStyles = (styles) => void Object.assign($styles, styles);
 
-    if (init.props && 'props' in definition) {
+    if (init.props && hasProps) {
       for (const prop of Object.keys(init.props)) {
         if (prop in definition.props) $props['$' + prop].set(init.props[prop]!);
       }
@@ -77,7 +78,12 @@ export function createElementInstance<T extends AnyCustomElement>(
       [CONNECT]: [],
       [MOUNT]: [],
       [DESTROY]: [],
-      accessors: () => (accessors ??= createAccessors($props) as Props),
+      accessors() {
+        if (accessors) return accessors;
+        const props = {};
+        for (const prop of Object.keys(definition.props)) props[prop] = $props['$' + prop];
+        return (accessors = createAccessors(props) as Props);
+      },
       destroy() {
         if (destroyed) return;
 

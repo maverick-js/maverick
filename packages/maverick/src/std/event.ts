@@ -191,8 +191,8 @@ export function appendTriggerEvent(event: DOMEvent, trigger?: Event) {
   }
 
   Object.defineProperty(origin, 'trigger', {
-    enumerable: true,
     configurable: true,
+    enumerable: true,
     get: () => trigger,
   });
 }

@@ -1,7 +1,5 @@
 import kleur from 'kleur';
-import { existsSync, mkdirSync } from 'node:fs';
-import { readFile, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { resolve } from 'pathe';
 import ts from 'typescript';
 
 import { log, LogLevel, reportDiagnosticByLine } from '../utils/logger';
@@ -107,7 +105,9 @@ export function compileAndWatch(
 }
 
 export async function transpileModuleOnce(filePath: string): Promise<unknown> {
-  const sourceText = (await readFile(filePath)).toString();
+  const { existsSync, mkdirSync, readFileSync, writeFileSync } = await import('node:fs');
+
+  const sourceText = readFileSync(filePath, 'utf8').toString();
 
   const transpiledResult = ts.transpileModule(sourceText, {
     compilerOptions: defaultOptions,
@@ -120,7 +120,7 @@ export async function transpileModuleOnce(filePath: string): Promise<unknown> {
   }
 
   const transpiledFilePath = resolve(tmpDir, 'config.mjs');
-  await writeFile(transpiledFilePath, transpiledResult.outputText);
+  writeFileSync(transpiledFilePath, transpiledResult.outputText);
 
   try {
     return (await import(transpiledFilePath + `?t=${Date.now()}`))?.default ?? [];

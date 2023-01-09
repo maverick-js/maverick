@@ -1,12 +1,12 @@
 import prompt from 'enquirer';
 import { execa } from 'execa';
-import fs from 'fs';
 import kleur from 'kleur';
 import minimist from 'minimist';
-import { createRequire } from 'module';
-import path from 'path';
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import semver from 'semver';
-import { fileURLToPath } from 'url';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

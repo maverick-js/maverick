@@ -1,5 +1,5 @@
 import MagicString, { type SourceMapOptions } from 'magic-string';
-import path from 'path';
+import { relative } from 'pathe';
 
 import {
   log,
@@ -62,7 +62,7 @@ export function transform(source: string, options: Partial<TransformOptions> = {
 
   if (logLevel) setGlobalLogLevel(mapLogLevelStringToNumber(logLevel));
 
-  log(() => `Transforming ${path.relative(process.cwd(), filename)}`, LogLevel.Info);
+  log(() => `Transforming ${relative(process.cwd(), filename)}`, LogLevel.Info);
   log(options, LogLevel.Verbose);
 
   const code = new MagicString(source);

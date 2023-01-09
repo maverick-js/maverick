@@ -1,6 +1,5 @@
 import kleur from 'kleur';
-import { dirname, resolve } from 'path';
-import { normalize } from 'pathe';
+import { dirname, normalize, resolve } from 'pathe';
 import type ts from 'typescript';
 
 import { filterArrayUnique } from '../../utils/array';

@@ -1,6 +1,4 @@
-import { existsSync, mkdirSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { dirname } from 'pathe';
 
 import { escapeQuotes } from '../../utils/str';
 import { isUndefined } from '../../utils/unit';
@@ -64,9 +62,11 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
       });
 
     const dir = dirname(normalizedConfig.outFile);
+
+    const { existsSync, mkdirSync, writeFileSync } = await import('node:fs');
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
-    await writeFile(normalizedConfig.outFile, JSON.stringify(output, undefined, 2));
+    writeFileSync(normalizedConfig.outFile, JSON.stringify(output, undefined, 2));
   },
 });
 

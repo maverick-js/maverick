@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import path, { resolve } from 'node:path';
+import path from 'node:path';
 
 import { TS_NODE } from 'maverick.js/analyze/meta/component';
 import { createBuildPlugin } from 'maverick.js/analyze/plugins/build-plugin';
@@ -16,7 +16,7 @@ const replacer = (key, value) => (key !== TS_NODE ? value : undefined);
 
 it('should build component meta', async () => {
   const meta = await buildMeta();
-  const output = resolve(__dirname, './meta.json');
+  const output = path.resolve(__dirname, './meta.json');
   const current = JSON.stringify(meta, replacer, 2);
   const prev = existsSync(output) ? await readFile(output, 'utf-8') : null;
   if (!prev) {

@@ -1,5 +1,4 @@
-import { dirname, relative, resolve } from 'path';
-import { normalize } from 'pathe';
+import { dirname, normalize, relative, resolve } from 'pathe';
 
 export const resolvePath = (...pathSegments: string[]): string =>
   normalize(resolve(...pathSegments));

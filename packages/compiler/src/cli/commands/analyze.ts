@@ -1,4 +1,3 @@
-import { existsSync } from 'fs';
 import kleur from 'kleur';
 import type ts from 'typescript';
 
@@ -36,6 +35,8 @@ export async function runAnalyzeCommand(analyzeConfig: AnalyzeCommandConfig): Pr
   log(config, LogLevel.Verbose);
 
   let plugins: AnalyzePlugin[] = [];
+
+  const { existsSync } = await import('node:fs');
 
   if (!existsSync(config.configFile)) {
     log(

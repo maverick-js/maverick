@@ -1,6 +1,4 @@
-import { existsSync, mkdirSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { dirname } from 'pathe';
 
 import { type ComponentMeta, TS_NODE } from '../meta/component';
 import { resolveConfigPaths } from '../utils/resolve';
@@ -52,9 +50,11 @@ export const createJSONPlugin: AnalyzePluginBuilder<Partial<JSONPluginConfig>> =
     const finalOutput = normalizedConfig.transformJson?.(output) ?? output;
 
     const dir = dirname(normalizedConfig.outFile);
+
+    const { existsSync, mkdirSync, writeFileSync } = await import('node:fs');
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
-    await writeFile(
+    writeFileSync(
       normalizedConfig.outFile,
       stringify(finalOutput as JSONPluginOutput, replacer, 2),
     );

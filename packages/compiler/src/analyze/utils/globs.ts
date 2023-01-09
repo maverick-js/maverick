@@ -1,4 +1,3 @@
-import { existsSync, lstatSync } from 'fs';
 import { globbySync } from 'globby';
 import { normalize } from 'pathe';
 
@@ -17,6 +16,8 @@ export async function parseGlobs(globs: string[]): Promise<string[]> {
 
 async function expandGlobs(globs: string | string[]): Promise<string[]> {
   globs = Array.isArray(globs) ? globs : [globs];
+
+  const { existsSync, lstatSync } = await import('node:fs');
 
   const filePaths = await Promise.all(
     globs.map((g) => {

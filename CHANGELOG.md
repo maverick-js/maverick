@@ -1,3 +1,12 @@
+## [0.26.9](https://github.com/maverick-js/maverick/compare/v0.26.8...v0.26.9) (2023-01-09)
+
+
+### Bug Fixes
+
+* **element:** accessors should remove `$` prefix from props ([e713b9d](https://github.com/maverick-js/maverick/commit/e713b9d441ce3ca81a30a6ddb85929fcbad3603c))
+
+
+
 ## [0.26.8](https://github.com/maverick-js/maverick/compare/v0.26.7...v0.26.8) (2023-01-09)
 
 

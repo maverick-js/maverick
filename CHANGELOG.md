@@ -1,3 +1,13 @@
+## [0.26.6](https://github.com/maverick-js/maverick/compare/v0.26.5...v0.26.6) (2023-01-09)
+
+
+### Bug Fixes
+
+* **analyze:** `slots.description` -> `slots.docs` ([1de65e0](https://github.com/maverick-js/maverick/commit/1de65e02e4eb0c5a7b2a704703f5061db029323c))
+* **analyze:** replace `normalize-path` -> `pathe` ([bb98a9c](https://github.com/maverick-js/maverick/commit/bb98a9cb0c6b6b58cd60ca75eb8ed93134b218b6))
+
+
+
 ## [0.26.5](https://github.com/maverick-js/maverick/compare/v0.26.4...v0.26.5) (2023-01-08)
 
 

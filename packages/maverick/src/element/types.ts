@@ -114,14 +114,14 @@ export interface HTMLCustomElement<Props = {}, Events = {}, CSSVars = {}>
   /** @internal only holds type - not a real prop. */
   ___events?: Events;
 
-  addEventListener<K extends keyof HTMLElementEventMap>(
-    type: K,
-    listener: (this: Element, ev: HTMLElementEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions,
-  ): void;
   addEventListener<K extends keyof Events>(
     type: K,
     listener: (this: Element, ev: Events[K]) => any,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    listener: (this: Element, ev: HTMLElementEventMap[K]) => any,
     options?: boolean | AddEventListenerOptions,
   ): void;
   addEventListener(
@@ -130,14 +130,14 @@ export interface HTMLCustomElement<Props = {}, Events = {}, CSSVars = {}>
     options?: boolean | AddEventListenerOptions,
   ): void;
 
-  removeEventListener<K extends keyof HTMLElementEventMap>(
-    type: K,
-    listener: (this: Element, ev: HTMLElementEventMap[K]) => any,
-    options?: boolean | EventListenerOptions,
-  ): void;
   removeEventListener<K extends keyof Events>(
     type: K,
     listener: (this: Element, ev: Events[K]) => any,
+    options?: boolean | EventListenerOptions,
+  ): void;
+  removeEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    listener: (this: Element, ev: HTMLElementEventMap[K]) => any,
     options?: boolean | EventListenerOptions,
   ): void;
   removeEventListener(

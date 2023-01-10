@@ -1,3 +1,12 @@
+## [0.26.12](https://github.com/maverick-js/maverick/compare/v0.26.11...v0.26.12) (2023-01-10)
+
+
+### Bug Fixes
+
+* **element:** defined events should have higher priority than globals on `addEventListener` ([241b6bf](https://github.com/maverick-js/maverick/commit/241b6bf07051b2610bdef4f1f624c669de8e19c5))
+
+
+
 ## [0.26.11](https://github.com/maverick-js/maverick/compare/v0.26.10...v0.26.11) (2023-01-09)
 
 

@@ -1,3 +1,12 @@
+## [0.26.13](https://github.com/maverick-js/maverick/compare/v0.26.12...v0.26.13) (2023-01-14)
+
+
+### Bug Fixes
+
+* **runtime:** add correct svg attribute case types to jsx runtime ([290d780](https://github.com/maverick-js/maverick/commit/290d7807066e896fd84ee1fa1f203bbddaa6a3e9))
+
+
+
 ## [0.26.12](https://github.com/maverick-js/maverick/compare/v0.26.11...v0.26.12) (2023-01-10)
 
 

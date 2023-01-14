@@ -569,7 +569,10 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
-  export interface SVGAttributes extends KebabCaseObservableRecord<SVGProperties> {}
+  export interface SVGAttributes
+    extends KebabCaseObservableRecord<Pick<SVGProperties, KebabCaseSVGProperties>>,
+      ObservableRecord<Pick<SVGProperties, CamelCaseSVGProperties>>,
+      Omit<SVGProperties, KebabCaseSVGProperties | CamelCaseSVGProperties> {}
 
   export type SVGElementAttributes<Element extends DOMElement = SVGElement> =
     HTMLElementAttributes<Element> & SVGAttributes;
@@ -577,6 +580,137 @@ export namespace JSX {
   export interface PathAttributes {
     d: string;
   }
+
+  export type KebabCaseSVGProperties =
+    | 'accentHeight'
+    | 'alignmentBaseline'
+    | 'arabicForm'
+    | 'baselineShift'
+    | 'capHeight'
+    | 'clipPath'
+    | 'clipRule'
+    | 'colorInterpolation'
+    | 'colorInterpolationFilters'
+    | 'colorProfile'
+    | 'dominantBaseline'
+    | 'enableBackground'
+    | 'fillOpacity'
+    | 'fillRule'
+    | 'floodColor'
+    | 'floodOpacity'
+    | 'fontFamily'
+    | 'fontSize'
+    | 'fontSizeAdjust'
+    | 'fontStretch'
+    | 'fontStyle'
+    | 'fontVariant'
+    | 'fontWeight'
+    | 'glyphName'
+    | 'glyphOrientationHorizontal'
+    | 'glyphOrientationVertical'
+    | 'horizAdvX'
+    | 'horizOriginX'
+    | 'imageRendering'
+    | 'letterSpacing'
+    | 'lightingColor'
+    | 'markerEnd'
+    | 'markerMid'
+    | 'markerStart'
+    | 'overlinePosition'
+    | 'overlineThickness'
+    | 'panose1'
+    | 'paintOrder'
+    | 'pointerEvents'
+    | 'shapeRendering'
+    | 'stopColor'
+    | 'stopOpacity'
+    | 'strikethroughPosition'
+    | 'strikethroughThickness'
+    | 'strokeDasharray'
+    | 'strokeDashoffset'
+    | 'strokeLinecap'
+    | 'strokeLinejoin'
+    | 'strokeMiterlimit'
+    | 'strokeOpacity'
+    | 'strokeWidth'
+    | 'textAnchor'
+    | 'textDecoration'
+    | 'textRendering'
+    | 'transformOrigin'
+    | 'underlinePosition'
+    | 'underlineThickness'
+    | 'unicodeBidi'
+    | 'unicodeRange'
+    | 'unitsPerEm'
+    | 'vAlphabetic'
+    | 'vHanging'
+    | 'vIdeographic'
+    | 'vMathematical'
+    | 'vectorEffect'
+    | 'vertAdvY'
+    | 'vertOriginX'
+    | 'vertOriginY'
+    | 'wordSpacing'
+    | 'writingMode'
+    | 'xHeight';
+
+  export type CamelCaseSVGProperties =
+    | 'attributeName'
+    | 'attributeType'
+    | 'baseFrequency'
+    | 'baseProfile'
+    | 'calcMode'
+    | 'clipPathUnits'
+    | 'contentScriptType'
+    | 'contentStyleType'
+    | 'diffuseConstant'
+    | 'edgeMode'
+    | 'filterRes'
+    | 'filterUnits'
+    | 'glyphRef'
+    | 'gradientTransform'
+    | 'gradientUnits'
+    | 'kernelMatrix'
+    | 'kernelUnitLength'
+    | 'keyPoints'
+    | 'keySplines'
+    | 'keyTimes'
+    | 'lengthAdjust'
+    | 'limitingConeAngle'
+    | 'markerHeight'
+    | 'markerUnits'
+    | 'markerWidth'
+    | 'maskContentUnits'
+    | 'maskUnits'
+    | 'numOctaves'
+    | 'pathLength'
+    | 'patternContentUnits'
+    | 'patternTransform'
+    | 'patternUnits'
+    | 'pointsAtX'
+    | 'pointsAtY'
+    | 'pointsAtZ'
+    | 'preserveAlpha'
+    | 'preserveAspectRatio'
+    | 'primitiveUnits'
+    | 'repeatCount'
+    | 'repeatDur'
+    | 'requiredFeatures'
+    | 'specularConstant'
+    | 'specularExponent'
+    | 'spreadMethod'
+    | 'startOffset'
+    | 'stdDeviation'
+    | 'stitchTiles'
+    | 'surfaceScale'
+    | 'systemLanguage'
+    | 'tableValues'
+    | 'textLength'
+    | 'viewBox'
+    | 'viewTarget'
+    | 'xChannelSelector'
+    | 'yChannelSelector'
+    | 'zoomAndPan';
 
   export interface SVGProperties {
     accentHeight?: number | string;
@@ -784,6 +918,7 @@ export namespace JSX {
     textRendering?: number | string;
     to?: number | string;
     transform?: string;
+    transformOrigin?: string;
     u1?: number | string;
     u2?: number | string;
     underlinePosition?: number | string;

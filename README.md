@@ -4,6 +4,11 @@
 
 Coming Soon.
 
+## Benchmark
+
+You can find Maverick listed in the [JS Framework Benchmark](https://krausest.github.io/js-framework-benchmark/current.html)
+and our signals benchmarks can be found [here](https://github.com/maverick-js/signals#benchmarks).
+
 ## Inspiration
 
 Maverick was inspired by:

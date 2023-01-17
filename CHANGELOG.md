@@ -1,3 +1,13 @@
+# [0.27.0](https://github.com/maverick-js/maverick/compare/v0.26.13...v0.27.0) (2023-01-17)
+
+
+### Features
+
+* **element:** new `keepAlive` property ([7479e4e](https://github.com/maverick-js/maverick/commit/7479e4ec6f5ab61e09a1a01c9d340e838c9e4385))
+* **element:** new `onAttach` callback on host elements ([e562a5b](https://github.com/maverick-js/maverick/commit/e562a5b3792884f3a6464947be85d76a77d531fe))
+
+
+
 ## [0.26.13](https://github.com/maverick-js/maverick/compare/v0.26.12...v0.26.13) (2023-01-14)
 
 

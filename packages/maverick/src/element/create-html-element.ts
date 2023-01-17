@@ -29,6 +29,7 @@ import {
   RENDER,
   SCOPE,
 } from './internal';
+import type { ElementLifecycleCallback } from './lifecycle';
 import type {
   AnyCustomElement,
   CustomElementDefinition,
@@ -97,6 +98,7 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
   private _onEventDispatch?: (eventType: string) => void;
 
   private _connectScope: Scope | null = null;
+  private _attachCallbacks: ElementLifecycleCallback[] | null = [];
   private _disconnectCallbacks: Dispose[] = [];
 
   keepAlive = false;
@@ -291,9 +293,11 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
     (instance.host as Writable<CustomElementHost<T>>).el = this as unknown as T;
     this._instance = instance;
 
-    for (const attachCallback of instance[ATTACH]) {
+    for (const attachCallback of [...instance[ATTACH], ...this._attachCallbacks!]) {
       scoped(attachCallback, instance[SCOPE]);
     }
+
+    this._attachCallbacks = null;
 
     if (this._root && init && $render) {
       const renderer = this._hydrate ? init.hydrate : init.render;
@@ -311,6 +315,11 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
 
     tick();
     this.connectedCallback();
+  }
+
+  onAttach(callback: () => void) {
+    if (this._instance) callback();
+    else this._attachCallbacks!.push(callback);
   }
 
   onEventDispatch(callback: (eventType: string) => void) {

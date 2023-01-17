@@ -13,7 +13,7 @@ import type {
 import type { WritableKeys } from '../std/types';
 import type { CSS } from './css';
 import type { HOST, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
-import type { ElementLifecycleManager } from './lifecycle';
+import type { ElementLifecycleCallback, ElementLifecycleManager } from './lifecycle';
 
 export type AttributeValue = string | null;
 
@@ -174,6 +174,12 @@ export interface HostElement {
    * @internal
    */
   attachComponent(instance: CustomElementInstance): void;
+  /**
+   * Invokes the given callback when the custom element instance has been attached to this host
+   * element - this is when all instance members will be defined. The callback will be immediately
+   * invoked if the instance is already attached.
+   */
+  onAttach(callback: ElementLifecycleCallback): void;
   /**
    * The given `handler` is invoked with the type of event (e.g., `my-event`) when this element
    * dispatches it. Each event type is unique and only passed to the given `handler` once.

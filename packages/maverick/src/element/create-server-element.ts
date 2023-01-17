@@ -7,6 +7,7 @@ import { escape } from '../std/html';
 import { unwrapDeep } from '../std/signal';
 import { isBoolean } from '../std/unit';
 import { ATTACH, HOST, PROPS, RENDER, SCOPE } from './internal';
+import type { ElementLifecycleCallback } from './lifecycle';
 import type {
   AnyCustomElement,
   CustomElementDefinition,
@@ -66,6 +67,8 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
   _ssr?: string;
   /** @internal */
   _rendered = false;
+  /** @internal */
+  _attachCallbacks: ElementLifecycleCallback[] | null = [];
 
   readonly attributes = new Attributes();
   readonly style = new Style();
@@ -97,10 +100,11 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
     (instance.host as Writable<CustomElementHost<T>>).el = this as any;
     this._instance = instance;
 
-    for (const attachCallback of instance[ATTACH]) {
+    for (const attachCallback of [...instance[ATTACH], ...this._attachCallbacks!]) {
       scoped(attachCallback, instance[SCOPE]);
     }
 
+    this._attachCallbacks = null;
     tick();
 
     const $render = instance[RENDER];
@@ -180,6 +184,11 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
   onEventDispatch() {}
   addEventListener() {}
   removeEventListener() {}
+
+  onAttach(callback: ElementLifecycleCallback) {
+    if (this._instance) callback();
+    else this._attachCallbacks!.push(callback);
+  }
 
   destroy() {
     this._instance?.destroy();

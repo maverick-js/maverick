@@ -345,12 +345,35 @@ it('should render `setCSSVars`', () => {
   `);
 });
 
+it('should invoke onAttach callback', () => {
+  const { instance, element } = setupTestElement();
+
+  const callbackA = vi.fn(),
+    callbackB = vi.fn(),
+    callbackC = vi.fn();
+
+  element.onAttach(callbackA);
+  element.onAttach(callbackB);
+
+  expect(callbackA).toHaveBeenCalledTimes(0);
+  expect(callbackB).toHaveBeenCalledTimes(0);
+
+  element.attachComponent(instance);
+
+  expect(callbackA).toHaveBeenCalledTimes(1);
+  expect(callbackB).toHaveBeenCalledTimes(1);
+
+  element.onAttach(callbackC);
+  expect(callbackC).toHaveBeenCalledTimes(1);
+
+  instance.destroy();
+});
+
 afterEach(() => {
   document.body.innerHTML = '';
 });
 
 let count = 0;
-
 function setupTestElement(
   declaration?: Partial<CustomElementDeclaration<AnyCustomElement>>,
   { hydrate = false, delegate = true, append = true } = {},

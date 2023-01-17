@@ -1,13 +1,15 @@
 import { ATTACH, CONNECT, DESTROY, getCustomElementInstance, MOUNT } from './internal';
 
-export type ElementLifecycleCallback = () => any;
+export interface ElementLifecycleCallback {
+  (): any;
+}
 
-export type ElementLifecycleManager = {
-  [ATTACH]: (() => any)[];
-  [CONNECT]: (() => any)[];
-  [MOUNT]: (() => any)[];
-  [DESTROY]: (() => any)[];
-};
+export interface ElementLifecycleManager {
+  [ATTACH]: ElementLifecycleCallback[];
+  [CONNECT]: ElementLifecycleCallback[];
+  [MOUNT]: ElementLifecycleCallback[];
+  [DESTROY]: ElementLifecycleCallback[];
+}
 
 const createLifecycleMethod = /* #__PURE__ */ (type: keyof ElementLifecycleManager) => {
   return (callback: ElementLifecycleCallback) => {

@@ -26,6 +26,7 @@ export async function setup($el: HTMLCustomElement) {
       scope: parent?.instance![SCOPE]!,
     });
 
+    if (parent?.keepAlive) $el.keepAlive = true;
     $el.attachComponent(instance);
   }
 }

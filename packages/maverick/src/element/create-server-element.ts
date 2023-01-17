@@ -56,6 +56,7 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
 {
   /** @internal */
   [HOST] = true;
+  keepAlive = false;
 
   static _definition: CustomElementDefinition;
 
@@ -179,6 +180,10 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
   onEventDispatch() {}
   addEventListener() {}
   removeEventListener() {}
+
+  destroy() {
+    this._instance?.destroy();
+  }
 }
 
 class Attributes {

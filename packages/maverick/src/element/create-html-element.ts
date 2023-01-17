@@ -99,6 +99,8 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
   private _connectScope: Scope | null = null;
   private _disconnectCallbacks: Dispose[] = [];
 
+  keepAlive = false;
+
   private get _hydrate() {
     return this.hasAttribute('mk-h');
   }
@@ -143,6 +145,8 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
 
       return;
     }
+
+    if (this.hasAttribute('keep-alive')) this.keepAlive = true;
 
     // Connect
     instance.host[PROPS].$connected.set(true);
@@ -212,7 +216,7 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
     this._connectScope = null;
     tick();
 
-    if (!this._delegate) {
+    if (!this._delegate && !this.keepAlive) {
       requestAnimationFrame(() => {
         if (!this.isConnected) {
           instance?.destroy();
@@ -313,6 +317,10 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
     const ctor = this.constructor as typeof HTMLCustomElement;
     if (ctor._dispatchedEvents) for (const eventType of ctor._dispatchedEvents) callback(eventType);
     this._onEventDispatch = callback;
+  }
+
+  destroy() {
+    this._instance?.destroy();
   }
 
   override dispatchEvent(event: Event): boolean {

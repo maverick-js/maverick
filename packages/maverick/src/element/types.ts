@@ -150,6 +150,19 @@ export interface HTMLCustomElement<Props = {}, Events = {}, CSSVars = {}>
 export interface HostElement {
   [HOST]?: boolean;
   /**
+   * Whether this component should be kept-alive on DOM disconnection. If `true`, all child
+   * host elements will also be kept alive and the instance will need to be manually destroyed.
+   *
+   * Important to note that if a parent element is kept alive, calling destroy will also destroy
+   * all child element instances.
+   *
+   * ```ts
+   * // Destroy this element and all children.
+   * element.destroy();
+   * ```
+   */
+  keepAlive: boolean;
+  /**
    * Maverick component instance associated with this element.
    *
    * @internal
@@ -168,6 +181,10 @@ export interface HostElement {
    * @internal
    */
   onEventDispatch(handler: (eventType: string) => void): void;
+  /**
+   * Destroys the underlying custom element instance.
+   */
+  destroy(): void;
 }
 
 export type InferCustomElementProps<T> = T extends HTMLCustomElement<infer Props, any, any>

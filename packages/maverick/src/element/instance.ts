@@ -1,4 +1,4 @@
-import { getScope, root, Scope, scoped, signal, tick } from '@maverick-js/signals';
+import { getScope, onDispose, root, Scope, scoped, signal, tick } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
 import { createAccessors, provideContextMap, useContextMap, WriteSignals } from '../runtime';
@@ -31,7 +31,7 @@ export function createElementInstance<T extends AnyCustomElement>(
   type Props = InferCustomElementProps<T>;
 
   return root((dispose) => {
-    if (init.scope) getScope()![SCOPE] = init.scope;
+    if (init.scope) init.scope.append(getScope()!);
     if (init.context) provideContextMap(init.context);
 
     let accessors: Props | null = null,
@@ -141,6 +141,7 @@ export function createElementInstance<T extends AnyCustomElement>(
       };
     }
 
+    onDispose(instance.destroy);
     return instance as CustomElementInstance<T>;
   });
 }

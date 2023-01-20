@@ -1,3 +1,12 @@
+## [0.27.1](https://github.com/maverick-js/maverick/compare/v0.27.0...v0.27.1) (2023-01-20)
+
+
+### Bug Fixes
+
+* **react:** preserve state when required during react mount/unmount ([91f8aba](https://github.com/maverick-js/maverick/commit/91f8abab23bc30a1f5a5318cdca5e9ffb91f924d))
+
+
+
 # [0.27.0](https://github.com/maverick-js/maverick/compare/v0.26.13...v0.27.0) (2023-01-17)
 
 

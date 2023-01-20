@@ -82,7 +82,9 @@ function createReactClientElement<
     }
 
     override componentDidMount() {
-      if (!this._element) return;
+      // Check if element instance has already been attached (might occur on remounting tree with
+      // preserved state).
+      if (!this._element || this._element.instance) return;
 
       $$_attach_declarative_shadow_dom(this._element);
 
@@ -108,7 +110,11 @@ function createReactClientElement<
     }
 
     override componentWillUnmount() {
-      this._instance.destroy();
+      // Wait a tick to ensure this element is definitely being destroyed.
+      // https://reactjs.org/blog/2022/03/29/react-v18.html#new-strict-mode-behaviors
+      window.requestAnimationFrame(() => {
+        if (!this._element) this._instance.destroy();
+      });
     }
 
     override render() {

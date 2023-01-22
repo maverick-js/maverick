@@ -3,17 +3,16 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 import { createServerElement } from '../element/create-server-element';
 import { createElementInstance } from '../element/instance';
+import { SCOPE } from '../element/internal';
 import type { CustomElementDefinition } from '../element/types';
 import { kebabToCamelCase } from '../std/string';
-import { ReactContextMap } from './use-react-context';
-import { WithContextMap } from './utils';
+import { useComputeScope, WithComputeScope } from './use-compute-scope';
 
 const stylesRE = /style="(.*?)"/;
 
 export function createReactServerElement(definition: CustomElementDefinition): any {
   const ServerElement = createServerElement(definition);
   const propDefs = definition.props ?? {};
-
   return ({ className, style, ...props }: any = {}) => {
     const host = new ServerElement();
 
@@ -38,12 +37,10 @@ export function createReactServerElement(definition: CustomElementDefinition): a
       }
     }
 
-    const providedContextMap = React.useContext(ReactContextMap);
-    const contextMap = providedContextMap ?? new Map();
-
+    const scope = useComputeScope();
     const instance = createElementInstance(definition, {
       props: _props,
-      context: contextMap,
+      scope: scope?.current,
     });
 
     host.attachComponent(instance);
@@ -60,9 +57,8 @@ export function createReactServerElement(definition: CustomElementDefinition): a
       host.removeAttribute('style');
     }
 
-    return WithContextMap(
-      contextMap,
-      providedContextMap,
+    return WithComputeScope(
+      { current: instance[SCOPE] },
       React.createElement(
         definition.tagName,
         {
@@ -80,6 +76,11 @@ export function createReactServerElement(definition: CustomElementDefinition): a
               dangerouslySetInnerHTML: { __html: innerHTML },
             }),
         props.children,
+        React.createElement(() => {
+          // Destroy from root scope so it's more efficient.
+          if (!scope) host.destroy();
+          return null;
+        }),
       ),
     );
   };

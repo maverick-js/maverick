@@ -105,7 +105,6 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
     }
 
     this._attachCallbacks = null;
-    tick();
 
     const $render = instance[RENDER];
     this._rendered = !!$render;
@@ -118,8 +117,6 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
     if (this.style.length > 0) {
       this.setAttribute('style', this.style.toString());
     }
-
-    instance.destroy();
   }
 
   render(): string {

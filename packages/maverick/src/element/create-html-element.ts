@@ -287,8 +287,10 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
     instance.host[PROPS].$attrs = null;
     instance.host[PROPS].$styles = null;
 
-    Object.defineProperties(this, Object.getOwnPropertyDescriptors(instance[MEMBERS]));
-    instance[MEMBERS] = null;
+    if (instance[MEMBERS]) {
+      Object.defineProperties(this, Object.getOwnPropertyDescriptors(instance[MEMBERS]));
+      instance[MEMBERS] = null;
+    }
 
     (instance.host as Writable<CustomElementHost<T>>).el = this as unknown as T;
     this._instance = instance;

@@ -1,7 +1,6 @@
 import type { Constructor, Simplify } from 'type-fest';
 
 import type {
-  ContextMap,
   JSX,
   ReadSignal,
   Scope,
@@ -214,9 +213,8 @@ export type InferCustomElementMembers<T> = T extends AnyCustomElement
   : never;
 
 export interface CustomElementInstanceInit<Props = {}> {
-  scope?: Scope;
+  scope?: Scope | null;
   props?: Readonly<Partial<Props>>;
-  context?: ContextMap;
 }
 
 export interface CustomElementInstance<T extends AnyCustomElement = AnyCustomElement>

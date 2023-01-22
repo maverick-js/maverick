@@ -1,7 +1,7 @@
 import { getScope, onDispose, root, Scope, scoped, signal, tick } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
-import { createAccessors, provideContextMap, useContextMap, WriteSignals } from '../runtime';
+import { createAccessors, WriteSignals } from '../runtime';
 import {
   ATTACH,
   CONNECT,
@@ -32,7 +32,6 @@ export function createElementInstance<T extends AnyCustomElement>(
 
   return root((dispose) => {
     if (init.scope) init.scope.append(getScope()!);
-    if (init.context) provideContextMap(init.context);
 
     let accessors: Props | null = null,
       destroyed = false,
@@ -90,14 +89,12 @@ export function createElementInstance<T extends AnyCustomElement>(
         if (!__SERVER__) {
           $connected.set(false);
           $mounted.set(false);
-          tick();
 
           for (const destroyCallback of instance[DESTROY]) {
             scoped(destroyCallback, instance[SCOPE]);
           }
 
           tick();
-
           for (const type of LIFECYCLES) instance[type].length = 0;
           dispose();
         } else {
@@ -114,28 +111,26 @@ export function createElementInstance<T extends AnyCustomElement>(
       },
     };
 
-    setCustomElementInstance(instance);
-    instance[MEMBERS] = definition.setup(instance);
-    setCustomElementInstance(null);
+    try {
+      setCustomElementInstance(instance);
+      instance[MEMBERS] = definition.setup(instance);
+    } finally {
+      setCustomElementInstance(null);
+    }
 
-    const $render = instance[MEMBERS]!.$render;
+    const $render = instance[MEMBERS]?.$render;
     if ($render) {
-      let scope!: Scope;
-
-      // Create a new root context to prevent children from overwriting flat context tree.
-      root(() => {
-        provideContextMap(new Map(useContextMap()));
-        scope = getScope()!;
-      });
-
       instance[RENDER] = function render() {
         let result = null;
 
         scoped(() => {
-          setCustomElementInstance(instance);
-          result = $render();
-          setCustomElementInstance(null);
-        }, scope);
+          try {
+            setCustomElementInstance(instance);
+            result = $render();
+          } finally {
+            setCustomElementInstance(null);
+          }
+        }, instance[SCOPE]);
 
         return result;
       };

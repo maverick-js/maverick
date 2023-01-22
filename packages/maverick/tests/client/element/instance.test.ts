@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'maverick.js';
+import { createContext, getScope, provideContext, root, Scope, useContext } from 'maverick.js';
 
 import { createElementInstance, defineCustomElement, PROPS } from 'maverick.js/element';
 
@@ -40,7 +40,7 @@ it('should forward props', () => {
   expect(instance.props.$bar()).toBe(40);
 });
 
-it('should forward context map', () => {
+it('should forward scope', () => {
   const FooContext = createContext(() => 10);
 
   const definition = defineCustomElement({
@@ -51,9 +51,13 @@ it('should forward context map', () => {
     },
   });
 
-  const context = new Map();
-  context.set(FooContext.id, 20);
-  createElementInstance(definition, { context });
+  let scope!: Scope;
+  root(() => {
+    scope = getScope()!;
+    provideContext(FooContext, 20);
+  });
+
+  createElementInstance(definition, { scope });
 });
 
 it('should create accessors', () => {

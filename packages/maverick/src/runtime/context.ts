@@ -1,40 +1,38 @@
-import { getContext, getScope, setContext } from '@maverick-js/signals';
+import { getContext, getScope, Scope, setContext } from '@maverick-js/signals';
 
 import { isUndefined } from '../std/unit';
 
 export interface Context<T> {
   id: symbol;
-  factory?: () => T;
+  provide?: () => T;
 }
 
-export function createContext<T>(factory?: () => T): Context<T> {
-  return { id: Symbol(), factory };
+export function createContext<T>(provide?: () => T): Context<T> {
+  return { id: Symbol(), provide };
 }
 
-export function provideContext<T>(context: Context<T>, value?: T) {
-  if (!getScope()) {
-    throw Error(
-      __DEV__ ? '[maverick] attempting to provide context outside `root` or `setup` function' : '',
-    );
+export function provideContext<T>(context: Context<T>, value?: T, scope: Scope = getScope()!) {
+  if (__DEV__ && !scope) {
+    throw Error('[maverick] attempting to provide context outside `root` or `setup` function');
   }
 
-  const providedValue = arguments.length >= 2;
+  const hasProvidedValue = !isUndefined(value);
 
-  if (!providedValue && !context.factory) {
-    throw Error(__DEV__ ? '[maverick] context can not be provided without a value or factory' : '');
+  if (__DEV__ && !hasProvidedValue && !context.provide) {
+    throw Error('[maverick] context can not be provided without a value or `provide` function');
   }
 
-  setContext(context.id, providedValue ? value : context.factory?.());
+  setContext(context.id, hasProvidedValue ? value : context.provide?.(), scope);
 }
 
 export function useContext<T>(context: Context<T>): T {
   const value = getContext(context.id) as T | undefined;
 
-  if (isUndefined(value)) {
-    throw Error(__DEV__ ? '[maverick] attempting to use context without providing first' : '');
+  if (__DEV__ && isUndefined(value)) {
+    throw Error('[maverick] attempting to use context without providing first');
   }
 
-  return value;
+  return value!;
 }
 
 export function hasProvidedContext(context: Context<any>): boolean {

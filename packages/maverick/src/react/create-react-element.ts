@@ -18,8 +18,8 @@ import type {
 import { $$_attach_declarative_shadow_dom } from '../runtime/dom';
 import { kebabToPascalCase } from '../std/string';
 import { createReactServerElement } from './create-react-server-element';
+import { ReactComputeScopeContext, ReactScope, WithReactScope } from './scope';
 import type { ReactElement, ReactElementProps } from './types';
-import { ComputeScopeContext, ReactComputeScope, WithComputeScope } from './use-compute-scope';
 import { setRef } from './utils';
 
 export interface ReactElementInit {
@@ -56,7 +56,7 @@ function createReactClientElement<
 
   class CustomElement extends ReactCustomElement<R> {
     static displayName = init?.displayName ?? definition.tagName;
-    static override contextType = ComputeScopeContext;
+    static override contextType = ReactComputeScopeContext;
     static override _definition = definition;
     static override _props = new Set(Object.keys(definition.props ?? {}));
   }
@@ -71,13 +71,13 @@ function createReactClientElement<
 }
 
 class ReactCustomElement<T extends AnyCustomElement> extends React.Component<ReactElementProps<T>> {
-  declare context: React.ContextType<typeof ComputeScopeContext>;
+  declare context: React.ContextType<typeof ReactComputeScopeContext>;
 
   static _definition: CustomElementDefinition;
   static _props: Set<string>;
   static _callbacks = new Map<string, string>();
 
-  private _scope: ReactComputeScope;
+  private _scope: ReactScope;
   private _instance: CustomElementInstance;
   private _element: HTMLCustomElement | null = null;
   private _ref?: React.RefCallback<HTMLCustomElement>;
@@ -160,7 +160,7 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
 
     tick();
 
-    return WithComputeScope(
+    return WithReactScope(
       this._scope,
       React.createElement(
         ctor._definition.tagName,

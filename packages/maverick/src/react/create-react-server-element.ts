@@ -6,7 +6,7 @@ import { createElementInstance } from '../element/instance';
 import { SCOPE } from '../element/internal';
 import type { CustomElementDefinition } from '../element/types';
 import { kebabToCamelCase } from '../std/string';
-import { useComputeScope, WithComputeScope } from './use-compute-scope';
+import { useReactScope, WithReactScope } from './scope';
 
 const stylesRE = /style="(.*?)"/;
 
@@ -37,7 +37,7 @@ export function createReactServerElement(definition: CustomElementDefinition): a
       }
     }
 
-    const scope = useComputeScope();
+    const scope = useReactScope();
     const instance = createElementInstance(definition, {
       props: _props,
       scope: scope?.current,
@@ -57,7 +57,7 @@ export function createReactServerElement(definition: CustomElementDefinition): a
       host.removeAttribute('style');
     }
 
-    return WithComputeScope(
+    return WithReactScope(
       { current: instance[SCOPE] },
       React.createElement(
         definition.tagName,

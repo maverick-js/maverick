@@ -4,7 +4,14 @@ import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 
 import { CustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
-import { createReactElement, useCustomElement } from 'maverick.js/react';
+import {
+  createReactContextProvider,
+  createReactElement,
+  createReactScopeProvider,
+  useCustomElement,
+  useReactContext,
+  useReactScope,
+} from 'maverick.js/react';
 import { DOMEvent } from 'maverick.js/std';
 
 it('should render', () => {
@@ -307,6 +314,44 @@ it('should use custom element', () => {
           ref,
         });
       }),
+    );
+  });
+});
+
+it('should provide scope', () => {
+  const Provider = createReactScopeProvider();
+  const container = document.body.appendChild(document.createElement('div'));
+  const root = createRoot(container);
+  act(() => {
+    root.render(
+      React.createElement(
+        Provider,
+        React.createElement(() => {
+          const scope = useReactScope();
+          expect(scope).toBeDefined();
+          return null;
+        }),
+      ),
+    );
+  });
+});
+
+it('should create context provider', () => {
+  const Context = createContext(() => 100);
+  const Provider = createReactContextProvider(Context);
+  const container = document.body.appendChild(document.createElement('div'));
+  const root = createRoot(container);
+  act(() => {
+    root.render(
+      React.createElement(
+        Provider,
+        null,
+        React.createElement(() => {
+          const value = useReactContext(Context);
+          expect(value).toBe(100);
+          return null;
+        }),
+      ),
     );
   });
 });

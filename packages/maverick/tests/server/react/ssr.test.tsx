@@ -3,7 +3,7 @@ import * as React from 'React';
 import { renderToString } from 'react-dom/server';
 
 import { defineCustomElement, onAttach } from 'maverick.js/element';
-import { createReactElement, useContext as useReactContext } from 'maverick.js/react';
+import { createReactElement, useReactContext } from 'maverick.js/react';
 
 it('should render', () => {
   const element = defineCustomElement({

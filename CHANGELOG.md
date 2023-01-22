@@ -1,3 +1,18 @@
+# [0.28.0](https://github.com/maverick-js/maverick/compare/v0.27.1...v0.28.0) (2023-01-22)
+
+
+### Bug Fixes
+
+* **react:** rework react integration ([d1682db](https://github.com/maverick-js/maverick/commit/d1682dbb83894142a7b352e09f69070622d766a1))
+* **runtime:** bump `@maverick-js/signals` to `5.7.4` ([1974423](https://github.com/maverick-js/maverick/commit/197442348ffe77f1f6b4357788f621f196106d9a))
+
+
+### Features
+
+* **react:** new `useCustomElement` hook ([edb5b7c](https://github.com/maverick-js/maverick/commit/edb5b7c7c9abb74f5cf24709a6da3d6566ef82bc))
+
+
+
 ## [0.27.1](https://github.com/maverick-js/maverick/compare/v0.27.0...v0.27.1) (2023-01-20)
 
 

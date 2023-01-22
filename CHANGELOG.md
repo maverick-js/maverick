@@ -1,3 +1,12 @@
+# [0.29.0](https://github.com/maverick-js/maverick/compare/v0.28.0...v0.29.0) (2023-01-22)
+
+
+### Features
+
+* **element:** `onAttach` now returns dispose function ([52475ed](https://github.com/maverick-js/maverick/commit/52475edfc3372f9478a0a7add3090905588569b5))
+
+
+
 # [0.28.0](https://github.com/maverick-js/maverick/compare/v0.27.1...v0.28.0) (2023-01-22)
 
 

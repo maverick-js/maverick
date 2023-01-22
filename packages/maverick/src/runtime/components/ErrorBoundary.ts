@@ -52,6 +52,6 @@ export function ErrorBoundary(props: {
         ? peek(() => ($children as ErrorBoundaryHandler)($error))
         : ($children as JSX.Element);
     },
-    { initial: null, scoped: true },
+    { initial: null },
   );
 }

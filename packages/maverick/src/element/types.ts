@@ -1,6 +1,7 @@
 import type { Constructor, Simplify } from 'type-fest';
 
 import type {
+  Dispose,
   JSX,
   ReadSignal,
   Scope,
@@ -178,7 +179,7 @@ export interface HostElement {
    * element - this is when all instance members will be defined. The callback will be immediately
    * invoked if the instance is already attached.
    */
-  onAttach(callback: ElementLifecycleCallback): void;
+  onAttach(callback: ElementLifecycleCallback): Dispose;
   /**
    * The given `handler` is invoked with the type of event (e.g., `my-event`) when this element
    * dispatches it. Each event type is unique and only passed to the given `handler` once.

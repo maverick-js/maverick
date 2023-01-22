@@ -16,7 +16,7 @@ import { $$_create_element } from '../runtime/dom/internal';
 import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
-import { isBoolean } from '../std/unit';
+import { isBoolean, noop } from '../std/unit';
 import type { StylesheetAdopter } from './css';
 import {
   ATTACH,
@@ -98,7 +98,7 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
   private _onEventDispatch?: (eventType: string) => void;
 
   private _connectScope: Scope | null = null;
-  private _attachCallbacks: ElementLifecycleCallback[] | null = [];
+  private _attachCallbacks: Set<ElementLifecycleCallback> | null = new Set();
   private _disconnectCallbacks: Dispose[] = [];
 
   keepAlive = false;
@@ -320,8 +320,13 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
   }
 
   onAttach(callback: () => void) {
-    if (this._instance) callback();
-    else this._attachCallbacks!.push(callback);
+    if (this._instance) {
+      callback();
+      return noop;
+    } else {
+      this._attachCallbacks!.add(callback);
+      return () => this._attachCallbacks?.delete(callback);
+    }
   }
 
   onEventDispatch(callback: (eventType: string) => void) {

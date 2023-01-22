@@ -5,7 +5,7 @@ import { parseClassAttr, parseStyleAttr, renderToString } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
 import { escape } from '../std/html';
 import { unwrapDeep } from '../std/signal';
-import { isBoolean } from '../std/unit';
+import { isBoolean, noop } from '../std/unit';
 import { ATTACH, HOST, PROPS, RENDER, SCOPE } from './internal';
 import type { ElementLifecycleCallback } from './lifecycle';
 import type {
@@ -68,7 +68,7 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
   /** @internal */
   _rendered = false;
   /** @internal */
-  _attachCallbacks: ElementLifecycleCallback[] | null = [];
+  _attachCallbacks: Set<ElementLifecycleCallback> | null = new Set();
 
   readonly attributes = new Attributes();
   readonly style = new Style();
@@ -183,8 +183,13 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
   removeEventListener() {}
 
   onAttach(callback: ElementLifecycleCallback) {
-    if (this._instance) callback();
-    else this._attachCallbacks!.push(callback);
+    if (this._instance) {
+      callback();
+      return noop;
+    } else {
+      this._attachCallbacks!.add(callback);
+      return () => this._attachCallbacks?.delete(callback);
+    }
   }
 
   destroy() {

@@ -1,3 +1,13 @@
+# [0.30.0](https://github.com/maverick-js/maverick/compare/v0.29.0...v0.30.0) (2023-01-22)
+
+
+### Features
+
+* **react:** new scope/context hooks ([bbcc92b](https://github.com/maverick-js/maverick/commit/bbcc92b6b447cac276026b28419bdaf4c78c97f4))
+* **runtime:** bump `@maverick-js/signals` to `5.9.0` ([4564610](https://github.com/maverick-js/maverick/commit/45646100036a15a808f51e2f05c49abc1ae111ac))
+
+
+
 # [0.29.0](https://github.com/maverick-js/maverick/compare/v0.28.0...v0.29.0) (2023-01-22)
 
 

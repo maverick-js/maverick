@@ -1,3 +1,13 @@
+## [0.30.1](https://github.com/maverick-js/maverick/compare/v0.30.0...v0.30.1) (2023-01-23)
+
+
+### Bug Fixes
+
+* **react:** setup not running when remounting child scopes ([e51eb8b](https://github.com/maverick-js/maverick/commit/e51eb8bd97d46d73556eb8180013bc6a1e9443a8))
+* **runtime:** bump `@maverick-js/signals` to `5.9.1` ([278a163](https://github.com/maverick-js/maverick/commit/278a163d5d8e8501a6b3aad2b7d7cf77ba9ef088))
+
+
+
 # [0.30.0](https://github.com/maverick-js/maverick/compare/v0.29.0...v0.30.0) (2023-01-22)
 
 

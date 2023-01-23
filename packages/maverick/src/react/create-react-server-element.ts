@@ -6,7 +6,7 @@ import { createElementInstance } from '../element/instance';
 import { SCOPE } from '../element/internal';
 import type { CustomElementDefinition } from '../element/types';
 import { kebabToCamelCase } from '../std/string';
-import { useReactScope, WithReactScope } from './scope';
+import { useReactScope, WithScope } from './scope';
 
 const stylesRE = /style="(.*?)"/;
 
@@ -37,10 +37,10 @@ export function createReactServerElement(definition: CustomElementDefinition): a
       }
     }
 
-    const scope = useReactScope();
+    const parentScope = useReactScope();
     const instance = createElementInstance(definition, {
       props: _props,
-      scope: scope?.current,
+      scope: parentScope,
     });
 
     host.attachComponent(instance);
@@ -57,8 +57,8 @@ export function createReactServerElement(definition: CustomElementDefinition): a
       host.removeAttribute('style');
     }
 
-    return WithReactScope(
-      { current: instance[SCOPE], mounted: false },
+    return WithScope(
+      instance[SCOPE]!,
       React.createElement(
         definition.tagName,
         {
@@ -78,7 +78,7 @@ export function createReactServerElement(definition: CustomElementDefinition): a
         props.children,
         React.createElement(() => {
           // Destroy from root scope so it's more efficient.
-          if (!scope) host.destroy();
+          if (!parentScope) host.destroy();
           return null;
         }),
       ),

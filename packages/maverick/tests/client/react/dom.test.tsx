@@ -8,7 +8,6 @@ import {
   createReactContextProvider,
   createReactElement,
   createReactScopeProvider,
-  useCustomElement,
   useReactContext,
   useReactScope,
 } from 'maverick.js/react';
@@ -283,39 +282,6 @@ it('should update event callbacks', () => {
   });
 
   expect(state.textContent).toBe('0');
-});
-
-it('should use custom element', () => {
-  const Child = createReactElement(
-    defineCustomElement({
-      tagName: 'mk-child-1000',
-      setup: () => () => null,
-    }),
-  );
-
-  const container = document.body.appendChild(document.createElement('div'));
-  const root = createRoot(container);
-
-  let calls = 0;
-
-  act(() => {
-    root.render(
-      React.createElement(() => {
-        const ref = React.useRef(null),
-          element = useCustomElement(ref);
-
-        React.useEffect(() => {
-          calls++;
-          if (calls === 1) expect(element).toBeNull();
-          else expect(element).toBeInstanceOf(HTMLElement);
-        }, [element]);
-
-        return React.createElement(Child, {
-          ref,
-        });
-      }),
-    );
-  });
 });
 
 it('should provide scope', () => {

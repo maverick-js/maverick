@@ -3,12 +3,6 @@ import * as React from 'react';
 
 import { Context, provideContext, Scope } from '../runtime';
 
-export interface ReactScope {
-  current: Scope | null;
-  mounted: boolean;
-  setups?: (() => void)[];
-}
-
 export interface ReactScopeProvider {
   new (props: React.PropsWithChildren): React.Component<React.PropsWithChildren>;
 }
@@ -17,21 +11,21 @@ export interface ReactContextProvider {
   new (props: React.PropsWithChildren): React.Component<React.PropsWithChildren>;
 }
 
-export const ReactComputeScopeContext = React.createContext<ReactScope | null>(null);
+export const ReactComputeScopeContext = React.createContext<Scope | null>(null);
 
-export function WithReactScope(scope: ReactScope, children: React.ReactNode) {
+export function WithScope(scope: Scope, children: React.ReactNode) {
   return React.createElement(ReactComputeScopeContext.Provider, { value: scope }, children);
 }
 
-export function useReactScope(): ReactScope | null {
+export function useReactScope(): Scope | null {
   return React.useContext(ReactComputeScopeContext);
 }
 
 export function useReactContext<T>(context: Context<T>): T | undefined {
   const scope = useReactScope();
   return React.useMemo(() => {
-    return getContext(context.id, scope?.current);
-  }, [scope?.current]);
+    return getContext(context.id, scope);
+  }, [scope]);
 }
 
 export function createReactScopeProvider(): ReactScopeProvider {
@@ -55,36 +49,20 @@ class ScopeProvider extends React.Component<React.PropsWithChildren> {
   static _context?: Context<unknown>;
   static _provide?: () => unknown;
 
-  private _scope: ReactScope;
+  private _scope: Scope;
 
-  constructor(props, context?: ReactScope) {
+  constructor(props, context?: Scope) {
     super(props);
 
     const scope = createScope();
+    this._scope = scope;
+    if (context) context.append(scope);
 
     const ctor = this.constructor as typeof ScopeProvider;
     if (ctor._context) provideContext(ctor._context, ctor._provide?.(), scope);
-
-    this._scope = {
-      current: scope,
-      mounted: false,
-      setups: context?.setups || [],
-    };
-  }
-
-  override componentDidMount(): void {
-    this._scope.mounted = true;
-    // Root scope won't have scope context set - mounted check is incase we're remounting this scope.
-    if (this.context && !this.context.mounted) return;
-    const setups = this._scope.setups!;
-    while (setups.length) setups.pop()!();
-  }
-
-  override componentWillUnmount(): void {
-    this._scope.mounted = false;
   }
 
   override render() {
-    return WithReactScope(this._scope, this.props?.children);
+    return WithScope(this._scope, this.props?.children);
   }
 }

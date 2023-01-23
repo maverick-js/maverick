@@ -1,4 +1,4 @@
-import { SCOPE, tick } from '@maverick-js/signals';
+import { Scope, SCOPE, tick } from '@maverick-js/signals';
 import * as React from 'react';
 
 import { createElementInstance } from '../element/instance';
@@ -18,7 +18,7 @@ import type {
 import { $$_attach_declarative_shadow_dom } from '../runtime/dom';
 import { kebabToPascalCase } from '../std/string';
 import { createReactServerElement } from './create-react-server-element';
-import { ReactComputeScopeContext, ReactScope, WithReactScope } from './scope';
+import { ReactComputeScopeContext, WithScope } from './scope';
 import type { ReactElement, ReactElementProps } from './types';
 import { setRef } from './utils';
 
@@ -77,40 +77,31 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
   static _props: Set<string>;
   static _callbacks = new Map<string, string>();
 
-  private _scope: ReactScope;
   private _instance: CustomElementInstance;
   private _element: HTMLCustomElement | null = null;
   private _ref?: React.RefCallback<HTMLCustomElement>;
   private _forwardedRef?: React.Ref<HTMLCustomElement>;
   private _listeners = new Map<string, EventListenerObject>();
 
-  constructor(props, context) {
+  constructor(props, context?: Scope) {
     super(props);
 
     const ctor = this.constructor as typeof ReactCustomElement;
 
     this._instance = createElementInstance(ctor._definition, {
       props,
-      scope: context?.current,
+      scope: context,
     });
-
-    this._scope = {
-      current: this._instance[SCOPE],
-      mounted: false,
-      setups: context?.setups || [],
-    };
   }
 
   override componentDidMount() {
-    this._scope.mounted = true;
-
     // Check if element instance has already been attached (might occur on remounting tree with
     // preserved state).
     if (!this._element || this._element.instance) return;
 
     $$_attach_declarative_shadow_dom(this._element);
 
-    this._element!.onEventDispatch((eventType) => {
+    this._element.onEventDispatch((eventType) => {
       const callbackName = `on${kebabToPascalCase(eventType)}`;
       const callback = this.props[callbackName];
       const ctor = this.constructor as typeof ReactCustomElement;
@@ -118,17 +109,10 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
       if (callback) this._updateEventListener(eventType, callback);
     });
 
-    // We need this because `componentDidMount` is called in virtual creation order and not
-    // when it's attached to the DOM (i.e, children come before parent). We want to run setup in
-    // DOM order.
-    const setups = this._scope.setups!;
-    setups.push(() => this._element!.attachComponent(this._instance));
-    // Root scope won't have scope context set - mounted check is incase we're remounting this scope.
-    if (!this.context || this.context.mounted) while (setups.length) setups.pop()!();
+    this._element.attachComponent(this._instance);
   }
 
   override componentWillUnmount() {
-    this._scope.mounted = false;
     // Wait a tick to ensure this element is definitely being destroyed.
     // https://reactjs.org/blog/2022/03/29/react-v18.html#new-strict-mode-behaviors
     window.requestAnimationFrame(() => {
@@ -164,8 +148,8 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
 
     tick();
 
-    return WithReactScope(
-      this._scope,
+    return WithScope(
+      this._instance[SCOPE]!,
       React.createElement(
         ctor._definition.tagName,
         { ...props, 'mk-d': true, suppressHydrationWarning: true },

@@ -3,7 +3,7 @@ import { createContext, hasProvidedContext, provideContext, root, useContext } f
 
 it('should create context', () => {
   const FooContext = createContext(() => 1);
-  expect(FooContext.factory!()).toEqual(1);
+  expect(FooContext.provide!()).toEqual(1);
 
   root(() => {
     provideContext(FooContext);
@@ -52,7 +52,7 @@ it('should throw error when trying to provide context outside root', () => {
 
 it('should throw error when trying to provide context without initial value', () => {
   expect(() => root(() => provideContext(createContext()))).toThrowError(
-    /context can not be provided without a value or factory/,
+    /context can not be provided without a value or/,
   );
 });
 

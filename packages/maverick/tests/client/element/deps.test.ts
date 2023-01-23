@@ -14,7 +14,7 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-it('should wait for parents to mount', async () => {
+it('should wait for parents to connect', async () => {
   const Context = createContext<number[]>(() => []);
 
   const error = new Error();
@@ -96,30 +96,30 @@ it('should wait for parents to mount', async () => {
   `);
 
   registerCustomElement(GrandChild);
-  expect(grandchild.instance?.host.$mounted()).toBeFalsy();
+  expect(grandchild.instance?.host.$connected()).toBeFalsy();
 
   registerCustomElement(Child);
-  expect(child.instance?.host.$mounted()).toBeFalsy();
+  expect(child.instance?.host.$connected()).toBeFalsy();
 
   await waitAnimationFrame();
-  expect(child.instance?.host.$mounted()).toBeFalsy();
-  expect(grandchild.instance?.host.$mounted()).toBeFalsy();
+  expect(child.instance?.host.$connected()).toBeFalsy();
+  expect(grandchild.instance?.host.$connected()).toBeFalsy();
 
   registerCustomElement(ParentB);
   await waitAnimationFrame();
-  expect(parentB.instance?.host.$mounted()).toBeFalsy();
-  expect(child.instance?.host.$mounted()).toBeFalsy();
-  expect(grandchild.instance?.host.$mounted()).toBeFalsy();
+  expect(parentB.instance?.host.$connected()).toBeFalsy();
+  expect(child.instance?.host.$connected()).toBeFalsy();
+  expect(grandchild.instance?.host.$connected()).toBeFalsy();
 
   registerCustomElement(ParentA);
   parentA.attachComponent(createElementInstance(ParentA));
-  expect(parentA.instance?.host.$mounted()).toBeTruthy();
+  expect(parentA.instance?.host.$connected()).toBeTruthy();
 
   await waitAnimationFrame();
 
-  expect(parentB.instance?.host.$mounted()).toBeTruthy();
-  expect(child.instance?.host.$mounted()).toBeTruthy();
-  expect(grandchild.instance?.host.$mounted()).toBeTruthy();
+  expect(parentB.instance?.host.$connected()).toBeTruthy();
+  expect(child.instance?.host.$connected()).toBeTruthy();
+  expect(grandchild.instance?.host.$connected()).toBeTruthy();
 
   parentA.removeAttribute('mk-d');
   parentA.remove();

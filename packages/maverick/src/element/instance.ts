@@ -1,14 +1,11 @@
-import { getScope, onDispose, root, Scope, scoped, signal, tick } from '@maverick-js/signals';
+import { getScope, onDispose, root, scoped, signal, tick } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
 import { createAccessors, WriteSignals } from '../runtime';
 import {
   ATTACH,
   CONNECT,
-  DESTROY,
-  LIFECYCLES,
   MEMBERS,
-  MOUNT,
   PROPS,
   RENDER,
   SCOPE,
@@ -38,7 +35,6 @@ export function createElementInstance<T extends AnyCustomElement>(
       hasProps = 'props' in definition,
       $props = hasProps ? createInstanceProps(definition.props) : {},
       $connected = signal(false),
-      $mounted = signal(false),
       $attrs = {},
       $styles = {},
       setAttributes = (attrs) => void Object.assign($attrs, attrs),
@@ -55,14 +51,12 @@ export function createElementInstance<T extends AnyCustomElement>(
         $attrs,
         $styles,
         $connected,
-        $mounted,
       },
       el: null,
       $el() {
         return $connected() ? host.el : null;
       },
       $connected,
-      $mounted,
       setAttributes,
       setStyles,
       setCSSVars: setStyles,
@@ -75,8 +69,6 @@ export function createElementInstance<T extends AnyCustomElement>(
       [PROPS]: $props,
       [ATTACH]: [],
       [CONNECT]: [],
-      [MOUNT]: [],
-      [DESTROY]: [],
       accessors() {
         if (accessors) return accessors;
         const props = {};
@@ -85,29 +77,16 @@ export function createElementInstance<T extends AnyCustomElement>(
       },
       destroy() {
         if (destroyed) return;
-
-        if (!__SERVER__) {
-          $connected.set(false);
-          $mounted.set(false);
-
-          for (const destroyCallback of instance[DESTROY]) {
-            scoped(destroyCallback, instance[SCOPE]);
-          }
-
-          tick();
-          for (const type of LIFECYCLES) instance[type].length = 0;
-          dispose();
-        } else {
-          instance[ATTACH].length = 0;
-          dispose();
-        }
-
+        destroyed = true;
+        host.el?.destroy();
+        if (!__SERVER__) tick();
+        instance[ATTACH].length = 0;
+        instance[CONNECT].length = 0;
+        dispose();
         instance[SCOPE] = null;
         instance[MEMBERS] = null;
         instance[RENDER] = null;
-
         (host as Writable<CustomElementHost>).el = null;
-        destroyed = true;
       },
     };
 

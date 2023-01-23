@@ -10,8 +10,6 @@ import {
   HTMLCustomElementConstructor,
   onAttach,
   onConnect,
-  onMount,
-  PROPS,
   registerCustomElement,
 } from 'maverick.js/element';
 
@@ -152,42 +150,15 @@ it('should scope connect/disconnect lifecycle hooks', () => {
   expect(disconnect).toHaveBeenCalledTimes(1);
 });
 
-it('should call mount lifecycle hook', () => {
-  const destroy = vi.fn();
-  const mount = vi.fn().mockReturnValue(destroy);
-
-  const { instance, element } = setupTestElement({
-    setup() {
-      onMount(mount);
-    },
-  });
-
-  expect(mount).not.toHaveBeenCalled();
-  expect(destroy).not.toHaveBeenCalled();
-
-  element.attachComponent(instance);
-  expect(instance.host.$mounted()).toBeTruthy();
-  expect(mount).toHaveBeenCalledTimes(1);
-  expect(destroy).not.toHaveBeenCalled();
-
-  instance.destroy();
-  expect(instance.host.$mounted()).toBeFalsy();
-  expect(mount).toHaveBeenCalledTimes(1);
-  expect(destroy).toHaveBeenCalledTimes(1);
-});
-
 it('should handle errors thrown in lifecycle hooks', () => {
   const attachError = Error('attach'),
     connectError = Error('connect'),
     disconnectError = Error('disconnect'),
-    mountError = Error('mount'),
     destroyError = Error('destroy');
 
   const nextAttach = vi.fn(),
     nextConnect = vi.fn(),
-    nextDisconnect = vi.fn(),
-    nextMount = vi.fn(),
-    nextDestroy = vi.fn();
+    nextDisconnect = vi.fn();
 
   const errorHandler = vi.fn();
 
@@ -216,18 +187,9 @@ it('should handle errors thrown in lifecycle hooks', () => {
 
       onConnect(() => () => nextDisconnect());
 
-      onMount(() => {
-        throw mountError;
+      onDispose(() => {
+        throw destroyError;
       });
-
-      onMount(() => {
-        nextMount();
-        return () => {
-          throw destroyError;
-        };
-      });
-
-      onMount(() => () => nextDestroy());
     },
   });
 
@@ -235,31 +197,26 @@ it('should handle errors thrown in lifecycle hooks', () => {
   expect(nextAttach).not.toHaveBeenCalled();
   expect(nextConnect).not.toHaveBeenCalled();
   expect(nextDisconnect).not.toHaveBeenCalled();
-  expect(nextMount).not.toHaveBeenCalled();
-  expect(nextDestroy).not.toHaveBeenCalled();
 
   element.attachComponent(instance);
-  expect(errorHandler).toHaveBeenCalledTimes(3);
+  expect(errorHandler).toHaveBeenCalledTimes(2);
   expect(errorHandler).toHaveBeenCalledWith(attachError);
   expect(errorHandler).toHaveBeenCalledWith(connectError);
-  expect(errorHandler).toHaveBeenCalledWith(mountError);
   expect(nextAttach).toHaveBeenCalledTimes(1);
   expect(nextConnect).toHaveBeenCalledTimes(1);
-  expect(nextMount).toHaveBeenCalledTimes(1);
 
   element.remove();
-  expect(errorHandler).toHaveBeenCalledTimes(4);
+  expect(errorHandler).toHaveBeenCalledTimes(3);
   expect(nextDisconnect).toHaveBeenCalledTimes(1);
 
   instance.destroy();
-  expect(errorHandler).toHaveBeenCalledTimes(5);
+  expect(errorHandler).toHaveBeenCalledTimes(4);
   expect(errorHandler).toHaveBeenCalledWith(destroyError);
-  expect(nextDestroy).toHaveBeenCalledTimes(1);
 });
 
 it('should throw if lifecycle hook called outside setup', () => {
   expect(() => {
-    onMount(() => {});
+    onConnect(() => {});
   }).toThrowError(/called outside of element setup/);
 });
 

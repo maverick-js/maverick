@@ -26,8 +26,4 @@ export const RENDER = /* #__PURE__ */ Symbol(__DEV__ ? 'RENDER' : 0);
 // Lifecycle
 export const ATTACH = /* #__PURE__ */ Symbol(__DEV__ ? 'ATTACH' : 0);
 export const CONNECT = /* #__PURE__ */ Symbol(__DEV__ ? 'CONNECT' : 0);
-export const MOUNT = /* #__PURE__ */ Symbol(__DEV__ ? 'MOUNT' : 0);
-export const DESTROY = /* #__PURE__ */ Symbol(__DEV__ ? 'DESTROY' : 0);
 export const MOUNTED = /* #__PURE__ */ Symbol(__DEV__ ? 'MOUNTED' : 0);
-
-export const LIFECYCLES = /* #__PURE__ */ [ATTACH, CONNECT, MOUNT, DESTROY] as const;

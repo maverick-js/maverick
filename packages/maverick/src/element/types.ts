@@ -261,7 +261,6 @@ export interface CustomElementHost<T extends AnyCustomElement = AnyCustomElement
     $attrs: AttributesRecord | null;
     $styles: StylesRecord | null;
     $connected: WriteSignal<boolean>;
-    $mounted: WriteSignal<boolean>;
   };
   /**
    * The custom element this component is attached to. This is safe to use server-side with the
@@ -287,11 +286,6 @@ export interface CustomElementHost<T extends AnyCustomElement = AnyCustomElement
    * Whether the custom element associated with this component has connected to the DOM.
    */
   readonly $connected: ReadSignal<boolean>;
-  /**
-   * Whether the custom element associated with this component has mounted the DOM and rendered
-   * content in its host element or shadow root.
-   */
-  readonly $mounted: ReadSignal<boolean>;
   /**
    * This method can be used to specify attributes that should be set on the host element. Any
    * attributes that are assigned to a function will be considered a signal and updated accordingly.

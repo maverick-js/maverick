@@ -96,7 +96,7 @@ it('should keep elements alive', async () => {
 
   parent.attachComponent(createElementInstance(Parent));
   await waitAnimationFrame();
-  expect(parent.instance?.host.$mounted()).toBeTruthy();
+  expect(parent.instance?.host.$connected()).toBeTruthy();
 
   expect(parent).toMatchInlineSnapshot(`
     <mk-parent
@@ -117,11 +117,11 @@ it('should keep elements alive', async () => {
 
   await waitAnimationFrame();
 
-  expect(parent.instance!.host.$mounted()).toBeTruthy();
-  expect(childA.instance!.host.$mounted()).toBeTruthy();
-  expect(childB.instance!.host.$mounted()).toBeTruthy();
-  expect(grandchildA.instance!.host.$mounted()).toBeTruthy();
-  expect(grandchildB.instance!.host.$mounted()).toBeTruthy();
+  expect(parent.instance!.host.$connected()).toBeFalsy();
+  expect(childA.instance!.host.$connected()).toBeFalsy();
+  expect(childB.instance!.host.$connected()).toBeFalsy();
+  expect(grandchildA.instance!.host.$connected()).toBeFalsy();
+  expect(grandchildB.instance!.host.$connected()).toBeFalsy();
 
   parent.instance!.destroy();
   tick();

@@ -18,17 +18,7 @@ import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
 import { isBoolean, noop } from '../std/unit';
 import type { StylesheetAdopter } from './css';
-import {
-  ATTACH,
-  CONNECT,
-  DESTROY,
-  MEMBERS,
-  MOUNT,
-  MOUNTED,
-  PROPS,
-  RENDER,
-  SCOPE,
-} from './internal';
+import { ATTACH, CONNECT, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
 import type { ElementLifecycleCallback } from './lifecycle';
 import type {
   AnyCustomElement,
@@ -102,6 +92,9 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
   private _disconnectCallbacks: Dispose[] = [];
 
   keepAlive = false;
+
+  /** @internal */
+  [CONNECT]: boolean | ElementLifecycleCallback[] = [];
 
   private get _hydrate() {
     return this.hasAttribute('mk-h');
@@ -181,28 +174,9 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
       }, instance[SCOPE]);
     }
 
-    // Mount
-    if (!instance.host.$mounted()) {
-      instance.host[PROPS].$mounted.set(true);
-      tick();
-
-      for (const mountCallback of instance[MOUNT]) {
-        scoped(() => {
-          const destroyCallback = mountCallback();
-          if (typeof destroyCallback === 'function') {
-            instance[DESTROY].push(destroyCallback);
-          }
-        }, instance[SCOPE]);
-      }
-
-      instance[MOUNT].length = 0;
-
-      if (this[MOUNT]) {
-        runAll(this[MOUNT]);
-        this[MOUNT] = null;
-      }
-
-      this[MOUNTED] = true;
+    if (this[CONNECT]) {
+      runAll(this[CONNECT] as ElementLifecycleCallback[]);
+      this[CONNECT] = true;
     }
 
     tick();
@@ -315,12 +289,6 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
       });
     }
 
-    instance[DESTROY].push(() => {
-      this.disconnectedCallback();
-      this._instance = null;
-      this._destroyed = true;
-    });
-
     tick();
     this.connectedCallback();
   }
@@ -342,7 +310,10 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
   }
 
   destroy() {
+    this.disconnectedCallback();
     this._instance?.destroy();
+    this._instance = null;
+    this._destroyed = true;
   }
 
   override dispatchEvent(event: Event): boolean {

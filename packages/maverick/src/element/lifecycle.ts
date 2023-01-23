@@ -1,4 +1,4 @@
-import { ATTACH, CONNECT, DESTROY, getCustomElementInstance, MOUNT } from './internal';
+import { ATTACH, CONNECT, getCustomElementInstance } from './internal';
 
 export interface ElementLifecycleCallback {
   (): any;
@@ -7,8 +7,6 @@ export interface ElementLifecycleCallback {
 export interface ElementLifecycleManager {
   [ATTACH]: ElementLifecycleCallback[];
   [CONNECT]: ElementLifecycleCallback[];
-  [MOUNT]: ElementLifecycleCallback[];
-  [DESTROY]: ElementLifecycleCallback[];
 }
 
 const createLifecycleMethod = /* #__PURE__ */ (type: keyof ElementLifecycleManager) => {
@@ -42,12 +40,3 @@ export const onAttach = /* #__PURE__ */ createLifecycleMethod(ATTACH);
  * - If a function is returned it will be invoked when the host disconnects from the DOM.
  */
 export const onConnect = /* #__PURE__ */ createLifecycleMethod(CONNECT);
-
-/**
- * The given callback is invoked when the host element has connected to the DOM and rendered its
- * contents.
- *
- * - This hook will only run once after the first connect.
- * - If a function is returned it will be called when the instance is destroyed.
- */
-export const onMount = /* #__PURE__ */ createLifecycleMethod(MOUNT);

@@ -1,5 +1,5 @@
 import { createElementInstance } from './instance';
-import { MOUNT, MOUNTED, SCOPE } from './internal';
+import { CONNECT, SCOPE } from './internal';
 import type { CustomElementDefinition, HTMLCustomElement } from './types';
 
 /**
@@ -12,13 +12,13 @@ export async function setup($el: HTMLCustomElement) {
   const ctor = $el.constructor as any,
     definition = ctor._definition as CustomElementDefinition;
 
-  // Wait for parent custom element to be defined and mounted.
+  // Wait for parent custom element to be defined and connected.
   if (parent) {
     await customElements.whenDefined(parent.localName);
-    parent[MOUNTED] || (await new Promise((res) => (parent[MOUNT] ??= []).push(res)));
+    parent[CONNECT] === true || (await new Promise((res) => parent[CONNECT].push(res)));
   }
 
-  // Skip setting up if we disconnected while waiting for parent to mount.
+  // Skip setting up if we disconnected while waiting for parent to connect.
   if ($el.isConnected) {
     // Create instance and attach parent scope.
     const instance = createElementInstance(definition, {

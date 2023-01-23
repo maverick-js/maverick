@@ -1,3 +1,12 @@
+# [0.31.0](https://github.com/maverick-js/maverick/compare/v0.30.1...v0.31.0) (2023-01-23)
+
+
+### Features
+
+* **element:** new `construct` method when declaring elements ([923250e](https://github.com/maverick-js/maverick/commit/923250e5d28e905753f4654ebbacfd6c45b1a95b))
+
+
+
 ## [0.30.1](https://github.com/maverick-js/maverick/compare/v0.30.0...v0.30.1) (2023-01-23)
 
 

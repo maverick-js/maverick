@@ -96,11 +96,14 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
 
     this._scope = {
       current: this._instance[SCOPE],
+      mounted: false,
       setups: context?.setups || [],
     };
   }
 
   override componentDidMount() {
+    this._scope.mounted = true;
+
     // Check if element instance has already been attached (might occur on remounting tree with
     // preserved state).
     if (!this._element || this._element.instance) return;
@@ -120,11 +123,12 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
     // DOM order.
     const setups = this._scope.setups!;
     setups.push(() => this._element!.attachComponent(this._instance));
-    // Root scope won't have scope context set.
-    if (!this.context) while (setups.length) setups.pop()!();
+    // Root scope won't have scope context set - mounted check is incase we're remounting this scope.
+    if (!this.context || this.context.mounted) while (setups.length) setups.pop()!();
   }
 
   override componentWillUnmount() {
+    this._scope.mounted = false;
     // Wait a tick to ensure this element is definitely being destroyed.
     // https://reactjs.org/blog/2022/03/29/react-v18.html#new-strict-mode-behaviors
     window.requestAnimationFrame(() => {

@@ -5,6 +5,7 @@ import { Context, provideContext, Scope } from '../runtime';
 
 export interface ReactScope {
   current: Scope | null;
+  mounted: boolean;
   setups?: (() => void)[];
 }
 
@@ -58,16 +59,29 @@ class ScopeProvider extends React.Component<React.PropsWithChildren> {
 
   constructor(props, context?: ReactScope) {
     super(props);
+
     const scope = createScope();
+
     const ctor = this.constructor as typeof ScopeProvider;
     if (ctor._context) provideContext(ctor._context, ctor._provide?.(), scope);
-    this._scope = { current: scope, setups: context?.setups || [] };
+
+    this._scope = {
+      current: scope,
+      mounted: false,
+      setups: context?.setups || [],
+    };
   }
 
   override componentDidMount(): void {
-    if (this.context) return;
+    this._scope.mounted = true;
+    // Root scope won't have scope context set - mounted check is incase we're remounting this scope.
+    if (this.context && !this.context.mounted) return;
     const setups = this._scope.setups!;
     while (setups.length) setups.pop()!();
+  }
+
+  override componentWillUnmount(): void {
+    this._scope.mounted = false;
   }
 
   override render() {

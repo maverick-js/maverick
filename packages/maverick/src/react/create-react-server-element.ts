@@ -58,7 +58,7 @@ export function createReactServerElement(definition: CustomElementDefinition): a
     }
 
     return WithReactScope(
-      { current: instance[SCOPE] },
+      { current: instance[SCOPE], mounted: false },
       React.createElement(
         definition.tagName,
         {

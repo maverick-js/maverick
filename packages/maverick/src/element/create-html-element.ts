@@ -119,6 +119,12 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
     return this._attrToProp ? Array.from(this._attrToProp.keys()) : [];
   }
 
+  constructor() {
+    super();
+    const ctor = this.constructor as typeof HTMLCustomElement;
+    ctor._definition.construct?.call(this);
+  }
+
   attributeChangedCallback(name, _, newValue) {
     const ctor = this.constructor as typeof HTMLCustomElement;
     if (!this._instance || !ctor._attrToProp) return;

@@ -72,6 +72,10 @@ export interface CustomElementDeclaration<T extends AnyCustomElement = AnyCustom
    */
   props: CustomElementPropDefinitions<InferCustomElementProps<T>>;
   /**
+   * Invoked inside the constructor of the custom HTML element (only client-side).
+   */
+  construct?(this: HTMLCustomElement): void;
+  /**
    * The setup function is run once the custom element is ready to render. This function must
    * return a render function. Optionally, class members (i.e., props and methods) can be returned
    * which are assigned to the custom element.

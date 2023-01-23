@@ -1,4 +1,4 @@
-import { getScope, onDispose, onError, tick } from '@maverick-js/signals';
+import { getScope, onDispose, onError } from '@maverick-js/signals';
 import { createContext, provideContext, useContext } from 'maverick.js';
 
 import {
@@ -30,6 +30,24 @@ it('should handle basic setup and destroy', () => {
     </div>
   `);
   instance.destroy();
+});
+
+it('should invoke `construct` hook', () => {
+  const construct = vi.fn();
+
+  const definition = defineCustomElement({
+    tagName: `mk-test-${++count}`,
+    construct() {
+      construct(this);
+    },
+  });
+
+  registerCustomElement(definition);
+
+  const element = document.createElement(definition.tagName);
+
+  expect(construct).toHaveBeenCalledTimes(1);
+  expect(construct).toHaveBeenCalledWith(element);
 });
 
 it('should observe attributes', () => {

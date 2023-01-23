@@ -1,3 +1,13 @@
+## [0.31.1](https://github.com/maverick-js/maverick/compare/v0.31.0...v0.31.1) (2023-01-23)
+
+
+### Bug Fixes
+
+* **element:** remove redundant mounted/destroy hooks ([610450b](https://github.com/maverick-js/maverick/commit/610450b6a61f2a69498e8856b4897127e7c95915))
+* **react:** attach instances in react mount order ([2303992](https://github.com/maverick-js/maverick/commit/23039929670d634160e3a77b83d3a7575acf0894))
+
+
+
 # [0.31.0](https://github.com/maverick-js/maverick/compare/v0.30.1...v0.31.0) (2023-01-23)
 
 

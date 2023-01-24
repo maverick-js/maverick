@@ -24,7 +24,11 @@ function base({ dev = false, server = false } = {}): Options {
       __TEST__: 'false',
     },
     esbuildOptions(opts) {
-      if (!dev && !server) opts.mangleProps = /^_/;
+      if (!dev && !server) {
+        opts.mangleProps = /^_/;
+        opts.reserveProps = /__html/;
+      }
+
       opts.conditions = dev ? ['development', 'production', 'default'] : ['production', 'default'];
       opts.chunkNames = 'chunks/[name]-[hash]';
     },

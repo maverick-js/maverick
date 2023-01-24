@@ -1,3 +1,12 @@
+## [0.31.2](https://github.com/maverick-js/maverick/compare/v0.31.1...v0.31.2) (2023-01-24)
+
+
+### Bug Fixes
+
+* **react:** do not mangle `__html` ([abb7896](https://github.com/maverick-js/maverick/commit/abb78962a91b92c0c02a81427b51b122994af876))
+
+
+
 ## [0.31.1](https://github.com/maverick-js/maverick/compare/v0.31.0...v0.31.1) (2023-01-23)
 
 

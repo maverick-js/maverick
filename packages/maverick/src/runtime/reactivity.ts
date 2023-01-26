@@ -21,6 +21,7 @@ export {
   type SignalOptions,
   type StopEffect,
   type WriteSignal,
+  createScope,
   computed,
   getScope,
   isReadSignal,

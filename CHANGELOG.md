@@ -1,3 +1,12 @@
+# [0.32.0](https://github.com/maverick-js/maverick/compare/v0.31.2...v0.32.0) (2023-01-26)
+
+
+### Features
+
+* **runtime:** export `createScope` ([97a911c](https://github.com/maverick-js/maverick/commit/97a911c88bf6e16943716dd9f414fbc4ac86e20c))
+
+
+
 ## [0.31.2](https://github.com/maverick-js/maverick/compare/v0.31.1...v0.31.2) (2023-01-24)
 
 

@@ -1,3 +1,12 @@
+## [0.32.1](https://github.com/maverick-js/maverick/compare/v0.32.0...v0.32.1) (2023-02-01)
+
+
+### Bug Fixes
+
+* **element:** only run internal connect callbacks if array ([767d7dc](https://github.com/maverick-js/maverick/commit/767d7dcda89a1a6867726d3be769af983a121832))
+
+
+
 # [0.32.0](https://github.com/maverick-js/maverick/compare/v0.31.2...v0.32.0) (2023-01-26)
 
 

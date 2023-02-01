@@ -16,7 +16,7 @@ import { $$_create_element } from '../runtime/dom/internal';
 import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
-import { isBoolean, noop } from '../std/unit';
+import { isArray, isBoolean, noop } from '../std/unit';
 import type { StylesheetAdopter } from './css';
 import { ATTACH, CONNECT, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
 import type { ElementLifecycleCallback } from './lifecycle';
@@ -174,7 +174,7 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
       }, instance[SCOPE]);
     }
 
-    if (this[CONNECT]) {
+    if (isArray(this[CONNECT])) {
       runAll(this[CONNECT] as ElementLifecycleCallback[]);
       this[CONNECT] = true;
     }

@@ -93,7 +93,7 @@ export interface CustomElementDefinition<T extends AnyCustomElement = AnyCustomE
   extends Omit<CustomElementDeclaration<T>, 'setup'> {
   /** @internal */
   setup: (instance: NonNullable<T['instance']>) => InferCustomElementMembers<T> & {
-    $render?: () => JSX.Element;
+    $render?(): JSX.Element;
   };
 }
 

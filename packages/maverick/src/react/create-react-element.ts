@@ -77,22 +77,11 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
   static _props: Set<string>;
   static _callbacks = new Map<string, string>();
 
-  private _instance: CustomElementInstance;
+  private _instance!: CustomElementInstance;
+  private _listeners!: Map<string, EventListenerObject>;
   private _element: HTMLCustomElement | null = null;
   private _ref?: React.RefCallback<HTMLCustomElement>;
   private _forwardedRef?: React.Ref<HTMLCustomElement>;
-  private _listeners = new Map<string, EventListenerObject>();
-
-  constructor(props, context?: Scope) {
-    super(props);
-
-    const ctor = this.constructor as typeof ReactCustomElement;
-
-    this._instance = createElementInstance(ctor._definition, {
-      props,
-      scope: context,
-    });
-  }
 
   override componentDidMount() {
     // Check if element instance has already been attached (might occur on remounting tree with
@@ -121,7 +110,16 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
   }
 
   override render() {
+    const ctor = this.constructor as typeof ReactCustomElement;
     const { __forwardedRef, className, children, ...restProps } = this.props;
+
+    if (!this._instance) {
+      this._listeners = new Map();
+      this._instance = createElementInstance(ctor._definition as any, {
+        props: this.props,
+        scope: this.context,
+      });
+    }
 
     if (!this._ref || this._forwardedRef !== __forwardedRef) {
       this._ref = (value) => {
@@ -133,7 +131,6 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
 
     const props = { class: className, ref: this._ref };
     const $props = this._instance[PROPS];
-    const ctor = this.constructor as typeof ReactCustomElement;
 
     for (const prop of Object.keys(restProps)) {
       const value = restProps[prop];

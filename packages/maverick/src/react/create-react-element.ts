@@ -55,7 +55,7 @@ function createReactClientElement<
   registerCustomElement(definition);
 
   class CustomElement extends ReactCustomElement<R> {
-    static displayName = init?.displayName ?? definition.tagName;
+    static displayName = init?.displayName ?? kebabToPascalCase(definition.tagName);
     static override contextType = ReactComputeScopeContext;
     static override _definition = definition;
     static override _props = new Set(Object.keys(definition.props ?? {}));
@@ -65,7 +65,7 @@ function createReactClientElement<
     React.createElement(CustomElement, { ...props, __forwardedRef: ref }, props?.children),
   );
 
-  ForwardedComponent.displayName = CustomElement.displayName;
+  ForwardedComponent.displayName = 'ForwardRef_' + CustomElement.displayName;
 
   return ForwardedComponent as any;
 }

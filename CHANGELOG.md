@@ -1,3 +1,13 @@
+## [0.32.2](https://github.com/maverick-js/maverick/compare/v0.32.1...v0.32.2) (2023-02-02)
+
+
+### Bug Fixes
+
+* **react:** create instance during initial render to avoid mem leak in dev ([b54cad1](https://github.com/maverick-js/maverick/commit/b54cad18e418c8d7b7ecd4154342bf71659a9b18))
+* **react:** format react display names ([ff9133b](https://github.com/maverick-js/maverick/commit/ff9133b4064de59aeff5a142201b3a2b81447cd6))
+
+
+
 ## [0.32.1](https://github.com/maverick-js/maverick/compare/v0.32.0...v0.32.1) (2023-02-01)
 
 

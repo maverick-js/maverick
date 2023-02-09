@@ -83,6 +83,7 @@ export const ssr: ASTSerializer = {
       commitInnerHTML = (i: number) => {
         if (!innerHTML) return;
         commit(createFunctionCall(RUNTIME.injectHTML, [innerHTML]));
+        ctx.runtime.add(RUNTIME.injectHTML);
 
         let depth = 0;
         for (let j = i + 1; j < ast.tree.length; j++) {

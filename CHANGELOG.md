@@ -1,3 +1,12 @@
+## [0.32.3](https://github.com/maverick-js/maverick/compare/v0.32.2...v0.32.3) (2023-02-09)
+
+
+### Bug Fixes
+
+* **compiler:** inject html function is not imported ([c9cf7c2](https://github.com/maverick-js/maverick/commit/c9cf7c230aa324716fe58c3c5a57bd7d552f825f))
+
+
+
 ## [0.32.2](https://github.com/maverick-js/maverick/compare/v0.32.1...v0.32.2) (2023-02-02)
 
 

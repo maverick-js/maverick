@@ -1,3 +1,12 @@
+## [0.33.1](https://github.com/maverick-js/maverick/compare/v0.33.0...v0.33.1) (2023-04-12)
+
+
+### Bug Fixes
+
+* improve `listenEvent` type inference ([1f75299](https://github.com/maverick-js/maverick/commit/1f752990bd4e6e6c883f85d62182f7289565604a))
+
+
+
 # [0.33.0](https://github.com/maverick-js/maverick/compare/v0.32.3...v0.33.0) (2023-04-12)
 
 

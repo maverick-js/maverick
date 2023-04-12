@@ -218,7 +218,9 @@ export function $$_merge_props(...sources: Record<string, any>[]) {
 
 /** @internal */
 export function $$_listen(target: EventTarget, type: string, handler: unknown, capture = false) {
-  if (isFunction(handler)) listenEvent(target, type as any, handler as any, { capture });
+  if (isFunction(handler)) {
+    listenEvent(target, type as any, handler as () => void, { capture });
+  }
 }
 
 const DELEGATED_EVENTS = /* #__PURE__ */ Symbol(__DEV__ ? 'DELEGATED_EVENTS' : 0);

@@ -216,19 +216,19 @@ export type EventCallback<T extends Event> =
   | { handleEvent(event: T): void }
   | null;
 
-export class EventsTarget<Events extends Record<string, Event>> extends EventTarget {
+export class EventsTarget<Events> extends EventTarget {
   /** @internal - type only */
   ___events?: Events;
   override addEventListener<Type extends keyof Events>(
-    type: Type,
-    callback: EventCallback<Events[Type]>,
+    type: Type & string,
+    callback: EventCallback<Events[Type] & Event>,
     options?: boolean | AddEventListenerOptions | undefined,
   ) {
     return super.addEventListener(type as string, callback as EventListener, options);
   }
   override removeEventListener<Type extends keyof Events>(
-    type: Type,
-    callback: EventCallback<Events[Type]>,
+    type: Type & string,
+    callback: EventCallback<Events[Type] & Event>,
     options?: boolean | AddEventListenerOptions | undefined,
   ) {
     return super.removeEventListener(type as string, callback as EventListener, options);
@@ -247,7 +247,13 @@ export function listenEvent<
   Events = Target extends HTMLCustomElement<any, infer Events>
     ? Events & MaverickOnAttributes
     : Target extends EventsTarget<infer Events>
-    ? Events
+    ? Events extends {}
+      ? Events
+      : MaverickOnAttributes
+    : Target extends { ___events?: infer Events }
+    ? Events extends {}
+      ? Events
+      : MaverickOnAttributes
     : MaverickOnAttributes,
   EventType extends keyof Events = keyof Events,
 >(

@@ -1,3 +1,18 @@
+# [0.33.0](https://github.com/maverick-js/maverick/compare/v0.32.3...v0.33.0) (2023-04-12)
+
+
+### Bug Fixes
+
+* bump `@maverick-js/signals` to `5.9.2` ([8f2d350](https://github.com/maverick-js/maverick/commit/8f2d350b9250655c4f8eadb840987c2f3a59954b))
+
+
+### Features
+
+* bump all deps to latest ([4492e97](https://github.com/maverick-js/maverick/commit/4492e972ec667c51df0ad00b2ebd678e041ac02f))
+* new `EventsTarget` class for creating typed event target ([40ac455](https://github.com/maverick-js/maverick/commit/40ac4553badf6ee5393ae33cf65377d3a881645e))
+
+
+
 ## [0.32.3](https://github.com/maverick-js/maverick/compare/v0.32.2...v0.32.3) (2023-02-09)
 
 

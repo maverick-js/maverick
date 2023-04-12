@@ -2,7 +2,7 @@ import { unwrapDeep } from '../../std/signal';
 import type { JSX } from '../jsx';
 import { root as createRoot, type Dispose } from '../reactivity';
 import { insert } from './insert';
-import { createMarkerWalker, MarkerWalker } from './walker';
+import { createMarkerWalker, type MarkerWalker } from './walker';
 
 export let hydration: HydrationContext | null = null;
 

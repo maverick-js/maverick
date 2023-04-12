@@ -1,4 +1,4 @@
-import { signal, WriteSignal } from '@maverick-js/signals';
+import { signal, type WriteSignal } from '@maverick-js/signals';
 
 import type { AnyRecord } from './types';
 

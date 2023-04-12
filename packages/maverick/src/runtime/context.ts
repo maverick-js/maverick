@@ -1,4 +1,4 @@
-import { getContext, getScope, Scope, setContext } from '@maverick-js/signals';
+import { getContext, getScope, type Scope, setContext } from '@maverick-js/signals';
 
 import { isUndefined } from '../std/unit';
 

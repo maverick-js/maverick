@@ -39,10 +39,10 @@
   },
   "dependencies": {
     "@maverick-js/signals": "^5.9.1",
-    "type-fest": "^2.17.0"
+    "type-fest": "^3.8.0"
   },
   "devDependencies": {
-    "@edge-runtime/vm": "^2.0.0",
+    "@edge-runtime/vm": "^2.1.0",
     "@maverick-js/compiler": "workspace:*",
     "@types/node": "^18.0.3",
     "@types/react": "^18.0.24",
@@ -53,10 +53,10 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^3.0.2",
-    "tsup": "^6.2.3",
-    "typescript": "^4.9.0",
-    "vite": "^3.2.3",
-    "vitest": "^0.25.1"
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.0",
+    "vite": "^4.2.0",
+    "vitest": "^0.30.0"
   },
   "exports": {
     ".": {

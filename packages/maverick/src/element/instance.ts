@@ -1,7 +1,7 @@
 import { getScope, onDispose, root, scoped, signal, tick } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
-import { createAccessors, WriteSignals } from '../runtime';
+import { createAccessors, type WriteSignals } from '../runtime';
 import {
   ATTACH,
   CONNECT,

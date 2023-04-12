@@ -1,7 +1,7 @@
 import { createFilter, type FilterPattern } from '@rollup/pluginutils';
 import { createUnplugin } from 'unplugin';
 
-import { transform, TransformFeatures, type TransformOptions } from '../transformer';
+import { transform, type TransformFeatures, type TransformOptions } from '../transformer';
 import type { LogLevelName } from '../utils/logger';
 import { isUndefined } from '../utils/unit';
 

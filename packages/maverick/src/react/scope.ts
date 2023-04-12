@@ -1,7 +1,7 @@
 import { createScope, getContext } from '@maverick-js/signals';
 import * as React from 'react';
 
-import { Context, provideContext, Scope } from '../runtime';
+import { type Context, provideContext, type Scope } from '../runtime';
 
 export interface ReactScopeProvider {
   new (props: React.PropsWithChildren): React.Component<React.PropsWithChildren>;

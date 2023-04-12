@@ -1,7 +1,7 @@
 import type { Constructor } from 'type-fest';
 
 import type { HTMLCustomElement } from '../element/types';
-import { type Dispose, type JSX, onDispose, ReadSignal } from '../runtime';
+import { type Dispose, type JSX, onDispose, type ReadSignal } from '../runtime';
 import { noop } from './unit';
 
 const EVENT: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event,

@@ -1,17 +1,17 @@
 import {
-  Dispose,
+  type Dispose,
   effect,
   getScope,
   isFunction,
   root,
-  Scope,
+  type Scope,
   scoped,
   tick,
   untrack,
 } from '@maverick-js/signals';
 import type { Writable } from 'type-fest';
 
-import { hydration, Hydrator, Renderer } from '../runtime/dom';
+import { hydration, type Hydrator, type Renderer } from '../runtime/dom';
 import { $$_create_element } from '../runtime/dom/internal';
 import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';

@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import kleur from 'kleur';
-import LRUCache from 'lru-cache';
+import { LRUCache } from 'lru-cache';
 import type ts from 'typescript';
 
 import { formatPluginName, log, LogLevel, logTime } from '../../utils/logger';

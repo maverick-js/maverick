@@ -1,7 +1,9 @@
 import { createFromBuffer } from '@dprint/formatter';
-import { getBuffer } from '@dprint/typescript';
+import { getPath as getTSPathWASM } from '@dprint/typescript';
+import { readFileSync } from 'node:fs';
 
-const formatter = createFromBuffer(getBuffer());
+const buffer = readFileSync(getTSPathWASM());
+const formatter = createFromBuffer(buffer);
 
 export function format(filename: string, contents: string) {
   return formatter.formatText(filename, contents);

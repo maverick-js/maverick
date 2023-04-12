@@ -1,10 +1,10 @@
-import { Scope, SCOPE, tick } from '@maverick-js/signals';
+import { SCOPE, tick } from '@maverick-js/signals';
 import * as React from 'react';
 
 import { createElementInstance } from '../element/instance';
 import { PROPS } from '../element/internal';
 import {
-  CustomElementRegistrar,
+  type CustomElementRegistrar,
   registerCustomElement,
   registerLiteCustomElement,
 } from '../element/register';

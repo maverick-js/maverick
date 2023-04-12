@@ -211,6 +211,30 @@ export type InferEventInit<T> = T extends Constructor<DOMEvent>
   ? T
   : DOMEventInit<unknown>;
 
+export type EventCallback<T extends Event> =
+  | ((event: T) => void)
+  | { handleEvent(event: T): void }
+  | null;
+
+export class EventsTarget<Events extends Record<string, Event>> extends EventTarget {
+  /** @internal - type only */
+  ___events?: Events;
+  override addEventListener<Type extends keyof Events>(
+    type: Type,
+    callback: EventCallback<Events[Type]>,
+    options?: boolean | AddEventListenerOptions | undefined,
+  ) {
+    return super.addEventListener(type as string, callback as EventListener, options);
+  }
+  override removeEventListener<Type extends keyof Events>(
+    type: Type,
+    callback: EventCallback<Events[Type]>,
+    options?: boolean | AddEventListenerOptions | undefined,
+  ) {
+    return super.removeEventListener(type as string, callback as EventListener, options);
+  }
+}
+
 /**
  * Adds an event listener for the given `type` and returns a function which can be invoked to
  * remove the event listener.
@@ -222,6 +246,8 @@ export function listenEvent<
   Target extends EventTarget,
   Events = Target extends HTMLCustomElement<any, infer Events>
     ? Events & MaverickOnAttributes
+    : Target extends EventsTarget<infer Events>
+    ? Events
     : MaverickOnAttributes,
   EventType extends keyof Events = keyof Events,
 >(

@@ -20,6 +20,7 @@ export type ReactElementProps<T extends AnyCustomElement> = Partial<InferCustomE
           Partial<InferCustomElementCSSVars<T>> & { [name: `--${string}`]: string })
       | undefined;
     children?: React.ReactNode | undefined;
+    part?: string | undefined;
     __forwardedRef?: React.Ref<T>;
   } & ReactElementEventCallbacks<T, InferCustomElementEvents<T> & ReactEventMap>;
 

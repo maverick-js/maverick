@@ -258,8 +258,8 @@ export interface CustomElementInstance<T extends AnyCustomElement = AnyCustomEle
 export interface CustomElementHost<T extends AnyCustomElement = AnyCustomElement> {
   /** @internal */
   [PROPS]: {
-    $attrs: AttributesRecord | null;
-    $styles: StylesRecord | null;
+    $attrs: ElementAttributesRecord | null;
+    $styles: ElementStylesRecord | null;
     $connected: WriteSignal<boolean>;
   };
   /**
@@ -290,24 +290,27 @@ export interface CustomElementHost<T extends AnyCustomElement = AnyCustomElement
    * This method can be used to specify attributes that should be set on the host element. Any
    * attributes that are assigned to a function will be considered a signal and updated accordingly.
    */
-  setAttributes(attributes: AttributesRecord): void;
+  setAttributes(attributes: ElementAttributesRecord): void;
   /**
    * This method can be used to specify styles that should set be set on the host element. Any
    * styles that are assigned to a function will be considered a signal and updated accordingly.
    */
-  setStyles(styles: StylesRecord): void;
+  setStyles(styles: ElementStylesRecord): void;
   /**
    * This method is used to satisfy the CSS variables contract specified on the current
    * custom element definition. Other CSS variables can be set via the `setStyles` method.
    */
-  setCSSVars(vars: CSSVarsRecord<InferCustomElementCSSProps<T>>): void;
+  setCSSVars(vars: ElementCSSVarsRecord<InferCustomElementCSSProps<T>>): void;
 }
 
-export interface AttributesRecord extends JSX.HTMLAttrs, JSX.ARIAAttributes, JSX.AttrsRecord {}
+export interface ElementAttributesRecord
+  extends JSX.ObservableRecord<JSX.HTMLAttrs>,
+    JSX.ObservableRecord<JSX.ARIAAttributes>,
+    JSX.ObservableRecord<JSX.AttrsRecord> {}
 
-export interface StylesRecord extends JSX.CSSStyles {}
+export interface ElementStylesRecord extends JSX.ObservableRecord<JSX.CSSStyles> {}
 
-export type CSSVarsRecord<CSSVars> = {
+export type ElementCSSVarsRecord<CSSVars> = {
   [Var in keyof CSSVars as `--${Var & string}`]: JSX.Observable<CSSVars[Var]>;
 };
 

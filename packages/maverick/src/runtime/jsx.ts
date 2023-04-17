@@ -67,15 +67,15 @@ export namespace JSX {
   };
 
   export interface AttrsRecord {
-    [attrName: string]: Observable<AttrValue>;
+    [attrName: string]: AttrValue;
   }
 
-  export type LowercaseObservableRecord<T> = {
-    [P in keyof T as Lowercase<Stringify<P>>]?: Observable<T[P] | null>;
+  export type LowercaseRecord<T> = {
+    [P in keyof T as Lowercase<Stringify<P>>]?: T[P] | null;
   };
 
-  export type KebabCaseObservableRecord<T> = {
-    [P in keyof T as KebabCase<P>]: Observable<T[P] | null>;
+  export type KebabCaseRecord<T> = {
+    [P in keyof T as KebabCase<P>]: T[P] | null;
   };
 
   export interface IntrinsicAttributes {
@@ -131,13 +131,13 @@ export namespace JSX {
    * ```
    */
   export type PropAttributes<Props> = {
-    [Prop in keyof Props as `$prop:${Stringify<Prop>}`]?: Observable<Props[Prop]>;
-  } & KebabCaseObservableRecord<ConditionalPick<Props, AttrValue>>;
+    [Prop in keyof Props as `$prop:${Stringify<Prop>}`]?: Props[Prop];
+  } & KebabCaseRecord<ConditionalPick<Props, AttrValue>>;
 
   export interface InnerContentAttributes {
-    '$prop:innerHTML'?: Observable<AttrValue>;
-    '$prop:innerText'?: Observable<AttrValue>;
-    '$prop:textContent'?: Observable<AttrValue>;
+    '$prop:innerHTML'?: AttrValue;
+    '$prop:innerText'?: AttrValue;
+    '$prop:textContent'?: AttrValue;
   }
 
   /**
@@ -272,13 +272,11 @@ export namespace JSX {
   export type CSSRecord = Record<string, CSSValue>;
 
   export type AnyCSSVarAttribute = {
-    [id: `$cssvar:${string}`]: Observable<CSSValue>;
+    [id: `$cssvar:${string}`]: CSSValue;
   };
 
   export type StyleAttributes = {
-    [Prop in keyof CSSProperties as `$style:${KebabCase<Stringify<Prop>>}`]: Observable<
-      CSSProperties[Prop]
-    >;
+    [Prop in keyof CSSProperties as `$style:${KebabCase<Stringify<Prop>>}`]: CSSProperties[Prop];
   };
 
   export type AnyCSSProperty = {
@@ -290,7 +288,7 @@ export namespace JSX {
       cssText?: string | null;
     };
 
-  export interface CSSStyles extends JSX.KebabCaseObservableRecord<JSX.CSSProperties> {}
+  export interface CSSStyles extends JSX.KebabCaseRecord<JSX.CSSProperties> {}
 
   /**
    * Creates `$cssvar:{name}` type definitions given CSS variable record.
@@ -305,9 +303,7 @@ export namespace JSX {
    * ```
    */
   export type CSSVarAttributes<Variables> = {
-    [Var in keyof Variables as `$cssvar:${Stringify<Var>}`]: Observable<
-      Variables[Var] | null | undefined
-    >;
+    [Var in keyof Variables as `$cssvar:${Stringify<Var>}`]: Variables[Var] | null | undefined;
   } & AnyCSSVarAttribute;
 
   /**
@@ -317,10 +313,10 @@ export namespace JSX {
    */
 
   export type HTMLPropAttributes<Props extends PropRecord> = {
-    [Prop in keyof Props as `$prop:${Stringify<Prop>}`]?: Observable<Props[Prop] | null>;
+    [Prop in keyof Props as `$prop:${Stringify<Prop>}`]?: Props[Prop] | null;
   } & HTMLAttrsRecord<Props>;
 
-  export type HTMLAttrsRecord<Props> = LowercaseObservableRecord<ConditionalPick<Props, AttrValue>>;
+  export type HTMLAttrsRecord<Props> = LowercaseRecord<ConditionalPick<Props, AttrValue>>;
 
   export interface HTMLAttrs extends HTMLAttrsRecord<HTMLProperties> {}
 
@@ -336,7 +332,7 @@ export namespace JSX {
   };
 
   export type HTMLDataAttributes = {
-    [id: `data-${string}`]: Observable<AttrValue>;
+    [id: `data-${string}`]: AttrValue;
   };
 
   // Separate interface so TS can cache it.
@@ -570,8 +566,8 @@ export namespace JSX {
    */
 
   export interface SVGAttributes
-    extends KebabCaseObservableRecord<Pick<SVGProperties, KebabCaseSVGProperties>>,
-      ObservableRecord<Pick<SVGProperties, CamelCaseSVGProperties>>,
+    extends KebabCaseRecord<Pick<SVGProperties, KebabCaseSVGProperties>>,
+      Pick<SVGProperties, CamelCaseSVGProperties>,
       Omit<SVGProperties, KebabCaseSVGProperties | CamelCaseSVGProperties> {}
 
   export type SVGElementAttributes<Element extends DOMElement = SVGElement> =
@@ -1151,56 +1147,55 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
-  export interface ARIAAttributes
-    extends ObservableRecord<{
-      'aria-autocomplete'?: 'none' | 'inline' | 'list' | 'both';
-      'aria-checked'?: 'true' | 'false' | 'mixed';
-      'aria-disabled'?: 'true' | 'false';
-      'aria-errormessage'?: string;
-      'aria-expanded'?: 'true' | 'false';
-      'aria-haspopup'?: 'true' | 'false' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog';
-      'aria-hidden'?: 'true' | 'false';
-      'aria-invalid'?: 'grammar' | 'false' | 'spelling' | 'true';
-      'aria-label'?: string;
-      'aria-level'?: number;
-      'aria-modal'?: 'true' | 'false';
-      'aria-multiline'?: 'true' | 'false';
-      'aria-multiselectable'?: 'true' | 'false';
-      'aria-orientation'?: 'horizontal' | 'vertical';
-      'aria-placeholder'?: string;
-      'aria-pressed'?: 'true' | 'false' | 'mixed';
-      'aria-readonly'?: 'true' | 'false';
-      'aria-required'?: 'true' | 'false';
-      'aria-selected'?: 'true' | 'false';
-      'aria-sort'?: 'ascending' | 'descending' | 'none' | 'other';
-      'aria-valuemin'?: number;
-      'aria-valuemax'?: number;
-      'aria-valuenow'?: number;
-      'aria-valuetext'?: string;
-      'aria-busy'?: 'true' | 'false';
-      'aria-live'?: 'assertive' | 'polite' | 'off';
-      'aria-relevant'?: 'all' | 'additions' | 'removals' | 'text' | 'additions text';
-      'aria-atomic'?: 'true' | 'false';
-      'aria-dropeffect'?: 'copy' | 'execute' | 'link' | 'move' | 'none' | 'popup';
-      'aria-grabbed'?: 'true' | 'false';
-      'aria-activedescendant'?: string;
-      'aria-colcount'?: number;
-      'aria-colindex'?: number;
-      'aria-colspan'?: number;
-      'aria-controls'?: string;
-      'aria-describedby'?: string;
-      'aria-description'?: string;
-      'aria-details'?: string;
-      'aria-flowto'?: string;
-      'aria-labelledby'?: string;
-      'aria-owns'?: string;
-      'aria-posinet'?: number;
-      'aria-rowcount'?: number;
-      'aria-rowindex'?: number;
-      'aria-rowspan'?: number;
-      'aria-setsize'?: number;
-      'aria-current'?: 'page' | 'step' | 'location' | 'date' | 'time' | 'true' | 'false';
-      'aria-keyshortcuts'?: string;
-      'aria-roledescription'?: string;
-    }> {}
+  export interface ARIAAttributes {
+    'aria-autocomplete'?: 'none' | 'inline' | 'list' | 'both';
+    'aria-checked'?: 'true' | 'false' | 'mixed';
+    'aria-disabled'?: 'true' | 'false';
+    'aria-errormessage'?: string;
+    'aria-expanded'?: 'true' | 'false';
+    'aria-haspopup'?: 'true' | 'false' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog';
+    'aria-hidden'?: 'true' | 'false';
+    'aria-invalid'?: 'grammar' | 'false' | 'spelling' | 'true';
+    'aria-label'?: string;
+    'aria-level'?: number;
+    'aria-modal'?: 'true' | 'false';
+    'aria-multiline'?: 'true' | 'false';
+    'aria-multiselectable'?: 'true' | 'false';
+    'aria-orientation'?: 'horizontal' | 'vertical';
+    'aria-placeholder'?: string;
+    'aria-pressed'?: 'true' | 'false' | 'mixed';
+    'aria-readonly'?: 'true' | 'false';
+    'aria-required'?: 'true' | 'false';
+    'aria-selected'?: 'true' | 'false';
+    'aria-sort'?: 'ascending' | 'descending' | 'none' | 'other';
+    'aria-valuemin'?: number;
+    'aria-valuemax'?: number;
+    'aria-valuenow'?: number;
+    'aria-valuetext'?: string;
+    'aria-busy'?: 'true' | 'false';
+    'aria-live'?: 'assertive' | 'polite' | 'off';
+    'aria-relevant'?: 'all' | 'additions' | 'removals' | 'text' | 'additions text';
+    'aria-atomic'?: 'true' | 'false';
+    'aria-dropeffect'?: 'copy' | 'execute' | 'link' | 'move' | 'none' | 'popup';
+    'aria-grabbed'?: 'true' | 'false';
+    'aria-activedescendant'?: string;
+    'aria-colcount'?: number;
+    'aria-colindex'?: number;
+    'aria-colspan'?: number;
+    'aria-controls'?: string;
+    'aria-describedby'?: string;
+    'aria-description'?: string;
+    'aria-details'?: string;
+    'aria-flowto'?: string;
+    'aria-labelledby'?: string;
+    'aria-owns'?: string;
+    'aria-posinet'?: number;
+    'aria-rowcount'?: number;
+    'aria-rowindex'?: number;
+    'aria-rowspan'?: number;
+    'aria-setsize'?: number;
+    'aria-current'?: 'page' | 'step' | 'location' | 'date' | 'time' | 'true' | 'false';
+    'aria-keyshortcuts'?: string;
+    'aria-roledescription'?: string;
+  }
 }

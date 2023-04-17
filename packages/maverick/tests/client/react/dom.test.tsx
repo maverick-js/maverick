@@ -3,7 +3,7 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 
-import { CustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
+import { type CustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
 import {
   createReactContextProvider,
   createReactElement,

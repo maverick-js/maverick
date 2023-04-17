@@ -77,7 +77,7 @@ importers:
     specifiers:
       '@edge-runtime/vm': ^2.1.0
       '@maverick-js/compiler': workspace:*
-      '@maverick-js/signals': ^5.9.2
+      '@maverick-js/signals': ^5.9.3
       '@types/node': ^18.0.3
       '@types/react': ^18.0.24
       '@types/react-dom': ^18.0.8
@@ -93,7 +93,7 @@ importers:
       vite: ^4.2.0
       vitest: ^0.30.0
     dependencies:
-      '@maverick-js/signals': 5.9.2
+      '@maverick-js/signals': 5.9.3
       type-fest: 3.8.0
     devDependencies:
       '@edge-runtime/vm': 2.1.2
@@ -489,8 +489,8 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@maverick-js/signals/5.9.2:
-    resolution: {integrity: sha512-3gplBFZFg0KFTBZkntSFs/8gyMYKLmJ8b0znanPw6XlojGspc8wvCOGC6z/2+DIkaHzyzDr97AHBCO4YfHTW+g==}
+  /@maverick-js/signals/5.9.3:
+    resolution: {integrity: sha512-rqaaetjcqQQXbloejGYyHqN6i+cf2Lp88nw8qx2s86CD0X+1Tl/dq+I53wFM6VK6cvm925fQLszGG24AMSWAaw==}
     dev: false
 
   /@nodelib/fs.scandir/2.1.5:

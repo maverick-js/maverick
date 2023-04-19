@@ -1,17 +1,15 @@
 [
   {
-    "name": "FooElement",
+    "name": "TestComponent",
     "tag": {
       "name": "mk-foo"
     },
-    "definition": {
-      "name": "FooElementDefinition"
-    },
+    "definition": {},
     "file": {
       "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/compiler/tests/analyze/fixtures.ts"
     },
     "shadow": true,
-    "docs": "This is the `FooElement` documentation.",
+    "docs": "This is the `TestComponent` documentation.",
     "doctags": [
       {
         "name": "slot",
@@ -33,22 +31,14 @@
     "props": [
       {
         "name": "moo",
-        "type": {
-          "serialized": "string"
-        },
+        "type": "string",
         "docs": "This is the moo docs.",
         "attribute": "moo"
       },
       {
         "name": "mooBoo",
         "default": "1",
-        "type": {
-          "serialized": "0 | 1",
-          "union": [
-            "0",
-            "1"
-          ]
-        },
+        "type": "0 | 1",
         "docs": "This is the moo boo docs.",
         "doctags": [
           {
@@ -60,37 +50,25 @@
       {
         "name": "foo",
         "default": "0",
-        "type": {
-          "serialized": "number"
-        },
+        "type": "number",
         "docs": "This is the foo prop docs.",
         "attribute": "foo"
       },
       {
         "name": "bar",
         "default": "10",
-        "type": {
-          "serialized": "number"
-        },
+        "type": "number",
         "attribute": "boo"
       },
       {
         "name": "lux",
         "default": "20",
-        "type": {
-          "serialized": "number"
-        }
+        "type": "number"
       },
       {
         "name": "baxHux",
         "default": "30",
-        "type": {
-          "serialized": "string | null",
-          "union": [
-            "null",
-            "string"
-          ]
-        },
+        "type": "string | null",
         "docs": "This is the bax hux docs.",
         "doctags": [
           {
@@ -101,20 +79,13 @@
           }
         ],
         "attribute": "bax-hux",
-        "reflect": true,
         "internal": true,
         "deprecated": true
       },
       {
         "name": "huxBux",
         "default": "null",
-        "type": {
-          "serialized": "string | null",
-          "union": [
-            "null",
-            "string"
-          ]
-        },
+        "type": "string | null",
         "doctags": [
           {
             "name": "defaultValue",
@@ -125,22 +96,14 @@
       },
       {
         "name": "zoo",
-        "default": "undefined",
-        "type": {
-          "serialized": "number | undefined",
-          "union": [
-            "number",
-            "undefined"
-          ]
-        },
+        "default": "null",
+        "type": "number | undefined",
         "attribute": "zoo"
       },
       {
         "name": "bam",
         "default": "'foo'",
-        "type": {
-          "serialized": "string"
-        },
+        "type": "string",
         "docs": "This is the bam docs.",
         "doctags": [
           {
@@ -153,23 +116,17 @@
       {
         "name": "show",
         "default": "() => 'foo'",
-        "type": {
-          "serialized": "() => string"
-        },
+        "type": "() => string",
         "attribute": "show"
       },
       {
         "name": "jax",
-        "type": {
-          "serialized": "number"
-        },
+        "type": "number",
         "attribute": "jax"
       },
       {
         "name": "loo",
-        "type": {
-          "serialized": "number"
-        },
+        "type": "number",
         "docs": "This is the loo prop docs.",
         "attribute": "loo"
       }
@@ -177,9 +134,7 @@
     "events": [
       {
         "name": "foo",
-        "type": {
-          "serialized": "FooEvent"
-        },
+        "type": "FooEvent",
         "detail": "boolean",
         "docs": "This is the foo event.",
         "doctags": [
@@ -191,16 +146,12 @@
       },
       {
         "name": "bar",
-        "type": {
-          "serialized": "DOMEvent<void>"
-        },
+        "type": "DOMEvent<void>",
         "detail": "void"
       },
       {
         "name": "baz",
-        "type": {
-          "serialized": "DOMEvent<0 | 1>"
-        },
+        "type": "DOMEvent<0 | 1>",
         "detail": "0 | 1",
         "docs": "This is the `Baz` event docs.",
         "doctags": [
@@ -212,16 +163,12 @@
       },
       {
         "name": "boo",
-        "type": {
-          "serialized": "DOMEvent<string | null>"
-        },
+        "type": "DOMEvent<string | null>",
         "detail": "string | null"
       },
       {
         "name": "lux",
-        "type": {
-          "serialized": "DOMEvent<string | null>"
-        },
+        "type": "DOMEvent<string | null>",
         "detail": "string | null",
         "docs": "*\nThis is the lux event.",
         "doctags": [
@@ -237,23 +184,25 @@
       },
       {
         "name": "hux",
-        "type": {
-          "serialized": "DOMEvent<number | null>"
-        },
+        "type": "DOMEvent<number | null>",
         "detail": "number | null"
+      },
+      {
+        "name": "'bax-hux'",
+        "type": "DOMEvent<0 | 1 | 2 | 3>",
+        "detail": "0 | 1 | 2 | 3"
+      },
+      {
+        "name": "'baz-boo'",
+        "type": "DOMEvent<FooBoo>",
+        "detail": "'a' | 'b' | 'c'"
       }
     ],
     "cssvars": [
       {
         "name": "foo",
         "default": "1",
-        "type": {
-          "serialized": "0 | 1",
-          "union": [
-            "0",
-            "1"
-          ]
-        },
+        "type": "0 | 1",
         "docs": "This is the foo docs.",
         "doctags": [
           {
@@ -264,27 +213,17 @@
       },
       {
         "name": "bar",
-        "type": {
-          "serialized": "string"
-        }
+        "type": "string"
       },
       {
         "name": "baz",
-        "type": {
-          "serialized": "string | null",
-          "union": [
-            "null",
-            "string"
-          ]
-        },
+        "type": "string | null",
         "readonly": true
       },
       {
         "name": "bax",
         "default": "1",
-        "type": {
-          "serialized": "number"
-        },
+        "type": "number | undefined",
         "doctags": [
           {
             "name": "defaultValue",
@@ -314,37 +253,36 @@
         "docs": "This is the foo slot."
       }
     ],
+    "store": {
+      "factory": "StoreFactory",
+      "record": "FooStoreRecord"
+    },
     "members": {
       "props": [
         {
           "name": "foo",
-          "type": {
-            "serialized": "number"
-          }
-        },
-        {
-          "name": "bar",
-          "type": {
-            "serialized": "string | null",
-            "union": [
-              "null",
-              "string"
-            ]
-          }
+          "type": "boolean",
+          "docs": "This is the foo docs."
         },
         {
           "name": "baz",
-          "type": {
-            "serialized": "boolean"
-          },
+          "type": "boolean",
           "docs": "This is the baz docs.",
           "readonly": true
         },
         {
-          "name": "boo",
-          "type": {
-            "serialized": "{ a: number; b: string; c: string; }"
-          }
+          "name": "bux",
+          "type": "boolean"
+        },
+        {
+          "name": "baseGetter",
+          "type": "number",
+          "readonly": true
+        },
+        {
+          "name": "state",
+          "type": "FooStoreRecord",
+          "readonly": true
         }
       ],
       "methods": [
@@ -364,19 +302,11 @@
           "parameters": [
             {
               "name": "fooArg",
-              "type": {
-                "serialized": "number"
-              }
+              "type": "number"
             },
             {
               "name": "barArg",
-              "type": {
-                "serialized": "string | null",
-                "union": [
-                  "null",
-                  "string"
-                ]
-              }
+              "type": "Bar"
             }
           ],
           "signature": {
@@ -392,9 +322,7 @@
           "parameters": [
             {
               "name": "foo",
-              "type": {
-                "serialized": "T"
-              }
+              "type": "T"
             }
           ],
           "signature": {
@@ -403,9 +331,35 @@
           "return": {
             "type": "T"
           }
+        },
+        {
+          "name": "baseMethod",
+          "docs": "This is a base method.",
+          "parameters": [],
+          "signature": {
+            "type": "() => void"
+          },
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "subscribe",
+          "parameters": [
+            {
+              "name": "callback",
+              "type": "(state: FooStoreRecord) => Maybe<Dispose>"
+            }
+          ],
+          "signature": {
+            "type": "(callback: (state: FooStoreRecord) => Maybe<Dispose>) => Unsubscribe"
+          },
+          "return": {
+            "type": "Unsubscribe"
+          }
         }
       ],
-      "length": 7
+      "length": 10
     }
   }
 ]

@@ -1,7 +1,7 @@
-import { createStore } from 'maverick.js';
+import { StoreFactory } from 'maverick.js';
 
 it('should create store', () => {
-  const store = createStore({
+  const factory = new StoreFactory({
     a: 1,
     b: 2,
     get c() {
@@ -9,29 +9,29 @@ it('should create store', () => {
     },
   });
 
-  expect(store.initial).toBeDefined();
+  expect(factory.record).toBeDefined();
 
-  const foo = store.create();
+  const store = factory.create();
 
-  expect(foo.a).toBe(1);
-  expect(foo.b).toBe(2);
-  expect(foo.c).toBe(3);
+  expect(store.a()).toBe(1);
+  expect(store.b()).toBe(2);
+  expect(store.c()).toBe(3);
 
-  foo.a = 2;
-  expect(foo.b).toBe(2);
-  expect(foo.c).toBe(4);
+  store.a.set(2);
+  expect(store.b()).toBe(2);
+  expect(store.c()).toBe(4);
 
-  store.reset(foo);
+  factory.reset(store);
 
-  expect(foo.a).toBe(1);
-  expect(foo.b).toBe(2);
-  expect(foo.c).toBe(3);
+  expect(store.a()).toBe(1);
+  expect(store.b()).toBe(2);
+  expect(store.c()).toBe(3);
 
-  foo.a = 4;
-  foo.b = 4;
-  store.reset(foo, (key) => key !== 'b');
+  store.a.set(4);
+  store.b.set(4);
+  factory.reset(store, (key) => key !== 'b');
 
-  expect(foo.a).toBe(1);
-  expect(foo.b).toBe(4);
-  expect(foo.c).toBe(5);
+  expect(store.a()).toBe(1);
+  expect(store.b()).toBe(4);
+  expect(store.c()).toBe(5);
 });

@@ -1,40 +1,42 @@
 import {
-  createElementInstance,
+  Component,
+  createComponent,
   createServerElement,
-  CustomElementDeclaration,
-  defineCustomElement,
-  onAttach,
+  defineElement,
 } from 'maverick.js/element';
 
 it('should call `onAttach` lifecycle hook', () => {
   const attach = vi.fn();
 
-  const { instance, host } = setupTestElement({
-    setup: () => {
-      onAttach(attach);
-      return () => null;
-    },
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test` });
+    protected override onAttach() {
+      attach();
+    }
+  }
 
-  host.attachComponent(instance);
+  const host = new (createServerElement(TestComponent))();
+  host.attachComponent(createComponent(TestComponent));
+
   expect(attach).toBeCalledTimes(1);
 });
 
 it('should render attributes', () => {
-  const { instance, host } = setupTestElement({
-    setup: ({ host }) => {
-      onAttach(() => {
-        host.el!.setAttribute('foo', '1');
-        host.el!.setAttribute('bar', '2');
-        host.el!.setAttribute('baz', '3');
-        host.el!.removeAttribute('baz');
-      });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test` });
+    protected override onAttach(el) {
+      el.setAttribute('foo', '1');
+      el.setAttribute('bar', '2');
+      el.setAttribute('baz', '3');
+      el.removeAttribute('baz');
+    }
+    override render() {
+      return 'Test';
+    }
+  }
 
-      return () => 'Test';
-    },
-  });
-
-  host.attachComponent(instance);
+  const host = new (createServerElement(TestComponent))();
+  host.attachComponent(createComponent(TestComponent));
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
@@ -47,23 +49,25 @@ it('should render attributes', () => {
 });
 
 it('should render class list', () => {
-  const { instance, host } = setupTestElement({
-    setup: ({ host }) => {
-      onAttach(() => {
-        host.el!.classList.add('foo');
-        host.el!.classList.add('baz', 'bam', 'doh');
-        host.el!.classList.toggle('boo');
-        host.el!.classList.toggle('bax');
-        host.el!.classList.toggle('bax');
-        host.el!.classList.toggle('hux');
-        host.el!.classList.toggle('hux');
-        host.el!.classList.remove('bam');
-      });
-      return () => 'Test';
-    },
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test` });
+    protected override onAttach(el) {
+      el.classList.add('foo');
+      el.classList.add('baz', 'bam', 'doh');
+      el.classList.toggle('boo');
+      el.classList.toggle('bax');
+      el.classList.toggle('bax');
+      el.classList.toggle('hux');
+      el.classList.toggle('hux');
+      el.classList.remove('bam');
+    }
+    override render() {
+      return 'Test';
+    }
+  }
 
-  host.attachComponent(instance);
+  const host = new (createServerElement(TestComponent))();
+  host.attachComponent(createComponent(TestComponent));
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
@@ -75,22 +79,23 @@ it('should render class list', () => {
 });
 
 it('should render styles', () => {
-  const { instance, host } = setupTestElement({
-    setup: ({ host }) => {
-      onAttach(() => {
-        host.el!.style.setProperty('foo', '1');
-        host.el!.style.setProperty('bar', '2');
-        host.el!.style.setProperty('baz', '3');
-        host.el!.style.removeProperty('baz');
-        host.el!.style.setProperty('display', 'content');
-        host.el!.style.setProperty('--hux', 'none');
-      });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test` });
+    protected override onAttach(el) {
+      el.style.setProperty('foo', '1');
+      el.style.setProperty('bar', '2');
+      el.style.setProperty('baz', '3');
+      el.style.removeProperty('baz');
+      el.style.setProperty('display', 'content');
+      el.style.setProperty('--hux', 'none');
+    }
+    override render() {
+      return 'Test';
+    }
+  }
 
-      return () => 'Test';
-    },
-  });
-
-  host.attachComponent(instance);
+  const host = new (createServerElement(TestComponent))();
+  host.attachComponent(createComponent(TestComponent));
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
@@ -102,47 +107,16 @@ it('should render styles', () => {
 });
 
 it('should noop dom events api', () => {
-  const { instance, host } = setupTestElement({
-    setup({ host }) {
-      onAttach(() => {
-        host.el!.addEventListener('click', () => {});
-        host.el!.removeEventListener('click', () => {});
-      });
-
-      return () => null;
-    },
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test` });
+    protected override onAttach(el) {
+      el.addEventListener('click', () => {});
+      el.removeEventListener('click', () => {});
+    }
+  }
 
   expect(() => {
-    host.attachComponent(instance);
+    const host = new (createServerElement(TestComponent))();
+    host.attachComponent(createComponent(TestComponent));
   }).not.toThrow();
 });
-
-function setupTestElement(declaration?: Partial<CustomElementDeclaration>) {
-  const definition = defineCustomElement({
-    tagName: `mk-foo`,
-    setup: ({ props }) => {
-      const members = { $render: () => 'Test' };
-
-      for (const prop of Object.keys(props)) {
-        Object.defineProperty(members, prop, {
-          enumerable: true,
-          get() {
-            return props[prop];
-          },
-        });
-      }
-
-      return members;
-    },
-    ...declaration,
-  } as any);
-
-  const instance = createElementInstance(definition);
-
-  return {
-    definition,
-    instance,
-    host: new (createServerElement(definition))(),
-  };
-}

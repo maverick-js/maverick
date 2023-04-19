@@ -1,17 +1,19 @@
 import { CustomElement, signal, tick } from 'maverick.js';
 
 import { hydrate } from 'maverick.js/dom';
-import { defineCustomElement } from 'maverick.js/element';
+import { Component, defineElement } from 'maverick.js/element';
 
 import { startMarker } from '../utils';
 
 it('should hydrate custom element', () => {
-  const Foo = defineCustomElement({ tagName: `mk-foo` });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: 'mk-test' });
+  }
 
   const child = document.createElement('div');
   child.appendChild(document.createTextNode('Foo'));
 
-  const el = document.createElement('mk-foo');
+  const el = document.createElement('mk-test');
   el.setAttribute('mk-d', '');
   el.setAttribute('mk-h', '');
   el.appendChild(startMarker());
@@ -26,7 +28,7 @@ it('should hydrate custom element', () => {
   expect(root).toMatchInlineSnapshot(`
     <root>
       <!--$-->
-      <mk-foo
+      <mk-test
         mk-d=""
         mk-h=""
       >
@@ -34,19 +36,21 @@ it('should hydrate custom element', () => {
         <div>
           Foo
         </div>
-      </mk-foo>
+      </mk-test>
     </root>
   `);
 
   const click = vi.fn();
   const $children = signal<any>(() => <div $on:click={click}>Foo</div>);
 
-  hydrate(() => <CustomElement $element={Foo}>{$children}</CustomElement>, { target: root });
+  hydrate(() => <CustomElement $this={TestComponent}>{$children}</CustomElement>, {
+    target: root,
+  });
 
   expect(root).toMatchInlineSnapshot(`
     <root>
       <!--$-->
-      <mk-foo
+      <mk-test
         mk-d=""
         mk-h=""
       >
@@ -54,7 +58,7 @@ it('should hydrate custom element', () => {
         <div>
           Foo
         </div>
-      </mk-foo>
+      </mk-test>
     </root>
   `);
 
@@ -67,7 +71,7 @@ it('should hydrate custom element', () => {
   expect(root).toMatchInlineSnapshot(`
     <root>
       <!--$-->
-      <mk-foo
+      <mk-test
         mk-d=""
         mk-h=""
       />

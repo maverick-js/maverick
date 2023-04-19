@@ -1,27 +1,22 @@
 import ts from 'typescript';
 
-import type { ElementDefintionNode } from '../plugins/AnalyzePlugin';
 import { getDeclaration } from '../utils/declaration';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta, serializeType } from '../utils/types';
-import { walkSignatures } from '../utils/walk';
 import { type EventMeta, TS_NODE } from './component';
 import { getDocTags, hasDocTag } from './doctags';
 
-export function buildEventsMeta(
-  checker: ts.TypeChecker,
-  typesRoot?: ElementDefintionNode['types']['events'],
-) {
+export function buildEventsMeta(checker: ts.TypeChecker, typesRoot?: ts.Type) {
   if (!typesRoot) return;
 
-  const meta = new Map<string, EventMeta>(),
-    members = walkSignatures(checker, typesRoot);
+  const meta = new Map<string, EventMeta>();
 
-  for (const [name, prop] of members.props) {
-    const signature = prop.signature;
-    if (!prop.type && !signature.type) continue;
+  for (const symbol of checker.getPropertiesOfType(typesRoot)) {
+    const signature = symbol.declarations?.[0];
+    if (!signature || !ts.isPropertySignature(signature) || !signature.name) continue;
 
-    const isTypeReference =
+    const name = signature.name.getText(),
+      isTypeReference =
         signature.type &&
         ts.isTypeReferenceNode(signature.type!) &&
         ts.isIdentifier(signature.type.typeName),
@@ -30,26 +25,13 @@ export function buildEventsMeta(
         getDocs(checker, signature.name as ts.Identifier) ??
         (isTypeReference ? getDocs(checker, signature.type.typeName) : undefined),
       doctags = getDocTags(signature) ?? (isTypeReference ? getDocTags(declaration) : undefined),
-      type = buildTypeMeta(checker, signature.type!, prop.type);
+      type = buildTypeMeta(checker, checker.getTypeOfSymbol(symbol));
 
     let internal!: EventMeta['internal'],
       deprecated!: EventMeta['deprecated'],
       bubbles!: EventMeta['bubbles'],
       composed!: EventMeta['composed'],
       cancellable!: EventMeta['cancellable'];
-
-    const domEvent = type.serialized.startsWith('DOMEvent')
-      ? type.serialized
-      : declaration && ts.isInterfaceDeclaration(declaration)
-      ? declaration.heritageClauses?.[0]?.types
-          .find(
-            (type) =>
-              ts.isExpressionWithTypeArguments(type) &&
-              ts.isIdentifier(type.expression) &&
-              (type.expression.escapedText as string).startsWith('DOMEvent'),
-          )
-          ?.getText() ?? 'unknown'
-      : 'unknown';
 
     const detailType = signature.type
         ? checker.getPropertyOfType(checker.getTypeAtLocation(signature.type!), 'detail')

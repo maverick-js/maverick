@@ -1,239 +1,35 @@
 import ts from 'typescript';
 
-import { getDeclaration, getDeclarations, getShorthandAssignmentDeclaration } from './declaration';
+import { getDeclaration, getShorthandAssignmentDeclaration } from './declaration';
 
-export type SeenMembers = {
-  props: Map<
-    string,
-    {
-      assignment: ts.PropertyAssignment | ts.ShorthandPropertyAssignment;
-      value: ts.Declaration | ts.Expression;
-    }
-  >;
-  methods: Map<
-    string,
-    {
-      assignment: ts.MethodDeclaration | ts.ShorthandPropertyAssignment;
-      value: ts.FunctionDeclaration | ts.MethodDeclaration;
-    }
-  >;
-  accessors: Map<
-    string,
-    {
-      get?: ts.GetAccessorDeclaration | undefined;
-      set?: ts.SetAccessorDeclaration | undefined;
-    }
-  >;
-};
+export function getProperties(checker: ts.TypeChecker, node: ts.Node) {
+  const props = new Map<string, ts.PropertyAssignment>();
 
-export function walkProperties(
-  checker: ts.TypeChecker,
-  node: ts.Node,
-  members: SeenMembers = {
-    props: new Map(),
-    methods: new Map(),
-    accessors: new Map(),
-  },
-): SeenMembers {
-  if (ts.isObjectLiteralExpression(node)) {
-    for (const prop of node.properties) {
-      if (ts.isPropertyAssignment(prop)) {
-        const name = ts.isIdentifier(prop.name)
-          ? (prop.name.escapedText as string)
-          : ts.isStringLiteral(prop.name)
-          ? prop.name.text
-          : null;
-
-        if (name) members.props.set(name, { assignment: prop, value: prop.initializer });
-      } else if (ts.isMethodDeclaration(prop) && ts.isIdentifier(prop.name)) {
-        const name = prop.name.escapedText as string;
-        members.methods.set(name, { assignment: prop, value: prop });
-      } else if (ts.isShorthandPropertyAssignment(prop)) {
-        const name = prop.name.escapedText as string;
-        const declaration = getShorthandAssignmentDeclaration(checker, prop);
-        if (declaration) {
-          if (ts.isFunctionDeclaration(declaration)) {
-            members.methods.set(name, { assignment: prop, value: declaration });
-          } else {
-            members.props.set(name, { assignment: prop, value: declaration });
-          }
-        }
-      } else if (ts.isGetAccessor(prop)) {
-        const name = ts.isIdentifier(prop.name)
-          ? (prop.name.escapedText as string)
-          : ts.isStringLiteral(prop.name)
-          ? prop.name.text
-          : null;
-
-        if (name) {
-          if (!members.accessors.has(name)) members.accessors.set(name, {});
-          members.accessors.get(name)!.get = prop;
-        }
-      } else if (ts.isSetAccessor(prop)) {
-        const name = ts.isIdentifier(prop.name)
-          ? (prop.name.escapedText as string)
-          : ts.isStringLiteral(prop.name)
-          ? prop.name.text
-          : null;
-
-        if (name) {
-          if (!members.accessors.has(name)) members.accessors.set(name, {});
-          members.accessors.get(name)!.set = prop;
-        }
-      } else {
-        walkProperties(checker, prop, members);
-      }
+  for (const symbol of checker.getPropertiesOfType(checker.getTypeAtLocation(node))) {
+    const declaration = symbol.declarations?.[0];
+    if (declaration && ts.isPropertyAssignment(declaration)) {
+      props.set(declaration.name.getText(), declaration);
     }
-  } else if (ts.isSpreadAssignment(node)) {
-    walkProperties(checker, node.expression, members);
-  } else if (isCallExpression(node, 'mergeProperties')) {
-    for (const argument of node.arguments) {
-      walkProperties(checker, argument, members);
-    }
-  } else {
-    const value = getDeepValueNode(checker, node);
-    if (value) walkProperties(checker, value, members);
   }
 
-  return members;
+  return { props };
 }
 
-export type SeenMemberSignatures = {
-  heritage: Map<string, ts.TypeReferenceNode | ts.ExpressionWithTypeArguments>;
-  props: Map<
-    string,
-    {
-      signature: ts.PropertySignature;
-      type?: ts.Type;
-    }
-  >;
-  methods: Map<
-    string,
-    {
-      signature: ts.MethodSignature;
-      type?: ts.Type;
-    }
-  >;
-};
+export function getHeritage(checker: ts.TypeChecker, node: ts.ClassDeclaration | null) {
+  const map = new Map<string, ts.ClassDeclaration>();
 
-export function walkSignatures(
-  checker: ts.TypeChecker,
-  node: ts.Node,
-  members: SeenMemberSignatures = {
-    heritage: new Map(),
-    props: new Map(),
-    methods: new Map(),
-  },
-  ignoredIdentifiers = new Set<string>(),
-): SeenMemberSignatures {
-  if (ts.isTypeLiteralNode(node) || ts.isInterfaceDeclaration(node)) {
-    if (ts.isInterfaceDeclaration(node) && node.typeParameters) {
-      const type = checker.getTypeAtLocation(node);
-      for (const prop of checker.getPropertiesOfType(type)) {
-        const declaration = prop.declarations?.[0];
-        if (declaration) {
-          const type = checker.getTypeOfSymbolAtLocation(prop, declaration);
-          if (ts.isPropertySignature(declaration)) {
-            const name = ts.isIdentifier(declaration.name) ? declaration.name.escapedText : null;
-            if (name) members.props.set(name, { signature: declaration, type });
-          } else if (ts.isMethodSignature(declaration)) {
-            const name = ts.isIdentifier(declaration.name) ? declaration.name.escapedText : null;
-            if (name) members.methods.set(name, { signature: declaration, type });
-          }
-        }
-      }
-    } else {
-      if (ts.isInterfaceDeclaration(node)) {
-        for (const prop of node.members) {
-          if (ts.isPropertySignature(prop)) {
-            const name = ts.isIdentifier(prop.name)
-              ? prop.name.escapedText
-              : ts.isStringLiteral(prop.name)
-              ? prop.name.text
-              : null;
-
-            if (name) members.props.set(name, { signature: prop });
-          } else if (ts.isMethodSignature(prop)) {
-            const name = ts.isIdentifier(prop.name)
-              ? prop.name.escapedText
-              : ts.isStringLiteral(prop.name)
-              ? prop.name.text
-              : null;
-
-            if (name) members.methods.set(name, { signature: prop });
-          }
-        }
-
-        if (node.heritageClauses) {
-          for (const clause of node.heritageClauses) {
-            for (const type of clause.types) {
-              if (ts.isIdentifier(type.expression)) {
-                members.heritage.set(type.expression.escapedText as string, type);
-                if (!ignoredIdentifiers.has(type.expression.escapedText as string)) {
-                  if (type.typeArguments) {
-                    walkSignatures(checker, type, members, ignoredIdentifiers);
-                  } else {
-                    const declarations = getDeclarations(checker, type.expression);
-                    if (declarations) {
-                      for (const declaration of declarations) {
-                        walkSignatures(checker, declaration, members, ignoredIdentifiers);
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      for (const member of node.members) {
-        const name = member.name && ts.isIdentifier(member.name) ? member.name.escapedText : null;
-        if (name) {
-          if (ts.isPropertySignature(member)) {
-            members.props.set(name, { signature: member });
-          } else if (ts.isMethodSignature(member)) {
-            members.methods.set(name, { signature: member });
-          }
-        }
-      }
-    }
-  } else if (ts.isExpressionWithTypeArguments(node) || ts.isTypeReferenceNode(node)) {
-    if (node.typeArguments) {
-      const type = checker.getTypeAtLocation(node);
-      for (const prop of checker.getPropertiesOfType(type)) {
-        const declaration = prop.declarations?.[0];
-        if (declaration) {
-          const type = checker.getTypeOfSymbolAtLocation(prop, declaration);
-          if (ts.isPropertySignature(declaration)) {
-            const name = ts.isIdentifier(declaration.name) ? declaration.name.escapedText : null;
-            if (name) members.props.set(name, { signature: declaration, type });
-          } else if (ts.isMethodSignature(declaration)) {
-            const name = ts.isIdentifier(declaration.name) ? declaration.name.escapedText : null;
-            if (name) members.methods.set(name, { signature: declaration, type });
-          }
-        }
-      }
-    } else if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) {
-      members.heritage.set(node.typeName.escapedText as string, node);
-      if (!ignoredIdentifiers.has(node.typeName.escapedText as string)) {
-        const declarations = getDeclarations(checker, node.typeName);
-        if (declarations) {
-          for (const declaration of declarations) {
-            walkSignatures(checker, declaration, members, ignoredIdentifiers);
-          }
-        }
-      }
-    }
-  } else if (ts.isIntersectionTypeNode(node)) {
-    for (const type of node.types) {
-      walkSignatures(checker, type, members, ignoredIdentifiers);
-    }
-  } else if (ts.isTypeAliasDeclaration(node)) {
-    walkSignatures(checker, node.type, members, ignoredIdentifiers);
+  while (node) {
+    if (node.name) map.set(node.name.escapedText as string, node);
+    if (!node.heritageClauses) break;
+    const extend = node.heritageClauses.find((c) => c.kind & ts.SyntaxKind.ExtendsKeyword);
+    const identifier = extend && extend.types[0]?.expression;
+    if (!identifier || !ts.isIdentifier(identifier)) break;
+    const declaration = getDeclaration(checker, identifier);
+    if (!declaration || !ts.isClassDeclaration(declaration)) break;
+    node = declaration;
   }
 
-  return members;
+  return map;
 }
 
 export function findPropertyAssignment(obj: ts.ObjectLiteralExpression, key: string) {

@@ -1,18 +1,17 @@
 import {
-  type AnyCustomElement,
-  type CustomElementDefinition,
-  getCustomElementInstance,
+  type ComponentConstructor,
+  createComponent,
+  getComponentInstance,
+  type HTMLCustomElement,
   registerCustomElement,
-  RENDER,
 } from '../../element';
-import { createElementInstance } from '../../element/instance';
-import { SCOPE } from '../../element/internal';
+import { INSTANCE } from '../../element/internal';
 import { attachDeclarativeShadowDOM } from '../../std/dom';
 import { createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
 import { listenEvent } from '../../std/event';
 import { isArray, isFunction, isUndefined } from '../../std/unit';
 import type { JSX } from '../jsx';
-import { computed, effect, onDispose, peek, scoped } from '../reactivity';
+import { computed, effect, peek, scoped } from '../reactivity';
 import { insert } from './insert';
 import { insertLite } from './insert-lite';
 import { hydration } from './render';
@@ -52,16 +51,16 @@ export function $$_next_element(walker: TreeWalker): Node {
 
 /** @internal */
 export function $$_host_element() {
-  return getCustomElementInstance()!.host.el!;
+  return getComponentInstance()!._el!;
 }
 
 /** @internal */
 export function $$_next_custom_element(
-  definition: CustomElementDefinition,
+  Component: ComponentConstructor,
   walker = hydration?.w,
 ): Node {
-  const { tagName } = definition;
-  registerCustomElement(definition);
+  const { tagName } = Component.el;
+  registerCustomElement(Component);
 
   let next: Comment | undefined;
   if (walker) {
@@ -79,21 +78,22 @@ export function $$_next_custom_element(
 
 /** @internal */
 export function $$_setup_custom_element(
-  element: AnyCustomElement,
-  definition: CustomElementDefinition,
+  host: HTMLCustomElement,
+  Component: ComponentConstructor,
   props?: Record<string, any>,
 ) {
-  if (definition.shadowRoot) $$_attach_declarative_shadow_dom(element);
+  if (Component.el.shadowRoot) $$_attach_declarative_shadow_dom(host);
 
-  const instance = createElementInstance(definition, { props });
-  element.attachComponent(instance);
-  onDispose(() => instance.destroy());
+  const component = createComponent(Component, { props }),
+    instance = component[INSTANCE];
+
+  host.attachComponent(component);
 
   if (!props) return;
-  if (props.innerHTML) return $$_inner_html(element, props.innerHTML);
+  if (props.innerHTML) return $$_inner_html(host, props.innerHTML);
 
-  if ((!instance[RENDER] || definition.shadowRoot) && props.$children) {
-    scoped(() => insert(element, props.$children), instance[SCOPE]);
+  if ((!instance._renderer || Component.el.shadowRoot) && props.$children) {
+    scoped(() => insert(host, props.$children), instance._scope);
   }
 }
 
@@ -109,7 +109,7 @@ export function $$_create_element(tagName: string) {
 }
 
 /** @internal */
-export function $$_attach_declarative_shadow_dom(element: AnyCustomElement) {
+export function $$_attach_declarative_shadow_dom(element: HTMLCustomElement) {
   if (element.firstChild?.nodeName === 'TEMPLATE') {
     if ((element.firstChild as HTMLTemplateElement).hasAttribute('shadowroot')) {
       attachDeclarativeShadowDOM(element);

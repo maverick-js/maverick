@@ -1,7 +1,8 @@
 import type { Constructor } from 'type-fest';
 
-import type { HTMLCustomElement } from '../element/types';
-import { type Dispose, type JSX, onDispose, type ReadSignal } from '../runtime';
+import type { InferComponentEvents } from '../element/component';
+import type { HostElement } from '../element/host';
+import { type Dispose, type JSX, onDispose } from '../runtime';
 import { noop } from './unit';
 
 const EVENT: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event,
@@ -51,49 +52,6 @@ export class DOMEvent<Detail = unknown> extends EVENT {
     this.detail = init[0]?.detail!;
     this.trigger = init[0]?.trigger;
   }
-}
-
-/**
- * Type-safe utility for creating and returning a `DOMEvent` for the given target. Only events
- * declared on the given `target` are allowed.
- */
-export function createEvent<
-  Target extends EventTarget,
-  Events = Target extends HTMLCustomElement<any, infer ElementEvents>
-    ? ElementEvents
-    : Record<string, DOMEventInit>,
-  EventType extends keyof Events = keyof Events,
->(
-  target: Target | null | ReadSignal<Target | null>,
-  event: EventType,
-  ...init: InferEventDetail<Events[EventType]> extends void | undefined | never
-    ? [init?: Partial<InferEventInit<Events[EventType]>>]
-    : [init: InferEventInit<Events[EventType]>]
-): Events[EventType] {
-  return new DOMEvent(event as string, init[0] as DOMEventInit) as Events[EventType];
-}
-
-/**
- * Creates a `DOMEvent` and dispatches it from the given `target`. This function is typed to
- * match all events declared on the given `target` (must be a `HTMLCustomElement`).
- */
-export function dispatchEvent<
-  Target extends EventTarget,
-  Events = Target extends HTMLCustomElement<any, infer ElementEvents>
-    ? ElementEvents
-    : Record<string, DOMEventInit>,
-  EventType extends keyof Events = keyof Events,
->(
-  target: Target | null,
-  event: EventType,
-  ...init: InferEventDetail<Events[EventType]> extends void | undefined | never
-    ? [init?: Partial<InferEventInit<Events[EventType]>>]
-    : [init: InferEventInit<Events[EventType]>]
-): boolean {
-  if (__SERVER__) return false;
-  return target
-    ? target.dispatchEvent(new DOMEvent(event as string, init[0] as DOMEventInit))
-    : false;
 }
 
 /**
@@ -217,8 +175,8 @@ export type EventCallback<T extends Event> =
   | null;
 
 export class EventsTarget<Events> extends EventTarget {
-  /** @internal - type only */
-  ___events?: Events;
+  /** @internal type only */
+  ts__events?: Events;
   override addEventListener<Type extends keyof Events>(
     type: Type & string,
     callback: EventCallback<Events[Type] & Event>,
@@ -244,30 +202,27 @@ export class EventsTarget<Events> extends EventTarget {
  */
 export function listenEvent<
   Target extends EventTarget,
-  Events = Target extends HTMLCustomElement<any, infer Events>
-    ? Events & MaverickOnAttributes
+  Events = Target extends HostElement<infer API>
+    ? InferComponentEvents<API> & MaverickOnAttributes
     : Target extends EventsTarget<infer Events>
     ? Events extends {}
       ? Events
       : MaverickOnAttributes
-    : Target extends { ___events?: infer Events }
+    : Target extends { ts__events?: infer Events }
     ? Events extends {}
       ? Events
       : MaverickOnAttributes
     : MaverickOnAttributes,
-  EventType extends keyof Events = keyof Events,
+  Type extends keyof Events = keyof Events,
 >(
   target: Target,
-  type: EventType,
-  handler: JSX.TargetedEventHandler<
-    Target,
-    Events[EventType] extends Event ? Events[EventType] : Event
-  >,
+  type: Type & string,
+  handler: JSX.TargetedEventHandler<Target, Events[Type] extends Event ? Events[Type] : Event>,
   options?: AddEventListenerOptions | boolean,
 ): Dispose {
   if (__SERVER__) return noop;
-  target.addEventListener(type as string, handler as any, options);
-  return onDispose(() => target.removeEventListener(type as string, handler as any, options));
+  target.addEventListener(type, handler as any, options);
+  return onDispose(() => target.removeEventListener(type, handler as any, options));
 }
 
 export function isPointerEvent(event: Event | undefined): event is PointerEvent {

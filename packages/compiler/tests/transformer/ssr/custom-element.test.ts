@@ -3,7 +3,7 @@ import { transform } from 'maverick.js/transformer';
 const t = (code: string) => transform(code, { generate: 'ssr' }).code;
 
 it('shoud compile', () => {
-  const result = t(`<CustomElement $element={DEFINITION} />`);
+  const result = t(`<CustomElement $this={DEFINITION} />`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_custom_element, $$_ssr } from \\"maverick.js/ssr\\";
 
@@ -14,7 +14,7 @@ it('shoud compile', () => {
 
 it('shoud compile with attrs/props', () => {
   const result = t(
-    `<CustomElement foo={10} bar={20} $prop:foo={10} $prop:bar={id()} $element={DEFINITION} />`,
+    `<CustomElement foo={10} bar={20} $prop:foo={10} $prop:bar={id()} $this={DEFINITION} />`,
   );
   expect(result).toMatchInlineSnapshot(`
     "import { $$_custom_element, $$_ssr } from \\"maverick.js/ssr\\";
@@ -25,7 +25,7 @@ it('shoud compile with attrs/props', () => {
 });
 
 it('shoud compile with children', () => {
-  const result = t(`<CustomElement $element={DEFINITION}><div>{id}</div></CustomElement>`);
+  const result = t(`<CustomElement $this={DEFINITION}><div>{id}</div></CustomElement>`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_ssr, $$_custom_element } from \\"maverick.js/ssr\\";
 
@@ -43,7 +43,7 @@ it('shoud compile with children', () => {
 });
 
 it('shoud compile child custom element', () => {
-  const result = t(`<div><CustomElement $element={DEFINITION} $prop:foo={10} /></div>`);
+  const result = t(`<div><CustomElement $this={DEFINITION} $prop:foo={10} /></div>`);
   expect(result).toMatchInlineSnapshot(`
     "import { $$_custom_element, $$_ssr } from \\"maverick.js/ssr\\";
 
@@ -54,7 +54,7 @@ it('shoud compile child custom element', () => {
 
 it('shoud compile with inner html', () => {
   const result = t(
-    `<CustomElement $prop:innerHTML="<div>Foo</div>" $element={DEFINITION}><div>Foo</div></CustomElement>`,
+    `<CustomElement $prop:innerHTML="<div>Foo</div>" $this={DEFINITION}><div>Foo</div></CustomElement>`,
   );
   expect(result).toMatchInlineSnapshot(`
     "import { $$_ssr, $$_custom_element } from \\"maverick.js/ssr\\";

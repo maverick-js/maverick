@@ -1,25 +1,64 @@
-import type ts from 'typescript';
+import ts from 'typescript';
 
-import type { SeenMemberSignatures } from '../utils/walk';
-import type { MembersMeta, MethodMeta, PropMeta } from './component';
+import type { ElementDefintionNode } from '../plugins/AnalyzePlugin';
+import {
+  type MembersMeta,
+  type MethodMeta,
+  type PropMeta,
+  type StoreMeta,
+  TS_NODE,
+} from './component';
 import { buildMethodMeta } from './methods';
 import { buildPropMeta } from './props';
 
 export function buildMembersMeta(
   checker: ts.TypeChecker,
-  members: SeenMemberSignatures,
+  root: ElementDefintionNode['root'],
+  store?: StoreMeta,
 ): MembersMeta | undefined {
   const props: PropMeta[] = [],
     methods: MethodMeta[] = [];
 
-  for (const [name, node] of members.props) {
-    const prop = buildPropMeta(checker, name, undefined, node.signature, { type: node.type });
-    if (prop) props.push(prop);
+  for (const symbol of checker.getPropertiesOfType(root.type)) {
+    const declaration = symbol.declarations?.[0];
+    if (!declaration) continue;
+    if (
+      ts.isPropertyDeclaration(declaration) ||
+      ts.isGetAccessorDeclaration(declaration) ||
+      ts.isSetAccessorDeclaration(declaration)
+    ) {
+      const name = declaration.name.getText();
+      if (ignoreMember(name, declaration)) continue;
+      props.push(
+        buildPropMeta(checker, name, declaration, {
+          type: checker.getTypeOfSymbol(symbol),
+        }),
+      );
+    } else if (ts.isMethodDeclaration(declaration)) {
+      const name = declaration.name.getText();
+      if (ignoreMember(name, declaration)) continue;
+      methods.push(
+        buildMethodMeta(checker, name, declaration, {
+          type: checker.getTypeOfSymbol(symbol),
+        }),
+      );
+    }
   }
 
-  for (const [name, node] of members.methods) {
-    const method = buildMethodMeta(checker, name, node.signature, { type: node.type });
-    if (method) methods.push(method);
+  if (store) {
+    props.push({
+      [TS_NODE]: store[TS_NODE],
+      name: 'state',
+      type: store.record,
+      readonly: true,
+    });
+    methods.push({
+      [TS_NODE]: store[TS_NODE],
+      name: 'subscribe',
+      parameters: [{ name: 'callback', type: `(state: ${store.record}) => Maybe<Dispose>` }],
+      signature: { type: `(callback: (state: ${store.record}) => Maybe<Dispose>) => Unsubscribe` },
+      return: { type: 'Unsubscribe' },
+    });
   }
 
   return props.length > 0 || methods.length > 0
@@ -29,4 +68,22 @@ export function buildMembersMeta(
         length: props.length + methods.length,
       }
     : undefined;
+}
+
+const ignore = new Set(['el', 'render', 'destroy', 'ts__api']),
+  notPublicKind = ts.SyntaxKind.ProtectedKeyword | ts.SyntaxKind.PrivateKeyword;
+function ignoreMember(
+  name: string,
+  node:
+    | ts.PropertyDeclaration
+    | ts.MethodDeclaration
+    | ts.GetAccessorDeclaration
+    | ts.SetAccessorDeclaration,
+) {
+  return (
+    (node.modifiers && node.modifiers.some((m) => m.kind & notPublicKind)) ||
+    node.name.kind === ts.SyntaxKind.PrivateIdentifier ||
+    name.startsWith('_') ||
+    ignore.has(name)
+  );
 }

@@ -34,7 +34,9 @@ declare global {
    * }
    * ```
    */
-  interface MaverickOnAttributes extends HTMLElementEventMap {}
+  interface MaverickOnAttributes extends HTMLElementEventMap {
+    attached: Event;
+  }
 
   /**
    * Store all global directives in this interface so `$use` types can be inferred.

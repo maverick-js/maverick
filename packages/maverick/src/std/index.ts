@@ -4,7 +4,6 @@ export * from './disposal';
 export * from './dom';
 export * from './event';
 export * from './fn';
-export * from './host';
 export * from './object';
 export * from './signal';
 export * from './promise';

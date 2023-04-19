@@ -2,13 +2,13 @@
 
 exports[`should render adopted css styles in shadow root template 1`] = `
 "<template shadowroot=\\"open\\"><style>
-        div {
-          display: inline-block;
-        }
-      
-        .container {
-          color: blue;
-          order: 4;
-        }
-      </style></template>"
+          div {
+            display: inline-block;
+          }
+        
+          .container {
+            color: blue;
+            order: 4;
+          }
+        </style></template>"
 `;

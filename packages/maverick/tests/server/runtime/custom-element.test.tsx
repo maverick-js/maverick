@@ -1,52 +1,58 @@
 import { CustomElement } from 'maverick.js';
 
 import {
-  createElementInstance,
+  Component,
+  createComponent,
   createServerElement,
   css,
-  defineCustomElement,
+  defineElement,
 } from 'maverick.js/element';
 import { renderToString } from 'maverick.js/ssr';
 
 it('should render', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo',
-    setup: () => () => <div class="foo">Test</div>,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: 'mk-test' });
+    override render() {
+      return <div class="foo">Test</div>;
+    }
+  }
 
-  const result = renderToString(() => <CustomElement $element={element} />).code;
+  const result = renderToString(() => <CustomElement $this={TestComponent} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root></mk-foo>"',
+    '"<!$><mk-test mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root></mk-test>"',
   );
 });
 
 it('should render with children', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo',
-    setup: () => () => <div class="foo">Test</div>,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: 'mk-test' });
+    override render() {
+      return <div class="foo">Test</div>;
+    }
+  }
 
   const result = renderToString(() => (
-    <CustomElement $element={element}>
+    <CustomElement $this={TestComponent}>
       <div>Child</div>
     </CustomElement>
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root><!$><div>Child</div></mk-foo>"',
+    '"<!$><mk-test mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root><!$><div>Child</div></mk-test>"',
   );
 });
 
 it('should render with shadow dom', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo',
-    shadowRoot: true,
-    setup: () => () => <div class="foo">Test</div>,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: 'mk-test', shadowRoot: true });
+    override render() {
+      return <div class="foo">Test</div>;
+    }
+  }
 
   const result = renderToString(() => (
-    <CustomElement $element={element}>
+    <CustomElement $this={TestComponent}>
       <div>Light A</div>
       <div>Light B</div>
       <div>Light C</div>
@@ -54,39 +60,42 @@ it('should render with shadow dom', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\"><template shadowroot=\\"open\\"><!$><div class=\\"foo\\">Test</div></template><!$><div>Light A</div><!$><div>Light B</div><!$><div>Light C</div><!/[]></mk-foo>"',
+    '"<!$><mk-test mk-h=\\"\\" mk-d=\\"\\"><template shadowroot=\\"open\\"><!$><div class=\\"foo\\">Test</div></template><!$><div>Light A</div><!$><div>Light B</div><!$><div>Light C</div><!/[]></mk-test>"',
   );
 });
 
 it('should render adopted css styles in shadow root template', () => {
-  const Button = defineCustomElement({
-    tagName: `mk-button-7`,
-    shadowRoot: true,
-    css: [
-      css`
-        div {
-          display: inline-block;
-        }
-      `,
-      css`
-        .container {
-          color: blue;
-          order: ${4};
-        }
-      `,
-    ],
-  });
+  class TestComponent extends Component {
+    static el = defineElement({
+      tagName: 'mk-test',
+      shadowRoot: true,
+      css: [
+        css`
+          div {
+            display: inline-block;
+          }
+        `,
+        css`
+          .container {
+            color: blue;
+            order: ${4};
+          }
+        `,
+      ],
+    });
+  }
 
-  const instance = createElementInstance(Button);
-  const element = new (createServerElement(Button))();
-  element.attachComponent(instance);
+  const host = new (createServerElement(TestComponent))();
+  host.attachComponent(createComponent(TestComponent));
 
   // Fragile snapshot can't inline.
-  expect(element.render()).toMatchSnapshot();
+  expect(host.render()).toMatchSnapshot();
 });
 
 it('should render with attributes', () => {
-  const element = defineCustomElement({ tagName: 'mk-foo' });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: 'mk-test' });
+  }
 
   const result = renderToString(() => (
     <CustomElement
@@ -96,70 +105,67 @@ it('should render with attributes', () => {
       $class:bar={true}
       $style:display={'none'}
       $cssvar:baz={10}
-      $element={element}
+      $this={TestComponent}
     />
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo foo=\\"10\\" bar=\\"boo\\" mk-h=\\"\\" mk-d=\\"\\" class=\\"foo bar\\" style=\\"display: none;--baz: 10;\\"></mk-foo>"',
+    '"<!$><mk-test foo=\\"10\\" bar=\\"boo\\" mk-h=\\"\\" mk-d=\\"\\" class=\\"foo bar\\" style=\\"display: none;--baz: 10;\\"></mk-test>"',
   );
 });
 
 it('should forward props', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo',
-    // @ts-expect-error
-    props: {
-      foo: { initial: 10 },
-    },
-    setup:
-      ({ props: { $foo } }) =>
-      () =>
-        <div>{$foo()}</div>,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: 'mk-test', props: { foo: 10 } });
+    override render() {
+      return <div>{this.$props.foo()}</div>;
+    }
+  }
 
-  const result = renderToString(() => <CustomElement $prop:foo={100} $element={element} />).code;
+  const result = renderToString(() => <CustomElement $prop:foo={100} $this={TestComponent} />).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div><!$>100</div></shadow-root></mk-foo>"',
+    '"<!$><mk-test mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div><!$>100</div></shadow-root></mk-test>"',
   );
 });
 
 it('should set inner html', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo-10',
-    setup: () => () => <div>Test</div>,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: 'mk-test' });
+    override render() {
+      return <div>Test</div>;
+    }
+  }
 
   const result = renderToString(() => (
-    <CustomElement $prop:innerHTML={`<div>INNER HTML</div>`} $element={element}>
+    <CustomElement $prop:innerHTML={`<div>INNER HTML</div>`} $this={TestComponent}>
       <div>Foo</div>
     </CustomElement>
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-foo-10 mk-h=\\"\\" mk-d=\\"\\"><div>INNER HTML</div></mk-foo-10>"',
+    '"<!$><mk-test mk-h=\\"\\" mk-d=\\"\\"><div>INNER HTML</div></mk-test>"',
   );
 });
 
 it('should render `setAttributes`', () => {
-  const Foo = defineCustomElement({
-    tagName: `mk-foo-1`,
-    setup({ host }) {
-      host.setAttributes({
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: 'mk-test' });
+    constructor(instance) {
+      super(instance);
+      this.setAttributes({
         foo: () => 10,
         bar: 'none',
         baz: null,
         bux: false,
       });
-    },
-  });
+    }
+  }
 
-  const instance = createElementInstance(Foo);
-  const element = new (createServerElement(Foo))();
-  element.attachComponent(instance);
+  const host = new (createServerElement(TestComponent))();
+  host.attachComponent(createComponent(TestComponent));
 
-  expect(element.attributes.tokens).toMatchInlineSnapshot(`
+  expect(host.attributes.tokens).toMatchInlineSnapshot(`
     Map {
       "mk-h" => "",
       "mk-d" => "",
@@ -170,23 +176,23 @@ it('should render `setAttributes`', () => {
 });
 
 it('should render `setStyles`', () => {
-  const Foo = defineCustomElement({
-    tagName: `mk-foo-2`,
-    setup({ host }) {
-      host.setStyles({
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: 'mk-test' });
+    constructor(instance) {
+      super(instance);
+      this.setStyles({
         flex: '1',
         'flex-basis': null,
         'align-self': false,
         'z-index': () => 10,
       });
-    },
-  });
+    }
+  }
 
-  const instance = createElementInstance(Foo);
-  const element = new (createServerElement(Foo))();
-  element.attachComponent(instance);
+  const host = new (createServerElement(TestComponent))();
+  host.attachComponent(createComponent(TestComponent));
 
-  expect(element.style.tokens).toMatchInlineSnapshot(`
+  expect(host.style.tokens).toMatchInlineSnapshot(`
     Map {
       "flex" => "1",
       "z-index" => "10",
@@ -195,23 +201,23 @@ it('should render `setStyles`', () => {
 });
 
 it('should render `setCSSVars`', () => {
-  const Foo = defineCustomElement({
-    tagName: `mk-foo-3`,
-    setup({ host }) {
-      host.setCSSVars({
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: 'mk-test' });
+    constructor(instance) {
+      super(instance);
+      this.setCSSVars({
         '--foo': () => 10,
         '--bar': 'none',
         '--baz': false,
         '--bax': null,
       });
-    },
-  });
+    }
+  }
 
-  const instance = createElementInstance(Foo);
-  const element = new (createServerElement(Foo))();
-  element.attachComponent(instance);
+  const host = new (createServerElement(TestComponent))();
+  host.attachComponent(createComponent(TestComponent));
 
-  expect(element.style.tokens).toMatchInlineSnapshot(`
+  expect(host.style.tokens).toMatchInlineSnapshot(`
     Map {
       "--foo" => "10",
       "--bar" => "none",

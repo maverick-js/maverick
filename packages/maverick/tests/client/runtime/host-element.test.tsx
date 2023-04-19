@@ -1,27 +1,31 @@
 import { CustomElement, HostElement, signal, tick } from 'maverick.js';
 
 import { render } from 'maverick.js/dom';
-import { defineCustomElement } from 'maverick.js/element';
+import { Component, defineElement } from 'maverick.js/element';
+
+let count = 0;
 
 it.skip('should render attributes', () => {
   const foo = signal(1);
 
-  const Button = defineCustomElement({
-    tagName: `mk-button-100`,
-    setup: () => () => <HostElement data-foo={foo} />,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test-${++count}` });
+    override render() {
+      return <HostElement data-foo={foo()} />;
+    }
+  }
 
   const root = document.createElement('root');
 
-  render(() => <CustomElement $element={Button} />, { target: root });
+  render(() => <CustomElement $this={TestComponent} />, { target: root });
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-1
+      <mk-test-1
         data-foo="1"
         mk-d=""
       >
         <shadow-root />
-      </mk-button-1>
+      </mk-test-1>
     </root>
   `);
 
@@ -29,34 +33,35 @@ it.skip('should render attributes', () => {
   tick();
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-1
+      <mk-test-1
         data-foo="2"
         mk-d=""
       >
         <shadow-root />
-      </mk-button-1>
+      </mk-test-1>
     </root>
   `);
 });
 
 it('should render children', () => {
-  const Button = defineCustomElement({
-    tagName: `mk-button-2`,
-    setup: () => () =>
-      (
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test-${++count}` });
+    override render() {
+      return (
         <HostElement>
           <div>Foo</div>
           <div>Bar</div>
         </HostElement>
-      ),
-  });
+      );
+    }
+  }
 
   const root = document.createElement('root');
 
-  render(() => <CustomElement $element={Button} />, { target: root });
+  render(() => <CustomElement $this={TestComponent} />, { target: root });
   expect(root).toMatchInlineSnapshot(`
     <root>
-      <mk-button-2
+      <mk-test-1
         mk-d=""
       >
         <shadow-root>
@@ -67,7 +72,7 @@ it('should render children', () => {
             Bar
           </div>
         </shadow-root>
-      </mk-button-2>
+      </mk-test-1>
     </root>
   `);
 });

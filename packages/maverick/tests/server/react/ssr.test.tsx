@@ -2,172 +2,185 @@ import { createContext, provideContext, useContext } from 'maverick.js';
 import * as React from 'React';
 import { renderToString } from 'react-dom/server';
 
-import { defineCustomElement, onAttach } from 'maverick.js/element';
+import { Component, defineElement } from 'maverick.js/element';
 import { createReactElement, useReactContext } from 'maverick.js/react';
 
 it('should render', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo',
-    setup: () => () => <div>Test</div>,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test` });
+    override render() {
+      return <div>Test</div>;
+    }
+  }
 
-  const Component = createReactElement(element);
-  const Root = React.createElement(Component);
+  const ReactComponent = createReactElement(TestComponent);
+  const Root = React.createElement(ReactComponent);
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-foo>"',
+    '"<mk-test mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-test>"',
   );
 });
 
 it('should render shadow dom', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo-2',
-    shadowRoot: true,
-    setup: () => () => <div>Test</div>,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test`, shadowRoot: true });
+    override render() {
+      return <div>Test</div>;
+    }
+  }
 
-  const Component = createReactElement(element);
-  const Root = React.createElement(Component);
+  const ReactComponent = createReactElement(TestComponent);
+  const Root = React.createElement(ReactComponent);
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo-2 mk-h=\\"\\" mk-d=\\"\\"><template shadowroot=\\"open\\"><!$><div>Test</div></template></mk-foo-2>"',
+    '"<mk-test mk-h=\\"\\" mk-d=\\"\\"><template shadowroot=\\"open\\"><!$><div>Test</div></template></mk-test>"',
   );
 });
 
 it('should render with children', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo-3',
-    setup: () => () => <div>Test</div>,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test` });
+    override render() {
+      return <div>Test</div>;
+    }
+  }
 
-  const Component = createReactElement(element);
-
+  const ReactComponent = createReactElement(TestComponent);
   const Root = React.createElement(
-    Component,
+    ReactComponent,
     {},
     React.createElement('div', {}, React.createElement('div', {}, 'content')),
   );
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo-3 mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root><div><div>content</div></div></mk-foo-3>"',
+    '"<mk-test mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root><div><div>content</div></div></mk-test>"',
   );
 });
 
 it('should render with class', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo-6',
-    setup: ({ host }) => {
-      onAttach(() => {
-        host.el!.classList.add('bax');
-      });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test` });
+    override onAttach(el) {
+      el.classList.add('bax');
+    }
+    override render() {
+      return <div>Test</div>;
+    }
+  }
 
-      return () => <div>Test</div>;
-    },
-  });
-
-  const Component = createReactElement(element);
-  const Root = React.createElement(Component, { className: 'foo bar' });
+  const ReactComponent = createReactElement(TestComponent);
+  const Root = React.createElement(ReactComponent, { className: 'foo bar' });
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo-6 class=\\"foo bar bax\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-foo-6>"',
+    '"<mk-test class=\\"foo bar bax\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div>Test</div></shadow-root></mk-test>"',
   );
 });
 
 it('should render with style', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo-7',
-    setup: ({ host }) => {
-      onAttach(() => {
-        host.el!.style.setProperty('--bar', '10');
-      });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test` });
+    override onAttach(el) {
+      el.style.setProperty('--bar', '10');
+    }
+    override render() {
+      return null;
+    }
+  }
 
-      return () => null;
-    },
-  });
-
-  const Component = createReactElement(element);
-  const Root = React.createElement(Component, {
-    style: { display: 'none', backgroundColor: 'red', '--mk-foo': '1' },
+  const ReactComponent = createReactElement(TestComponent);
+  const Root = React.createElement(ReactComponent, {
+    style: { display: 'none', backgroundColor: 'red', '--mk-test': '1' },
   });
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo-7 style=\\"display:none;background-color:red;--mk-foo:1;--bar:10\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root></mk-foo-7>"',
+    '"<mk-test style=\\"display:none;background-color:red;--mk-test:1;--bar:10\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root></mk-test>"',
   );
 });
 
 it('should forward attributes', () => {
-  const element = defineCustomElement({ tagName: 'mk-foo-8' });
-  const Component = createReactElement(element);
-  const Root = React.createElement(Component, { 'aria-label': 'Label' });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-test` });
+  }
+  const ReactComponent = createReactElement(TestComponent);
+  const Root = React.createElement(ReactComponent, { 'aria-label': 'Label' });
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo-8 aria-label=\\"Label\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root></mk-foo-8>"',
+    '"<mk-test aria-label=\\"Label\\" mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root></mk-test>"',
   );
 });
 
 it('should forward props', () => {
-  const element = defineCustomElement({
-    tagName: 'mk-foo-9',
-    // @ts-expect-error
-    props: {
-      foo: { initial: 10 },
-    },
-    setup:
-      ({ props: { $foo } }) =>
-      () =>
-        <div>{$foo()}</div>,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({
+      tagName: `mk-test`,
+      props: { foo: 10 },
+    });
 
-  const Component = createReactElement(element);
-  const Root = React.createElement(Component, { foo: 20 });
+    override render() {
+      return <div>{this.$props.foo()}</div>;
+    }
+  }
+
+  const ReactComponent = createReactElement(TestComponent);
+  const Root = React.createElement(ReactComponent, { foo: 20 });
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo-9 mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div><!$>20</div></shadow-root></mk-foo-9>"',
+    '"<mk-test mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div><!$>20</div></shadow-root></mk-test>"',
   );
 });
 
 it('should forward context map to maverick element', () => {
   const Context = createContext(() => 0);
 
-  const elementA = defineCustomElement({
-    tagName: 'mk-foo-10',
-    setup: () => {
-      provideContext(Context, 10);
-      return () => null;
-    },
-  });
+  class ParentComponent extends Component {
+    static el = defineElement({ tagName: `mk-parent` });
+    constructor(instance) {
+      super(instance);
+      provideContext(Context, 1);
+    }
+  }
 
-  const elementB = defineCustomElement({
-    tagName: 'mk-foo',
-    setup: () => () => useContext(Context),
-  });
+  class ChildComponent extends Component {
+    static el = defineElement({ tagName: `mk-child` });
 
-  const ComponentA = createReactElement(elementA);
-  const ComponentB = createReactElement(elementB);
+    protected _value = 0;
+
+    constructor(instance) {
+      super(instance);
+      this._value = useContext(Context);
+    }
+
+    override render() {
+      return this._value;
+    }
+  }
+
+  const ReactParentComponent = createReactElement(ParentComponent);
+  const ReactChildComponent = createReactElement(ChildComponent);
 
   const Root = React.createElement(
-    ComponentA,
+    ReactParentComponent,
     {},
-    React.createElement('div', {}, React.createElement(ComponentB)),
+    React.createElement('div', {}, React.createElement(ReactChildComponent)),
   );
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<mk-foo-10 mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root><div><mk-foo mk-h=\\"\\" mk-d=\\"\\"><shadow-root>10</shadow-root></mk-foo></div></mk-foo-10>"',
+    '"<mk-parent mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root><div><mk-child mk-h=\\"\\" mk-d=\\"\\"><shadow-root>1</shadow-root></mk-child></div></mk-parent>"',
   );
 });
 
 it('should forward context to react element', () => {
   const Context = createContext(() => 0);
 
-  const ParentElement = defineCustomElement({
-    tagName: 'mk-foo-11',
-    setup: () => {
+  class ParentComponent extends Component {
+    static el = defineElement({ tagName: `mk-parent` });
+    constructor(instance) {
+      super(instance);
       provideContext(Context, 10);
-      return () => null;
-    },
-  });
+    }
+  }
 
-  const Parent = createReactElement(ParentElement);
+  const ReactParentComponent = createReactElement(ParentComponent);
 
-  function Child() {
+  function ReactChildComponent() {
     const value = useReactContext(Context);
     return React.createElement('div', { id: 'react' }, value);
   }
@@ -175,10 +188,10 @@ it('should forward context to react element', () => {
   const Root = React.createElement(
     'div',
     {},
-    React.createElement(Parent, null, React.createElement(Child)),
+    React.createElement(ReactParentComponent, null, React.createElement(ReactChildComponent)),
   );
 
   expect(renderToString(Root)).toMatchInlineSnapshot(
-    '"<div><mk-foo-11 mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root><div id=\\"react\\">10</div></mk-foo-11></div>"',
+    '"<div><mk-parent mk-h=\\"\\" mk-d=\\"\\"><shadow-root></shadow-root><div id=\\"react\\">10</div></mk-parent></div>"',
   );
 });

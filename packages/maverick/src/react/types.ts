@@ -2,27 +2,34 @@ import type * as React from 'react';
 import type { PascalCase } from 'type-fest';
 
 import type {
-  AnyCustomElement,
-  InferCustomElementCSSVars,
-  InferCustomElementEvents,
-  InferCustomElementProps,
-} from '../element/types';
+  AnyComponent,
+  InferComponentCSSVars,
+  InferComponentEvents,
+  InferComponentProps,
+} from '../element/component';
+import type { HTMLCustomElement } from '../element/host';
 import type { JSX } from '../runtime/jsx';
 
-export interface ReactElement<T extends AnyCustomElement>
-  extends React.ForwardRefExoticComponent<ReactElementProps<T>> {}
+export interface ReactElement<Component extends AnyComponent>
+  extends React.ForwardRefExoticComponent<ReactElementProps<Component>> {}
 
-export type ReactElementProps<T extends AnyCustomElement> = Partial<InferCustomElementProps<T>> &
-  React.RefAttributes<T> &
-  Omit<React.HTMLAttributes<T>, 'style'> & {
+export type ReactElementProps<
+  Component extends AnyComponent,
+  CustomElement = HTMLCustomElement<Component>,
+> = Partial<InferComponentProps<Component>> &
+  React.RefAttributes<CustomElement> &
+  Omit<React.HTMLAttributes<CustomElement>, 'style'> & {
     style?:
       | (React.CSSProperties &
-          Partial<InferCustomElementCSSVars<T>> & { [name: `--${string}`]: string })
+          Partial<InferComponentCSSVars<Component>> & { [name: `--${string}`]: string })
       | undefined;
     children?: React.ReactNode | undefined;
     part?: string | undefined;
-    __forwardedRef?: React.Ref<T>;
-  } & ReactElementEventCallbacks<T, InferCustomElementEvents<T> & ReactEventMap>;
+    __forwardedRef?: React.Ref<CustomElement>;
+  } & ReactElementEventCallbacks<
+    CustomElement & EventTarget,
+    InferComponentEvents<Component> & ReactEventMap
+  >;
 
 export interface ReactEventMap extends Omit<MaverickOnAttributes, keyof HTMLElementEventMap> {}
 

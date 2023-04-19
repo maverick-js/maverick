@@ -1,16 +1,13 @@
 import ts from 'typescript';
 
-import type { ElementDefintionNode } from '../plugins/AnalyzePlugin';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta } from '../utils/types';
-import { walkSignatures } from '../utils/walk';
 import { type CSSVarMeta, type DocTagMeta, TS_NODE } from './component';
 import { buildMetaFromDocTags, findDocTag, getDocTags, hasDocTag } from './doctags';
 
 export function buildCSSVarsMeta(
   checker: ts.TypeChecker,
-  declarationRoot: ts.ObjectLiteralExpression,
-  typeRoot?: ElementDefintionNode['types']['cssvars'],
+  typeRoot?: ts.Type,
   parentDocTags?: DocTagMeta[],
 ) {
   const meta = new Map<string, CSSVarMeta>();
@@ -28,15 +25,14 @@ export function buildCSSVarsMeta(
   }
 
   if (typeRoot) {
-    const members = walkSignatures(checker, typeRoot);
+    for (const symbol of checker.getPropertiesOfType(typeRoot)) {
+      const signature = symbol.declarations?.[0];
+      if (!signature || !ts.isPropertySignature(signature) || !signature.name) continue;
 
-    for (const [name, prop] of members.props) {
-      const signature = prop.signature;
-      if (!prop.type && !signature.type) continue;
-
-      const docs = getDocs(checker, signature.name as ts.Identifier),
+      const name = signature.name.getText(),
+        docs = getDocs(checker, signature.name as ts.Identifier),
         doctags = getDocTags(signature),
-        type = buildTypeMeta(checker, signature.type!, prop.type);
+        type = buildTypeMeta(checker, checker.getTypeOfSymbol(symbol));
 
       let internal!: CSSVarMeta['internal'],
         required!: CSSVarMeta['required'],

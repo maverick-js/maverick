@@ -1,47 +1,37 @@
 import type {
-  AnyCustomElement,
-  CustomElementDefinition,
-  InferCustomElement,
-  InferCustomElementCSSProps,
-  InferCustomElementEvents,
-} from '../../element/types';
+  AnyComponent,
+  ComponentConstructor,
+  InferComponentCSSProps,
+  InferComponentEvents,
+} from '../../element/component';
+import type { HTMLCustomElement } from '../../element/host';
 import type { PickWritable } from '../../std/types';
 import type { JSX } from '../jsx';
 
-export type HostElementProps<Definition extends CustomElementDefinition> = {
-  /** Custom element defintion. */
-  $element?: Definition;
+export type HostElementProps<Component extends AnyComponent> = {
+  $this?: ComponentConstructor<Component>;
   $children?: JSX.Element;
-} & HostElementAttributes<InferCustomElement<Definition>>;
+} & HostElementAttributes<Component>;
 
-export type HostElementAttributes<CustomElement extends AnyCustomElement> =
-  JSX.HTMLElementAttributes<
-    CustomElement,
-    {},
-    InferCustomElementEvents<CustomElement>,
-    Partial<PickWritable<InferCustomElementCSSProps<CustomElement>>>
-  >;
+export type HostElementAttributes<Component extends AnyComponent> = JSX.HTMLElementAttributes<
+  HTMLCustomElement<Component>,
+  {},
+  InferComponentEvents<Component>,
+  Partial<PickWritable<InferComponentCSSProps<Component>>>
+>;
 
 /**
  * The `HostElement` component can be used at the top of a setup's render function to set
  * attributes, CSS variables, and event listeners on the host custom element.
  *
  * @example
- * ```tsx
- * const FooElementDefinition = defineCustomElement({
- *   setup() {
- *     return () => (
- *       <HostElement bar="..." $element={FooElementDefinition}>
- *         ...
- *       </HostElement>
- *     );
- *   }
- * });
+ * ```ts
+ * <HostElement bar="..." $this={FooComponent}>
  * ```
  */
-export function HostElement<Definition extends CustomElementDefinition>(
-  props: HostElementProps<Definition>,
-): InferCustomElement<Definition> {
+export function HostElement<Component extends AnyComponent>(
+  props: HostElementProps<Component>,
+): HTMLCustomElement<Component> {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;
 }

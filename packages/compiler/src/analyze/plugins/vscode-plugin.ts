@@ -49,9 +49,12 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
               const data: IAttributeData = {
                 name: prop.attribute!,
                 description: prop.docs,
-                values: prop.type.union
-                  ?.filter((value) => !primitiveTypeRE.test(value))
-                  .map((type) => ({ name: escapeQuotes(type) })),
+                values: prop.type.includes('|')
+                  ? prop.type
+                      .split(/\s+\|\s+/)
+                      ?.filter((value) => !primitiveTypeRE.test(value))
+                      .map((type) => ({ name: escapeQuotes(type) }))
+                  : undefined,
               };
 
               return config.transformAttributeData?.(prop, data) ?? data;

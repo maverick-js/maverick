@@ -1,9 +1,11 @@
-export { createElementInstance } from './instance';
-export { getCustomElementInstance, PROPS, RENDER, MEMBERS } from './internal';
+export { getComponentInstance, INSTANCE } from './internal';
+export * from './component';
+export * from './controller';
 export * from './create-html-element';
 export * from './create-server-element';
 export * from './css';
 export * from './define';
-export * from './lifecycle';
+export * from './host';
+export * from './instance';
+export * from './props';
 export * from './register';
-export * from './types';

@@ -1,33 +1,24 @@
 import type ts from 'typescript';
 
 import type { ComponentMeta, TagMeta } from '../meta/component';
-import type { SeenMemberSignatures } from '../utils/walk';
 
 export interface ElementDefintionNode {
   name: string;
   tag: TagMeta;
-  statement: ts.VariableStatement;
-  variable: ts.VariableDeclaration;
-  call: ts.CallExpression;
-  declaration: ts.ObjectLiteralExpression;
-  members: SeenMemberSignatures;
-  types: {
-    root: ts.TypeAliasDeclaration | ts.InterfaceDeclaration;
-    props?:
-      | ts.TypeLiteralNode
-      | ts.TypeAliasDeclaration
-      | ts.InterfaceDeclaration
-      | ts.IntersectionTypeNode;
-    events?:
-      | ts.TypeLiteralNode
-      | ts.TypeAliasDeclaration
-      | ts.InterfaceDeclaration
-      | ts.IntersectionTypeNode;
-    cssvars?:
-      | ts.TypeLiteralNode
-      | ts.TypeAliasDeclaration
-      | ts.InterfaceDeclaration
-      | ts.IntersectionTypeNode;
+  root: {
+    node: ts.ClassDeclaration;
+    type: ts.Type;
+  };
+  el: {
+    node: ts.PropertyDeclaration;
+    definition: ts.ObjectLiteralExpression;
+  };
+  api: {
+    root?: ts.Type;
+    props?: ts.Type;
+    events?: ts.Type;
+    cssvars?: ts.Type;
+    store?: ts.Type;
   };
 }
 

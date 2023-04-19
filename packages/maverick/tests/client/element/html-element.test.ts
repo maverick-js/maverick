@@ -2,20 +2,22 @@ import { getScope, onDispose, onError } from '@maverick-js/signals';
 import { createContext, provideContext, useContext } from 'maverick.js';
 
 import {
-  AnyCustomElement,
-  createElementInstance,
-  CustomElementDeclaration,
-  defineCustomElement,
-  HTMLCustomElement,
-  HTMLCustomElementConstructor,
-  onAttach,
-  onConnect,
+  Component,
+  createComponent,
+  defineElement,
+  defineProp,
+  type HTMLCustomElement,
+  INSTANCE,
   registerCustomElement,
 } from 'maverick.js/element';
+import { isFunction } from 'maverick.js/std';
+
+import { waitAnimationFrame } from '../../../src/std/timing';
+import { setupTestComponent } from './setup';
 
 it('should handle basic setup and destroy', () => {
-  const { container, instance, element } = setupTestElement();
-  element.attachComponent(instance);
+  const { container, component, element } = setupTestComponent();
+  element.attachComponent(component);
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-test-1
@@ -27,86 +29,63 @@ it('should handle basic setup and destroy', () => {
       </mk-test-1>
     </div>
   `);
-  instance.destroy();
-});
-
-it('should invoke `construct` hook', () => {
-  const construct = vi.fn();
-
-  const definition = defineCustomElement({
-    tagName: `mk-test-${++count}`,
-    construct() {
-      construct(this);
-    },
-  });
-
-  registerCustomElement(definition);
-
-  const element = document.createElement(definition.tagName);
-
-  expect(construct).toHaveBeenCalledTimes(1);
-  expect(construct).toHaveBeenCalledWith(element);
+  component.destroy();
 });
 
 it('should observe attributes', () => {
-  const { instance, element, elementCtor } = setupTestElement({
+  const { component, element, elementCtor } = setupTestComponent({
     props: {
-      foo: { initial: 1 },
-      bar: { initial: 2 },
-      bazBax: { initial: 3 },
-      bazBaxHux: { initial: 4 },
+      foo: defineProp({ value: 1 }),
+      bar: defineProp({ value: 2 }),
+      bazBax: defineProp({ value: 3 }),
+      bazBaxHux: defineProp({ value: 4 }),
     },
   });
 
   expect(elementCtor.observedAttributes).toEqual(['foo', 'bar', 'baz-bax', 'baz-bax-hux']);
 
-  element.attachComponent(instance);
+  element.attachComponent(component);
   element.setAttribute('foo', '10');
-  expect(element.$foo()).toBe(10);
+  expect(component[INSTANCE]._props.foo()).toBe(10);
 });
 
-it('should call connect lifecycle hook', () => {
+it('should call attach lifecycle hook', () => {
   const attach = vi.fn();
   const Context = createContext<number>();
 
-  const { instance, element } = setupTestElement({
-    setup({ host }) {
+  const { component, element } = setupTestComponent({
+    setup() {
       provideContext(Context, 1);
-      onAttach(() => {
-        expect(host.el).toBeDefined();
-        expect(useContext(Context)).toBe(1);
-        return attach();
-      });
-      return () => null;
+    },
+    onAttach(el) {
+      expect(el).toBeDefined();
+      expect(useContext(Context)).toBe(1);
+      return attach();
     },
   });
 
-  element.attachComponent(instance);
+  element.attachComponent(component);
   expect(attach).toBeCalledTimes(1);
 });
 
-it('should call connect lifecycle hook', () => {
+it('should call connect lifecycle hook', async () => {
   const disconnect = vi.fn();
   const connect = vi.fn().mockReturnValue(disconnect);
 
-  const { instance, element } = setupTestElement({
-    setup() {
-      onConnect(connect);
-      return () => null;
-    },
-  });
+  const { component, element } = setupTestComponent({ onConnect: connect });
 
   expect(connect).not.toHaveBeenCalled();
   expect(disconnect).not.toHaveBeenCalled();
 
-  element.attachComponent(instance);
+  element.attachComponent(component);
 
-  expect(instance.host.$connected()).toBeTruthy();
+  expect(element.component).toBeTruthy();
   expect(connect).toHaveBeenCalledTimes(1);
   expect(disconnect).not.toHaveBeenCalled();
 
   element.remove();
-  expect(instance.host.$connected()).toBeFalsy();
+  await waitAnimationFrame();
+
   expect(connect).toHaveBeenCalledTimes(1);
   expect(disconnect).toHaveBeenCalledTimes(1);
 });
@@ -117,32 +96,29 @@ it('should scope connect/disconnect lifecycle hooks', () => {
   const dispose = vi.fn();
   const Context = createContext<number>();
 
-  const { instance, element } = setupTestElement({
+  const { component, element } = setupTestComponent({
     setup() {
       provideContext(Context, 1);
+    },
+    onConnect() {
+      const connectScope = getScope();
+      expect(connectScope).toBeDefined();
+      expect(useContext(Context)).toBe(1);
 
-      onConnect(() => {
-        const connectScope = getScope();
-        expect(connectScope).toBeDefined();
+      connect();
+      onDispose(dispose);
+
+      return () => {
+        const disconnectScope = getScope();
+        expect(disconnectScope).toBeDefined();
+        expect(disconnectScope).toBe(connectScope);
         expect(useContext(Context)).toBe(1);
-
-        connect();
-        onDispose(dispose);
-
-        return () => {
-          const disconnectScope = getScope();
-          expect(disconnectScope).toBeDefined();
-          expect(disconnectScope).toBe(connectScope);
-          expect(useContext(Context)).toBe(1);
-          disconnect();
-        };
-      });
-
-      return () => null;
+        disconnect();
+      };
     },
   });
 
-  element.attachComponent(instance);
+  element.attachComponent(component);
   element.remove();
 
   expect(connect).toHaveBeenCalledTimes(1);
@@ -156,101 +132,79 @@ it('should handle errors thrown in lifecycle hooks', () => {
     disconnectError = Error('disconnect'),
     destroyError = Error('destroy');
 
-  const nextAttach = vi.fn(),
-    nextConnect = vi.fn(),
-    nextDisconnect = vi.fn();
-
   const errorHandler = vi.fn();
 
-  const { instance, element } = setupTestElement({
+  const { component, element } = setupTestComponent({
     setup() {
       onError((e) => {
         errorHandler(e);
       });
-
-      onAttach(() => {
-        throw attachError;
-      });
-
-      onAttach(nextAttach);
-
-      onConnect(() => {
-        throw connectError;
-      });
-
-      onConnect(() => {
-        nextConnect();
-        return () => {
-          throw disconnectError;
-        };
-      });
-
-      onConnect(() => () => nextDisconnect());
-
-      onDispose(() => {
-        throw destroyError;
-      });
+    },
+    onAttach() {
+      throw attachError;
+    },
+    onConnect() {
+      throw connectError;
+    },
+    onDisconnect() {
+      throw disconnectError;
+    },
+    onDestroy() {
+      throw destroyError;
     },
   });
 
   expect(errorHandler).not.toHaveBeenCalled();
-  expect(nextAttach).not.toHaveBeenCalled();
-  expect(nextConnect).not.toHaveBeenCalled();
-  expect(nextDisconnect).not.toHaveBeenCalled();
 
-  element.attachComponent(instance);
+  element.attachComponent(component);
   expect(errorHandler).toHaveBeenCalledTimes(2);
   expect(errorHandler).toHaveBeenCalledWith(attachError);
   expect(errorHandler).toHaveBeenCalledWith(connectError);
-  expect(nextAttach).toHaveBeenCalledTimes(1);
-  expect(nextConnect).toHaveBeenCalledTimes(1);
 
   element.remove();
   expect(errorHandler).toHaveBeenCalledTimes(3);
-  expect(nextDisconnect).toHaveBeenCalledTimes(1);
 
-  instance.destroy();
+  component.destroy();
   expect(errorHandler).toHaveBeenCalledTimes(4);
   expect(errorHandler).toHaveBeenCalledWith(destroyError);
 });
 
-it('should throw if lifecycle hook called outside setup', () => {
-  expect(() => {
-    onConnect(() => {});
-  }).toThrowError(/called outside of element setup/);
-});
-
 it('should discover events on dispatch', () => {
-  const { instance, element } = setupTestElement();
+  const { component, element } = setupTestComponent();
 
   const callback = vi.fn();
 
-  element.attachComponent(instance);
+  element.attachComponent(component);
   element.onEventDispatch(callback);
   element.dispatchEvent(new MouseEvent('mk-click'));
 
-  expect(callback).toHaveBeenCalledTimes(1);
+  // 2 because attached + mk-click events
+  expect(callback).toHaveBeenCalledTimes(2);
   expect(callback).toHaveBeenCalledWith('mk-click');
 });
 
 it('should render `setAttributes`', () => {
-  const Foo = defineCustomElement({
-    tagName: `mk-foo-1`,
-    setup({ host }) {
-      host.setAttributes({
+  class FooComponent extends Component {
+    static el = defineElement({
+      tagName: 'mk-foo-1',
+    });
+
+    constructor(instance) {
+      super(instance);
+      this.setAttributes({
         foo: () => 10,
         bar: 'none',
         baz: null,
         bux: false,
       });
-    },
-  });
+    }
+  }
 
-  registerCustomElement(Foo);
+  registerCustomElement(FooComponent);
 
-  const instance = createElementInstance(Foo);
-  const element = document.createElement(Foo.tagName) as HTMLCustomElement;
-  element.attachComponent(instance);
+  const component = createComponent(FooComponent);
+  const element = document.createElement(FooComponent.el.tagName) as HTMLCustomElement;
+  element.attachComponent(component);
 
   expect(element).toMatchInlineSnapshot(`
     <mk-foo-1
@@ -261,23 +215,27 @@ it('should render `setAttributes`', () => {
 });
 
 it('should render `setStyles`', () => {
-  const Foo = defineCustomElement({
-    tagName: `mk-foo-2`,
-    setup({ host }) {
-      host.setStyles({
+  class FooComponent extends Component {
+    static el = defineElement({
+      tagName: 'mk-foo-2',
+    });
+
+    constructor(instance) {
+      super(instance);
+      this.setStyles({
         flex: '1',
         'flex-basis': null,
         'align-self': false,
         'z-index': () => 10,
       });
-    },
-  });
+    }
+  }
 
-  registerCustomElement(Foo);
+  registerCustomElement(FooComponent);
 
-  const instance = createElementInstance(Foo);
-  const element = document.createElement(Foo.tagName) as HTMLCustomElement;
-  element.attachComponent(instance);
+  const component = createComponent(FooComponent);
+  const element = document.createElement(FooComponent.el.tagName) as HTMLCustomElement;
+  element.attachComponent(component);
 
   expect(element).toMatchInlineSnapshot(`
     <mk-foo-2
@@ -294,24 +252,28 @@ it('should render `setCSSVars`', () => {
     bux?: boolean;
   }
 
-  interface FooElement extends HTMLCustomElement<{}, {}, FooCSSVars> {}
+  class FooComponent extends Component<{
+    cssvars: FooCSSVars;
+  }> {
+    static el = defineElement({
+      tagName: 'mk-foo-3',
+    });
 
-  const Foo = defineCustomElement<FooElement>({
-    tagName: `mk-foo-3`,
-    setup({ host }) {
-      host.setCSSVars({
+    constructor(instance) {
+      super(instance);
+      this.setCSSVars({
         '--foo': () => 10,
         '--bar': 'none',
         '--baz': null,
       });
-    },
-  });
+    }
+  }
 
-  registerCustomElement(Foo);
+  registerCustomElement(FooComponent);
 
-  const instance = createElementInstance(Foo);
-  const element = document.createElement(Foo.tagName) as HTMLCustomElement;
-  element.attachComponent(instance);
+  const component = createComponent(FooComponent);
+  const element = document.createElement(FooComponent.el.tagName) as HTMLCustomElement;
+  element.attachComponent(component);
 
   expect(element).toMatchInlineSnapshot(`
     <mk-foo-3
@@ -321,7 +283,7 @@ it('should render `setCSSVars`', () => {
 });
 
 it('should invoke onAttach callback', () => {
-  const { instance, element } = setupTestElement();
+  const { component, element } = setupTestComponent();
 
   const callbackA = vi.fn(),
     callbackB = vi.fn(),
@@ -333,7 +295,7 @@ it('should invoke onAttach callback', () => {
   expect(callbackA).toHaveBeenCalledTimes(0);
   expect(callbackB).toHaveBeenCalledTimes(0);
 
-  element.attachComponent(instance);
+  element.attachComponent(component);
 
   expect(callbackA).toHaveBeenCalledTimes(1);
   expect(callbackB).toHaveBeenCalledTimes(1);
@@ -341,61 +303,80 @@ it('should invoke onAttach callback', () => {
   element.onAttach(callbackC);
   expect(callbackC).toHaveBeenCalledTimes(1);
 
-  instance.destroy();
+  component.destroy();
 });
 
-afterEach(() => {
-  document.body.innerHTML = '';
+it('should define get/set props on element', () => {
+  const { element, component } = setupTestComponent({
+    props: { foo: defineProp({ value: 1 }), bar: defineProp({ value: 2 }) },
+  });
+
+  expect('foo' in element).toBeTruthy();
+  expect('bar' in element).toBeTruthy();
+
+  element.attachComponent(component);
+
+  expect(element.foo).toBe(1);
+  expect(element.bar).toBe(2);
 });
 
-let count = 0;
-function setupTestElement(
-  declaration?: Partial<CustomElementDeclaration<AnyCustomElement>>,
-  { hydrate = false, delegate = true, append = true } = {},
-) {
-  const definition = defineCustomElement({
-    tagName: `mk-test-${++count}`,
-    setup: ({ props }) => {
-      const members = { $render: () => 'Test' };
+it('should define component proto on element', () => {
+  class BaseComponent extends Component {
+    static el = defineElement({ tagName: `mk-method-test` });
 
-      for (const prop of Object.keys(props)) {
-        Object.defineProperty(members, prop, {
-          enumerable: true,
-          get() {
-            return props[prop];
-          },
-        });
-      }
+    _zoo = 10;
 
-      return members;
-    },
-    ...declaration,
-  } as any);
+    get zoo() {
+      return this._zoo;
+    }
 
-  registerCustomElement(definition);
+    set zoo(v) {
+      this._zoo = v;
+    }
 
-  const container = document.createElement('div'),
-    instance = createElementInstance(definition),
-    element = document.createElement(`mk-test-${count}`) as HTMLCustomElement & Record<string, any>;
+    foo() {
+      return 100;
+    }
 
-  if (hydrate) {
-    element.setAttribute('mk-h', '');
+    bar() {}
+    _baz() {}
   }
 
-  if (delegate) {
-    element.setAttribute('mk-d', '');
+  class TestComponent extends BaseComponent {
+    _boo = 20;
+
+    get boo() {
+      return this._boo;
+    }
+
+    set boo(v) {
+      this._boo = v;
+    }
+
+    bax() {}
+    _hux() {}
   }
 
-  if (append) {
-    container.append(element);
-    document.body.append(container);
-  }
+  registerCustomElement(TestComponent);
 
-  return {
-    definition,
-    instance,
-    container,
-    element,
-    elementCtor: element.constructor as HTMLCustomElementConstructor,
-  };
-}
+  const element = document.createElement(TestComponent.el.tagName) as HTMLCustomElement;
+  element.attachComponent(createComponent(TestComponent));
+
+  expect(element._zoo).toBeUndefined();
+  expect(element._boo).toBeUndefined();
+
+  expect(element.zoo).toBe(10);
+  expect(element.boo).toBe(20);
+
+  element.zoo = 30;
+  element.boo = 40;
+
+  expect(element.zoo).toBe(30);
+  expect(element.boo).toBe(40);
+
+  expect(isFunction(element.foo)).toBeTruthy();
+  expect(isFunction(element.bar)).toBeTruthy();
+  expect(isFunction(element.bax)).toBeTruthy();
+  expect(isFunction(element._bar)).toBeFalsy();
+  expect(isFunction(element._hux)).toBeFalsy();
+});

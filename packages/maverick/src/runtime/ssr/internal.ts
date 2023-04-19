@@ -1,6 +1,5 @@
-import { createServerElement, type CustomElementDefinition } from '../../element';
-import { createElementInstance } from '../../element/instance';
-import { getCustomElementInstance } from '../../element/internal';
+import { type ComponentConstructor, createComponent, createServerElement } from '../../element';
+import { getComponentInstance } from '../../element/internal';
 import { escape } from '../../std/html';
 import { unwrapDeep } from '../../std/signal';
 import { trimTrailingSemicolon } from '../../std/string';
@@ -21,7 +20,7 @@ export function $$_ssr(template: string[], ...parts: unknown[]) {
 
 /** @internal */
 export function $$_host_element(spreads?: Record<string, unknown>[]) {
-  const host = getCustomElementInstance()!.host.el!;
+  const host = getComponentInstance()!._el!;
 
   if (spreads && spreads.length > 0) {
     const spread = $$_merge_spreads(spreads);
@@ -44,11 +43,11 @@ export function $$_host_element(spreads?: Record<string, unknown>[]) {
 
 /** @internal */
 export function $$_custom_element(
-  definition: CustomElementDefinition,
+  Component: ComponentConstructor,
   props?: Record<string, any>,
   spreads?: Record<string, unknown>[],
 ) {
-  const host = new (createServerElement(definition))();
+  const host = new (createServerElement(Component))();
 
   if (spreads && spreads.length > 0) {
     const spread = $$_merge_spreads(spreads);
@@ -68,15 +67,14 @@ export function $$_custom_element(
 
   const hasInnerHTML = !!props?.innerHTML,
     innerHTML = hasInnerHTML ? resolve(props.innerHTML) : null,
-    children = hasInnerHTML ? innerHTML! : resolve(props?.$children),
-    instance = createElementInstance(definition, { props });
+    children = hasInnerHTML ? innerHTML! : resolve(props?.$children);
 
-  host.attachComponent(instance);
+  host.attachComponent(createComponent(Component, { props }));
 
   return {
-    [SSR_TEMPLATE]: `<${definition.tagName}${host.attributes}>${
+    [SSR_TEMPLATE]: `<${Component.el.tagName}${host.attributes}>${
       hasInnerHTML ? children : host.render() + children
-    }</${definition.tagName}>`,
+    }</${Component.el.tagName}>`,
   };
 }
 

@@ -9,7 +9,6 @@ import {
   tick,
   untrack,
 } from '@maverick-js/signals';
-import type { Writable } from 'type-fest';
 
 import { hydration, type Hydrator, type Renderer } from '../runtime/dom';
 import { $$_create_element } from '../runtime/dom/internal';
@@ -17,28 +16,23 @@ import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
 import { isArray, isBoolean, noop } from '../std/unit';
+import type { AnyComponent, ComponentConstructor } from './component';
+import { ComponentController } from './controller';
 import type { StylesheetAdopter } from './css';
-import { ATTACH, CONNECT, MEMBERS, PROPS, RENDER, SCOPE } from './internal';
-import type { ElementLifecycleCallback } from './lifecycle';
-import type {
-  AnyCustomElement,
-  CustomElementDefinition,
-  CustomElementHost,
-  CustomElementInstance,
-  HostElement,
-  HTMLCustomElementConstructor,
-} from './types';
+import type { HostElement, HTMLCustomElementConstructor } from './host';
+import type { ComponentLifecycleCallback } from './instance';
+import { CONNECT, INSTANCE } from './internal';
 
-export interface CustomHTMLElementInit {
+export interface HTMLCustomElementInit {
   render: Renderer;
   hydrate: Hydrator;
   adoptCSS?: StylesheetAdopter;
 }
 
-export function createHTMLElement<T extends AnyCustomElement>(
-  definition: CustomElementDefinition<T>,
-  init?: CustomHTMLElementInit,
-): HTMLCustomElementConstructor<T> {
+export function createHTMLElement<Component extends AnyComponent>(
+  Component: ComponentConstructor<Component>,
+  init?: HTMLCustomElementInit,
+): HTMLCustomElementConstructor<Component> {
   if (__SERVER__) {
     throw Error(
       '[maverick] `createHTMLElement` was called outside of browser - use `createServerElement`',
@@ -48,11 +42,11 @@ export function createHTMLElement<T extends AnyCustomElement>(
   let attrToProp: Map<string, string> | undefined;
   let propToAttr: Map<string, string> | undefined;
 
-  if (definition.props) {
+  if (Component.el.props) {
     attrToProp = new Map();
     propToAttr = new Map();
-    for (const propName of Object.keys(definition.props)) {
-      const def = definition.props[propName];
+    for (const propName of Object.keys(Component.el.props)) {
+      const def = Component.el.props[propName];
       const attr = def.attribute;
       if (attr !== false) {
         const attrName = attr ?? camelToKebabCase(propName);
@@ -62,39 +56,96 @@ export function createHTMLElement<T extends AnyCustomElement>(
     }
   }
 
-  return class MaverickElement extends HTMLCustomElement<T> {
-    static override _definition = definition;
+  class MaverickElement extends HTMLCustomElement<Component> {
+    static override get _component() {
+      return Component;
+    }
     static override _init = init;
     static override _attrToProp = attrToProp;
     static override _propToAttr = propToAttr;
-  } as any;
+  }
+
+  const proto = MaverickElement.prototype;
+
+  if (Component.el.props) {
+    for (const prop of Object.keys(Component.el.props)) {
+      Object.defineProperty(proto, prop, {
+        get(this: HTMLCustomElement) {
+          if (__DEV__ && !this.component) this._throwAttachError([`el.${prop}`]);
+          return this.component![INSTANCE]._props[prop]();
+        },
+        set(this: HTMLCustomElement, value) {
+          if (__DEV__ && !this.component) this._throwAttachError([`el.${prop} = ${value}`]);
+          this.component![INSTANCE]._props[prop].set(value);
+        },
+      });
+    }
+  }
+
+  const ignore = new Set([
+    'constructor',
+    'onAttach',
+    'onConnect',
+    'onDisconnect',
+    'onDestroy',
+    'destroy',
+  ]);
+
+  let $ctor = Component;
+  while ($ctor !== ComponentController) {
+    for (const name of Object.getOwnPropertyNames($ctor.prototype)) {
+      if (name.startsWith('_') || ignore.has(name)) continue;
+      if (isFunction($ctor[name])) {
+        proto[name] = function (this: HTMLCustomElement, ...args) {
+          if (__DEV__ && !this.component) this._throwAttachError([`el.${name}(...)`]);
+          return this.component![name](...args);
+        };
+      } else {
+        Object.defineProperty(proto, name, {
+          get(this: HTMLCustomElement) {
+            if (__DEV__ && !this.component) this._throwAttachError([`el.${name}`]);
+            return this.component![name];
+          },
+          set(this: HTMLCustomElement, value) {
+            if (__DEV__ && !this.component) this._throwAttachError([`el.${name} = ${value}`]);
+            this.component![name] = value;
+          },
+        });
+      }
+    }
+
+    $ctor = Object.getPrototypeOf($ctor);
+  }
+
+  return MaverickElement as any;
 }
 
 const HTML_ELEMENT = (__SERVER__ ? class HTMLElement {} : HTMLElement) as typeof HTMLElement;
 
-class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
+class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
   extends HTML_ELEMENT
-  implements HostElement
+  implements HostElement<Component>
 {
-  static _definition: CustomElementDefinition;
-  static _init?: CustomHTMLElementInit;
+  static _component: ComponentConstructor;
+  static _init?: HTMLCustomElementInit;
   static _attrToProp?: Map<string, string>;
   static _propToAttr?: Map<string, string>;
   static _dispatchedEvents?: Set<string>;
 
   private _root?: Node | null;
+  private _connected = false;
   private _destroyed = false;
-  private _instance: CustomElementInstance | null = null;
+  private _component: Component | null = null;
   private _onEventDispatch?: (eventType: string) => void;
 
   private _connectScope: Scope | null = null;
-  private _attachCallbacks: Set<ElementLifecycleCallback> | null = new Set();
+  private _attachCallbacks: Set<ComponentLifecycleCallback> | null = new Set();
   private _disconnectCallbacks: Dispose[] = [];
 
   keepAlive = false;
 
   /** @internal */
-  [CONNECT]: boolean | ElementLifecycleCallback[] = [];
+  [CONNECT]: boolean | ComponentLifecycleCallback[] = [];
 
   private get _hydrate() {
     return this.hasAttribute('mk-h');
@@ -104,36 +155,38 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
     return this.hasAttribute('mk-d');
   }
 
-  get instance() {
-    return this._instance;
+  get component() {
+    return this._component;
+  }
+
+  get state() {
+    if (__DEV__ && !this._component) {
+      this._throwAttachError(['el.state.foo']);
+    }
+
+    return this._component![INSTANCE]._state;
   }
 
   static get observedAttributes() {
     return this._attrToProp ? Array.from(this._attrToProp.keys()) : [];
   }
 
-  constructor() {
-    super();
-    const ctor = this.constructor as typeof HTMLCustomElement;
-    ctor._definition.construct?.call(this);
-  }
-
   attributeChangedCallback(name, _, newValue) {
     const ctor = this.constructor as typeof HTMLCustomElement;
-    if (!this._instance || !ctor._attrToProp) return;
+    if (!this._component || !ctor._attrToProp) return;
     const propName = ctor._attrToProp.get(name)!;
-    const from = ctor._definition.props![propName]?.type?.from;
-    if (from) this._instance[PROPS]['$' + (propName as string)].set(from(newValue));
+    const from = ctor._component.el.props![propName]?.type?.from;
+    if (from) this._component[INSTANCE]._props[propName].set(from(newValue));
   }
 
   connectedCallback() {
-    const instance = this._instance;
+    const instance = this._component?.[INSTANCE];
 
     // If no host framework is available which generally occurs loading over a CDN.
     if (!this._delegate && !instance) return this._setup();
 
     // Could be called once element is no longer connected.
-    if (!instance || !this.isConnected || instance.host.$connected()) return;
+    if (!instance || !this.isConnected || this._connected) return;
 
     if (this._destroyed) {
       if (__DEV__) {
@@ -150,20 +203,20 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
     if (this.hasAttribute('keep-alive')) this.keepAlive = true;
 
     // Connect
-    instance.host[PROPS].$connected.set(true);
+    this._connected = true;
     tick();
 
-    if (instance[CONNECT].length) {
+    if (instance._connectCallbacks.length) {
       scoped(() => {
         // Create new connect root scope so we can dispose of it on disconnect.
         root((dispose) => {
           this._connectScope = getScope()!;
 
-          for (const connectCallback of instance[CONNECT]) {
+          for (const connectCallback of instance._connectCallbacks) {
             // Running in `scoped` to ensure any errors are only contained to a single hook.
             scoped(() => {
-              const disconnectCallback = connectCallback();
-              if (typeof disconnectCallback === 'function') {
+              const disconnectCallback = connectCallback(this);
+              if (isFunction(disconnectCallback)) {
                 this._disconnectCallbacks.push(disconnectCallback);
               }
             }, this._connectScope);
@@ -171,11 +224,11 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
 
           this._disconnectCallbacks.push(dispose);
         });
-      }, instance[SCOPE]);
+      }, instance._scope);
     }
 
     if (isArray(this[CONNECT])) {
-      runAll(this[CONNECT] as ElementLifecycleCallback[]);
+      runAll(this[CONNECT], this);
       this[CONNECT] = true;
     }
 
@@ -184,15 +237,21 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
   }
 
   disconnectedCallback() {
-    const instance = this._instance;
+    const instance = this._component?.[INSTANCE];
 
-    if (!instance?.host.$connected() || this._destroyed) return;
+    if (!this._connected || this._destroyed) return;
 
-    instance.host[PROPS].$connected.set(false);
+    this._connected = false;
     tick();
 
-    for (const disconnectCallback of this._disconnectCallbacks) {
-      scoped(disconnectCallback, this._connectScope);
+    for (const callback of this._disconnectCallbacks) {
+      scoped(callback, this._connectScope);
+    }
+
+    if (instance?._disconnectCallbacks.length) {
+      for (const callback of instance._disconnectCallbacks) {
+        scoped(() => callback(this), instance._scope);
+      }
     }
 
     this._connectScope = null;
@@ -201,52 +260,50 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
     if (!this._delegate && !this.keepAlive) {
       requestAnimationFrame(() => {
         if (!this.isConnected) {
-          instance?.destroy();
+          instance?._destroy();
           this._destroyed = true;
         }
       });
     }
   }
 
-  attachComponent(instance: CustomElementInstance) {
-    const ctor = this.constructor as typeof HTMLCustomElement,
-      definition = ctor._definition,
+  attachComponent(component: Component) {
+    const instance = component[INSTANCE],
+      ctor = this.constructor as typeof HTMLCustomElement,
+      def = ctor._component.el,
       init = ctor._init;
 
-    if (__DEV__ && this._instance) {
-      console.warn(`[maverick] element \`${definition.tagName}\` already has attached component`);
+    if (__DEV__ && this._component) {
+      console.warn(`[maverick] element \`${def.tagName}\` already has attached component`);
     }
 
     if (__DEV__ && this._destroyed) {
-      console.warn(`[maverick] attempted attaching to destroyed element \`${definition.tagName}\``);
+      console.warn(`[maverick] attempted attaching to destroyed element \`${def.tagName}\``);
     }
 
-    if (this._instance || this._destroyed) return;
+    if (this._component || this._destroyed) return;
 
-    const $render = instance[RENDER];
-
-    this._root = $render
-      ? definition.shadowRoot
+    this._root = instance._renderer
+      ? def.shadowRoot
         ? this.shadowRoot ??
-          this.attachShadow(
-            isBoolean(definition.shadowRoot) ? { mode: 'open' } : definition.shadowRoot,
-          )
+          this.attachShadow(isBoolean(def.shadowRoot) ? { mode: 'open' } : def.shadowRoot)
         : resolveShadowRootElement(this)
       : null;
 
-    if (__DEV__ && definition.css && !init?.adoptCSS) {
+    if (__DEV__ && def.css && !init?.adoptCSS) {
       console.warn(
-        `[maverick] \`css\` was provided for \`${definition.tagName}\` but element registration` +
+        `[maverick] \`css\` was provided for \`${def.tagName}\` but element registration` +
           " doesn't support adopting stylesheets. Resolve this by registering element with" +
           ' `registerElement` instead of lite or headless.',
       );
     }
 
-    if (!hydration && definition.shadowRoot && definition.css && init?.adoptCSS) {
-      init.adoptCSS(this._root as ShadowRoot, definition.css);
+    if (!hydration && def.shadowRoot && def.css && init?.adoptCSS) {
+      init.adoptCSS(this._root as ShadowRoot, def.css);
     }
 
-    const { $attrs, $styles } = instance.host[PROPS];
+    const $attrs = instance._attrs,
+      $styles = instance._styles;
 
     for (const name of Object.keys($attrs!)) {
       if (isFunction($attrs![name])) {
@@ -264,28 +321,25 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
       }
     }
 
-    instance.host[PROPS].$attrs = null;
-    instance.host[PROPS].$styles = null;
+    instance._attrs = null;
+    instance._styles = null;
 
-    if (instance[MEMBERS]) {
-      Object.defineProperties(this, Object.getOwnPropertyDescriptors(instance[MEMBERS]));
-      instance[MEMBERS] = null;
+    instance._el = this;
+    this._component = component;
+
+    for (const callback of [...instance._attachCallbacks, ...this._attachCallbacks!]) {
+      scoped(() => callback(this), instance._scope);
     }
 
-    (instance.host as Writable<CustomElementHost<T>>).el = this as unknown as T;
-    this._instance = instance;
-
-    for (const attachCallback of [...instance[ATTACH], ...this._attachCallbacks!]) {
-      scoped(attachCallback, instance[SCOPE]);
-    }
-
+    instance._attachCallbacks.length = 0;
     this._attachCallbacks = null;
+    this.dispatchEvent(new Event('attached'));
 
-    if (this._root && init && $render) {
+    if (this._root && init && instance._renderer) {
       const renderer = this._hydrate ? init.hydrate : init.render;
-      renderer($render, {
+      renderer(() => instance._render(), {
         target: this._root,
-        resume: !definition.shadowRoot,
+        resume: !def.shadowRoot,
       });
     }
 
@@ -293,9 +347,25 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
     this.connectedCallback();
   }
 
-  onAttach(callback: () => void) {
-    if (this._instance) {
-      callback();
+  subscribe(callback: (state: any) => void) {
+    if (__DEV__ && !this._component) {
+      this._throwAttachError(['el.subscribe(({ foo, bar }) => {', '  // ...', '});']);
+    }
+
+    if (__DEV__ && !this._component?.[INSTANCE]!._state) {
+      const ctor = this.constructor as typeof HTMLCustomElement;
+      const tagName = ctor._component.el.tagName;
+      throw Error(`[maverick] \`${tagName}\` element does not have a store to subscribe to`);
+    }
+
+    return scoped(() => {
+      return effect(() => callback(this._component![INSTANCE]._state));
+    }, this._component![INSTANCE]._scope);
+  }
+
+  onAttach(callback: ComponentLifecycleCallback) {
+    if (this._component) {
+      callback(this);
       return noop;
     } else {
       this._attachCallbacks!.add(callback);
@@ -311,8 +381,8 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
 
   destroy() {
     this.disconnectedCallback();
-    this._instance?.destroy();
-    this._instance = null;
+    this._component?.destroy();
+    this._component = null;
     this._destroyed = true;
   }
 
@@ -334,8 +404,22 @@ class HTMLCustomElement<T extends AnyCustomElement = AnyCustomElement>
     if (this._pendingSetup) return;
     this._pendingSetup = true;
     const { setup } = await import('./setup');
-    await setup(this);
+    await setup(this as any);
     this._pendingSetup = false;
+  }
+
+  protected _throwAttachError(code: string[]) {
+    if (__DEV__) {
+      const ctor = this.constructor as typeof HTMLCustomElement;
+      const tagName = ctor._component.el.tagName;
+      throw Error(
+        '[maverick] component instance has not attached yet, wait for event like so:\n\n' +
+          `const el = document.querySelector('${tagName}');\n` +
+          `el.addEventListener('attached', () => {\n` +
+          ('  ' + code.join('\n  ')) +
+          `\n}, { once: true });\n`,
+      );
+    }
   }
 }
 

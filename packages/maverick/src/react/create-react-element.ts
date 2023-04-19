@@ -1,20 +1,15 @@
-import { SCOPE, tick } from '@maverick-js/signals';
+import { tick } from '@maverick-js/signals';
 import * as React from 'react';
 
-import { createElementInstance } from '../element/instance';
-import { PROPS } from '../element/internal';
+import { type AnyComponent, type ComponentConstructor } from '../element/component';
+import type { HTMLCustomElement } from '../element/host';
+import { createComponent } from '../element/instance';
+import { INSTANCE } from '../element/internal';
 import {
   type CustomElementRegistrar,
   registerCustomElement,
   registerLiteCustomElement,
 } from '../element/register';
-import type {
-  AnyCustomElement,
-  CustomElementDefinition,
-  CustomElementInstance,
-  HTMLCustomElement,
-  InferCustomElement,
-} from '../element/types';
 import { $$_attach_declarative_shadow_dom } from '../runtime/dom';
 import { kebabToPascalCase } from '../std/string';
 import { createReactServerElement } from './create-react-server-element';
@@ -26,39 +21,36 @@ export interface ReactElementInit {
   displayName?: string;
 }
 
-export function createReactElement<Definition extends CustomElementDefinition>(
-  definition: Definition,
+export function createReactElement<Component extends AnyComponent>(
+  Component: ComponentConstructor<Component>,
   init?: ReactElementInit,
-): ReactElement<InferCustomElement<Definition>> {
+): ReactElement<Component> {
   return __SERVER__
-    ? createReactServerElement(definition)
-    : createReactClientElement(registerCustomElement, definition, init);
+    ? createReactServerElement(Component)
+    : createReactClientElement(registerCustomElement, Component, init);
 }
 
-export function createLiteReactElement<Definition extends CustomElementDefinition>(
-  definition: Definition,
+export function createLiteReactElement<Component extends AnyComponent>(
+  Component: ComponentConstructor<Component>,
   init?: ReactElementInit,
-): ReactElement<InferCustomElement<Definition>> {
+): ReactElement<Component> {
   return __SERVER__
-    ? createReactServerElement(definition)
-    : createReactClientElement(registerLiteCustomElement, definition, init);
+    ? createReactServerElement(Component)
+    : createReactClientElement(registerLiteCustomElement, Component, init);
 }
 
-function createReactClientElement<
-  T extends CustomElementDefinition,
-  R extends AnyCustomElement = InferCustomElement<T>,
->(
+function createReactClientElement<Component extends AnyComponent>(
   registerCustomElement: CustomElementRegistrar,
-  definition: T,
+  Component: ComponentConstructor<Component>,
   init?: ReactElementInit,
-): ReactElement<R> {
-  registerCustomElement(definition);
+): ReactElement<Component> {
+  registerCustomElement(Component);
 
-  class CustomElement extends ReactCustomElement<R> {
-    static displayName = init?.displayName ?? kebabToPascalCase(definition.tagName);
+  class CustomElement extends ReactCustomElement<Component> {
+    static displayName = init?.displayName ?? kebabToPascalCase(Component.el.tagName);
     static override contextType = ReactComputeScopeContext;
-    static override _definition = definition;
-    static override _props = new Set(Object.keys(definition.props ?? {}));
+    static override _component = Component;
+    static override _props = new Set(Object.keys(Component.el.props ?? {}));
   }
 
   const ForwardedComponent = React.forwardRef<any, any>((props, ref) =>
@@ -70,14 +62,16 @@ function createReactClientElement<
   return ForwardedComponent as any;
 }
 
-class ReactCustomElement<T extends AnyCustomElement> extends React.Component<ReactElementProps<T>> {
+class ReactCustomElement<Component extends AnyComponent> extends React.Component<
+  ReactElementProps<Component>
+> {
   declare context: React.ContextType<typeof ReactComputeScopeContext>;
 
-  static _definition: CustomElementDefinition;
+  static _component: ComponentConstructor;
   static _props: Set<string>;
   static _callbacks = new Map<string, string>();
 
-  private _instance!: CustomElementInstance;
+  private _component!: AnyComponent;
   private _listeners!: Map<string, EventListenerObject>;
   private _element: HTMLCustomElement | null = null;
   private _ref?: React.RefCallback<HTMLCustomElement>;
@@ -86,7 +80,7 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
   override componentDidMount() {
     // Check if element instance has already been attached (might occur on remounting tree with
     // preserved state).
-    if (!this._element || this._element.instance) return;
+    if (!this._element || this._element.component) return;
 
     $$_attach_declarative_shadow_dom(this._element);
 
@@ -98,14 +92,14 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
       if (callback) this._updateEventListener(eventType, callback);
     });
 
-    this._element.attachComponent(this._instance);
+    this._element.attachComponent(this._component);
   }
 
   override componentWillUnmount() {
     // Wait a tick to ensure this element is definitely being destroyed.
     // https://reactjs.org/blog/2022/03/29/react-v18.html#new-strict-mode-behaviors
     window.requestAnimationFrame(() => {
-      if (!this._element) this._instance.destroy();
+      if (!this._element) this._component.destroy();
     });
   }
 
@@ -113,9 +107,9 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
     const ctor = this.constructor as typeof ReactCustomElement;
     const { __forwardedRef, className, children, ...restProps } = this.props;
 
-    if (!this._instance) {
+    if (!this._component) {
       this._listeners = new Map();
-      this._instance = createElementInstance(ctor._definition as any, {
+      this._component = createComponent(ctor._component, {
         props: this.props,
         scope: this.context,
       });
@@ -130,14 +124,14 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
     }
 
     const props = { class: className, ref: this._ref };
-    const $props = this._instance[PROPS];
+    const $props = this._component[INSTANCE]._props;
 
     for (const prop of Object.keys(restProps)) {
       const value = restProps[prop];
       if (ctor._callbacks.has(prop)) {
         this._updateEventListener(ctor._callbacks.get(prop)!, value);
       } else if (ctor._props.has(prop)) {
-        $props['$' + prop].set(value);
+        $props[prop].set(value);
       } else {
         props[prop] = value;
       }
@@ -146,12 +140,12 @@ class ReactCustomElement<T extends AnyCustomElement> extends React.Component<Rea
     tick();
 
     return WithScope(
-      this._instance[SCOPE]!,
+      this._component[INSTANCE]._scope,
       React.createElement(
-        ctor._definition.tagName,
+        ctor._component.el.tagName,
         { ...props, 'mk-d': true, suppressHydrationWarning: true },
         React.createElement(ShadowRoot, {
-          shadow: ctor._definition.shadowRoot,
+          shadow: ctor._component.el.shadowRoot,
         }),
         children,
       ),

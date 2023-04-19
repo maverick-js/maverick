@@ -1,33 +1,28 @@
-import type { Writable } from 'type-fest';
-
 import { scoped } from '../runtime';
 import { parseClassAttr, parseStyleAttr, renderToString } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
 import { escape } from '../std/html';
 import { unwrapDeep } from '../std/signal';
 import { isBoolean, noop } from '../std/unit';
-import { ATTACH, HOST, PROPS, RENDER, SCOPE } from './internal';
-import type { ElementLifecycleCallback } from './lifecycle';
-import type {
-  AnyCustomElement,
-  CustomElementDefinition,
-  CustomElementHost,
-  CustomElementInstance,
-  HostElement,
-} from './types';
+import type { AnyComponent, ComponentConstructor } from './component';
+import type { HostElement } from './host';
+import type { ComponentLifecycleCallback } from './instance';
+import { INSTANCE } from './internal';
 
-const registry = new WeakMap<CustomElementDefinition, typeof ServerCustomElement>();
+const registry = new WeakMap<ComponentConstructor, typeof ServerCustomElement>();
 
-export function createServerElement<T extends AnyCustomElement>(
-  definition: CustomElementDefinition<T>,
-): typeof ServerCustomElement<T> {
-  if (registry.has(definition)) return registry.get(definition)!;
+export function createServerElement<Component extends AnyComponent>(
+  Component: ComponentConstructor<Component>,
+): typeof ServerCustomElement<Component> {
+  if (registry.has(Component)) return registry.get(Component)!;
 
-  class MaverickElement extends ServerCustomElement<T> {
-    static override _definition = definition;
+  class MaverickElement extends ServerCustomElement<Component> {
+    static override get _component() {
+      return Component;
+    }
   }
 
-  registry.set(definition, MaverickElement);
+  registry.set(Component, MaverickElement as any);
   return MaverickElement;
 }
 
@@ -52,33 +47,31 @@ export interface ServerHTMLElement
   > & { toString(): string };
 }
 
-class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
-  implements ServerHTMLElement, HostElement
+class ServerCustomElement<Component extends AnyComponent = AnyComponent>
+  implements ServerHTMLElement, HostElement<Component>
 {
-  /** @internal */
-  [HOST] = true;
   keepAlive = false;
 
-  static _definition: CustomElementDefinition;
+  static _component: ComponentConstructor;
 
-  /** @internal */
-  _instance: CustomElementInstance | null = null;
-  /** @internal */
-  _ssr?: string;
-  /** @internal */
-  _rendered = false;
-  /** @internal */
-  _attachCallbacks: Set<ElementLifecycleCallback> | null = new Set();
+  private _component: Component | null = null;
+  private _ssr?: string;
+  private _rendered = false;
+  private _attachCallbacks: Set<ComponentLifecycleCallback> | null = new Set();
 
   readonly attributes = new Attributes();
   readonly style = new Style();
   readonly classList = new ClassList();
 
-  get instance() {
-    return this._instance;
+  get component() {
+    return this._component;
   }
 
-  attachComponent(instance: CustomElementInstance) {
+  get state() {
+    return {};
+  }
+
+  attachComponent(component: Component) {
     this.setAttribute('mk-h', '');
     this.setAttribute('mk-d', '');
 
@@ -90,25 +83,27 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
       parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
     }
 
-    const { $attrs, $styles } = instance.host[PROPS];
+    const instance = component[INSTANCE],
+      $attrs = instance._attrs,
+      $styles = instance._styles;
+
     for (const name of Object.keys($attrs!)) setAttribute(this, name, unwrapDeep($attrs![name]));
     for (const name of Object.keys($styles!)) setStyle(this, name, unwrapDeep($styles![name]));
 
-    instance.host[PROPS].$attrs = null;
-    instance.host[PROPS].$styles = null;
+    instance._attrs = null;
+    instance._styles = null;
 
-    (instance.host as Writable<CustomElementHost<T>>).el = this as any;
-    this._instance = instance;
+    instance._el = this as any;
+    this._component = component;
 
-    for (const attachCallback of [...instance[ATTACH], ...this._attachCallbacks!]) {
-      scoped(attachCallback, instance[SCOPE]);
+    for (const callback of [...instance._attachCallbacks, ...this._attachCallbacks!]) {
+      scoped(() => callback(this as any), instance._scope);
     }
 
     this._attachCallbacks = null;
 
-    const $render = instance[RENDER];
-    this._rendered = !!$render;
-    this._ssr = $render ? renderToString($render).code : '';
+    this._rendered = !!instance._renderer;
+    this._ssr = instance._renderer ? renderToString(() => instance._render()).code : '';
 
     if (this.classList.length > 0) {
       this.setAttribute('class', this.classList.toString());
@@ -124,11 +119,11 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
       throw Error('[maverick] called `render` before attaching component');
     }
 
-    const innerHTML = this.renderInnerHTML();
-    const definition = (this.constructor as typeof ServerCustomElement)._definition;
+    const innerHTML = this.renderInnerHTML(),
+      def = (this.constructor as typeof ServerCustomElement)._component.el;
 
-    return this._rendered || (definition.shadowRoot && definition.css)
-      ? definition.shadowRoot
+    return this._rendered || (def.shadowRoot && def.css)
+      ? def.shadowRoot
         ? `<template shadowroot="${this.getShadowRootMode()}">${innerHTML}</template>`
         : `<shadow-root>${innerHTML}</shadow-root>`
       : innerHTML;
@@ -139,23 +134,18 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
       throw Error('[maverick] called `renderInnerHTML` before attaching component');
     }
 
-    const definition = (this.constructor as typeof ServerCustomElement)._definition;
-
-    const styleTag =
-      definition.shadowRoot && definition.css
-        ? `<style>${definition.css.map((css) => css.text).join('')}</style>`
-        : '';
+    const def = (this.constructor as typeof ServerCustomElement)._component.el,
+      styleTag =
+        def.shadowRoot && def.css
+          ? `<style>${def.css.map((css) => css.text).join('')}</style>`
+          : '';
 
     return styleTag + this._ssr;
   }
 
   getShadowRootMode() {
-    const definition = (this.constructor as typeof ServerCustomElement)._definition;
-    return definition.shadowRoot
-      ? isBoolean(definition.shadowRoot)
-        ? 'open'
-        : definition.shadowRoot.mode
-      : 'open';
+    const def = (this.constructor as typeof ServerCustomElement)._component.el;
+    return def.shadowRoot ? (isBoolean(def.shadowRoot) ? 'open' : def.shadowRoot.mode) : 'open';
   }
 
   getAttribute(name: string): string | null {
@@ -182,9 +172,13 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
   addEventListener() {}
   removeEventListener() {}
 
-  onAttach(callback: ElementLifecycleCallback) {
-    if (this._instance) {
-      callback();
+  subscribe() {
+    return noop;
+  }
+
+  onAttach(callback: ComponentLifecycleCallback) {
+    if (this._component) {
+      callback(this as any);
       return noop;
     } else {
       this._attachCallbacks!.add(callback);
@@ -193,7 +187,7 @@ class ServerCustomElement<T extends AnyCustomElement = AnyCustomElement>
   }
 
   destroy() {
-    this._instance?.destroy();
+    this._component?.destroy();
   }
 }
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 
-import { type CustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
+import { Component, type ComponentConstructor, defineElement } from 'maverick.js/element';
 import { createReactElement } from 'maverick.js/react';
 
 it('should hydrate', () => {
@@ -11,32 +11,38 @@ it('should hydrate', () => {
 
   const Parent = (props) => React.createElement('div', { onClick: onReactClick }, props.children);
 
-  const { definition, runHydration } = hydrate(
-    { setup: () => () => <div $on:click={onMaverickClick}></div> },
-    (el) => React.createElement(Parent, null, React.createElement(el)),
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-foo` });
+    override render() {
+      return <div $on:click={onMaverickClick}></div>;
+    }
+  }
+
+  const { runHydration } = hydrate(TestComponent, (el) =>
+    React.createElement(Parent, null, React.createElement(el)),
   );
 
   const container = document.createElement('div');
 
   container.innerHTML = [
     `<div>`,
-    `<${definition.tagName} mk-h="" mk-d="">`,
+    `<mk-foo mk-h="" mk-d="">`,
     `<shadow-root>`,
     `<!--$--><div></div>`,
     `</shadow-root>`,
-    `</${definition.tagName}>`,
+    `</mk-foo>`,
     `</div>`,
   ].join('');
 
   const reactDiv = container.firstElementChild!,
-    customEl = container.querySelector(definition.tagName)!,
+    customEl = container.querySelector('mk-foo')!,
     maverickDiv = customEl.firstElementChild!.firstElementChild!;
 
   runHydration(container);
 
   // Elements should be stable (i.e., not replaced).
   expect(container.firstElementChild).toStrictEqual(reactDiv);
-  expect(container.querySelector(definition.tagName)).toStrictEqual(customEl);
+  expect(container.querySelector('mk-foo')).toStrictEqual(customEl);
   expect(customEl.firstElementChild!.firstElementChild!).toStrictEqual(maverickDiv);
 
   act(() => {
@@ -56,20 +62,12 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-let count = 0;
 function hydrate(
-  declaration: Partial<CustomElementDeclaration>,
+  TestComponent: ComponentConstructor,
   children?: (element: any) => React.ReactNode,
 ) {
-  const definition = defineCustomElement({
-    tagName: `mk-foo-${++count}`,
-    ...declaration,
-  });
-
-  const element = createReactElement(definition);
-
+  const element = createReactElement(TestComponent);
   return {
-    definition,
     runHydration: (container: Element) => {
       act(() => {
         hydrateRoot(container, children?.(element) ?? React.createElement(element));

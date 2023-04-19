@@ -1,16 +1,17 @@
-import { createElementInstance } from './instance';
-import { CONNECT, SCOPE } from './internal';
-import type { CustomElementDefinition, HTMLCustomElement } from './types';
+import type { ComponentConstructor } from './component';
+import type { HTMLCustomElement } from './host';
+import { createComponent } from './instance';
+import { CONNECT, INSTANCE } from './internal';
 
 /**
  * This function is dynamically imported and used to setup when there is no delegate (i.e., no
  * host framework such as loading over a CDN).
  */
-export async function setup($el: HTMLCustomElement) {
-  const parent = findParent($el);
+export async function setup(host: HTMLCustomElement) {
+  const parent = findParent(host);
 
-  const ctor = $el.constructor as any,
-    definition = ctor._definition as CustomElementDefinition;
+  const hostCtor = host.constructor as any,
+    componentCtor = hostCtor._component as ComponentConstructor;
 
   // Wait for parent custom element to be defined and connected.
   if (parent) {
@@ -19,30 +20,30 @@ export async function setup($el: HTMLCustomElement) {
   }
 
   // Skip setting up if we disconnected while waiting for parent to connect.
-  if ($el.isConnected) {
-    // Create instance and attach parent scope.
-    const instance = createElementInstance(definition, {
-      props: resolvePropsFromAttrs($el),
-      scope: parent?.instance![SCOPE]!,
-    });
-
-    if (parent?.keepAlive) $el.keepAlive = true;
-    $el.attachComponent(instance);
+  if (host.isConnected) {
+    if (parent?.keepAlive) host.keepAlive = true;
+    host.attachComponent(
+      createComponent(componentCtor, {
+        props: resolvePropsFromAttrs(host),
+        scope: parent?.component?.[INSTANCE]!._scope,
+      }),
+    );
   }
 }
 
-function resolvePropsFromAttrs($el: HTMLCustomElement): Record<string, any> {
-  const ctor = $el.constructor as any,
+function resolvePropsFromAttrs(host: HTMLCustomElement): Record<string, any> {
+  const hostCtor = host.constructor as any,
+    componentCtor = hostCtor._component as ComponentConstructor,
     props = {};
 
-  if (!ctor._attrToProp) return props;
+  if (!hostCtor._attrToProp) return props;
 
-  for (const attrName of ctor._attrToProp.keys()) {
-    if ($el.hasAttribute(attrName)) {
-      const propName = ctor._attrToProp.get(attrName)!;
-      const convert = ctor._definition.props![propName].type?.from;
+  for (const attrName of hostCtor._attrToProp.keys()) {
+    if (host.hasAttribute(attrName)) {
+      const propName = hostCtor._attrToProp.get(attrName)!;
+      const convert = componentCtor.el.props![propName].type?.from;
       if (convert) {
-        const attrValue = $el.getAttribute(attrName);
+        const attrValue = host.getAttribute(attrName);
         props[propName] = convert(attrValue);
       }
     }
@@ -51,10 +52,11 @@ function resolvePropsFromAttrs($el: HTMLCustomElement): Record<string, any> {
   return props;
 }
 
-function findParent($el: HTMLCustomElement): HTMLCustomElement | null {
-  let ctor = $el.constructor as any,
-    node: Node | null = $el.parentNode,
-    prefix = ctor._definition.tagName.split('-', 1)[0] + '-';
+function findParent(host: HTMLCustomElement): HTMLCustomElement | null {
+  let hostCtor = host.constructor as any,
+    componentCtor = hostCtor._component as ComponentConstructor,
+    node: Node | null = host.parentNode,
+    prefix = componentCtor.el.tagName.split('-', 1)[0] + '-';
 
   while (node) {
     if (node.nodeType === 1 && (node as Element).localName.startsWith(prefix)) {

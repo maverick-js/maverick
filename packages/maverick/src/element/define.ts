@@ -1,70 +1,107 @@
-import type { Writable } from 'type-fest';
-
-import { isArray, isFunction } from '../std/unit';
+import { isArray } from '../std/unit';
 import type {
-  AnyCustomElement,
-  CustomElementAttributeType,
-  CustomElementDeclaration,
-  CustomElementDefinition,
-  CustomElementInstance,
-  CustomElementPropDefinition,
-  PartialCustomElementDeclaration,
-} from './types';
+  AnyComponentAPI,
+  ComponentAPI,
+  DefaultComponentAPI,
+  InferComponentProps,
+  InferComponentStore,
+} from './component';
+import type { CSS } from './css';
+import {
+  type AttributeType,
+  PROP_DEF,
+  type PropDeclarations,
+  type PropDefinition,
+  type PropDefinitions,
+} from './props';
 
-export function defineCustomElement<T extends AnyCustomElement>(
-  declaration: PartialCustomElementDeclaration<T>,
-): CustomElementDefinition<T> {
-  const definition = {
-    ...(declaration as CustomElementDeclaration<T>),
-    setup(instance) {
-      const setup =
-        (declaration as CustomElementDeclaration<T>).setup?.(
-          instance as CustomElementInstance<T>,
-        ) ?? {};
-      return isFunction(setup) ? { $render: setup } : setup;
-    },
-  } as CustomElementDefinition<T>;
-
-  if ('props' in definition) {
-    for (const prop of Object.values(definition.props) as Writable<CustomElementPropDefinition>[]) {
-      if (prop.attribute !== false && !prop.type) {
-        prop.type = inferAttributeType(prop.initial);
-      }
+export function defineElement<API extends ComponentAPI = DefaultComponentAPI>(
+  declaration: CustomElementDeclaration<API>,
+) {
+  if ('props' in declaration) {
+    const props = declaration.props;
+    for (const name of Object.keys(props)) {
+      const def = (
+        props[name]?.[PROP_DEF] ? props[name] : { value: props[name] }
+      ) as PropDefinition<any>;
+      if (def.attribute !== false && !def.type) def.type = inferAttributeType(def.value);
+      props[name] = def;
     }
   }
 
-  return definition;
+  return declaration as CustomElementDefinition<API>;
 }
 
-export const STRING: CustomElementAttributeType<string> = {
+export interface CustomElementDefinition<API extends ComponentAPI = AnyComponentAPI> {
+  /** @internal type only */
+  readonly ts__api?: API;
+  /**
+   * The tag name of the custom element. Note that custom element names must contain a hypen (e.g.,
+   * `foo-bar`).
+   */
+  readonly tagName: `${string}-${string}`;
+  /**
+   * Whether this custom element should contain a shadow root. Optionally, shadow root init options
+   * can be provided. If `true`, simply the `mode` is set to `open`.
+   */
+  readonly shadowRoot?: true | ShadowRootInit;
+  /**
+   * The store that will be exposed to the component and children.
+   */
+  readonly store: InferComponentStore<API>;
+  /**
+   * CSS styles that should be adopted by the shadow root. Note that these styles are only applied
+   * if the `shadowRoot` option is truthy.
+   */
+  readonly css?: CSS[];
+  /**
+   * Component properties. Do note that these props are also exposed on the custom element as
+   * getter/setter pairs.
+   */
+  readonly props: PropDefinitions<InferComponentProps<API>>;
+}
+
+/** Ensuring props/store is only required when declared. */
+export type CustomElementDeclaration<
+  API extends ComponentAPI,
+  Definition = Omit<CustomElementDefinition<API>, 'props'>,
+> = InferComponentProps<API> extends Record<string, never>
+  ? InferComponentStore<API> extends Record<string, never>
+    ? Omit<Definition, 'props' | 'store'>
+    : Omit<Definition, 'props'>
+  : (InferComponentStore<API> extends Record<string, never>
+      ? Omit<Definition, 'store'>
+      : Definition) & { props: PropDeclarations<InferComponentProps<API>> };
+
+export const STRING: AttributeType<string> = {
   from: (v) => (v === null ? '' : v + ''),
 };
 
-export const NUMBER: CustomElementAttributeType<number> = {
+export const NUMBER: AttributeType<number> = {
   from: (v) => (v === null ? 0 : Number(v)),
 };
 
-export const BOOLEAN: CustomElementAttributeType<boolean> = {
+export const BOOLEAN: AttributeType<boolean> = {
   from: (v) => v !== null,
   to: (v) => (v ? '' : null),
 };
 
-export const FUNCTION: CustomElementAttributeType<() => void> = {
+export const FUNCTION: AttributeType<() => void> = {
   from: false,
   to: () => null,
 };
 
-export const ARRAY: CustomElementAttributeType<unknown[]> = {
+export const ARRAY: AttributeType<unknown[]> = {
   from: (v) => (v === null ? [] : JSON.parse(v)),
   to: (v) => JSON.stringify(v),
 };
 
-export const OBJECT: CustomElementAttributeType<object> = {
+export const OBJECT: AttributeType<object> = {
   from: (v) => (v === null ? {} : JSON.parse(v)),
   to: (v) => JSON.stringify(v),
 };
 
-export function inferAttributeType(value: unknown): CustomElementAttributeType<any> {
+export function inferAttributeType(value: unknown): AttributeType<any> {
   switch (typeof value) {
     case 'undefined':
       return STRING;

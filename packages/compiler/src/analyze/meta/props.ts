@@ -2,15 +2,9 @@ import ts from 'typescript';
 
 import { escapeQuotes } from '../../utils/print';
 import { camelToKebabCase } from '../../utils/str';
-import type { ElementDefintionNode } from '../plugins/AnalyzePlugin';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta } from '../utils/types';
-import {
-  getPropertyAssignmentValue,
-  getValueNode,
-  walkProperties,
-  walkSignatures,
-} from '../utils/walk';
+import { getProperties, getPropertyAssignmentValue, getValueNode } from '../utils/walk';
 import { type PropMeta, TS_NODE } from './component';
 import { findDocTag, getDocTags, hasDocTag } from './doctags';
 
@@ -18,63 +12,72 @@ export interface PropMetaInfo {
   attribute?: string;
   reflect?: boolean;
   value?: string | false;
-  type?: ts.Type;
+  type: ts.Type;
 }
 
 export function buildPropsMeta(
   checker: ts.TypeChecker,
-  declarationRoot: ts.ObjectLiteralExpression,
-  typeRoot?: ElementDefintionNode['types']['props'],
+  definition: ts.ObjectLiteralExpression,
+  typeRoot?: ts.Type,
 ): PropMeta[] | undefined {
   if (!typeRoot) return;
 
   const meta: PropMeta[] = [],
-    members = walkSignatures(checker, typeRoot);
+    propTypes = checker.getPropertiesOfType(typeRoot);
 
-  if (members.props.size > 0) {
-    const props = getPropertyAssignmentValue(checker, declarationRoot, 'props'),
-      defs = props ? walkProperties(checker, props) : null;
+  if (propTypes.length > 0) {
+    const props = getPropertyAssignmentValue(checker, definition, 'props'),
+      values = props ? getProperties(checker, props) : null;
 
-    for (const [name, prop] of members.props) {
-      const signature = prop.signature;
-      if (!signature.type) continue;
+    for (const symbol of propTypes) {
+      const signature = symbol.declarations?.[0];
+      if (!signature || !ts.isPropertySignature(signature) || !signature.name) continue;
 
-      const valueNode = defs?.props.get(name),
-        value = valueNode ? getValueNode(checker, valueNode.value) ?? valueNode.value : null,
-        definition = value && ts.isObjectLiteralExpression(value) ? value : false;
+      const name = signature.name.getText(),
+        type = checker.getTypeOfSymbol(symbol),
+        valueNode = values?.props.get(name),
+        value = valueNode ? getValueNode(checker, valueNode.initializer) ?? valueNode : null;
 
       let info: PropMetaInfo = {
-        type: prop.type,
+        type,
       };
 
-      if (definition) {
-        info.value =
-          getPropertyAssignmentValue(checker, definition, 'initial')?.getText() ?? 'undefined';
+      if (value) {
+        if (ts.isCallExpression(value) && value.arguments[0]) {
+          const declaration = getValueNode(checker, value.arguments[0]);
+          if (declaration && ts.isObjectLiteralExpression(declaration)) {
+            info.value =
+              getPropertyAssignmentValue(checker, declaration, 'value')?.getText() ?? 'undefined';
 
-        const attr = getValueNode(
-            checker,
-            getPropertyAssignmentValue(checker, definition, 'attribute'),
-          ),
-          reflect = getValueNode(
-            checker,
-            getPropertyAssignmentValue(checker, definition, 'reflect'),
-          );
+            const attr = getValueNode(
+                checker,
+                getPropertyAssignmentValue(checker, declaration, 'attribute'),
+              ),
+              reflect = getValueNode(
+                checker,
+                getPropertyAssignmentValue(checker, declaration, 'reflect'),
+              );
 
-        if (!attr || attr.kind !== ts.SyntaxKind.FalseKeyword) {
-          info.attribute =
-            attr?.kind === ts.SyntaxKind.StringLiteral
-              ? escapeQuotes(attr.getText())
-              : camelToKebabCase(name);
-        }
+            if (!attr || attr.kind !== ts.SyntaxKind.FalseKeyword) {
+              info.attribute =
+                attr?.kind === ts.SyntaxKind.StringLiteral
+                  ? escapeQuotes(attr.getText())
+                  : camelToKebabCase(name);
+            }
 
-        if (reflect && reflect.kind !== ts.SyntaxKind.FalseKeyword) {
-          info.reflect = true;
+            if (reflect && reflect.kind !== ts.SyntaxKind.FalseKeyword) {
+              info.reflect = true;
+            }
+          }
+        } else {
+          info.attribute = camelToKebabCase(name);
+          info.value = value.getText();
         }
       } else {
         info.attribute = camelToKebabCase(name);
       }
 
-      const propMeta = buildPropMeta(checker, name, valueNode?.assignment, signature, info);
+      const propMeta = buildPropMeta(checker, name, signature, info);
       if (propMeta) meta.push(propMeta);
     }
   }
@@ -85,29 +88,26 @@ export function buildPropsMeta(
 export function buildPropMeta(
   checker: ts.TypeChecker,
   name: string,
-  declaration:
-    | ts.VariableDeclaration
-    | ts.PropertyAssignment
+  node:
+    | ts.PropertyDeclaration
     | ts.GetAccessorDeclaration
-    | ts.PropertySignature
-    | ts.ShorthandPropertyAssignment
-    | undefined,
-  signature: ts.PropertySignature,
-  info?: PropMetaInfo,
-): PropMeta | undefined {
-  const identifier = declaration?.name as ts.Identifier | undefined,
-    sigIdentifier = signature.name as ts.Identifier,
+    | ts.SetAccessorDeclaration
+    | ts.PropertySignature,
+  info: PropMetaInfo,
+): PropMeta {
+  const identifier = node?.name as ts.Identifier | undefined,
     symbol = identifier ? checker.getSymbolAtLocation(identifier) : undefined,
-    isGetAccessor = declaration && ts.isGetAccessor(declaration),
+    isGetAccessor = node && ts.isGetAccessor(node),
     hasSetAccessor =
-      declaration && ts.isGetAccessor(declaration)
+      node && ts.isGetAccessor(node)
         ? !!symbol?.declarations!.some(ts.isSetAccessorDeclaration)
         : undefined,
-    docs =
-      getDocs(checker, sigIdentifier) ?? (identifier ? getDocs(checker, identifier) : undefined),
-    doctags = getDocTags(signature) ?? (declaration ? getDocTags(declaration) : undefined),
+    docs = identifier ? getDocs(checker, identifier) : undefined,
+    doctags = node ? getDocTags(node) : undefined,
     readonly =
-      !!signature.modifiers?.some((mod) => mod.kind === ts.SyntaxKind.ReadonlyKeyword) ||
+      !!(node as ts.PropertyDeclaration)?.modifiers?.some(
+        (mode) => mode.kind & ts.SyntaxKind.ReadonlyKeyword,
+      ) ||
       (isGetAccessor && !hasSetAccessor) ||
       (!hasSetAccessor && doctags && hasDocTag(doctags, 'readonly'));
 
@@ -116,8 +116,7 @@ export function buildPropMeta(
     required!: PropMeta['required'],
     $default!: PropMeta['default'],
     attribute!: PropMeta['attribute'],
-    reflect!: PropMeta['reflect'],
-    accessor!: PropMeta['accessor'];
+    reflect!: PropMeta['reflect'];
 
   if (doctags) {
     if (hasDocTag(doctags, 'internal')) internal = true;
@@ -125,13 +124,6 @@ export function buildPropMeta(
     if (hasDocTag(doctags, 'required')) required = true;
     $default =
       findDocTag(doctags, 'default')?.text ?? findDocTag(doctags, 'defaultValue')?.text ?? '';
-  }
-
-  if (isGetAccessor || hasSetAccessor) {
-    accessor = {
-      get: isGetAccessor ? true : undefined,
-      set: hasSetAccessor ? true : undefined,
-    };
   }
 
   if (info && !readonly) {
@@ -144,10 +136,10 @@ export function buildPropMeta(
   }
 
   return {
-    [TS_NODE]: signature,
+    [TS_NODE]: node,
     name,
     default: $default?.length ? $default : undefined,
-    type: buildTypeMeta(checker, signature.type!, info?.type),
+    type: buildTypeMeta(checker, info.type),
     docs,
     doctags,
     required,
@@ -156,6 +148,5 @@ export function buildPropMeta(
     reflect,
     internal,
     deprecated,
-    accessor,
   };
 }

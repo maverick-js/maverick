@@ -2,10 +2,7 @@ import type ts from 'typescript';
 
 export const TS_NODE = Symbol('NODE');
 
-export interface TypeMeta {
-  serialized: string;
-  union?: string[];
-}
+export type TypeMeta = string;
 
 export interface PropMeta {
   [TS_NODE]: ts.Node;
@@ -20,14 +17,10 @@ export interface PropMeta {
   reflect?: boolean;
   internal?: boolean;
   deprecated?: boolean;
-  accessor?: {
-    get?: boolean;
-    set?: boolean;
-  };
 }
 
 export interface ParameterMeta {
-  [TS_NODE]: ts.Node;
+  [TS_NODE]?: ts.Node;
   name: string;
   type: TypeMeta;
   default?: string;
@@ -39,11 +32,11 @@ export interface MethodMeta {
   name: string;
   parameters: ParameterMeta[];
   signature: {
-    [TS_NODE]: ts.Signature;
+    [TS_NODE]?: ts.Signature;
     type: string;
   };
   return: {
-    [TS_NODE]: ts.Type;
+    [TS_NODE]?: ts.Type;
     type: string;
   };
   docs?: string;
@@ -92,6 +85,12 @@ export interface SlotMeta {
   docs?: string;
 }
 
+export interface StoreMeta {
+  [TS_NODE]: ts.Node;
+  factory: string;
+  record: string;
+}
+
 export interface DocTagMeta {
   [TS_NODE]: ts.Node;
   name: string;
@@ -115,8 +114,7 @@ export interface MembersMeta {
 }
 
 export interface DefinitionMeta {
-  [TS_NODE]: ts.VariableDeclaration;
-  name: string;
+  [TS_NODE]: ts.ObjectLiteralExpression;
 }
 
 export interface ComponentMeta extends Record<string, unknown> {
@@ -134,4 +132,5 @@ export interface ComponentMeta extends Record<string, unknown> {
   cssparts?: CSSPartMeta[];
   slots?: SlotMeta[];
   members?: MembersMeta;
+  store?: StoreMeta;
 }

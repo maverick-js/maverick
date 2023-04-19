@@ -181,7 +181,7 @@ export const ssr: ASTSerializer = {
               if (isAttributeNode(prop)) {
                 if (prop.namespace === '$prop') {
                   props.push(serializeComponentProp(ssr, prop, ctx));
-                } else if (prop.name === '$element') {
+                } else if (prop.name === '$this') {
                   definition = prop.value;
                 } else {
                   let group = prop.namespace

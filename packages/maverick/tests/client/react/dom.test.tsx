@@ -3,7 +3,7 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 
-import { type CustomElementDeclaration, defineCustomElement } from 'maverick.js/element';
+import { Component, type ComponentConstructor, defineElement } from 'maverick.js/element';
 import {
   createReactContextProvider,
   createReactElement,
@@ -13,8 +13,18 @@ import {
 } from 'maverick.js/react';
 import { DOMEvent } from 'maverick.js/std';
 
+let count = 0;
+
 it('should render', () => {
-  const { root, container } = render({ setup: () => () => <div>Test</div> });
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-foo-${++count}` });
+    override render() {
+      return <div>Test</div>;
+    }
+  }
+
+  const { root, container } = setup(TestComponent);
+
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-foo-1
@@ -37,9 +47,17 @@ it('should render', () => {
 });
 
 it('should render with children', () => {
-  const { container } = render({ setup: () => () => <div>Test</div> }, (el) =>
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-foo-${++count}` });
+    override render() {
+      return <div>Test</div>;
+    }
+  }
+
+  const { container } = setup(TestComponent, (el) =>
     React.createElement(el, null, React.createElement('div', null, 'Content')),
   );
+
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-foo-2
@@ -59,11 +77,17 @@ it('should render with children', () => {
 });
 
 it('should render with shadow dom', () => {
-  const { container } = render({
-    shadowRoot: true,
-    setup: () => () => <div>Test</div>,
-  });
+  class TestComponent extends Component {
+    static el = defineElement({
+      tagName: `mk-foo-${++count}`,
+      shadowRoot: true,
+    });
+    override render() {
+      return <div>Test</div>;
+    }
+  }
 
+  const { container } = setup(TestComponent);
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-foo-3
@@ -77,7 +101,7 @@ it('should render with shadow dom', () => {
 });
 
 it('should update', () => {
-  function Component(props) {
+  function ReactComponent(props) {
     const [state, setState] = React.useState(0);
     return React.createElement(
       'button',
@@ -90,16 +114,20 @@ it('should update', () => {
     );
   }
 
-  const { container } = render(
-    {
-      props: { state: { initial: 0 } },
-      setup:
-        ({ props: { $state } }) =>
-        () =>
-          <div>{$state()}</div>,
-    },
-    (el) => React.createElement(Component, {}, el),
-  );
+  class TestComponent extends Component<{
+    props: { state: number };
+  }> {
+    static el = defineElement({
+      tagName: `mk-foo-${++count}`,
+      props: { state: 0 },
+    });
+    override render() {
+      const { state } = this.$props;
+      return <div>{state()}</div>;
+    }
+  }
+
+  const { container } = setup(TestComponent, (el) => React.createElement(ReactComponent, {}, el));
 
   expect(container).toMatchInlineSnapshot(`
     <div>
@@ -145,9 +173,17 @@ it('should update', () => {
 });
 
 it('should set attributes', () => {
-  const { container } = render({ props: { foo: { initial: 0 } } }, (el) =>
+  class TestComponent extends Component {
+    static el = defineElement({
+      tagName: `mk-foo-${++count}`,
+      props: { foo: 0 },
+    });
+  }
+
+  const { container } = setup(TestComponent, (el) =>
     React.createElement(el, { foo: 10, 'aria-label': 'Label' }),
   );
+
   expect(container).toMatchInlineSnapshot(`
     <div>
       <mk-foo-5
@@ -167,7 +203,13 @@ it('should forward ref', () => {
     el = element;
   };
 
-  const { definition } = render({}, (el) => React.createElement(el, { ref: callback }));
+  class TestComponent extends Component {
+    static el = defineElement({
+      tagName: `mk-foo-${++count}`,
+    });
+  }
+
+  const { definition } = setup(TestComponent, (el) => React.createElement(el, { ref: callback }));
   expect(el).toBeInstanceOf(HTMLElement);
   expect(el.localName).toBe(definition.tagName);
 });
@@ -176,27 +218,30 @@ it('should forward context', () => {
   const Context = createContext(() => 0);
 
   let value = 0;
-  function Component() {
+  function C() {
     value = useContext(Context);
     return <div>{value}</div>;
   }
 
-  const Child = createReactElement(
-    defineCustomElement({
-      tagName: 'mk-child-1',
-      setup: () => () => <Component />,
-    }),
-  );
+  class ParentComponent extends Component {
+    static el = defineElement({ tagName: `mk-foo-${++count}` });
+  }
 
-  const { container } = render(
-    {
-      setup: () => {
-        provideContext(Context, 10);
-        return () => null;
-      },
-    },
-    (el) =>
-      React.createElement(el, null, React.createElement('div', null, React.createElement(Child))),
+  class ChildComponent extends Component {
+    static el = defineElement({ tagName: `mk-child-1` });
+    constructor(instance) {
+      super(instance);
+      provideContext(Context, 10);
+    }
+    override render() {
+      return <C />;
+    }
+  }
+
+  const Child = createReactElement(ChildComponent);
+
+  const { container } = setup(ParentComponent, (el) =>
+    React.createElement(el, null, React.createElement('div', null, React.createElement(Child))),
   );
 
   expect(value).toBe(10);
@@ -248,7 +293,13 @@ it('should update event callbacks', () => {
     );
   }
 
-  const { definition, container } = render({}, (el) => React.createElement(Parent, { el }));
+  class TestComponent extends Component {
+    static el = defineElement({ tagName: `mk-foo-${++count}` });
+  }
+
+  const { definition, container } = setup(TestComponent, (el) =>
+    React.createElement(Parent, { el }),
+  );
 
   const div = container.querySelector('div')!;
   const state = div.firstChild!;
@@ -330,23 +381,18 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-let count = 0;
-function render(
-  declaration: Partial<CustomElementDeclaration>,
-  children?: (element: any) => React.ReactNode,
-) {
-  const definition = defineCustomElement({
-    tagName: `mk-foo-${++count}`,
-    ...declaration,
-  });
-
+function setup(TestComponent: ComponentConstructor, children?: (element: any) => React.ReactNode) {
   const container = document.body.appendChild(document.createElement('div'));
   const root = createRoot(container);
-  const element = createReactElement(definition);
+  const element = createReactElement(TestComponent);
 
   act(() => {
     root.render(children?.(element) ?? React.createElement(element));
   });
 
-  return { root, definition, container };
+  return {
+    root,
+    container,
+    definition: TestComponent.el,
+  };
 }

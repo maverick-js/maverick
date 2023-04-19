@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
+import type { ComponentConstructor } from '../element/component';
 import { createServerElement } from '../element/create-server-element';
-import { createElementInstance } from '../element/instance';
-import { SCOPE } from '../element/internal';
-import type { CustomElementDefinition } from '../element/types';
+import { createComponent } from '../element/instance';
+import { INSTANCE } from '../element/internal';
 import { kebabToCamelCase } from '../std/string';
 import { useReactScope, WithScope } from './scope';
 
 const stylesRE = /style="(.*?)"/;
 
-export function createReactServerElement(definition: CustomElementDefinition): any {
-  const ServerElement = createServerElement(definition);
-  const propDefs = definition.props ?? {};
+export function createReactServerElement(Component: ComponentConstructor): any {
+  const ServerElement = createServerElement(Component);
+  const propDefs = Component.el.props ?? {};
   return ({ className, style, ...props }: any = {}) => {
     const host = new ServerElement();
 
@@ -37,13 +37,13 @@ export function createReactServerElement(definition: CustomElementDefinition): a
       }
     }
 
-    const parentScope = useReactScope();
-    const instance = createElementInstance(definition, {
-      props: _props,
-      scope: parentScope,
-    });
+    const parentScope = useReactScope(),
+      component = createComponent(Component, {
+        props: _props,
+        scope: parentScope,
+      });
 
-    host.attachComponent(instance);
+    host.attachComponent(component);
 
     const innerHTML = host.renderInnerHTML();
 
@@ -58,16 +58,16 @@ export function createReactServerElement(definition: CustomElementDefinition): a
     }
 
     return WithScope(
-      instance[SCOPE]!,
+      component[INSTANCE]._scope,
       React.createElement(
-        definition.tagName,
+        Component.el.tagName,
         {
           ..._attrs,
           ...Object.fromEntries(host.attributes.tokens),
           'mk-d': '',
           'mk-h': '',
         },
-        definition.shadowRoot
+        Component.el.shadowRoot
           ? React.createElement('template', {
               shadowroot: host.getShadowRootMode(),
               dangerouslySetInnerHTML: { __html: innerHTML },

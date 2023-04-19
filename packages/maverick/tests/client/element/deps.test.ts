@@ -2,10 +2,10 @@ import { getContext, setContext } from '@maverick-js/signals';
 import { createContext, onError, provideContext, useContext } from 'maverick.js';
 
 import {
-  createElementInstance,
-  defineCustomElement,
-  HTMLCustomElement,
-  onConnect,
+  Component,
+  createComponent,
+  defineElement,
+  type HTMLCustomElement,
   registerCustomElement,
 } from 'maverick.js/element';
 import { waitAnimationFrame } from 'maverick.js/std';
@@ -20,63 +20,72 @@ it('should wait for parents to connect', async () => {
   const error = new Error();
   const errorHandler = vi.fn();
 
-  const ParentA = defineCustomElement({
-    tagName: `mk-parent-a`,
-    setup() {
+  class ParentA extends Component {
+    static el = defineElement({
+      tagName: 'mk-parent-a',
+    });
+
+    constructor(component) {
+      super(component);
       setContext('foo', 10);
       provideContext(Context, [1]);
       onError(errorHandler);
-      return () => null;
-    },
-  });
+    }
+  }
 
-  const ParentB = defineCustomElement({
-    tagName: `mk-parent-b`,
-    setup() {
+  class ParentB extends Component {
+    static el = defineElement({
+      tagName: 'mk-parent-b',
+    });
+
+    constructor(component) {
+      super(component);
       const value = useContext(Context);
       expect(value).toEqual([1]);
       provideContext(Context, [...value, 2]);
-      return () => null;
-    },
-  });
+    }
+  }
 
-  const Child = defineCustomElement({
-    tagName: `mk-child`,
-    setup() {
+  class Child extends Component {
+    static el = defineElement({
+      tagName: 'mk-child',
+    });
+
+    constructor(component) {
+      super(component);
       expect(getContext('foo')).toBe(10);
-
       const value = useContext(Context);
       expect(value).toEqual([1, 2]);
       provideContext(Context, [...value, 3]);
+    }
+  }
 
-      return () => null;
-    },
-  });
+  class GrandChild extends Component {
+    static el = defineElement({
+      tagName: 'mk-grandchild',
+    });
 
-  const GrandChild = defineCustomElement({
-    tagName: `mk-grandchild`,
-    setup() {
+    constructor(component) {
+      super(component);
       const value = useContext(Context);
       expect(value).toEqual([1, 2, 3]);
+    }
 
-      onConnect(() => {
-        throw error;
-      });
+    protected override onConnect() {
+      throw error;
+    }
+  }
 
-      return () => null;
-    },
-  });
-
-  const parentA = document.createElement(ParentA.tagName) as HTMLCustomElement;
+  const parentA = document.createElement(ParentA.el.tagName) as HTMLCustomElement;
   parentA.setAttribute('mk-d', '');
 
-  const parentB = document.createElement(ParentB.tagName) as HTMLCustomElement;
+  const parentB = document.createElement(ParentB.el.tagName) as HTMLCustomElement;
   parentA.append(parentB);
 
-  const child = document.createElement(Child.tagName) as HTMLCustomElement;
+  const child = document.createElement(Child.el.tagName) as HTMLCustomElement;
   parentB.append(child);
 
-  const grandchild = document.createElement(GrandChild.tagName) as HTMLCustomElement;
+  const grandchild = document.createElement(GrandChild.el.tagName) as HTMLCustomElement;
   child.append(grandchild);
 
   document.body.append(parentA);
@@ -96,39 +105,39 @@ it('should wait for parents to connect', async () => {
   `);
 
   registerCustomElement(GrandChild);
-  expect(grandchild.instance?.host.$connected()).toBeFalsy();
+  expect(grandchild.component).toBeFalsy();
 
   registerCustomElement(Child);
-  expect(child.instance?.host.$connected()).toBeFalsy();
+  expect(child.component).toBeFalsy();
 
   await waitAnimationFrame();
-  expect(child.instance?.host.$connected()).toBeFalsy();
-  expect(grandchild.instance?.host.$connected()).toBeFalsy();
+  expect(child.component).toBeFalsy();
+  expect(grandchild.component).toBeFalsy();
 
   registerCustomElement(ParentB);
   await waitAnimationFrame();
-  expect(parentB.instance?.host.$connected()).toBeFalsy();
-  expect(child.instance?.host.$connected()).toBeFalsy();
-  expect(grandchild.instance?.host.$connected()).toBeFalsy();
+  expect(parentB.component).toBeFalsy();
+  expect(child.component).toBeFalsy();
+  expect(grandchild.component).toBeFalsy();
 
   registerCustomElement(ParentA);
-  parentA.attachComponent(createElementInstance(ParentA));
-  expect(parentA.instance?.host.$connected()).toBeTruthy();
+  parentA.attachComponent(createComponent(ParentA));
+  expect(parentA.component).toBeTruthy();
 
   await waitAnimationFrame();
 
-  expect(parentB.instance?.host.$connected()).toBeTruthy();
-  expect(child.instance?.host.$connected()).toBeTruthy();
-  expect(grandchild.instance?.host.$connected()).toBeTruthy();
+  expect(parentB.component).toBeTruthy();
+  expect(child.component).toBeTruthy();
+  expect(grandchild.component).toBeTruthy();
 
   parentA.removeAttribute('mk-d');
   parentA.remove();
   await waitAnimationFrame();
 
-  expect(parentA.instance).toBeNull();
-  expect(parentB.instance).toBeNull();
-  expect(child.instance).toBeNull();
-  expect(grandchild.instance).toBeNull();
+  expect(parentA.component).toBeNull();
+  expect(parentB.component).toBeNull();
+  expect(child.component).toBeNull();
+  expect(grandchild.component).toBeNull();
 
   expect(errorHandler).toBeCalledTimes(1);
   expect(errorHandler).toHaveBeenCalledWith(error);

@@ -2,18 +2,14 @@ import ts from 'typescript';
 
 import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
 import { TS_NODE } from '../meta/component';
-import { getDeclaration } from '../utils/declaration';
 import {
   findPropertyAssignment,
+  getHeritage,
   getPropertyAssignmentValue,
   getValueNode,
   isCallExpression,
-  isExportedVariableStatement,
-  walkSignatures,
 } from '../utils/walk';
 import type { AnalyzePlugin, ElementDefintionNode } from './AnalyzePlugin';
-
-const ignoredTypeIdentifiers = new Set(['HTMLElement', 'HTMLCustomElement']);
 
 export function createDiscoverPlugin(): AnalyzePlugin {
   let checker: ts.TypeChecker;
@@ -26,77 +22,96 @@ export function createDiscoverPlugin(): AnalyzePlugin {
       const definitions: ElementDefintionNode[] = [];
 
       ts.forEachChild(sourceFile, (node: ts.Node) => {
-        let exportVar: ts.VariableDeclaration | undefined;
+        if (!ts.isClassDeclaration(node) || !node.name || !node.heritageClauses) return;
 
-        if (
-          isExportedVariableStatement(node) &&
-          (exportVar = node.declarationList.declarations[0]) &&
-          ts.isIdentifier(exportVar.name) &&
-          exportVar.initializer &&
-          isCallExpression(exportVar.initializer, 'defineCustomElement') &&
-          exportVar.initializer.typeArguments?.[0] &&
-          ts.isTypeReferenceNode(exportVar.initializer.typeArguments[0]) &&
-          ts.isIdentifier(exportVar.initializer.typeArguments[0].typeName)
-        ) {
-          const declaration = exportVar.initializer.arguments[0],
-            rootType = getDeclaration(checker, exportVar.initializer.typeArguments[0].typeName),
-            isObjectLiteral = declaration && ts.isObjectLiteralExpression(declaration),
-            tagNameNode = isObjectLiteral && findPropertyAssignment(declaration, 'tagName'),
-            tagName = isObjectLiteral
-              ? getValueNode(checker, getPropertyAssignmentValue(checker, declaration, 'tagName'))
-              : undefined;
+        const heritage = getHeritage(checker, node),
+          component = heritage.get('Component');
 
-          if (!tagNameNode) {
-            reportDiagnosticByNode('element def is missing `tagName`', exportVar, LogLevel.Warn);
-          } else if (!tagName || !ts.isStringLiteral(tagName)) {
-            reportDiagnosticByNode(
-              'element def `tagName` must be a string literal',
-              tagNameNode,
-              LogLevel.Warn,
-            );
-          } else if (
-            !rootType ||
-            (!ts.isInterfaceDeclaration(rootType) && !ts.isTypeAliasDeclaration(rootType))
-          ) {
-            reportDiagnosticByNode(
-              'type passed to `defineCustomElement` must be an interface or type alias',
-              exportVar.initializer.typeArguments[0],
-              LogLevel.Warn,
-            );
-          } else {
-            const members = walkSignatures(checker, rootType, undefined, ignoredTypeIdentifiers);
-            const CustomElement = members.heritage.get('HTMLCustomElement');
+        if (!component || !component.getSourceFile().fileName.includes('maverick')) return;
 
-            if (!CustomElement || !ts.isExpressionWithTypeArguments(CustomElement)) {
-              reportDiagnosticByNode(
-                'type given to `defineCustomElement` must extend `HTMLCustomElement`',
-                exportVar.initializer.typeArguments[0],
-                LogLevel.Warn,
-              );
+        let rootType = checker.getTypeAtLocation(node)!,
+          apiSymbol = checker.getPropertyOfType(rootType, 'ts__api'),
+          api: ElementDefintionNode['api'] = {};
 
-              return;
+        const ts__api = apiSymbol && checker.getTypeOfSymbol(apiSymbol);
+        if (ts__api && ts__api.flags & ts.TypeFlags.Union) {
+          const apiType = (ts__api as ts.UnionType).types[1];
+          if (apiType) {
+            api.root = apiType;
+            const props = checker.getPropertiesOfType(apiType),
+              validName = /props|events|cssvars|store/;
+            for (const symbol of props) {
+              const name = symbol.escapedName as string;
+              if (validName.test(name)) {
+                api[name] = checker.getTypeOfSymbol(symbol);
+              }
             }
-
-            definitions.push({
-              name: rootType.name.escapedText as string,
-              tag: {
-                [TS_NODE]: tagNameNode,
-                name: tagName.text,
-              },
-              statement: node,
-              variable: exportVar,
-              call: exportVar.initializer,
-              declaration,
-              members,
-              types: {
-                root: rootType,
-                props: CustomElement.typeArguments?.[0] as ts.TypeLiteralNode,
-                events: CustomElement.typeArguments?.[1] as ts.TypeLiteralNode,
-                cssvars: CustomElement.typeArguments?.[2] as ts.TypeLiteralNode,
-              },
-            });
           }
         }
+
+        let el: ts.PropertyDeclaration | undefined;
+
+        for (const node of Array.from(heritage.values())) {
+          el = node.members.find(
+            (member) =>
+              ts.isPropertyDeclaration(member) &&
+              member.kind & ts.SyntaxKind.StaticKeyword &&
+              ts.isIdentifier(member.name) &&
+              member.name.escapedText === 'el',
+          ) as ts.PropertyDeclaration;
+
+          if (el) break;
+        }
+
+        if (!el) {
+          reportDiagnosticByNode('missing static `el` property', node, LogLevel.Warn);
+          return;
+        }
+
+        if (!el.initializer) {
+          reportDiagnosticByNode('missing static `el` definition', el, LogLevel.Warn);
+          return;
+        }
+
+        if (!isCallExpression(el.initializer, 'defineElement')) {
+          reportDiagnosticByNode('expected `defineElement`', el.initializer, LogLevel.Warn);
+          return;
+        }
+
+        const definition = el.initializer.arguments[0];
+
+        if (!definition || !ts.isObjectLiteralExpression(definition)) {
+          reportDiagnosticByNode(
+            'expected object',
+            el.initializer.arguments?.[0] ?? el.initializer,
+            LogLevel.Warn,
+          );
+          return;
+        }
+
+        const tagNameNode = findPropertyAssignment(definition, 'tagName'),
+          tagName = getValueNode(
+            checker,
+            getPropertyAssignmentValue(checker, definition, 'tagName'),
+          );
+
+        if (!tagNameNode) {
+          reportDiagnosticByNode('missing `tagName`', definition, LogLevel.Warn);
+          return;
+        }
+
+        if (!tagName || !ts.isStringLiteral(tagName)) {
+          reportDiagnosticByNode('`tagName` must be a string literal', tagNameNode, LogLevel.Warn);
+          return;
+        }
+
+        definitions.push({
+          name: node.name.escapedText as string,
+          root: { node, type: rootType },
+          tag: { [TS_NODE]: tagNameNode, name: tagName.text },
+          el: { node: el, definition },
+          api,
+        });
       });
 
       return definitions;

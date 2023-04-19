@@ -1,9 +1,10 @@
-import { onDispose, tick } from '@maverick-js/signals';
+import { tick } from '@maverick-js/signals';
 
 import {
-  createElementInstance,
-  defineCustomElement,
-  HTMLCustomElement,
+  Component,
+  createComponent,
+  defineElement,
+  type HTMLCustomElement,
   registerCustomElement,
 } from 'maverick.js/element';
 import { waitAnimationFrame } from 'maverick.js/std';
@@ -13,61 +14,61 @@ afterEach(() => {
 });
 
 it('should keep elements alive', async () => {
-  const parentADispose = vi.fn(),
+  const parentDispose = vi.fn(),
     childADispose = vi.fn(),
     childBDispose = vi.fn(),
     grandchildADispose = vi.fn(),
     grandchildBDispose = vi.fn();
 
-  const Parent = defineCustomElement({
-    tagName: `mk-parent`,
-    setup() {
-      onDispose(parentADispose);
-    },
-  });
+  class Parent extends Component {
+    static el = defineElement({ tagName: 'mk-parent' });
+    protected override onDestroy() {
+      parentDispose();
+    }
+  }
 
-  const ChildA = defineCustomElement({
-    tagName: `mk-child-a`,
-    setup() {
-      onDispose(childADispose);
-    },
-  });
+  class ChildA extends Component {
+    static el = defineElement({ tagName: 'mk-child-a' });
+    protected override onDestroy() {
+      childADispose();
+    }
+  }
 
-  const ChildB = defineCustomElement({
-    tagName: `mk-child-b`,
-    setup() {
-      onDispose(childBDispose);
-    },
-  });
+  class ChildB extends Component {
+    static el = defineElement({ tagName: 'mk-child-b' });
+    protected override onDestroy() {
+      childBDispose();
+    }
+  }
 
-  const GrandchildA = defineCustomElement({
-    tagName: `mk-grandchild-a`,
-    setup() {
-      onDispose(grandchildADispose);
-    },
-  });
+  class GrandchildA extends Component {
+    static el = defineElement({ tagName: 'mk-grandchild-a' });
+    protected override onDestroy() {
+      grandchildADispose();
+    }
+  }
 
-  const GrandchildB = defineCustomElement({
-    tagName: `mk-grandchild-b`,
-    setup() {
-      onDispose(grandchildBDispose);
-    },
-  });
+  class GrandchildB extends Component {
+    static el = defineElement({ tagName: 'mk-grandchild-b' });
+    protected override onDestroy() {
+      grandchildBDispose();
+    }
+  }
 
-  const parent = document.createElement(Parent.tagName) as HTMLCustomElement;
+  const parent = document.createElement(Parent.el.tagName) as HTMLCustomElement;
   parent.setAttribute('mk-d', '');
   parent.setAttribute('keep-alive', '');
 
-  const childA = document.createElement(ChildA.tagName) as HTMLCustomElement;
+  const childA = document.createElement(ChildA.el.tagName) as HTMLCustomElement;
   parent.append(childA);
 
-  const grandchildA = document.createElement(GrandchildA.tagName) as HTMLCustomElement;
+  const grandchildA = document.createElement(GrandchildA.el.tagName) as HTMLCustomElement;
   childA.append(grandchildA);
 
-  const childB = document.createElement(ChildB.tagName) as HTMLCustomElement;
+  const childB = document.createElement(ChildB.el.tagName) as HTMLCustomElement;
   parent.append(childB);
 
-  const grandchildB = document.createElement(GrandchildB.tagName) as HTMLCustomElement;
+  const grandchildB = document.createElement(GrandchildB.el.tagName) as HTMLCustomElement;
   childB.append(grandchildB);
 
   document.body.append(parent);
@@ -94,9 +95,9 @@ it('should keep elements alive', async () => {
   registerCustomElement(GrandchildA);
   registerCustomElement(GrandchildB);
 
-  parent.attachComponent(createElementInstance(Parent));
+  parent.attachComponent(createComponent(Parent));
   await waitAnimationFrame();
-  expect(parent.instance?.host.$connected()).toBeTruthy();
+  expect(parent.component).toBeTruthy();
 
   expect(parent).toMatchInlineSnapshot(`
     <mk-parent
@@ -117,24 +118,24 @@ it('should keep elements alive', async () => {
 
   await waitAnimationFrame();
 
-  expect(parent.instance!.host.$connected()).toBeFalsy();
-  expect(childA.instance!.host.$connected()).toBeFalsy();
-  expect(childB.instance!.host.$connected()).toBeFalsy();
-  expect(grandchildA.instance!.host.$connected()).toBeFalsy();
-  expect(grandchildB.instance!.host.$connected()).toBeFalsy();
+  expect(parent.component).toBeTruthy();
+  expect(childA.component).toBeTruthy();
+  expect(childB.component).toBeTruthy();
+  expect(grandchildA.component).toBeTruthy();
+  expect(grandchildB.component).toBeTruthy();
 
-  parent.instance!.destroy();
+  parent.component?.destroy();
   tick();
 
-  expect(parentADispose).toHaveBeenCalledTimes(1);
+  expect(parentDispose).toHaveBeenCalledTimes(1);
   expect(childADispose).toHaveBeenCalledTimes(1);
   expect(childBDispose).toHaveBeenCalledTimes(1);
   expect(grandchildADispose).toHaveBeenCalledTimes(1);
   expect(grandchildBDispose).toHaveBeenCalledTimes(1);
 
-  expect(parent.instance).toBeNull();
-  expect(childA.instance).toBeNull();
-  expect(childB.instance).toBeNull();
-  expect(grandchildA.instance).toBeNull();
-  expect(grandchildB.instance).toBeNull();
+  expect(parent.component).toBeNull();
+  expect(childA.component).toBeNull();
+  expect(childB.component).toBeNull();
+  expect(grandchildA.component).toBeNull();
+  expect(grandchildB.component).toBeNull();
 });

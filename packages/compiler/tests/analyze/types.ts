@@ -1,4 +1,5 @@
-import type { HTMLCustomElement } from '../../../maverick/src/element';
+import { defineProp, Component as MaverickComponent } from '../../../maverick/src/element';
+import { StoreFactory } from '../../../maverick/src/runtime';
 import type { DOMEvent } from '../../../maverick/src/std';
 
 interface MooProps<T> {
@@ -111,29 +112,43 @@ interface BaxProps extends Pick<LuxProps, 'loo'> {
   jax: number;
 }
 
-interface BarElement extends HTMLCustomElement<FooProps & BaxProps, FooEvents, FooCSSVars> {}
-
-/**
- * This is the `FooElement` documentation.
- *
- * @slot This is the default slot.
- * @slot foo - This is the foo slot.
- * @csspart foo - This is the foo CSS Part.
- * @csspart bar - This is the bar CSS Part.
- */
-export interface FooElement extends BarElement {
+interface FooStoreRecord {
   foo: number;
-  bar: Bar;
-  /**
-   * This is the baz docs.
-   */
-  readonly baz: boolean;
-  boo: { a: number; b: string; c: string };
-  start(): void;
-  /**
-   * The stop method docs.
-   */
-  stop(fooArg: number, barArg: Bar): Promise<void>;
-  /** The resume method docs. */
-  resume<T>(foo: T): T;
+}
+
+const FooStoreFactory = new StoreFactory<FooStoreRecord>({ foo: 0 });
+
+interface API {
+  props: FooProps & BaxProps;
+  events: FooEvents;
+  cssvars: FooCSSVars;
+  store: typeof FooStoreFactory;
+}
+
+export class BaseComponent extends MaverickComponent<API> {
+  static props = {
+    baxHux: defineProp({ value: 30 }),
+    huxBux: defineProp({ value: '', attribute: 'voo' }),
+  };
+
+  get baseGetter() {
+    return 10;
+  }
+
+  // ...
+
+  /** These should be ignored */
+  protected override onAttach() {}
+  protected override onConnect() {}
+  protected override onDisconnect() {}
+  protected override onDestroy() {}
+
+  override render() {
+    return null;
+  }
+
+  override destroy() {}
+
+  /** This is a base method. */
+  baseMethod() {}
 }

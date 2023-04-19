@@ -1,21 +1,17 @@
-import { signal, type WriteSignal } from '@maverick-js/signals';
+import { type ReadSignal, signal, type WriteSignal } from '@maverick-js/signals';
 
-import type { AnyRecord } from './types';
-
-export interface Store<Record extends AnyRecord> {
-  initial: Record;
-  create(): Record;
-  reset(record: Record, filter?: (key: keyof Record) => boolean): void;
-}
+import type { PickReadonly } from '../std/types';
+import type { PickWritable } from '../std/types';
+import { useContext } from './context';
+import type { AnyRecord, ReadSignalRecord } from './types';
 
 /**
- * Converts an object into a store. A store stores the initial object and enables producing new
- * objects where each value in the provided object becomes a signal with respective getters
- * and setters for convenient access.
+ * Converts objects into stores. A store stores the initial object and enables producing new
+ * objects where each value in the provided object becomes a signal.
  *
  * @example
  * ```ts
- * const store = createStore({
+ * const factory = new StoreFactory({
  *   foo: 0,
  *   bar: '...',
  *   get baz() {
@@ -23,42 +19,68 @@ export interface Store<Record extends AnyRecord> {
  *   }
  * });
  *
- * console.log(store.initial); // logs `{ foo: 0, bar: '...' }`
+ * console.log(factory.record); // logs `{ foo: 0, bar: '...' }`
  *
- * const record = store.create();
- * effect(() => console.log(record.foo));
+ * const $state = factory.create();
+ *
+ * effect(() => console.log($state.foo()));
  * // Run effect ^
- * record.foo = 1;
+ * $state.foo.set(1);
  *
  * // Reset all values
- * store.reset(record);
+ * factory.reset($state);
  * ```
  */
-export function createStore<Record extends AnyRecord>(initial: Record): Store<Record> {
-  const descriptors = Object.getOwnPropertyDescriptors(initial);
-  return {
-    initial,
-    create: () => {
-      const store = {} as Record;
+export class StoreFactory<Record extends AnyRecord> {
+  readonly id = Symbol(__DEV__ ? 'STORE' : 0);
+  readonly record: Record;
 
-      for (const name of Object.keys(initial)) {
-        const $value = descriptors[name].get || signal(initial[name]);
-        Object.defineProperty(store, name, {
-          configurable: true,
-          enumerable: true,
-          get: $value,
-          set: ($value as WriteSignal<any>).set,
-        });
-      }
-
-      return store;
-    },
-    reset: (record, filter) => {
-      for (const name of Object.keys(record)) {
-        if (!descriptors[name].get && (!filter || filter(name))) {
-          record[name as keyof Record] = initial[name];
-        }
-      }
-    },
+  private _descriptors: {
+    [P in keyof Record]: TypedPropertyDescriptor<Record[P]>;
   };
+
+  constructor(record: Record) {
+    this.record = record;
+    this._descriptors = Object.getOwnPropertyDescriptors(record);
+  }
+
+  create(): Store<Record> {
+    const store = {} as Store<Record>,
+      state = new Proxy(store, { get: (_, prop: any) => store[prop]() });
+
+    for (const name of Object.keys(this.record) as any[]) {
+      store[name] = this._descriptors[name].get
+        ? () => this._descriptors[name].get!.call(state)
+        : signal(this.record[name]);
+    }
+
+    return store;
+  }
+
+  reset(record: Store<Record>, filter?: (key: keyof Record) => boolean): void {
+    for (const name of Object.keys(record) as any[]) {
+      if (!this._descriptors[name].get && (!filter || filter(name))) {
+        (record[name] as WriteSignal<any>).set(this.record[name]);
+      }
+    }
+  }
+}
+
+export type Store<T> = {
+  readonly [P in keyof PickReadonly<T>]: ReadSignal<T[P]>;
+} & {
+  readonly [P in keyof PickWritable<T>]: WriteSignal<T[P]>;
+};
+
+export type InferStore<T> = T extends StoreFactory<infer Record> ? Store<Record> : never;
+
+export type InferStoreRecord<T> = T extends StoreFactory<infer Record> ? Record : never;
+
+/**
+ * Returns the store record context value for the current component tree.
+ */
+export function useStore<Record extends AnyRecord>(
+  store: StoreFactory<Record>,
+): ReadSignalRecord<Record> {
+  return useContext(store);
 }

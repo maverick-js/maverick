@@ -2,18 +2,8 @@ import ts from 'typescript';
 
 import type { TypeMeta } from '../meta/component';
 
-export function buildTypeMeta(
-  checker: ts.TypeChecker,
-  node: ts.TypeNode,
-  type?: ts.Type,
-): TypeMeta {
-  const _type = type ?? checker.getTypeAtLocation(node),
-    union = resolveTypeUnion(checker, _type),
-    serialized = serializeType(checker, _type);
-  return {
-    serialized,
-    union: union.length > 1 ? union : undefined,
-  };
+export function buildTypeMeta(checker: ts.TypeChecker, type: ts.Type): TypeMeta {
+  return serializeType(checker, type);
 }
 
 export function resolveTypeUnion(checker: ts.TypeChecker, type: ts.Type): string[] {

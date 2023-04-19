@@ -1,55 +1,58 @@
-import { createContext, getScope, provideContext, root, Scope, useContext } from 'maverick.js';
+import {
+  createContext,
+  getScope,
+  provideContext,
+  root,
+  type Scope,
+  StoreFactory,
+  useContext,
+  useStore,
+} from 'maverick.js';
 
-import { createElementInstance, defineCustomElement, PROPS } from 'maverick.js/element';
+import { Component, ComponentInstance, createComponent, defineElement } from 'maverick.js/element';
 
 it('should create props', () => {
-  const definition = defineCustomElement({
-    tagName: 'mk-foo-1',
-    props: {
-      foo: { initial: 10 },
-      bar: { initial: 20 },
-    },
-  } as any);
+  class TestComponent extends Component {
+    static el = defineElement({
+      tagName: 'mk-foo-1',
+      props: { foo: 10, bar: 20 },
+    });
+  }
 
-  const instance = createElementInstance(definition);
-
-  expect(instance.props.$foo()).toBe(10);
-  expect(instance.props.$bar()).toBe(20);
-
-  expect(instance[PROPS].$foo()).toBe(10);
-  expect(instance[PROPS].$bar()).toBe(20);
+  const instance = new ComponentInstance(TestComponent);
+  expect(instance._props.foo()).toBe(10);
+  expect(instance._props.bar()).toBe(20);
 });
 
 it('should forward props', () => {
-  const definition = defineCustomElement({
-    tagName: 'mk-foo-2',
-    props: {
-      foo: { initial: 10 },
-      bar: { initial: 20 },
-    },
-  } as any);
+  class TestComponent extends Component {
+    static el = defineElement({
+      tagName: 'mk-foo-2',
+      props: { foo: 10, bar: 20 },
+    });
+  }
 
-  const instance = createElementInstance(definition, {
-    props: {
-      foo: 20,
-      bar: 40,
-    },
+  const instance = new ComponentInstance(TestComponent, {
+    props: { foo: 20, bar: 40 },
   });
 
-  expect(instance.props.$foo()).toBe(20);
-  expect(instance.props.$bar()).toBe(40);
+  expect(instance._props.foo()).toBe(20);
+  expect(instance._props.bar()).toBe(40);
 });
 
 it('should forward scope', () => {
-  const FooContext = createContext(() => 10);
+  class TestComponent extends Component {
+    static el = defineElement({
+      tagName: 'mk-foo-3',
+    });
 
-  const definition = defineCustomElement({
-    tagName: 'mk-foo-3',
-    setup() {
+    constructor(instance) {
+      super(instance);
       expect(useContext(FooContext)).toBe(20);
-      return () => null;
-    },
-  });
+    }
+  }
+
+  const FooContext = createContext(() => 10);
 
   let scope!: Scope;
   root(() => {
@@ -57,28 +60,29 @@ it('should forward scope', () => {
     provideContext(FooContext, 20);
   });
 
-  createElementInstance(definition, { scope });
+  createComponent(TestComponent, { scope });
 });
 
-it('should create accessors', () => {
-  const definition = defineCustomElement({
-    tagName: 'mk-foo-4',
-    props: {
-      foo: { initial: 0 },
-      bar: { initial: 'bar' },
-      baz: { initial: false },
-    },
-    setup({ accessors }) {
-      const descriptors = Object.getOwnPropertyDescriptors(accessors());
-      expect(descriptors.foo.get && descriptors.foo.set).toBeDefined();
-      expect(descriptors.bar.get && descriptors.bar.set).toBeDefined();
-      expect(descriptors.baz.get && descriptors.baz.set).toBeDefined();
+it('should create store', () => {
+  const TestStore = new StoreFactory({ foo: 1 });
 
-      expect(accessors().foo).toBe(0);
-      expect(accessors().bar).toBe('bar');
-      expect(accessors().baz).toBe(false);
-    },
-  } as any);
+  interface API {
+    store: typeof TestStore;
+  }
 
-  createElementInstance(definition);
+  class TestComponent extends Component<API> {
+    static el = defineElement<API>({
+      tagName: 'mk-foo-4',
+      store: TestStore,
+    });
+
+    constructor(instance) {
+      super(instance);
+      expect(this.$store.foo()).toBe(1);
+      expect(instance._state.foo).toBe(1);
+      expect(useStore(TestStore)).toBeDefined();
+    }
+  }
+
+  createComponent(TestComponent);
 });

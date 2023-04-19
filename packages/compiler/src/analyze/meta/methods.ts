@@ -7,15 +7,15 @@ import { type MethodMeta, type ParameterMeta, TS_NODE } from './component';
 import { getDocTags, hasDocTag } from './doctags';
 
 export interface MethodMetaInfo {
-  type?: ts.Type;
+  type: ts.Type;
 }
 
 export function buildMethodMeta(
   checker: ts.TypeChecker,
   name: string,
   declaration: ts.MethodSignature | ts.MethodDeclaration | ts.FunctionDeclaration,
-  info?: MethodMetaInfo,
-): MethodMeta | undefined {
+  info: MethodMetaInfo,
+): MethodMeta {
   const docs = getDocs(checker, declaration.name as ts.Identifier),
     doctags = getDocTags(declaration),
     signature = checker.getSignatureFromDeclaration(declaration)!,
@@ -26,7 +26,7 @@ export function buildMethodMeta(
     .map((parameter) => ({
       [TS_NODE]: parameter,
       name: (parameter.name as ts.Identifier).escapedText as string,
-      type: buildTypeMeta(checker, parameter.type!, info?.type),
+      type: buildTypeMeta(checker, checker.getTypeAtLocation(parameter)),
       optional: !isUndefined(parameter.questionToken) ? true : undefined,
       default: parameter.initializer?.getText(),
     }));

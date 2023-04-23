@@ -1,3 +1,20 @@
+# [0.34.0](https://github.com/maverick-js/maverick/compare/v0.33.1...v0.34.0) (2023-04-23)
+
+
+### Bug Fixes
+
+* allow functions in host element attr/style setters ([bbe41e3](https://github.com/maverick-js/maverick/commit/bbe41e323f16d9a52e512be0b82b883d15b221d1))
+* bump `@maverick-js/signals` to `5.9,3` ([67664da](https://github.com/maverick-js/maverick/commit/67664da6f555f2ec3fd3a9999cd6b7d33bc4b66e))
+* only function call expressions can be reactive in jsx attrs ([adab8a8](https://github.com/maverick-js/maverick/commit/adab8a88b35a15af569da571c1f1432aa2085964))
+* **react:** add `part` to react element props ([c4a8a07](https://github.com/maverick-js/maverick/commit/c4a8a0733c38b5b3ec4d46d210c3fa2670ba976d))
+
+
+### Features
+
+* redesign custom element components ([1e6cc72](https://github.com/maverick-js/maverick/commit/1e6cc72fd46fe6a5baa102b467a66342e6f1614a))
+
+
+
 ## [0.33.1](https://github.com/maverick-js/maverick/compare/v0.33.0...v0.33.1) (2023-04-12)
 
 

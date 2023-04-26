@@ -323,9 +323,6 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
       }
     }
 
-    instance._attrs = null;
-    instance._styles = null;
-
     this.dispatchEvent(new Event('attached'));
 
     if (this._root && init && instance._renderer) {

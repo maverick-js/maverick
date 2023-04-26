@@ -104,9 +104,6 @@ class ServerCustomElement<Component extends AnyComponent = AnyComponent>
       for (const name of Object.keys($styles)) setStyle(this, name, unwrapDeep($styles[name]));
     }
 
-    instance._attrs = null;
-    instance._styles = null;
-
     this._rendered = !!instance._renderer;
     this._ssr = instance._renderer ? renderToString(() => instance._render()).code : '';
 

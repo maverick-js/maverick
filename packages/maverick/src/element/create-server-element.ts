@@ -83,15 +83,7 @@ class ServerCustomElement<Component extends AnyComponent = AnyComponent>
       parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
     }
 
-    const instance = component[INSTANCE],
-      $attrs = instance._attrs,
-      $styles = instance._styles;
-
-    for (const name of Object.keys($attrs!)) setAttribute(this, name, unwrapDeep($attrs![name]));
-    for (const name of Object.keys($styles!)) setStyle(this, name, unwrapDeep($styles![name]));
-
-    instance._attrs = null;
-    instance._styles = null;
+    const instance = component[INSTANCE];
 
     instance._el = this as any;
     this._component = component;
@@ -101,6 +93,15 @@ class ServerCustomElement<Component extends AnyComponent = AnyComponent>
     }
 
     this._attachCallbacks = null;
+
+    const $attrs = instance._attrs,
+      $styles = instance._styles;
+
+    for (const name of Object.keys($attrs!)) setAttribute(this, name, unwrapDeep($attrs![name]));
+    for (const name of Object.keys($styles!)) setStyle(this, name, unwrapDeep($styles![name]));
+
+    instance._attrs = null;
+    instance._styles = null;
 
     this._rendered = !!instance._renderer;
     this._ssr = instance._renderer ? renderToString(() => instance._render()).code : '';

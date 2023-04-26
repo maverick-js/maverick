@@ -286,6 +286,16 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
       init.adoptCSS(this._root as ShadowRoot, def.css);
     }
 
+    instance._el = this;
+    this._component = component;
+
+    for (const callback of [...instance._attachCallbacks, ...this._attachCallbacks!]) {
+      scoped(() => callback(this), instance._scope);
+    }
+
+    instance._attachCallbacks.length = 0;
+    this._attachCallbacks = null;
+
     const $attrs = instance._attrs,
       $styles = instance._styles;
 
@@ -308,15 +318,6 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
     instance._attrs = null;
     instance._styles = null;
 
-    instance._el = this;
-    this._component = component;
-
-    for (const callback of [...instance._attachCallbacks, ...this._attachCallbacks!]) {
-      scoped(() => callback(this), instance._scope);
-    }
-
-    instance._attachCallbacks.length = 0;
-    this._attachCallbacks = null;
     this.dispatchEvent(new Event('attached'));
 
     if (this._root && init && instance._renderer) {

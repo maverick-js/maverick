@@ -21,7 +21,7 @@ export function defineElement<API extends ComponentAPI = AnyComponentAPI>(
     const props = declaration.props;
     for (const name of Object.keys(props)) {
       const def = (
-        props[name]?.[PROP_DEF] ? props[name] : { value: props[name] }
+        props[name]?.[PROP_DEF] ? props[name] : { [PROP_DEF]: true, value: props[name] }
       ) as PropDefinition<any>;
       if (def.attribute !== false && !def.type) def.type = inferAttributeType(def.value);
       props[name] = def;

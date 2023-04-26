@@ -34,8 +34,13 @@ export function createDiscoverPlugin(): AnalyzePlugin {
           api: ElementDefintionNode['api'] = {};
 
         const ts__api = apiSymbol && checker.getTypeOfSymbol(apiSymbol);
-        if (ts__api && ts__api.flags & ts.TypeFlags.Union) {
-          const apiType = (ts__api as ts.UnionType).types[1];
+
+        const apiType =
+          ts__api && ts__api.flags & ts.TypeFlags.Union
+            ? (ts__api as ts.UnionType).types[1]
+            : ts__api;
+
+        if (apiType) {
           if (apiType) {
             api.root = apiType;
             const props = checker.getPropertiesOfType(apiType),

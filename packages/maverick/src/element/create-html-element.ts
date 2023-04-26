@@ -38,19 +38,16 @@ export function createHTMLElement<Component extends AnyComponent>(
     );
   }
 
-  let attrToProp: Map<string, string> | undefined;
-  let propToAttr: Map<string, string> | undefined;
+  let attrs: Map<string, string> | undefined;
 
   if (Component.el.props) {
-    attrToProp = new Map();
-    propToAttr = new Map();
+    attrs = new Map();
     for (const propName of Object.keys(Component.el.props)) {
       const def = Component.el.props[propName];
       const attr = def.attribute;
       if (attr !== false) {
         const attrName = attr ?? camelToKebabCase(propName);
-        attrToProp.set(attrName, propName);
-        propToAttr.set(propName, attrName);
+        attrs.set(attrName, propName);
       }
     }
   }
@@ -60,8 +57,7 @@ export function createHTMLElement<Component extends AnyComponent>(
       return Component;
     }
     static override _init = init;
-    static override _attrToProp = attrToProp;
-    static override _propToAttr = propToAttr;
+    static override _attrs = attrs;
   }
 
   const proto = MaverickElement.prototype,
@@ -117,8 +113,7 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
 {
   static _component: ComponentConstructor;
   static _init?: HTMLCustomElementInit;
-  static _attrToProp?: Map<string, string>;
-  static _propToAttr?: Map<string, string>;
+  static _attrs?: Map<string, string>;
   static _dispatchedEvents?: Set<string>;
 
   private _root?: Node | null;
@@ -157,13 +152,13 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
   }
 
   static get observedAttributes() {
-    return this._attrToProp ? Array.from(this._attrToProp.keys()) : [];
+    return this._attrs ? Array.from(this._attrs.keys()) : [];
   }
 
   attributeChangedCallback(name, _, newValue) {
     const ctor = this.constructor as typeof HTMLCustomElement;
-    if (!this._component || !ctor._attrToProp) return;
-    const propName = ctor._attrToProp.get(name)!;
+    if (!this._component || !ctor._attrs) return;
+    const propName = ctor._attrs.get(name)!;
     const from = ctor._component.el.props![propName]?.type?.from;
     if (from) this._component[INSTANCE]._props[propName].set(from(newValue));
   }

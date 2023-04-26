@@ -39,6 +39,7 @@ export function getHeritage(checker: ts.TypeChecker, node: ts.ClassDeclaration |
       }
 
       node = declaration;
+      break;
     }
   }
 

@@ -69,7 +69,9 @@ export function buildMembersMeta(
 }
 
 const validDecoratorName = /^prop|method$/,
-  ignoredNamed = new Set(['instance', 'render', 'destroy', 'ts__api']);
+  ignoredNamed = new Set(['instance', 'render', 'destroy', 'ts__api']),
+  decoratorWarnings = new Set<ts.Node>();
+
 function ignoreMember(
   name: string,
   node:
@@ -95,14 +97,23 @@ function ignoreMember(
         validDecoratorName.test(modifier.expression.escapedText as string),
     );
 
-  if (isPublic && !hasDecorator && !name.startsWith('_') && !ignoredNamed.has(name)) {
+  if (
+    isPublic &&
+    !hasDecorator &&
+    !decoratorWarnings.has(node) &&
+    !name.startsWith('_') &&
+    !ignoredNamed.has(name)
+  ) {
     const isMethod = ts.isMethodDeclaration(node);
+
     reportDiagnosticByNode(
       `Public ${isMethod ? 'method' : 'property'} \`${name}\` requires \`${
         isMethod ? '@method' : '@prop'
       }\` decorator`,
       node,
     );
+
+    decoratorWarnings.add(node);
   }
 
   return !isPublic || !hasDecorator;

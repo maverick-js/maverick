@@ -44,7 +44,6 @@ export function parseTypeParts(checker: ts.TypeChecker, type: ts.Type, parts: Se
 const TYPE_FORMAT_FLAGS =
   ts.TypeFormatFlags.UseSingleQuotesForStringLiteralType |
   ts.TypeFormatFlags.NoTruncation |
-  ts.TypeFormatFlags.InTypeAlias |
   ts.TypeFormatFlags.InElementType;
 
 export function serializeType(

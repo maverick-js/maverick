@@ -68,7 +68,7 @@
       {
         "name": "baxHux",
         "default": "30",
-        "type": "string | null",
+        "type": "Bar",
         "docs": "This is the bax hux docs.",
         "doctags": [
           {
@@ -151,7 +151,7 @@
       },
       {
         "name": "baz",
-        "type": "DOMEvent<0 | 1>",
+        "type": "BazEvent",
         "detail": "0 | 1",
         "docs": "This is the `Baz` event docs.",
         "doctags": [
@@ -195,7 +195,7 @@
       {
         "name": "baz-boo",
         "type": "DOMEvent<FooBoo>",
-        "detail": "'a' | 'b' | 'c'"
+        "detail": "FooBoo"
       }
     ],
     "cssvars": [
@@ -217,7 +217,7 @@
       },
       {
         "name": "baz",
-        "type": "string | null",
+        "type": "Bar",
         "readonly": true
       },
       {

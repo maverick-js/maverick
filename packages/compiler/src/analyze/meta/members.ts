@@ -1,5 +1,7 @@
 import ts from 'typescript';
 
+import { reportDiagnosticByNode } from 'maverick.js/utils/logger';
+
 import type { ElementDefintionNode } from '../plugins/AnalyzePlugin';
 import {
   type MembersMeta,
@@ -24,7 +26,7 @@ export function buildMembersMeta(
     if (!declaration) continue;
     if (ts.isPropertyDeclaration(declaration) || ts.isGetAccessorDeclaration(declaration)) {
       const name = declaration.name.getText();
-      if (ignoreMember(declaration)) continue;
+      if (ignoreMember(name, declaration)) continue;
       props.push(
         buildPropMeta(checker, name, declaration, {
           type: checker.getTypeOfSymbol(symbol),
@@ -32,7 +34,7 @@ export function buildMembersMeta(
       );
     } else if (ts.isMethodDeclaration(declaration)) {
       const name = declaration.name.getText();
-      if (ignoreMember(declaration)) continue;
+      if (ignoreMember(name, declaration)) continue;
       methods.push(
         buildMethodMeta(checker, name, declaration, {
           type: checker.getTypeOfSymbol(symbol),
@@ -66,25 +68,42 @@ export function buildMembersMeta(
     : undefined;
 }
 
-const validDecoratorName = /^prop|method$/;
+const validDecoratorName = /^prop|method$/,
+  ignoredNamed = new Set(['instance', 'render', 'destroy', 'ts__api']);
 function ignoreMember(
+  name: string,
   node:
     | ts.PropertyDeclaration
     | ts.MethodDeclaration
     | ts.GetAccessorDeclaration
     | ts.SetAccessorDeclaration,
 ) {
-  return (
-    !node.modifiers ||
-    !node.modifiers.some(
+  const isPublic =
+    (!node.modifiers ||
+      !node.modifiers.some(
+        (m) => m.kind === ts.SyntaxKind.ProtectedKeyword || m.kind === ts.SyntaxKind.PrivateKeyword,
+      )) &&
+    node.name.kind !== ts.SyntaxKind.PrivateIdentifier;
+
+  const hasDecorator =
+    isPublic &&
+    node.modifiers &&
+    node.modifiers.some(
       (modifier) =>
         modifier.kind === ts.SyntaxKind.Decorator &&
         ts.isIdentifier(modifier.expression) &&
         validDecoratorName.test(modifier.expression.escapedText as string),
-    ) ||
-    node.modifiers.some(
-      (m) => m.kind === ts.SyntaxKind.ProtectedKeyword || m.kind === ts.SyntaxKind.PrivateKeyword,
-    ) ||
-    node.name.kind === ts.SyntaxKind.PrivateIdentifier
-  );
+    );
+
+  if (isPublic && !hasDecorator && !name.startsWith('_') && !ignoredNamed.has(name)) {
+    const isMethod = ts.isMethodDeclaration(node);
+    reportDiagnosticByNode(
+      `Public ${isMethod ? 'method' : 'property'} \`${name}\` requires \`${
+        isMethod ? '@method' : '@prop'
+      }\` decorator`,
+      node,
+    );
+  }
+
+  return !isPublic || !hasDecorator;
 }

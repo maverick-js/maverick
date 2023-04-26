@@ -19,9 +19,7 @@ export type PropDeclarations<Props> = Readonly<{
   [Prop in keyof Props]: PropDeclaration<Props[Prop]>;
 }>;
 
-export type PropDeclaration<Value = unknown> =
-  | Value
-  | (Value extends undefined ? Omit<PropDefinition<Value>, 'initial'> : PropDefinition<Value>);
+export type PropDeclaration<Value = unknown> = Value | PropDefinition<Value>;
 
 export type PropDefinitions<Props> = Readonly<{
   [Prop in keyof Props]: PropDefinition<Props[Prop]>;

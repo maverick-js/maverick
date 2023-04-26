@@ -66,6 +66,12 @@
         "type": "number"
       },
       {
+        "name": "box",
+        "default": "undefined",
+        "type": "number | undefined",
+        "attribute": "box"
+      },
+      {
         "name": "baxHux",
         "default": "30",
         "type": "Bar",

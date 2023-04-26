@@ -21,6 +21,7 @@ type FooProps = Pick<MooProps<string>, 'moo' | 'mooBoo'> & {
   foo: number;
   bar: number;
   lux: number;
+  box: number | undefined;
   /**
    * This is the bax hux docs.
    *

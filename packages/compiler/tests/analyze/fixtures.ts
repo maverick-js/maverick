@@ -27,7 +27,7 @@ class TestComponent extends BaseComponent {
   static el = defineElement({
     tagName: 'mk-foo',
     shadowRoot: true,
-    props: { ...props, ...super.props },
+    props: { ...props, ...super.props, box: undefined },
   });
 
   /** This is the foo docs. */

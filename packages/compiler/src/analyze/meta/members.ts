@@ -1,7 +1,6 @@
 import ts from 'typescript';
 
-import { reportDiagnosticByNode } from 'maverick.js/utils/logger';
-
+import { reportDiagnosticByNode } from '../../utils/logger';
 import { escapeQuotes } from '../../utils/str';
 import type { ElementDefintionNode } from '../plugins/AnalyzePlugin';
 import {

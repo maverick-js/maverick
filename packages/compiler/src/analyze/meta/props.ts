@@ -71,7 +71,9 @@ export function buildPropsMeta(
           }
         } else {
           info.attribute = camelToKebabCase(name);
-          info.value = value.getText();
+          info.value = ts.isPropertyAssignment(value)
+            ? value.initializer.getText()
+            : value.getText();
         }
       } else {
         info.attribute = camelToKebabCase(name);

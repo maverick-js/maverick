@@ -1,7 +1,7 @@
 import type { Dispose, InferStore, JSX, ReadSignalRecord } from '../runtime';
 import { DOMEvent, type DOMEventInit, listenEvent } from '../std/event';
 import { noop } from '../std/unit';
-import type { AnyComponentAPI, ComponentAPI, InferComponentEvents } from './component';
+import type { AnyComponentAPI, ComponentAPI } from './component';
 import type { ComponentInstance } from './instance';
 
 export class ComponentController<API extends ComponentAPI = AnyComponentAPI> {
@@ -97,6 +97,14 @@ export class ComponentController<API extends ComponentAPI = AnyComponentAPI> {
   }
 
   /**
+   * This method is used to satisfy the CSS variables contract specified on the current
+   * custom element definition. Other CSS variables can be set via the `setStyles` method.
+   */
+  protected setCSSVars(vars: ElementCSSVarsRecord<API['cssvars']>): void {
+    this.setStyles(vars as ElementStylesRecord);
+  }
+
+  /**
    * Type-safe utility for creating component DOM events.
    */
   protected createEvent<Events = API['events'], Type extends keyof Events = keyof Events>(
@@ -114,7 +122,7 @@ export class ComponentController<API extends ComponentAPI = AnyComponentAPI> {
    * Creates a `DOMEvent` and dispatches it from the host element. This method is typed to
    * match all component events.
    */
-  protected dispatch<Events = InferComponentEvents<API>, Type extends keyof Events = keyof Events>(
+  protected dispatch<Events = API['events'], Type extends keyof Events = keyof Events>(
     type: Type & string,
     ...init: Events[Type] extends DOMEvent
       ? Events[Type]['detail'] extends void | undefined | never

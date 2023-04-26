@@ -9,6 +9,8 @@ import {
   type HTMLCustomElement,
   INSTANCE,
   registerCustomElement,
+  prop,
+  method,
 } from 'maverick.js/element';
 import { isFunction } from 'maverick.js/std';
 
@@ -284,10 +286,13 @@ it('should define get/set props on element', () => {
 
 it('should define component proto on element', () => {
   class BaseComponent extends Component {
-    static el = defineElement({ tagName: `mk-method-test` });
+    static el = defineElement({
+      tagName: `mk-method-test`,
+    });
 
     _zoo = 10;
 
+    @prop
     get zoo() {
       return this._zoo;
     }
@@ -296,17 +301,21 @@ it('should define component proto on element', () => {
       this._zoo = v;
     }
 
+    @method
     foo() {
       return 100;
     }
 
+    @method
     bar() {}
+
     _baz() {}
   }
 
   class TestComponent extends BaseComponent {
     _boo = 20;
 
+    @prop
     get boo() {
       return this._boo;
     }
@@ -315,7 +324,11 @@ it('should define component proto on element', () => {
       this._boo = v;
     }
 
-    bax() {}
+    @method
+    bax() {
+      return 10;
+    }
+
     _hux() {}
   }
 
@@ -341,4 +354,6 @@ it('should define component proto on element', () => {
   expect(isFunction(element.bax)).toBeTruthy();
   expect(isFunction(element._bar)).toBeFalsy();
   expect(isFunction(element._hux)).toBeFalsy();
+
+  expect(element.bax()).toBe(10);
 });

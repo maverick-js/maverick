@@ -14,7 +14,7 @@ import {
   type PropDefinitions,
 } from './props';
 
-export function defineElement<API extends ComponentAPI = AnyComponentAPI>(
+export function defineElement<API extends ComponentAPI = Omit<AnyComponentAPI, 'store'>>(
   declaration: CustomElementDeclaration<API>,
 ) {
   if ('props' in declaration) {

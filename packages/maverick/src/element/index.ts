@@ -9,3 +9,4 @@ export * from './host';
 export * from './instance';
 export * from './props';
 export * from './register';
+export * from './decorators';

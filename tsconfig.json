@@ -8,6 +8,7 @@
     "declarationMap": false,
     "emitDeclarationOnly": true,
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
     "lib": ["es2020"],

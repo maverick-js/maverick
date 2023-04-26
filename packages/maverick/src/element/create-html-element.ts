@@ -17,11 +17,10 @@ import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
 import { isArray, isBoolean, noop } from '../std/unit';
 import type { AnyComponent, ComponentConstructor } from './component';
-import { ComponentController } from './controller';
 import type { StylesheetAdopter } from './css';
 import type { HostElement, HTMLCustomElementConstructor } from './host';
 import type { ComponentLifecycleCallback } from './instance';
-import { CONNECT, INSTANCE } from './internal';
+import { CONNECT, INSTANCE, METHODS, PROPS } from './internal';
 
 export interface HTMLCustomElementInit {
   render: Renderer;
@@ -65,7 +64,8 @@ export function createHTMLElement<Component extends AnyComponent>(
     static override _propToAttr = propToAttr;
   }
 
-  const proto = MaverickElement.prototype;
+  const proto = MaverickElement.prototype,
+    componentProto = Component.prototype;
 
   if (Component.el.props) {
     for (const prop of Object.keys(Component.el.props)) {
@@ -82,39 +82,28 @@ export function createHTMLElement<Component extends AnyComponent>(
     }
   }
 
-  const ignore = new Set([
-    'constructor',
-    'onAttach',
-    'onConnect',
-    'onDisconnect',
-    'onDestroy',
-    'destroy',
-  ]);
-
-  let $ctor = Component;
-  while ($ctor !== ComponentController) {
-    for (const name of Object.getOwnPropertyNames($ctor.prototype)) {
-      if (name.startsWith('_') || ignore.has(name)) continue;
-      if (isFunction($ctor[name])) {
-        proto[name] = function (this: HTMLCustomElement, ...args) {
-          if (__DEV__ && !this.component) this._throwAttachError([`el.${name}(...)`]);
-          return this.component![name](...args);
-        };
-      } else {
-        Object.defineProperty(proto, name, {
-          get(this: HTMLCustomElement) {
-            if (__DEV__ && !this.component) this._throwAttachError([`el.${name}`]);
-            return this.component![name];
-          },
-          set(this: HTMLCustomElement, value) {
-            if (__DEV__ && !this.component) this._throwAttachError([`el.${name} = ${value}`]);
-            this.component![name] = value;
-          },
-        });
-      }
+  if (componentProto[PROPS]) {
+    for (const name of componentProto[PROPS]) {
+      Object.defineProperty(proto, name, {
+        get(this: HTMLCustomElement) {
+          if (__DEV__ && !this.component) this._throwAttachError([`el.${name}`]);
+          return this.component![name];
+        },
+        set(this: HTMLCustomElement, value) {
+          if (__DEV__ && !this.component) this._throwAttachError([`el.${name} = ${value}`]);
+          this.component![name] = value;
+        },
+      });
     }
+  }
 
-    $ctor = Object.getPrototypeOf($ctor);
+  if (componentProto[METHODS]) {
+    for (const name of componentProto[METHODS]) {
+      proto[name] = function (this: HTMLCustomElement, ...args) {
+        if (__DEV__ && !this.component) this._throwAttachError([`el.${name}(...)`]);
+        return this.component![name](...args);
+      };
+    }
   }
 
   return MaverickElement as any;

@@ -76,11 +76,13 @@ export type InferStore<T> = T extends StoreFactory<infer Record> ? Store<Record>
 
 export type InferStoreRecord<T> = T extends StoreFactory<infer Record> ? Record : never;
 
+export type StoreContext<T> = ReadSignalRecord<T extends StoreFactory<infer Record> ? Record : T>;
+
 /**
  * Returns the store record context value for the current component tree.
  */
 export function useStore<Record extends AnyRecord>(
   store: StoreFactory<Record>,
-): ReadSignalRecord<Record> {
+): StoreContext<Record> {
   return useContext(store);
 }

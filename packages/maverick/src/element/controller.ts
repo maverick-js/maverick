@@ -111,14 +111,6 @@ export class ComponentController<API extends ComponentAPI = DefaultComponentAPI>
   }
 
   /**
-   * This method is used to satisfy the CSS variables contract specified on the current
-   * custom element definition. Other CSS variables can be set via the `setStyles` method.
-   */
-  protected setCSSVars(vars: ElementCSSVarsRecord<InferComponentCSSProps<API>>): void {
-    this.setStyles(vars as ElementStylesRecord);
-  }
-
-  /**
    * Type-safe utility for creating component DOM events.
    */
   protected createEvent<

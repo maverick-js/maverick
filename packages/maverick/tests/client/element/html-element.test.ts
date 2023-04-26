@@ -244,44 +244,6 @@ it('should render `setStyles`', () => {
   `);
 });
 
-it('should render `setCSSVars`', () => {
-  interface FooCSSVars {
-    foo: number;
-    bar: string;
-    baz?: number | null;
-    bux?: boolean;
-  }
-
-  class FooComponent extends Component<{
-    cssvars: FooCSSVars;
-  }> {
-    static el = defineElement({
-      tagName: 'mk-foo-3',
-    });
-
-    constructor(instance) {
-      super(instance);
-      this.setCSSVars({
-        '--foo': () => 10,
-        '--bar': 'none',
-        '--baz': null,
-      });
-    }
-  }
-
-  registerCustomElement(FooComponent);
-
-  const component = createComponent(FooComponent);
-  const element = document.createElement(FooComponent.el.tagName) as HTMLCustomElement;
-  element.attachComponent(component);
-
-  expect(element).toMatchInlineSnapshot(`
-    <mk-foo-3
-      style="--foo: 10; --bar: none;"
-    />
-  `);
-});
-
 it('should invoke onAttach callback', () => {
   const { component, element } = setupTestComponent();
 

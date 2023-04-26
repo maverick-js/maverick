@@ -199,28 +199,3 @@ it('should render `setStyles`', () => {
     }
   `);
 });
-
-it('should render `setCSSVars`', () => {
-  class TestComponent extends Component {
-    static el = defineElement({ tagName: 'mk-test' });
-    constructor(instance) {
-      super(instance);
-      this.setCSSVars({
-        '--foo': () => 10,
-        '--bar': 'none',
-        '--baz': false,
-        '--bax': null,
-      });
-    }
-  }
-
-  const host = new (createServerElement(TestComponent))();
-  host.attachComponent(createComponent(TestComponent));
-
-  expect(host.style.tokens).toMatchInlineSnapshot(`
-    Map {
-      "--foo" => "10",
-      "--bar" => "none",
-    }
-  `);
-});

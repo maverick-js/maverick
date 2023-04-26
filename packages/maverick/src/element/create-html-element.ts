@@ -303,19 +303,23 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
     const $attrs = instance._attrs,
       $styles = instance._styles;
 
-    for (const name of Object.keys($attrs!)) {
-      if (isFunction($attrs![name])) {
-        effect(() => setAttribute(this, name, ($attrs![name] as Function)()));
-      } else {
-        setAttribute(this, name, $attrs![name]);
+    if ($attrs) {
+      for (const name of Object.keys($attrs)) {
+        if (isFunction($attrs[name])) {
+          effect(() => setAttribute(this, name, ($attrs[name] as Function)()));
+        } else {
+          setAttribute(this, name, $attrs[name]);
+        }
       }
     }
 
-    for (const name of Object.keys($styles!)) {
-      if (isFunction($styles![name])) {
-        effect(() => setStyle(this, name, ($styles![name] as Function)()));
-      } else {
-        setStyle(this, name, $styles![name]);
+    if ($styles) {
+      for (const name of Object.keys($styles)) {
+        if (isFunction($styles[name])) {
+          effect(() => setStyle(this, name, ($styles[name] as Function)()));
+        } else {
+          setStyle(this, name, $styles[name]);
+        }
       }
     }
 

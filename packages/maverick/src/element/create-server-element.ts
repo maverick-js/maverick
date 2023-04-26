@@ -96,8 +96,13 @@ class ServerCustomElement<Component extends AnyComponent = AnyComponent>
     const $attrs = instance._attrs,
       $styles = instance._styles;
 
-    for (const name of Object.keys($attrs!)) setAttribute(this, name, unwrapDeep($attrs![name]));
-    for (const name of Object.keys($styles!)) setStyle(this, name, unwrapDeep($styles![name]));
+    if ($attrs) {
+      for (const name of Object.keys($attrs)) setAttribute(this, name, unwrapDeep($attrs[name]));
+    }
+
+    if ($styles) {
+      for (const name of Object.keys($styles)) setStyle(this, name, unwrapDeep($styles[name]));
+    }
 
     instance._attrs = null;
     instance._styles = null;

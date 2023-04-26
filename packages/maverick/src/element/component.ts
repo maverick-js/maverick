@@ -1,4 +1,4 @@
-import type { JSX, StoreFactory } from '../runtime';
+import type { JSX, Store, StoreFactory } from '../runtime';
 import type { WritableKeys } from '../std/types';
 import { ComponentController } from './controller';
 import type { CustomElementDefinition } from './define';
@@ -9,7 +9,7 @@ export interface ComponentAPI {
   props?: {};
   events?: {};
   cssvars?: {};
-  store?: StoreFactory<any>;
+  store?: {};
 }
 
 export interface AnyComponentAPI {
@@ -20,7 +20,7 @@ export interface AnyComponentAPI {
 }
 
 export class Component<
-  API extends ComponentAPI = DefaultComponentAPI,
+  API extends ComponentAPI = AnyComponentAPI,
 > extends ComponentController<API> {
   constructor(instance: ComponentInstance<API>) {
     super(instance);
@@ -33,8 +33,6 @@ export class Component<
     this[INSTANCE]._destroy();
   }
 }
-
-export interface DefaultComponentAPI extends Omit<AnyComponentAPI, 'store'> {}
 
 export interface AnyComponent extends Component<AnyComponentAPI> {}
 

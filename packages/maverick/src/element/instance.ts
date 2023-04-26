@@ -13,21 +13,22 @@ import {
   type InferStore,
   type InferStoreRecord,
   provideContext,
+  StoreFactory,
   type WriteSignalRecord,
 } from '../runtime';
 import { type JSX } from '../runtime/jsx';
 import type {
   AnyComponent,
+  AnyComponentAPI,
   ComponentAPI,
   ComponentConstructor,
-  DefaultComponentAPI,
   InferComponentProps,
   InferComponentStore,
 } from './component';
 import type { ElementAttributesRecord, ElementStylesRecord } from './controller';
 import type { HTMLCustomElement } from './host';
 import { setComponentInstance } from './internal';
-import type { PropDeclarations, PropDefinitions } from './props';
+import type { PropDefinitions } from './props';
 
 export interface ComponentLifecycleCallback {
   (el: HTMLElement): any;
@@ -46,7 +47,7 @@ export function createComponent<Component extends AnyComponent>(
   return scoped(() => new Component(instance as any), instance._scope)!;
 }
 
-export class ComponentInstance<API extends ComponentAPI = DefaultComponentAPI> {
+export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
   private _dispose!: Dispose;
 
   _scope!: Scope;
@@ -73,11 +74,11 @@ export class ComponentInstance<API extends ComponentAPI = DefaultComponentAPI> {
       this._dispose = dispose;
       if (init.scope) init.scope.append(this._scope);
 
-      const store = Component.el.store;
+      const store = Component.el.store as unknown as StoreFactory<any>;
       if (store) {
         this._store = store.create() as InferStore<InferComponentStore<API>>;
         this._state = new Proxy(this._store, {
-          get: (_, prop) => this._store[prop](),
+          get: (_, prop: string) => this._store[prop](),
         }) as any;
         provideContext(store, this._store);
       }

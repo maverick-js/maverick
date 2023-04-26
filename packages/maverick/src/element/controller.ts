@@ -1,24 +1,11 @@
-import type { Dispose, InferStoreRecord, JSX, ReadSignalRecord } from '../runtime';
-import {
-  DOMEvent,
-  type DOMEventInit,
-  type InferEventDetail,
-  type InferEventInit,
-  listenEvent,
-} from '../std/event';
+import type { Dispose, InferStore, JSX, ReadSignalRecord } from '../runtime';
+import { DOMEvent, type DOMEventInit, listenEvent } from '../std/event';
 import { noop } from '../std/unit';
-import type {
-  ComponentAPI,
-  DefaultComponentAPI,
-  InferComponentCSSProps,
-  InferComponentEvents,
-  InferComponentProps,
-  InferComponentStore,
-} from './component';
+import type { AnyComponentAPI, ComponentAPI, InferComponentEvents } from './component';
 import type { ComponentInstance } from './instance';
 import { INSTANCE } from './internal';
 
-export class ComponentController<API extends ComponentAPI = DefaultComponentAPI> {
+export class ComponentController<API extends ComponentAPI = AnyComponentAPI> {
   /** @internal type only */
   ts__api?: API;
 
@@ -42,14 +29,14 @@ export class ComponentController<API extends ComponentAPI = DefaultComponentAPI>
   /**
    * Reactive component properties.
    */
-  protected get $props(): ReadSignalRecord<InferComponentProps<API>> {
+  protected get $props(): ReadSignalRecord<API['props']> {
     return this[INSTANCE]._props;
   }
 
   /**
    * Reactive component store.
    */
-  protected get $store(): ReadSignalRecord<InferStoreRecord<InferComponentStore<API>>> {
+  protected get $store(): InferStore<API['store']> {
     return this[INSTANCE]._store;
   }
 
@@ -113,14 +100,13 @@ export class ComponentController<API extends ComponentAPI = DefaultComponentAPI>
   /**
    * Type-safe utility for creating component DOM events.
    */
-  protected createEvent<
-    Events = InferComponentEvents<API>,
-    Type extends keyof Events = keyof Events,
-  >(
+  protected createEvent<Events = API['events'], Type extends keyof Events = keyof Events>(
     type: Type & string,
-    ...init: InferEventDetail<Events[Type]> extends void | undefined | never
-      ? [init?: Partial<InferEventInit<Events[Type]>>]
-      : [init: InferEventInit<Events[Type]>]
+    ...init: Events[Type] extends DOMEvent
+      ? Events[Type]['detail'] extends void | undefined | never
+        ? [init?: Partial<DOMEventInit<Events[Type]>['detail']>]
+        : [init: DOMEventInit<Events[Type]['detail']>]
+      : never
   ): Events[Type] {
     return new DOMEvent(type, init[0] as DOMEventInit) as Events[Type];
   }
@@ -131,9 +117,11 @@ export class ComponentController<API extends ComponentAPI = DefaultComponentAPI>
    */
   protected dispatch<Events = InferComponentEvents<API>, Type extends keyof Events = keyof Events>(
     type: Type & string,
-    ...init: InferEventDetail<Events[Type]> extends void | undefined | never
-      ? [init?: Partial<InferEventInit<Events[Type]>>]
-      : [init: InferEventInit<Events[Type]>]
+    ...init: Events[Type] extends DOMEvent
+      ? Events[Type]['detail'] extends void | undefined | never
+        ? [init?: Partial<DOMEventInit<Events[Type]['detail']>>]
+        : [init: DOMEventInit<Events[Type]['detail']>]
+      : never
   ): void {
     if (__SERVER__ || !this.el) return;
     const event = new DOMEvent(type, init[0] as DOMEventInit);
@@ -148,18 +136,15 @@ export class ComponentController<API extends ComponentAPI = DefaultComponentAPI>
    * - This method is safe to use on the server (noop).
    */
   protected listen<
-    Events = InferComponentEvents<API> & MaverickOnAttributes,
+    Events = API['events'] & MaverickOnAttributes,
     Type extends keyof Events = keyof Events,
   >(
     type: Type & string,
-    handler: JSX.TargetedEventHandler<
-      HTMLElement,
-      Events[Type] extends Event ? Events[Type] : Event
-    >,
+    handler: JSX.TargetedEventHandler<HTMLElement, Events[Type] & Event>,
     options?: AddEventListenerOptions | boolean,
   ): Dispose {
     if (__SERVER__ || !this.el) return noop;
-    return listenEvent(this.el, type, handler, options);
+    return listenEvent(this.el, type as any, handler, options);
   }
 }
 

@@ -2,7 +2,6 @@ import { isArray } from '../std/unit';
 import type {
   AnyComponentAPI,
   ComponentAPI,
-  DefaultComponentAPI,
   InferComponentProps,
   InferComponentStore,
 } from './component';
@@ -15,7 +14,7 @@ import {
   type PropDefinitions,
 } from './props';
 
-export function defineElement<API extends ComponentAPI = DefaultComponentAPI>(
+export function defineElement<API extends ComponentAPI = AnyComponentAPI>(
   declaration: CustomElementDeclaration<API>,
 ) {
   if ('props' in declaration) {

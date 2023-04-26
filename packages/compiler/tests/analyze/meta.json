@@ -188,12 +188,12 @@
         "detail": "number | null"
       },
       {
-        "name": "'bax-hux'",
+        "name": "bax-hux",
         "type": "DOMEvent<0 | 1 | 2 | 3>",
         "detail": "0 | 1 | 2 | 3"
       },
       {
-        "name": "'baz-boo'",
+        "name": "baz-boo",
         "type": "DOMEvent<FooBoo>",
         "detail": "'a' | 'b' | 'c'"
       }

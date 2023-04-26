@@ -2,6 +2,7 @@ import ts from 'typescript';
 
 import { reportDiagnosticByNode } from 'maverick.js/utils/logger';
 
+import { escapeQuotes } from '../../utils/str';
 import type { ElementDefintionNode } from '../plugins/AnalyzePlugin';
 import {
   type MembersMeta,
@@ -25,7 +26,7 @@ export function buildMembersMeta(
     const declaration = symbol.declarations?.[0];
     if (!declaration) continue;
     if (ts.isPropertyDeclaration(declaration) || ts.isGetAccessorDeclaration(declaration)) {
-      const name = declaration.name.getText();
+      const name = escapeQuotes(declaration.name.getText());
       if (ignoreMember(name, declaration)) continue;
       props.push(
         buildPropMeta(checker, name, declaration, {
@@ -33,7 +34,7 @@ export function buildMembersMeta(
         }),
       );
     } else if (ts.isMethodDeclaration(declaration)) {
-      const name = declaration.name.getText();
+      const name = escapeQuotes(declaration.name.getText());
       if (ignoreMember(name, declaration)) continue;
       methods.push(
         buildMethodMeta(checker, name, declaration, {

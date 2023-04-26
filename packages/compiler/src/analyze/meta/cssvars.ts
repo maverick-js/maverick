@@ -1,5 +1,6 @@
 import ts from 'typescript';
 
+import { escapeQuotes } from '../../utils/str';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta } from '../utils/types';
 import { type CSSVarMeta, type DocTagMeta, TS_NODE } from './component';
@@ -29,7 +30,7 @@ export function buildCSSVarsMeta(
       const signature = symbol.declarations?.[0];
       if (!signature || !ts.isPropertySignature(signature) || !signature.name) continue;
 
-      const name = signature.name.getText(),
+      const name = escapeQuotes(signature.name.getText()),
         docs = getDocs(checker, signature.name as ts.Identifier),
         doctags = getDocTags(signature),
         type = buildTypeMeta(checker, checker.getTypeOfSymbol(symbol));

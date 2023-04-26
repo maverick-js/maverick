@@ -33,7 +33,7 @@ export function buildPropsMeta(
       const signature = symbol.declarations?.[0];
       if (!signature || !ts.isPropertySignature(signature) || !signature.name) continue;
 
-      const name = signature.name.getText(),
+      const name = escapeQuotes(signature.name.getText()),
         type = checker.getTypeOfSymbol(symbol),
         valueNode = values?.props.get(name),
         value = valueNode ? getValueNode(checker, valueNode.initializer) ?? valueNode : null;

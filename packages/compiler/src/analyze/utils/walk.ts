@@ -1,5 +1,6 @@
 import ts from 'typescript';
 
+import { escapeQuotes } from '../../utils/str';
 import { getDeclaration, getShorthandAssignmentDeclaration } from './declaration';
 
 export function getProperties(checker: ts.TypeChecker, node: ts.Node) {
@@ -8,7 +9,7 @@ export function getProperties(checker: ts.TypeChecker, node: ts.Node) {
   for (const symbol of checker.getPropertiesOfType(checker.getTypeAtLocation(node))) {
     const declaration = symbol.declarations?.[0];
     if (declaration && ts.isPropertyAssignment(declaration)) {
-      props.set(declaration.name.getText(), declaration);
+      props.set(escapeQuotes(declaration.name.getText()), declaration);
     }
   }
 

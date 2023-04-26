@@ -1,5 +1,6 @@
 import ts from 'typescript';
 
+import { escapeQuotes } from '../../utils/str';
 import { getDeclaration } from '../utils/declaration';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta, serializeType } from '../utils/types';
@@ -15,7 +16,7 @@ export function buildEventsMeta(checker: ts.TypeChecker, typesRoot?: ts.Type) {
     const signature = symbol.declarations?.[0];
     if (!signature || !ts.isPropertySignature(signature) || !signature.name) continue;
 
-    const name = signature.name.getText(),
+    const name = escapeQuotes(signature.name.getText()),
       isTypeReference =
         signature.type &&
         ts.isTypeReferenceNode(signature.type!) &&

@@ -3,7 +3,6 @@ import type { WritableKeys } from '../std/types';
 import { ComponentController } from './controller';
 import type { CustomElementDefinition } from './define';
 import type { ComponentInstance } from './instance';
-import { INSTANCE } from './internal';
 
 export interface ComponentAPI {
   props?: {};
@@ -30,7 +29,7 @@ export class Component<
   render?(): JSX.Element;
 
   destroy(): void {
-    this[INSTANCE]._destroy();
+    this.instance._destroy();
   }
 }
 

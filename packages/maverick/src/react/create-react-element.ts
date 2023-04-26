@@ -4,7 +4,6 @@ import * as React from 'react';
 import { type AnyComponent, type ComponentConstructor } from '../element/component';
 import type { HTMLCustomElement } from '../element/host';
 import { createComponent } from '../element/instance';
-import { INSTANCE } from '../element/internal';
 import {
   type CustomElementRegistrar,
   registerCustomElement,
@@ -124,7 +123,7 @@ class ReactCustomElement<Component extends AnyComponent> extends React.Component
     }
 
     const props = { class: className, ref: this._ref };
-    const $props = this._component[INSTANCE]._props;
+    const $props = this._component.instance._props;
 
     for (const prop of Object.keys(restProps)) {
       const value = restProps[prop];
@@ -140,7 +139,7 @@ class ReactCustomElement<Component extends AnyComponent> extends React.Component
     tick();
 
     return WithScope(
-      this._component[INSTANCE]._scope,
+      this._component.instance._scope,
       React.createElement(
         ctor._component.el.tagName,
         { ...props, 'mk-d': true, suppressHydrationWarning: true },

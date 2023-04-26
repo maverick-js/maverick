@@ -3,13 +3,12 @@ import { DOMEvent, type DOMEventInit, listenEvent } from '../std/event';
 import { noop } from '../std/unit';
 import type { AnyComponentAPI, ComponentAPI, InferComponentEvents } from './component';
 import type { ComponentInstance } from './instance';
-import { INSTANCE } from './internal';
 
 export class ComponentController<API extends ComponentAPI = AnyComponentAPI> {
   /** @internal type only */
   ts__api?: API;
 
-  readonly [INSTANCE]: ComponentInstance<API>;
+  readonly instance: ComponentInstance<API>;
 
   /**
    * The custom element this component is attached to. This is safe to use server-side with the
@@ -23,25 +22,25 @@ export class ComponentController<API extends ComponentAPI = AnyComponentAPI> {
    * - Events (noop): `addEventListener`, `removeEventListener`, and `dispatchEvent`
    */
   protected get el(): HTMLElement | null {
-    return this[INSTANCE]._el;
+    return this.instance._el;
   }
 
   /**
    * Reactive component properties.
    */
   protected get $props(): ReadSignalRecord<API['props']> {
-    return this[INSTANCE]._props;
+    return this.instance._props;
   }
 
   /**
    * Reactive component store.
    */
   protected get $store(): InferStore<API['store']> {
-    return this[INSTANCE]._store;
+    return this.instance._store;
   }
 
   constructor(instance: ComponentInstance<API>) {
-    this[INSTANCE] = instance;
+    this.instance = instance;
     if (this.onAttach) instance._attachCallbacks.push(this.onAttach.bind(this));
     if (this.onConnect) instance._connectCallbacks.push(this.onConnect.bind(this));
     if (this.onDisconnect) instance._disconnectCallbacks.push(this.onDisconnect.bind(this));
@@ -86,7 +85,7 @@ export class ComponentController<API extends ComponentAPI = AnyComponentAPI> {
    * attributes that are assigned to a function will be considered a signal and updated accordingly.
    */
   protected setAttributes(attributes: ElementAttributesRecord): void {
-    if (this[INSTANCE]._attrs) Object.assign(this[INSTANCE]._attrs, attributes);
+    if (this.instance._attrs) Object.assign(this.instance._attrs, attributes);
   }
 
   /**
@@ -94,7 +93,7 @@ export class ComponentController<API extends ComponentAPI = AnyComponentAPI> {
    * styles that are assigned to a function will be considered a signal and updated accordingly.
    */
   protected setStyles(styles: ElementStylesRecord): void {
-    if (this[INSTANCE]._styles) Object.assign(this[INSTANCE]._styles!, styles);
+    if (this.instance._styles) Object.assign(this.instance._styles!, styles);
   }
 
   /**

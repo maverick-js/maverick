@@ -7,7 +7,6 @@ import { isBoolean, noop } from '../std/unit';
 import type { AnyComponent, ComponentConstructor } from './component';
 import type { HostElement } from './host';
 import type { ComponentLifecycleCallback } from './instance';
-import { INSTANCE } from './internal';
 
 const registry = new WeakMap<ComponentConstructor, typeof ServerCustomElement>();
 
@@ -83,7 +82,7 @@ class ServerCustomElement<Component extends AnyComponent = AnyComponent>
       parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
     }
 
-    const instance = component[INSTANCE];
+    const instance = component.instance;
 
     instance._el = this as any;
     this._component = component;

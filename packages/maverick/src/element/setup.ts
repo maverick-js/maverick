@@ -1,7 +1,7 @@
 import type { ComponentConstructor } from './component';
 import type { HTMLCustomElement } from './host';
 import { createComponent } from './instance';
-import { CONNECT, INSTANCE } from './internal';
+import { CONNECT } from './internal';
 
 /**
  * This function is dynamically imported and used to setup when there is no delegate (i.e., no
@@ -25,7 +25,7 @@ export async function setup(host: HTMLCustomElement) {
     host.attachComponent(
       createComponent(componentCtor, {
         props: resolvePropsFromAttrs(host),
-        scope: parent?.component?.[INSTANCE]!._scope,
+        scope: parent?.component?.instance!._scope,
       }),
     );
   }

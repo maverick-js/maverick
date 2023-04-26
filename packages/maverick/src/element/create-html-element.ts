@@ -20,7 +20,7 @@ import type { AnyComponent, ComponentConstructor } from './component';
 import type { StylesheetAdopter } from './css';
 import type { HostElement, HTMLCustomElementConstructor } from './host';
 import type { ComponentLifecycleCallback } from './instance';
-import { CONNECT, INSTANCE, METHODS, PROPS } from './internal';
+import { CONNECT, METHODS, PROPS } from './internal';
 
 export interface HTMLCustomElementInit {
   render: Renderer;
@@ -70,11 +70,11 @@ export function createHTMLElement<Component extends AnyComponent>(
         configurable: true,
         get(this: HTMLCustomElement) {
           if (__DEV__ && !this.component) this._throwAttachError([`el.${prop}`]);
-          return this.component![INSTANCE]._props[prop]();
+          return this.component!.instance._props[prop]();
         },
         set(this: HTMLCustomElement, value) {
           if (__DEV__ && !this.component) this._throwAttachError([`el.${prop} = ${value}`]);
-          this.component![INSTANCE]._props[prop].set(value);
+          this.component!.instance._props[prop].set(value);
         },
       });
     }
@@ -152,7 +152,7 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
       this._throwAttachError(['el.state.foo']);
     }
 
-    return this._component![INSTANCE]._state;
+    return this._component!.instance._state;
   }
 
   static get observedAttributes() {
@@ -164,11 +164,11 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
     if (!this._component || !ctor._attrs) return;
     const propName = ctor._attrs.get(name)!;
     const from = ctor._component.el.props![propName]?.type?.from;
-    if (from) this._component[INSTANCE]._props[propName].set(from(newValue));
+    if (from) this._component.instance._props[propName].set(from(newValue));
   }
 
   connectedCallback() {
-    const instance = this._component?.[INSTANCE];
+    const instance = this._component?.instance;
 
     // If no host framework is available which generally occurs loading over a CDN.
     if (!this._delegate && !instance) return this._setup();
@@ -225,7 +225,7 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
   }
 
   disconnectedCallback() {
-    const instance = this._component?.[INSTANCE];
+    const instance = this._component?.instance;
 
     if (!this._connected || this._destroyed) return;
 
@@ -256,7 +256,7 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
   }
 
   attachComponent(component: Component) {
-    const instance = component[INSTANCE],
+    const instance = component.instance,
       ctor = this.constructor as typeof HTMLCustomElement,
       def = ctor._component.el,
       init = ctor._init;
@@ -341,15 +341,15 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
       this._throwAttachError(['el.subscribe(({ foo, bar }) => {', '  // ...', '});']);
     }
 
-    if (__DEV__ && !this._component?.[INSTANCE]!._state) {
+    if (__DEV__ && !this._component?.instance!._state) {
       const ctor = this.constructor as typeof HTMLCustomElement;
       const tagName = ctor._component.el.tagName;
       throw Error(`[maverick] \`${tagName}\` element does not have a store to subscribe to`);
     }
 
     return scoped(() => {
-      return effect(() => callback(this._component![INSTANCE]._state));
-    }, this._component![INSTANCE]._scope);
+      return effect(() => callback(this._component!.instance._state));
+    }, this._component!.instance._scope);
   }
 
   onAttach(callback: ComponentLifecycleCallback) {

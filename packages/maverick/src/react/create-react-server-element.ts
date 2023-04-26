@@ -4,7 +4,6 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import type { ComponentConstructor } from '../element/component';
 import { createServerElement } from '../element/create-server-element';
 import { createComponent } from '../element/instance';
-import { INSTANCE } from '../element/internal';
 import { kebabToCamelCase } from '../std/string';
 import { useReactScope, WithScope } from './scope';
 
@@ -58,7 +57,7 @@ export function createReactServerElement(Component: ComponentConstructor): any {
     }
 
     return WithScope(
-      component[INSTANCE]._scope,
+      component.instance._scope,
       React.createElement(
         Component.el.tagName,
         {

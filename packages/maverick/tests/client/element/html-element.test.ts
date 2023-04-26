@@ -7,7 +7,6 @@ import {
   defineElement,
   defineProp,
   type HTMLCustomElement,
-  INSTANCE,
   registerCustomElement,
   prop,
   method,
@@ -48,7 +47,7 @@ it('should observe attributes', () => {
 
   element.attachComponent(component);
   element.setAttribute('foo', '10');
-  expect(component[INSTANCE]._props.foo()).toBe(10);
+  expect(component.instance._props.foo()).toBe(10);
 });
 
 it('should call attach lifecycle hook', () => {

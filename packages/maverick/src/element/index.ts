@@ -1,4 +1,4 @@
-export { getComponentInstance, INSTANCE } from './internal';
+export { getComponentInstance } from './internal';
 export * from './component';
 export * from './controller';
 export * from './create-html-element';

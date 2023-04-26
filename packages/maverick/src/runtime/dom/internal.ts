@@ -5,7 +5,6 @@ import {
   type HTMLCustomElement,
   registerCustomElement,
 } from '../../element';
-import { INSTANCE } from '../../element/internal';
 import { attachDeclarativeShadowDOM } from '../../std/dom';
 import { createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
 import { listenEvent } from '../../std/event';
@@ -85,7 +84,7 @@ export function $$_setup_custom_element(
   if (Component.el.shadowRoot) $$_attach_declarative_shadow_dom(host);
 
   const component = createComponent(Component, { props }),
-    instance = component[INSTANCE];
+    instance = component.instance;
 
   host.attachComponent(component);
 

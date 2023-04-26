@@ -66,6 +66,8 @@ export function createHTMLElement<Component extends AnyComponent>(
   if (Component.el.props) {
     for (const prop of Object.keys(Component.el.props)) {
       Object.defineProperty(proto, prop, {
+        enumerable: true,
+        configurable: true,
         get(this: HTMLCustomElement) {
           if (__DEV__ && !this.component) this._throwAttachError([`el.${prop}`]);
           return this.component![INSTANCE]._props[prop]();
@@ -81,6 +83,8 @@ export function createHTMLElement<Component extends AnyComponent>(
   if (componentProto[PROPS]) {
     for (const name of componentProto[PROPS]) {
       Object.defineProperty(proto, name, {
+        enumerable: true,
+        configurable: true,
         get(this: HTMLCustomElement) {
           if (__DEV__ && !this.component) this._throwAttachError([`el.${name}`]);
           return this.component![name];

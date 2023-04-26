@@ -1,4 +1,4 @@
-import { defineProp, Component as MaverickComponent } from '../../../maverick/src/element';
+import { defineProp, Component as MaverickComponent, method, prop } from '../../../maverick/src/element';
 import { StoreFactory } from '../../../maverick/src/runtime';
 import type { DOMEvent } from '../../../maverick/src/std';
 
@@ -131,6 +131,7 @@ export class BaseComponent extends MaverickComponent<API> {
     huxBux: defineProp({ value: '', attribute: 'voo' }),
   };
 
+  @prop
   get baseGetter() {
     return 10;
   }
@@ -150,5 +151,6 @@ export class BaseComponent extends MaverickComponent<API> {
   override destroy() {}
 
   /** This is a base method. */
+  @method
   baseMethod() {}
 }

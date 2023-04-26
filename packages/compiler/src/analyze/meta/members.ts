@@ -22,13 +22,9 @@ export function buildMembersMeta(
   for (const symbol of checker.getPropertiesOfType(root.type)) {
     const declaration = symbol.declarations?.[0];
     if (!declaration) continue;
-    if (
-      ts.isPropertyDeclaration(declaration) ||
-      ts.isGetAccessorDeclaration(declaration) ||
-      ts.isSetAccessorDeclaration(declaration)
-    ) {
+    if (ts.isPropertyDeclaration(declaration) || ts.isGetAccessorDeclaration(declaration)) {
       const name = declaration.name.getText();
-      if (ignoreMember(name, declaration)) continue;
+      if (ignoreMember(declaration)) continue;
       props.push(
         buildPropMeta(checker, name, declaration, {
           type: checker.getTypeOfSymbol(symbol),
@@ -36,7 +32,7 @@ export function buildMembersMeta(
       );
     } else if (ts.isMethodDeclaration(declaration)) {
       const name = declaration.name.getText();
-      if (ignoreMember(name, declaration)) continue;
+      if (ignoreMember(declaration)) continue;
       methods.push(
         buildMethodMeta(checker, name, declaration, {
           type: checker.getTypeOfSymbol(symbol),
@@ -70,10 +66,8 @@ export function buildMembersMeta(
     : undefined;
 }
 
-const ignore = new Set(['el', 'render', 'destroy', 'ts__api']),
-  notPublicKind = ts.SyntaxKind.ProtectedKeyword | ts.SyntaxKind.PrivateKeyword;
+const validDecoratorName = /^prop|method$/;
 function ignoreMember(
-  name: string,
   node:
     | ts.PropertyDeclaration
     | ts.MethodDeclaration
@@ -81,9 +75,16 @@ function ignoreMember(
     | ts.SetAccessorDeclaration,
 ) {
   return (
-    (node.modifiers && node.modifiers.some((m) => m.kind & notPublicKind)) ||
-    node.name.kind === ts.SyntaxKind.PrivateIdentifier ||
-    name.startsWith('_') ||
-    ignore.has(name)
+    !node.modifiers ||
+    !node.modifiers.some(
+      (modifier) =>
+        modifier.kind === ts.SyntaxKind.Decorator &&
+        ts.isIdentifier(modifier.expression) &&
+        validDecoratorName.test(modifier.expression.escapedText as string),
+    ) ||
+    node.modifiers.some(
+      (m) => m.kind === ts.SyntaxKind.ProtectedKeyword || m.kind === ts.SyntaxKind.PrivateKeyword,
+    ) ||
+    node.name.kind === ts.SyntaxKind.PrivateIdentifier
   );
 }

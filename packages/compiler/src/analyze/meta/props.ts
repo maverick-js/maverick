@@ -106,7 +106,7 @@ export function buildPropMeta(
     doctags = node ? getDocTags(node) : undefined,
     readonly =
       !!(node as ts.PropertyDeclaration)?.modifiers?.some(
-        (mode) => mode.kind & ts.SyntaxKind.ReadonlyKeyword,
+        (mode) => mode.kind === ts.SyntaxKind.ReadonlyKeyword,
       ) ||
       (isGetAccessor && !hasSetAccessor) ||
       (!hasSetAccessor && doctags && hasDocTag(doctags, 'readonly'));

@@ -20,13 +20,25 @@ export function getHeritage(checker: ts.TypeChecker, node: ts.ClassDeclaration |
 
   while (node) {
     if (node.name) map.set(node.name.escapedText as string, node);
+
     if (!node.heritageClauses) break;
-    const extend = node.heritageClauses.find((c) => c.kind & ts.SyntaxKind.ExtendsKeyword);
-    const identifier = extend && extend.types[0]?.expression;
-    if (!identifier || !ts.isIdentifier(identifier)) break;
-    const declaration = getDeclaration(checker, identifier);
-    if (!declaration || !ts.isClassDeclaration(declaration)) break;
-    node = declaration;
+
+    for (const clause of node.heritageClauses) {
+      const identifier = clause.types[0]?.expression;
+
+      if (!identifier || !ts.isIdentifier(identifier)) {
+        node = null;
+        continue;
+      }
+
+      const declaration = getDeclaration(checker, identifier);
+      if (!declaration || !ts.isClassDeclaration(declaration)) {
+        node = null;
+        continue;
+      }
+
+      node = declaration;
+    }
   }
 
   return map;

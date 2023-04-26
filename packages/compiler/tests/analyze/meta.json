@@ -265,6 +265,11 @@
           "docs": "This is the foo docs."
         },
         {
+          "name": "bar",
+          "type": "100",
+          "readonly": true
+        },
+        {
           "name": "baz",
           "type": "boolean",
           "docs": "This is the baz docs.",
@@ -359,7 +364,7 @@
           }
         }
       ],
-      "length": 10
+      "length": 11
     }
   }
 ]

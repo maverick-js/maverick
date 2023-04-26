@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { defineElement, defineProp } from '../../../maverick/src/element';
+import { defineElement, defineProp, prop, method } from '../../../maverick/src/element';
 import { BaseComponent } from './types';
 
 const props = {
@@ -31,8 +31,10 @@ class TestComponent extends BaseComponent {
   });
 
   /** This is the foo docs. */
+  @prop
   foo = true;
 
+  @prop
   readonly bar = 100;
 
   get #ignoredPrivateProp() {
@@ -42,24 +44,29 @@ class TestComponent extends BaseComponent {
   /**
    * This is the baz docs.
    */
+  @prop
   get baz() {
     return false;
   }
 
+  @prop
   get bux() {
     return false;
   }
 
-  set bux(v) {}
+  set bux() {}
 
+  @method
   start(): void;
 
   /**
    * The stop method docs.
    */
+  @method
   stop(fooArg: number, barArg: Bar): Promise<void> {}
 
   /** The resume method docs. */
+  @method
   resume<T>(foo: T): T {}
 
   _ignoredMethod() {}

@@ -55,7 +55,8 @@ export function createDiscoverPlugin(): AnalyzePlugin {
           el = node.members.find(
             (member) =>
               ts.isPropertyDeclaration(member) &&
-              member.kind & ts.SyntaxKind.StaticKeyword &&
+              member.modifiers &&
+              member.modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.StaticKeyword) &&
               ts.isIdentifier(member.name) &&
               member.name.escapedText === 'el',
           ) as ts.PropertyDeclaration;

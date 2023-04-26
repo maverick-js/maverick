@@ -72,30 +72,30 @@ export type CustomElementDeclaration<
       ? Omit<Definition, 'store'>
       : Definition) & { props: PropDeclarations<InferComponentProps<API>> };
 
-export const STRING: AttributeType<string> = {
+export const STRING: AttributeType<string | null> = {
   from: (v) => (v === null ? '' : v + ''),
 };
 
-export const NUMBER: AttributeType<number> = {
+export const NUMBER: AttributeType<number | null> = {
   from: (v) => (v === null ? 0 : Number(v)),
 };
 
-export const BOOLEAN: AttributeType<boolean> = {
+export const BOOLEAN: AttributeType<boolean | null> = {
   from: (v) => v !== null,
   to: (v) => (v ? '' : null),
 };
 
-export const FUNCTION: AttributeType<() => void> = {
+export const FUNCTION: AttributeType<(() => void) | null> = {
   from: false,
   to: () => null,
 };
 
-export const ARRAY: AttributeType<unknown[]> = {
+export const ARRAY: AttributeType<unknown[] | null> = {
   from: (v) => (v === null ? [] : JSON.parse(v)),
   to: (v) => JSON.stringify(v),
 };
 
-export const OBJECT: AttributeType<object> = {
+export const OBJECT: AttributeType<object | null> = {
   from: (v) => (v === null ? {} : JSON.parse(v)),
   to: (v) => JSON.stringify(v),
 };

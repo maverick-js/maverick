@@ -69,12 +69,20 @@ export function createHTMLElement<T extends Component>(
         enumerable: true,
         configurable: true,
         get(this: HTMLCustomElement) {
-          if (__DEV__ && !this.component) this._throwAttachError([`el.${prop}`]);
-          return this.component!.instance._props[prop]();
+          return !this.component
+            ? Component.el.props[prop].value
+            : this.component!.instance._props[prop]();
         },
         set(this: HTMLCustomElement, value) {
-          if (__DEV__ && !this.component) this._throwAttachError([`el.${prop} = ${value}`]);
-          this.component!.instance._props[prop].set(value);
+          const fn = () => this.component!.instance._props[prop].set(value);
+
+          if (!this.component) {
+            this._queuedActions!.delete(prop);
+            this._queuedActions!.set(prop, fn);
+            return;
+          }
+
+          fn();
         },
       });
     }
@@ -86,11 +94,17 @@ export function createHTMLElement<T extends Component>(
         enumerable: true,
         configurable: true,
         get(this: HTMLCustomElement) {
-          if (__DEV__ && !this.component) this._throwAttachError([`el.${name}`]);
-          return this.component![name];
+          return this.component ? this.component[name] : undefined;
         },
         set(this: HTMLCustomElement, value) {
-          if (__DEV__ && !this.component) this._throwAttachError([`el.${name} = ${value}`]);
+          if (!this.component) {
+            this._queuedActions!.delete(name);
+            this._queuedActions!.set(name, () => {
+              this.component![name] = value;
+            });
+            return;
+          }
+
           this.component![name] = value;
         },
       });
@@ -129,6 +143,8 @@ class HTMLCustomElement<T extends Component = AnyComponent>
   private _connectScope: Scope | null = null;
   private _attachCallbacks: Set<ComponentLifecycleCallback> | null = new Set();
   private _disconnectCallbacks: Dispose[] = [];
+
+  _queuedActions: Map<string, () => void> | null = new Map();
 
   keepAlive = false;
 
@@ -296,6 +312,12 @@ class HTMLCustomElement<T extends Component = AnyComponent>
 
     instance._el = this;
     this._component = component;
+
+    if (this._queuedActions?.size) {
+      for (const action of this._queuedActions.values()) action();
+    }
+
+    this._queuedActions = null;
 
     for (const callback of [...instance._attachCallbacks, ...this._attachCallbacks!]) {
       scoped(() => callback(this), instance._scope);

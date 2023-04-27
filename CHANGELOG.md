@@ -1,3 +1,42 @@
+# [0.35.0](https://github.com/maverick-js/maverick/compare/v0.34.0...v0.35.0) (2023-04-27)
+
+
+### Bug Fixes
+
+* add `StoreContext` type ([e117554](https://github.com/maverick-js/maverick/commit/e117554b7905d378baa60aa04befd6214cdb7ebd))
+* add back `setCSSVars` ([578ef41](https://github.com/maverick-js/maverick/commit/578ef411aa0a0588163aad46f368d202715507a5))
+* **analyze:** add docs to state/subscribe ([c52efb0](https://github.com/maverick-js/maverick/commit/c52efb052df62044b86885170430a7456f8f9b47))
+* **analyze:** analyze will look for prop/method decorators ([4e65069](https://github.com/maverick-js/maverick/commit/4e65069a4ed1f5de2df1ca4f488977da6abdfc50))
+* **analyze:** api type might not be a type union ([d0e845b](https://github.com/maverick-js/maverick/commit/d0e845b868adb1636e89d3ad1241f62993dfc2c7))
+* **analyze:** compact types serialization ([9607e9e](https://github.com/maverick-js/maverick/commit/9607e9e01c2d3b12b80a7a4b92299846a2ad5549))
+* **analyze:** complete heritage tree is not walked ([1f33db8](https://github.com/maverick-js/maverick/commit/1f33db8548d366328feaf5a9b1e4da8b67c06bc4))
+* **analyze:** escape quotes around names ([6907c8c](https://github.com/maverick-js/maverick/commit/6907c8c7594eb71208b6452de8a656860ed24eb3))
+* **analyze:** get prop default value from initializer ([7ca892f](https://github.com/maverick-js/maverick/commit/7ca892f0731778f400a40c7f52750291772c0abf))
+* **analyze:** warn if no decorator on public component member ([08d40dd](https://github.com/maverick-js/maverick/commit/08d40dd76a26b58d9c583a7dc2148aa416267aab))
+* **analyze:** warn missing decorator only once ([26c8c06](https://github.com/maverick-js/maverick/commit/26c8c06df83706f06d9192a5ebf5f6d6567e9cad))
+* apply host attrs/styles after attach callback ([9ccb8c1](https://github.com/maverick-js/maverick/commit/9ccb8c1d32cb2c169172bbb1aecf6fd0d9955411))
+* attr converter types should accept null ([e7faac5](https://github.com/maverick-js/maverick/commit/e7faac5026de9022279bf6ac59418e31cac8d2ee))
+* bump `@maverick-js/signals` to `5.9.4` ([cd23f10](https://github.com/maverick-js/maverick/commit/cd23f1040d3882f9c9a4c83167482961bf71759c))
+* component instance is now public ([10c61ab](https://github.com/maverick-js/maverick/commit/10c61aba1dc4c2342535a82b11a79ab71c969d20))
+* ensure instance attrs/styles exists ([3152837](https://github.com/maverick-js/maverick/commit/3152837603c16c82108d1082d0498b974f30048d))
+* improve element component types ([081d0ff](https://github.com/maverick-js/maverick/commit/081d0ff898af4b4e929dfdab7b2890ae0090945f))
+* improve type inference on component controller ([48bdfe6](https://github.com/maverick-js/maverick/commit/48bdfe6f96b28e9e309a10130f65317d2fd2f3d6))
+* leave attrs/styles on instance intact ([5de7013](https://github.com/maverick-js/maverick/commit/5de70133b9c9c032822984fbfe5cc6cfda10b957))
+* loop over existing attributes only during setup ([e8dba39](https://github.com/maverick-js/maverick/commit/e8dba3928b55c4435fc31e123a30bde78797f5f7))
+* prop decorator descriptor should be optional ([dc0c52c](https://github.com/maverick-js/maverick/commit/dc0c52c0b70edd75854bec30a0a420e4bfb0388d))
+* prop def should extend declaration ([7473ac4](https://github.com/maverick-js/maverick/commit/7473ac4de09fbc8350b90643639dda95d60cb269))
+* prop defs should not nest ([cf8de89](https://github.com/maverick-js/maverick/commit/cf8de8971f6f8602be7ba1ddbd6d3cc4671422d8))
+* props defined on host proto should be configurable ([36c1d55](https://github.com/maverick-js/maverick/commit/36c1d558148328788c9df7dd1bc1e612c92f7c60))
+* remove `setCSSVars` ([e74b582](https://github.com/maverick-js/maverick/commit/e74b582b4d0c7e8f28ec9d21f9b1c24ddf25b03e))
+* remove redundant prop to attr mapping ([7ecd2c7](https://github.com/maverick-js/maverick/commit/7ecd2c78ea845f3a88ff93661fc121170d370c9d))
+
+
+### Features
+
+* add `[@prop](https://github.com/prop)` and `[@method](https://github.com/method)` decorators ([cf7c022](https://github.com/maverick-js/maverick/commit/cf7c022a6b1363bbd5372ef040e798faf2ab4fef))
+
+
+
 # [0.34.0](https://github.com/maverick-js/maverick/compare/v0.33.1...v0.34.0) (2023-04-23)
 
 

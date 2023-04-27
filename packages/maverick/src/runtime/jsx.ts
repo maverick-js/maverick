@@ -164,10 +164,10 @@ export namespace JSX {
 
   export type EventRecord = Record<string, Event>;
 
-  export type TargetedEvent<
-    Target extends EventTarget = EventTarget,
-    EventType extends Event = Event,
-  > = Omit<EventType, 'currentTarget'> & {
+  export type TargetedEvent<Target extends EventTarget = EventTarget, EventType = Event> = Omit<
+    EventType,
+    'currentTarget'
+  > & {
     readonly currentTarget: Target;
   };
 
@@ -175,10 +175,9 @@ export namespace JSX {
     (this: never, event: Event): void;
   };
 
-  export type TargetedEventHandler<
-    Target extends EventTarget,
-    Event extends DOMEvent,
-  > = JSX.EventHandler<JSX.TargetedEvent<Target, Event>>;
+  export type TargetedEventHandler<Target extends EventTarget, Event> = JSX.EventHandler<
+    JSX.TargetedEvent<Target, Event>
+  >;
 
   /**
    * All global events with the event `currentTarget` set to the given generic `Target`.
@@ -204,7 +203,7 @@ export namespace JSX {
    */
   export type OnAttributes<Target extends EventTarget = EventTarget, Events = EventRecord> = {
     [EventType in keyof Events as `$on:${Stringify<EventType>}`]?:
-      | TargetedEventHandler<Target, Events[EventType] & Event>
+      | TargetedEventHandler<Target, Events[EventType]>
       | [(data: any, event: Events[EventType]) => void, any];
   } & OnCaptureAttributes<Target, Events>;
 
@@ -214,7 +213,7 @@ export namespace JSX {
   > = {
     [EventType in keyof Events as `$oncapture:${Stringify<EventType>}`]?: TargetedEventHandler<
       Target,
-      Events[EventType] & Event
+      Events[EventType]
     >;
   };
 

@@ -4,18 +4,18 @@ import { setAttribute, setStyle } from '../std/dom';
 import { escape } from '../std/html';
 import { unwrapDeep } from '../std/signal';
 import { isBoolean, noop } from '../std/unit';
-import type { AnyComponent, ComponentConstructor } from './component';
+import type { AnyComponent, Component, ComponentConstructor } from './component';
 import type { HostElement } from './host';
 import type { ComponentLifecycleCallback } from './instance';
 
 const registry = new WeakMap<ComponentConstructor, typeof ServerCustomElement>();
 
-export function createServerElement<Component extends AnyComponent>(
-  Component: ComponentConstructor<Component>,
-): typeof ServerCustomElement<Component> {
+export function createServerElement<T extends Component = AnyComponent>(
+  Component: ComponentConstructor<T>,
+): typeof ServerCustomElement<T> {
   if (registry.has(Component)) return registry.get(Component)!;
 
-  class MaverickElement extends ServerCustomElement<Component> {
+  class MaverickElement extends ServerCustomElement<T> {
     static override get _component() {
       return Component;
     }
@@ -64,6 +64,10 @@ class ServerCustomElement<Component extends AnyComponent = AnyComponent>
 
   get component() {
     return this._component;
+  }
+
+  get $store() {
+    return this._component?.instance._store;
   }
 
   get state() {

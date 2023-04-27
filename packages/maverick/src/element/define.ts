@@ -67,10 +67,10 @@ export type CustomElementDeclaration<
   IfAny<
     API['store'],
     Omit<Definition, 'props' | 'store'> & {
-      props?: PropDefinitions<any>;
+      props?: PropDeclarations<any>;
       store?: StoreFactory<any>;
     },
-    Omit<Definition, 'props'> & { props?: PropDefinitions<any> }
+    Omit<Definition, 'props'> & { props?: PropDeclarations<any> }
   >,
   IfAny<
     API['store'],

@@ -16,7 +16,7 @@ import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
 import { isArray, isBoolean, noop } from '../std/unit';
-import type { AnyComponent, ComponentConstructor } from './component';
+import type { AnyComponent, Component, ComponentConstructor } from './component';
 import type { StylesheetAdopter } from './css';
 import type { HostElement, HTMLCustomElementConstructor } from './host';
 import type { ComponentLifecycleCallback } from './instance';
@@ -28,10 +28,10 @@ export interface HTMLCustomElementInit {
   adoptCSS?: StylesheetAdopter;
 }
 
-export function createHTMLElement<Component extends AnyComponent>(
-  Component: ComponentConstructor<Component>,
+export function createHTMLElement<T extends Component>(
+  Component: ComponentConstructor<T>,
   init?: HTMLCustomElementInit,
-): HTMLCustomElementConstructor<Component> {
+): HTMLCustomElementConstructor<T> {
   if (__SERVER__) {
     throw Error(
       '[maverick] `createHTMLElement` was called outside of browser - use `createServerElement`',
@@ -52,7 +52,7 @@ export function createHTMLElement<Component extends AnyComponent>(
     }
   }
 
-  class MaverickElement extends HTMLCustomElement<Component> {
+  class MaverickElement extends HTMLCustomElement<T> {
     static override get _component() {
       return Component;
     }
@@ -111,9 +111,9 @@ export function createHTMLElement<Component extends AnyComponent>(
 
 const HTML_ELEMENT = (__SERVER__ ? class HTMLElement {} : HTMLElement) as typeof HTMLElement;
 
-class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
+class HTMLCustomElement<T extends Component = AnyComponent>
   extends HTML_ELEMENT
-  implements HostElement<Component>
+  implements HostElement<T>
 {
   static _component: ComponentConstructor;
   static _init?: HTMLCustomElementInit;
@@ -123,7 +123,7 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
   private _root?: Node | null;
   private _connected = false;
   private _destroyed = false;
-  private _component: Component | null = null;
+  private _component: T | null = null;
   private _onEventDispatch?: (eventType: string) => void;
 
   private _connectScope: Scope | null = null;
@@ -145,6 +145,10 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
 
   get component() {
     return this._component;
+  }
+
+  get $store() {
+    return this._component?.instance._store;
   }
 
   get state() {
@@ -255,7 +259,7 @@ class HTMLCustomElement<Component extends AnyComponent = AnyComponent>
     }
   }
 
-  attachComponent(component: Component) {
+  attachComponent(component: T) {
     const instance = component.instance,
       ctor = this.constructor as typeof HTMLCustomElement,
       def = ctor._component.el,

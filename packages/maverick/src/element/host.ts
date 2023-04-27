@@ -1,16 +1,19 @@
 import type { Dispose, Maybe } from '@maverick-js/signals';
 import type { Constructor } from 'type-fest';
 
-import type { InferStoreRecord, StoreFactory } from '../runtime/store';
+import type { InferStore, InferStoreRecord, StoreFactory } from '../runtime/store';
 import {
   type AnyComponent,
+  Component,
   type InferComponentEvents,
   type InferComponentMembers,
-  type InferComponentStore,
+  type InferComponentStoreFactory,
 } from './component';
 import { type ComponentLifecycleCallback } from './instance';
 
-export interface HostElement<Component extends AnyComponent> {
+export interface HostElement<T extends Component = AnyComponent> {
+  /** @internal type only */
+  ts__component?: T;
   /**
    * Whether this component should be kept-alive on DOM disconnection. If `true`, all child
    * host elements will also be kept alive and the instance will need to be manually destroyed.
@@ -29,13 +32,19 @@ export interface HostElement<Component extends AnyComponent> {
    *
    * @internal
    */
-  readonly component: Component | null;
+  readonly component: T | null;
+  /**
+   * The internal component store.
+   *
+   * @internal
+   */
+  readonly $store: InferStore<InferComponentStoreFactory<T>> | null;
   /**
    * Associate this element with a Maverick component instance.
    *
    * @internal
    */
-  attachComponent(component: Component): void;
+  attachComponent(component: T): void;
   /**
    * Invokes the given callback when the custom element instance has been attached to this host
    * element - this is when all instance members will be defined. The callback will be immediately
@@ -55,17 +64,17 @@ export interface HostElement<Component extends AnyComponent> {
   destroy(): void;
 }
 
-export interface HTMLCustomElementConstructor<Component extends AnyComponent = AnyComponent>
-  extends Constructor<HTMLCustomElement<Component>> {
+export interface HTMLCustomElementConstructor<T extends Component = AnyComponent>
+  extends Constructor<HTMLCustomElement<T>> {
   readonly observedAttributes: string[];
 }
 
 export type HTMLCustomElement<
-  Component extends AnyComponent = AnyComponent,
-  Events = InferComponentEvents<Component>,
-> = HostElement<Component> &
+  T extends Component = AnyComponent,
+  Events = InferComponentEvents<T>,
+> = HostElement<T> &
   Omit<HTMLElement, 'addEventListener' | 'removeEventListener'> &
-  InferComponentMembers<Component> & {
+  InferComponentMembers<T> & {
     /**
      * This object contains the state of the component store when available.
      *
@@ -74,7 +83,7 @@ export type HTMLCustomElement<
      * el.state.foo;
      * ```
      */
-    readonly state: Readonly<InferStoreRecord<InferComponentStore<Component>>>;
+    readonly state: Readonly<InferStoreRecord<InferComponentStoreFactory<T>>>;
 
     /**
      * Enables subscribing to live updates of component store state.
@@ -87,7 +96,7 @@ export type HTMLCustomElement<
      * });
      * ```
      */
-    subscribe: InferComponentStore<Component> extends StoreFactory<infer Record>
+    subscribe: InferComponentStoreFactory<T> extends StoreFactory<infer Record>
       ? (callback: (state: Readonly<Record>) => Maybe<Dispose>) => Dispose
       : never;
 
@@ -122,3 +131,7 @@ export type HTMLCustomElement<
       options?: boolean | EventListenerOptions,
     ): void;
   };
+
+export type InferElementComponent<T> = T extends HTMLCustomElement<infer Component>
+  ? Component
+  : never;

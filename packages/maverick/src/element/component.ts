@@ -38,15 +38,11 @@ export class Component<
 export interface AnyComponent extends Component<AnyComponentAPI> {}
 
 export interface ComponentConstructor<
-  T = AnyComponent,
-  API extends ComponentAPI = T extends Component<infer API>
-    ? API
-    : T extends ComponentAPI
-    ? T
-    : never,
+  T extends Component = AnyComponent,
+  API extends ComponentAPI = InferComponentAPI<T>,
 > {
   el: CustomElementDefinition<API>;
-  new (instance: ComponentInstance<API>): T extends AnyComponent ? T : Component<API>;
+  new (instance: ComponentInstance<API>): Component<API>;
 }
 
 export type InferComponentAPI<T> = T extends Component<infer API> ? API : never;
@@ -69,7 +65,7 @@ export type InferComponentCSSProps<T> = T extends Component<infer API>
   ? NonNullable<T['cssvars']>
   : never;
 
-export type InferComponentStore<T> = T extends Component<infer API>
+export type InferComponentStoreFactory<T> = T extends Component<infer API>
   ? NonNullable<API['store']>
   : T extends ComponentAPI
   ? NonNullable<T['store']>

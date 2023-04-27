@@ -1,5 +1,5 @@
 import type {
-  AnyComponent,
+  Component,
   ComponentConstructor,
   InferComponentCSSProps,
   InferComponentEvents,
@@ -8,16 +8,16 @@ import type { HTMLCustomElement } from '../../element/host';
 import type { PickWritable } from '../../std/types';
 import type { JSX } from '../jsx';
 
-export type HostElementProps<Component extends AnyComponent> = {
-  $this?: ComponentConstructor<Component>;
+export type HostElementProps<T extends Component> = {
+  $this?: ComponentConstructor<T>;
   $children?: JSX.Element;
-} & HostElementAttributes<Component>;
+} & HostElementAttributes<T>;
 
-export type HostElementAttributes<Component extends AnyComponent> = JSX.HTMLElementAttributes<
-  HTMLCustomElement<Component>,
+export type HostElementAttributes<T extends Component> = JSX.HTMLElementAttributes<
+  HTMLCustomElement<T>,
   {},
-  InferComponentEvents<Component>,
-  Partial<PickWritable<InferComponentCSSProps<Component>>>
+  InferComponentEvents<T>,
+  Partial<PickWritable<InferComponentCSSProps<T>>>
 >;
 
 /**
@@ -29,9 +29,7 @@ export type HostElementAttributes<Component extends AnyComponent> = JSX.HTMLElem
  * <HostElement bar="..." $this={FooComponent}>
  * ```
  */
-export function HostElement<Component extends AnyComponent>(
-  props: HostElementProps<Component>,
-): HTMLCustomElement<Component> {
+export function HostElement<T extends Component>(props: HostElementProps<T>): HTMLCustomElement<T> {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;
 }

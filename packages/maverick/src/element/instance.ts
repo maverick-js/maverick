@@ -9,19 +9,14 @@ import {
   tick,
 } from '@maverick-js/signals';
 
-import {
-  type InferStore,
-  type InferStoreRecord,
-  provideContext,
-  StoreFactory,
-  type WriteSignalRecord,
-} from '../runtime';
+import { provideContext, StoreFactory, type WriteSignalRecord } from '../runtime';
 import { type JSX } from '../runtime/jsx';
 import type {
-  AnyComponent,
   AnyComponentAPI,
+  Component,
   ComponentAPI,
   ComponentConstructor,
+  InferComponentAPI,
   InferComponentProps,
 } from './component';
 import type { ElementAttributesRecord, ElementStylesRecord } from './controller';
@@ -38,11 +33,11 @@ export interface ComponentInstanceInit<Props = {}> {
   props?: Readonly<Partial<Props>>;
 }
 
-export function createComponent<Component extends AnyComponent>(
-  Component: ComponentConstructor<Component>,
-  init?: ComponentInstanceInit<InferComponentProps<Component>>,
+export function createComponent<T extends Component>(
+  Component: ComponentConstructor<T>,
+  init?: ComponentInstanceInit<InferComponentProps<T>>,
 ) {
-  const instance = new ComponentInstance(Component, init);
+  const instance = new ComponentInstance<InferComponentAPI<T>>(Component, init);
   return scoped(() => new Component(instance), instance._scope)!;
 }
 
@@ -57,9 +52,10 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
   _attrs: ElementAttributesRecord | null = {};
   _styles: ElementStylesRecord | null = {};
   _props: WriteSignalRecord<API['props']> = {} as any;
+
   // these props cause type issues - don't type them.
-  _state!: any;
-  _store!: any;
+  _state: any = null;
+  _store: any = null;
 
   _attachCallbacks: ComponentLifecycleCallback[] = [];
   _connectCallbacks: ComponentLifecycleCallback[] = [];
@@ -67,7 +63,7 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
   _destroyCallbacks: ComponentLifecycleCallback[] = [];
 
   constructor(
-    Component: ComponentConstructor<API>,
+    Component: ComponentConstructor,
     init: ComponentInstanceInit<InferComponentProps<API>> = {},
   ) {
     root((dispose) => {

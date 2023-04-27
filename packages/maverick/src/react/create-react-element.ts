@@ -2,7 +2,7 @@ import { tick } from '@maverick-js/signals';
 import * as React from 'react';
 
 import { type AnyComponent, type ComponentConstructor } from '../element/component';
-import type { HTMLCustomElement } from '../element/host';
+import type { HTMLCustomElement, InferElementComponent } from '../element/host';
 import { createComponent } from '../element/instance';
 import {
   type CustomElementRegistrar,
@@ -20,32 +20,32 @@ export interface ReactElementInit {
   displayName?: string;
 }
 
-export function createReactElement<Component extends AnyComponent>(
-  Component: ComponentConstructor<Component>,
+export function createReactElement<T extends HTMLCustomElement>(
+  Component: ComponentConstructor<InferElementComponent<T>>,
   init?: ReactElementInit,
-): ReactElement<Component> {
+): ReactElement<T> {
   return __SERVER__
     ? createReactServerElement(Component)
     : createReactClientElement(registerCustomElement, Component, init);
 }
 
-export function createLiteReactElement<Component extends AnyComponent>(
-  Component: ComponentConstructor<Component>,
+export function createLiteReactElement<T extends HTMLCustomElement>(
+  Component: ComponentConstructor<InferElementComponent<T>>,
   init?: ReactElementInit,
-): ReactElement<Component> {
+): ReactElement<T> {
   return __SERVER__
     ? createReactServerElement(Component)
     : createReactClientElement(registerLiteCustomElement, Component, init);
 }
 
-function createReactClientElement<Component extends AnyComponent>(
+function createReactClientElement<T extends HTMLCustomElement>(
   registerCustomElement: CustomElementRegistrar,
-  Component: ComponentConstructor<Component>,
+  Component: ComponentConstructor<InferElementComponent<T>>,
   init?: ReactElementInit,
-): ReactElement<Component> {
+): ReactElement<T> {
   registerCustomElement(Component);
 
-  class CustomElement extends ReactCustomElement<Component> {
+  class CustomElement extends ReactCustomElement<T> {
     static displayName = init?.displayName ?? kebabToPascalCase(Component.el.tagName);
     static override contextType = ReactComputeScopeContext;
     static override _component = Component;
@@ -61,8 +61,8 @@ function createReactClientElement<Component extends AnyComponent>(
   return ForwardedComponent as any;
 }
 
-class ReactCustomElement<Component extends AnyComponent> extends React.Component<
-  ReactElementProps<Component>
+class ReactCustomElement<T extends HTMLCustomElement> extends React.Component<
+  ReactElementProps<T>
 > {
   declare context: React.ContextType<typeof ReactComputeScopeContext>;
 

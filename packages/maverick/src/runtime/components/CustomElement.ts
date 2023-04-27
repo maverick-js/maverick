@@ -1,5 +1,5 @@
 import type {
-  AnyComponent,
+  Component,
   ComponentConstructor,
   InferComponentCSSProps,
   InferComponentEvents,
@@ -9,16 +9,16 @@ import type { HTMLCustomElement } from '../../element/host';
 import type { PickWritable } from '../../std/types';
 import type { JSX } from '../jsx';
 
-export type CustomElementProps<Component extends AnyComponent> = {
-  $this: ComponentConstructor<Component>;
+export type CustomElementProps<T extends Component> = {
+  $this: ComponentConstructor<T>;
   $children?: JSX.Element;
-} & CustomElementAttributes<HTMLCustomElement<Component>>;
+} & CustomElementAttributes<HTMLCustomElement<T>>;
 
-export type CustomElementAttributes<Component extends AnyComponent> = JSX.HTMLElementAttributes<
+export type CustomElementAttributes<T extends Component> = JSX.HTMLElementAttributes<
   Element & HTMLElement,
-  Partial<InferComponentProps<Component>>,
-  InferComponentEvents<Component>,
-  PickWritable<InferComponentCSSProps<Component>>
+  Partial<InferComponentProps<T>>,
+  InferComponentEvents<T>,
+  PickWritable<InferComponentCSSProps<T>>
 >;
 
 /**
@@ -31,9 +31,9 @@ export type CustomElementAttributes<Component extends AnyComponent> = JSX.HTMLEl
  * ```
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements}
  */
-export function CustomElement<Component extends AnyComponent>(
-  props: CustomElementProps<Component>,
-): HTMLCustomElement<Component> {
+export function CustomElement<T extends Component>(
+  props: CustomElementProps<T>,
+): HTMLCustomElement<T> {
   // Virtual component so it doesn't return anything, output is determined by the compiler.
   return null as any;
 }

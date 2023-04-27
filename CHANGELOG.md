@@ -1,3 +1,12 @@
+## [0.35.1](https://github.com/maverick-js/maverick/compare/v0.35.0...v0.35.1) (2023-04-27)
+
+
+### Bug Fixes
+
+* improve type inference ([7c9f723](https://github.com/maverick-js/maverick/commit/7c9f723c3a330904c114585a0d54ba147d7ffff1))
+
+
+
 # [0.35.0](https://github.com/maverick-js/maverick/compare/v0.34.0...v0.35.0) (2023-04-27)
 
 ### Bug Fixes

@@ -100,7 +100,7 @@ export class ComponentController<API extends ComponentAPI = AnyComponentAPI> {
    * This method is used to satisfy the CSS variables contract specified on the current
    * custom element definition. Other CSS variables can be set via the `setStyles` method.
    */
-  protected setCSSVars(vars: ElementCSSVarsRecord<API['cssvars']>): void {
+  protected setCSSVars<Vars = API['cssvars']>(vars: ElementCSSVarsRecord<Vars>): void {
     this.setStyles(vars as ElementStylesRecord);
   }
 

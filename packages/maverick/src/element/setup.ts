@@ -39,7 +39,7 @@ function resolvePropsFromAttrs(host: HTMLCustomElement): Record<string, any> {
   if (!hostCtor._attrs) return props;
 
   for (const attr of host.attributes) {
-    if (host.hasAttribute(attr.name)) {
+    if (hostCtor._attrs.has(attr.name)) {
       const propName = hostCtor._attrs.get(attr.name)!;
       const convert = componentCtor.el.props![propName].type?.from;
       if (convert) {

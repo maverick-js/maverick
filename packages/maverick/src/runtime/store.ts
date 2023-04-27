@@ -49,9 +49,7 @@ export class StoreFactory<Record extends AnyRecord> {
       state = new Proxy(store, { get: (_, prop: any) => store[prop]() });
 
     for (const name of Object.keys(this.record) as any[]) {
-      store[name] = this._descriptors[name].get
-        ? () => this._descriptors[name].get!.call(state)
-        : signal(this.record[name]);
+      store[name] = this._descriptors[name].get?.bind(state) || signal(this.record[name]);
     }
 
     return store;
@@ -72,9 +70,17 @@ export type Store<T> = {
   readonly [P in keyof PickWritable<T>]: WriteSignal<T[P]>;
 };
 
-export type InferStore<T> = T extends StoreFactory<infer Record> ? Store<Record> : never;
+export type InferStore<T> = T extends StoreFactory<infer Record>
+  ? Store<Record>
+  : T extends Store<any>
+  ? T
+  : never;
 
-export type InferStoreRecord<T> = T extends StoreFactory<infer Record> ? Record : never;
+export type InferStoreRecord<T> = T extends StoreFactory<infer Record>
+  ? Record
+  : T extends Store<infer Record>
+  ? Record
+  : never;
 
 export type StoreContext<T> = ReadSignalRecord<T extends StoreFactory<infer Record> ? Record : T>;
 

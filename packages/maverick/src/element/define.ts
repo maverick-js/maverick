@@ -1,10 +1,8 @@
+import type { IfAny } from 'type-fest';
+
+import type { StoreFactory } from '../runtime/store';
 import { isArray } from '../std/unit';
-import type {
-  AnyComponentAPI,
-  ComponentAPI,
-  InferComponentProps,
-  InferComponentStore,
-} from './component';
+import type { AnyComponentAPI, ComponentAPI } from './component';
 import type { CSS } from './css';
 import {
   type AttributeType,
@@ -14,11 +12,11 @@ import {
   type PropDefinitions,
 } from './props';
 
-export function defineElement<API extends ComponentAPI = Omit<AnyComponentAPI, 'store'>>(
+export function defineElement<API extends ComponentAPI = AnyComponentAPI>(
   declaration: CustomElementDeclaration<API>,
 ) {
   if ('props' in declaration) {
-    const props = declaration.props;
+    const props = declaration.props as any;
     for (const name of Object.keys(props)) {
       const def = (
         props[name]?.[PROP_DEF] ? props[name] : { [PROP_DEF]: true, value: props[name] }
@@ -45,32 +43,47 @@ export interface CustomElementDefinition<API extends ComponentAPI = AnyComponent
    */
   readonly shadowRoot?: true | ShadowRootInit;
   /**
+   * Component properties. Do note that these props are also exposed on the custom element as
+   * getter/setter pairs.
+   */
+  readonly props: PropDefinitions<API['props']>;
+  /**
    * The store that will be exposed to the component and children.
    */
-  readonly store: InferComponentStore<API>;
+  readonly store: API['store'];
   /**
    * CSS styles that should be adopted by the shadow root. Note that these styles are only applied
    * if the `shadowRoot` option is truthy.
    */
   readonly css?: CSS[];
-  /**
-   * Component properties. Do note that these props are also exposed on the custom element as
-   * getter/setter pairs.
-   */
-  readonly props: PropDefinitions<InferComponentProps<API>>;
 }
 
 /** Ensuring props/store is only required when declared. */
 export type CustomElementDeclaration<
   API extends ComponentAPI,
   Definition = Omit<CustomElementDefinition<API>, 'props'>,
-> = InferComponentProps<API> extends Record<string, never>
-  ? InferComponentStore<API> extends Record<string, never>
-    ? Omit<Definition, 'props' | 'store'>
-    : Omit<Definition, 'props'>
-  : (InferComponentStore<API> extends Record<string, never>
-      ? Omit<Definition, 'store'>
-      : Definition) & { props: PropDeclarations<InferComponentProps<API>> };
+> = IfAny<
+  API['props'],
+  IfAny<
+    API['store'],
+    Omit<Definition, 'props' | 'store'> & {
+      props?: PropDefinitions<any>;
+      store?: StoreFactory<any>;
+    },
+    Omit<Definition, 'props'> & { props?: PropDefinitions<any> }
+  >,
+  IfAny<
+    API['store'],
+    Omit<Definition, 'store'> & { store?: StoreFactory<any> },
+    keyof API['props'] extends never
+      ? keyof API['store'] extends never
+        ? Omit<Definition, 'props' | 'store'>
+        : Omit<Definition, 'props'>
+      : (keyof API['store'] extends never ? Omit<Definition, 'store'> : Definition) & {
+          props: PropDeclarations<API['props']>;
+        }
+  >
+>;
 
 export const STRING: AttributeType<string | null> = {
   from: (v) => (v === null ? '' : v + ''),

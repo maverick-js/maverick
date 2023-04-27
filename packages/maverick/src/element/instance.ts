@@ -23,7 +23,6 @@ import type {
   ComponentAPI,
   ComponentConstructor,
   InferComponentProps,
-  InferComponentStore,
 } from './component';
 import type { ElementAttributesRecord, ElementStylesRecord } from './controller';
 import type { HTMLCustomElement } from './host';
@@ -44,7 +43,7 @@ export function createComponent<Component extends AnyComponent>(
   init?: ComponentInstanceInit<InferComponentProps<Component>>,
 ) {
   const instance = new ComponentInstance(Component, init);
-  return scoped(() => new Component(instance as any), instance._scope)!;
+  return scoped(() => new Component(instance), instance._scope)!;
 }
 
 export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
@@ -52,13 +51,15 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
 
   _scope!: Scope;
   _el: HTMLElement | null = null;
-  _attrs: ElementAttributesRecord | null = {};
-  _styles: ElementStylesRecord | null = {};
-  _props: WriteSignalRecord<InferComponentProps<API>> = {} as any;
-  _state!: Readonly<InferStoreRecord<InferComponentStore<API>>>;
-  _store!: InferStore<InferComponentStore<API>>;
   _renderer: (() => JSX.Element) | null = null;
   _destroyed = false;
+
+  _attrs: ElementAttributesRecord | null = {};
+  _styles: ElementStylesRecord | null = {};
+  _props: WriteSignalRecord<API['props']> = {} as any;
+  // these props cause type issues - don't type them.
+  _state!: any;
+  _store!: any;
 
   _attachCallbacks: ComponentLifecycleCallback[] = [];
   _connectCallbacks: ComponentLifecycleCallback[] = [];
@@ -76,14 +77,14 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
 
       const store = Component.el.store as unknown as StoreFactory<any>;
       if (store) {
-        this._store = store.create() as InferStore<InferComponentStore<API>>;
+        this._store = store.create();
         this._state = new Proxy(this._store, {
           get: (_, prop: string) => this._store[prop](),
-        }) as any;
+        });
         provideContext(store, this._store);
       }
 
-      const props = Component.el.props as PropDefinitions<InferComponentProps<API>> | undefined;
+      const props = Component.el.props as PropDefinitions<API['props']> | undefined;
       if (props) {
         this._props = createInstanceProps(props);
         if (init.props) {

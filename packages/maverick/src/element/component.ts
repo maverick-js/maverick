@@ -15,7 +15,7 @@ export interface AnyComponentAPI {
   props?: any;
   events?: any;
   cssvars?: any;
-  store?: StoreFactory<any>;
+  store?: any;
 }
 
 export class Component<
@@ -23,7 +23,9 @@ export class Component<
 > extends ComponentController<API> {
   constructor(instance: ComponentInstance<API>) {
     super(instance);
-    if (this.render) instance._renderer = this.render.bind(this);
+    if (this.render && !instance._renderer) {
+      instance._renderer = this.render.bind(this);
+    }
   }
 
   render?(): JSX.Element;

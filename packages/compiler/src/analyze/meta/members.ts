@@ -47,12 +47,14 @@ export function buildMembersMeta(
     props.push({
       [TS_NODE]: store[TS_NODE],
       name: 'state',
+      docs: 'This object contains the state of the component store when available.',
       type: store.record,
       readonly: true,
     });
     methods.push({
       [TS_NODE]: store[TS_NODE],
       name: 'subscribe',
+      docs: 'Enables subscribing to live updates of component store state.',
       parameters: [{ name: 'callback', type: `(state: ${store.record}) => Maybe<Dispose>` }],
       signature: { type: `(callback: (state: ${store.record}) => Maybe<Dispose>) => Unsubscribe` },
       return: { type: 'Unsubscribe' },

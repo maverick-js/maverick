@@ -1,3 +1,12 @@
+## [0.35.2](https://github.com/maverick-js/maverick/compare/v0.35.1...v0.35.2) (2023-04-27)
+
+
+### Bug Fixes
+
+* relax errors before component attach for svelte ([2ba84fc](https://github.com/maverick-js/maverick/commit/2ba84fc407841c04e3969d7f8dae37cbcbcb5fba))
+
+
+
 ## [0.35.1](https://github.com/maverick-js/maverick/compare/v0.35.0...v0.35.1) (2023-04-27)
 
 

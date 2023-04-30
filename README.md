@@ -16,7 +16,7 @@ Maverick was inspired by:
 - [Solid JS][solidjs]: Thanks [Ryan Carniato][twitter-solid-author] for building Solid JS as it
   inspired _and_ heavily layed the foundation for this library. Maverick would of not been easily
   possible without such amazing prior art.
-- [Vue Lit][vue-lit]: Thanks [Evan You][twitter-vue-author] for building a lightweight reative
+- [Vue Lit][vue-lit]: Thanks [Evan You][twitter-vue-author] for building a lightweight reactive
   custom element POC and demonstrating how simple things can be!
 
 ## License

@@ -1,3 +1,12 @@
+## [0.35.3](https://github.com/maverick-js/maverick/compare/v0.35.2...v0.35.3) (2023-05-01)
+
+
+### Bug Fixes
+
+* use computed for store getters ([0554b7b](https://github.com/maverick-js/maverick/commit/0554b7b29f146e8bf056abd6afbab3af5a6e818c))
+
+
+
 ## [0.35.2](https://github.com/maverick-js/maverick/compare/v0.35.1...v0.35.2) (2023-04-27)
 
 

@@ -1,8 +1,7 @@
-import { type ReadSignal, signal, type WriteSignal } from '@maverick-js/signals';
-
 import type { PickReadonly } from '../std/types';
 import type { PickWritable } from '../std/types';
 import { useContext } from './context';
+import { computed, type ReadSignal, signal, type WriteSignal } from './reactivity';
 import type { AnyRecord, ReadSignalRecord } from './types';
 
 /**
@@ -49,7 +48,8 @@ export class StoreFactory<Record extends AnyRecord> {
       state = new Proxy(store, { get: (_, prop: any) => store[prop]() });
 
     for (const name of Object.keys(this.record) as any[]) {
-      store[name] = this._descriptors[name].get?.bind(state) || signal(this.record[name]);
+      const getter = this._descriptors[name].get;
+      store[name] = getter ? computed(getter.bind(state)) : signal(this.record[name]);
     }
 
     return store;

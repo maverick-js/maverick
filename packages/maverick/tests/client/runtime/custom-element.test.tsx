@@ -1,4 +1,4 @@
-import { createContext, provideContext, signal, tick, useContext } from 'maverick.js';
+import { createContext, type JSX, provideContext, signal, tick, useContext } from 'maverick.js';
 
 import { render } from 'maverick.js/dom';
 import {
@@ -245,6 +245,33 @@ it('should forward props', () => {
   `);
 });
 
+it('should throw error if element not registered', () => {
+  class TestOneComponent extends Component {
+    static el = defineElement({ tagName: `mk-test-9` });
+    static register = () => [TestTwoComponent];
+    override render() {
+      return <mk-test-10 />;
+    }
+  }
+
+  class TestTwoComponent extends Component {
+    static el = defineElement({ tagName: `mk-test-10` });
+    override render() {
+      return <mk-test-11 />;
+    }
+  }
+
+  registerCustomElement(TestOneComponent);
+  registerCustomElement(TestTwoComponent);
+
+  expect(() => {
+    const root = document.createElement('root');
+    render(() => <mk-test-9 />, { target: root });
+  }).toThrowErrorMatchingInlineSnapshot(
+    '"[maverick] custom element not registered: mk-test-9 > mk-test-10 > mk-test-11"',
+  );
+});
+
 interface TestElement extends HTMLCustomElement {}
 
 declare global {
@@ -257,5 +284,9 @@ declare global {
     'mk-test-6': TestElement;
     'mk-test-7': TestElement;
     'mk-test-8': TestElement;
+    'mk-test-9': TestElement;
+    'mk-test-10': TestElement;
+    'mk-test-11': TestElement;
+    'mk-test-12': TestElement;
   }
 }

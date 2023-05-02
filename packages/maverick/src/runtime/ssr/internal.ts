@@ -27,7 +27,7 @@ export function $$_custom_element(
   const Component = customElementRegistrations.get(tagName);
 
   if (!Component) {
-    throw Error(__DEV__ ? `[maverick] custom element \`${tagName}\` not registered` : '');
+    throw Error(`[maverick] custom element not registered: ${tagName}`);
   }
 
   const host = new (createServerElement(Component))();

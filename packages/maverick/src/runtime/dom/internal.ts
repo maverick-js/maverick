@@ -46,12 +46,21 @@ export function $$_next_element(walker: TreeWalker): Node {
 /** @internal */
 export const $$_hydrating = hydration;
 
+const element_stack: string[] | undefined = __DEV__ ? [] : undefined;
+
 /** @internal */
 export function $$_setup_custom_element(host: HTMLCustomElement, props?: Record<string, any>) {
+  if (__DEV__) element_stack!.push(host.localName);
+
   const Component = customElementRegistrations.get(host.localName);
 
   if (!Component) {
-    throw Error(__DEV__ ? `[maverick] custom element \`${host.localName}\` not registered` : '');
+    if (__DEV__) {
+      const path = element_stack!.join(' > ');
+      throw Error(`[maverick] custom element not registered: ${path}`);
+    } else {
+      throw Error();
+    }
   }
 
   // TODO: turning off for now as not needed in Vidstack.
@@ -64,10 +73,14 @@ export function $$_setup_custom_element(host: HTMLCustomElement, props?: Record<
 
   host.attachComponent(component);
 
-  if (!props || !props.$children || props.innerHTML) return;
+  if (props && props.$children && !props.innerHTML) {
+    if (!instance._renderer || Component.el.shadowRoot) {
+      scoped(() => insert(host, props.$children), instance._scope);
+    }
+  }
 
-  if (!instance._renderer || Component.el.shadowRoot) {
-    scoped(() => insert(host, props.$children), instance._scope);
+  if (__DEV__) {
+    element_stack!.length = 0;
   }
 }
 

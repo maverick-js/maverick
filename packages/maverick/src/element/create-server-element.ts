@@ -8,7 +8,7 @@ import type { AnyComponent, Component, ComponentConstructor } from './component'
 import type { HostElement } from './host';
 import type { ComponentLifecycleCallback } from './instance';
 
-const registry = new WeakMap<ComponentConstructor, typeof ServerCustomElement>();
+const registry = new Map<ComponentConstructor, typeof ServerCustomElement>();
 
 export function createServerElement<T extends Component = AnyComponent>(
   Component: ComponentConstructor<T>,

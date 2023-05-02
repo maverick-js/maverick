@@ -1,19 +1,21 @@
-import { CustomElement, signal, tick } from 'maverick.js';
+import { signal, tick } from 'maverick.js';
 
 import { hydrate } from 'maverick.js/dom';
-import { Component, defineElement } from 'maverick.js/element';
+import { Component, defineElement, registerCustomElement } from 'maverick.js/element';
 
 import { startMarker } from '../utils';
 
 it('should hydrate custom element', () => {
   class TestComponent extends Component {
-    static el = defineElement({ tagName: 'mk-test' });
+    static el = defineElement({ tagName: 'mk-test-1' });
   }
+
+  registerCustomElement(TestComponent);
 
   const child = document.createElement('div');
   child.appendChild(document.createTextNode('Foo'));
 
-  const el = document.createElement('mk-test');
+  const el = document.createElement('mk-test-1');
   el.setAttribute('mk-d', '');
   el.setAttribute('mk-h', '');
   el.appendChild(startMarker());
@@ -28,7 +30,7 @@ it('should hydrate custom element', () => {
   expect(root).toMatchInlineSnapshot(`
     <root>
       <!--$-->
-      <mk-test
+      <mk-test-1
         mk-d=""
         mk-h=""
       >
@@ -36,21 +38,21 @@ it('should hydrate custom element', () => {
         <div>
           Foo
         </div>
-      </mk-test>
+      </mk-test-1>
     </root>
   `);
 
   const click = vi.fn();
   const $children = signal<any>(() => <div $on:click={click}>Foo</div>);
 
-  hydrate(() => <CustomElement $this={TestComponent}>{$children}</CustomElement>, {
+  hydrate(() => <mk-test-1>{$children}</mk-test-1>, {
     target: root,
   });
 
   expect(root).toMatchInlineSnapshot(`
     <root>
       <!--$-->
-      <mk-test
+      <mk-test-1
         mk-d=""
         mk-h=""
       >
@@ -58,7 +60,7 @@ it('should hydrate custom element', () => {
         <div>
           Foo
         </div>
-      </mk-test>
+      </mk-test-1>
     </root>
   `);
 
@@ -71,7 +73,7 @@ it('should hydrate custom element', () => {
   expect(root).toMatchInlineSnapshot(`
     <root>
       <!--$-->
-      <mk-test
+      <mk-test-1
         mk-d=""
         mk-h=""
       />

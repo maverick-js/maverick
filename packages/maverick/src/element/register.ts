@@ -27,7 +27,16 @@ export function registerHeadlessCustomElement(Component: ComponentConstructor) {
   register(Component);
 }
 
+export const customElementRegistrations = new Map<string, ComponentConstructor>();
+
 function register(Component: ComponentConstructor, init?: HTMLCustomElementInit) {
-  if (__SERVER__ || customElements.get(Component.el.tagName)) return;
-  customElements.define(Component.el.tagName, createHTMLElement(Component, init));
+  const tagName = Component.el.tagName;
+
+  if (customElementRegistrations.has(tagName)) return;
+
+  customElementRegistrations.set(tagName, Component);
+
+  if (!__SERVER__) {
+    customElements.define(tagName, createHTMLElement(Component, init));
+  }
 }

@@ -54,13 +54,13 @@ it('should compile observable $prop expression', () => {
 it('should compile innerHTML expression', () => {
   const result = t(`<div $prop:innerHTML="baz"></div>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_walker, $$_clone, $$_inner_html, $$_create_template } from \\"maverick.js/dom\\";
+    "import { $$_create_walker, $$_clone, $$_hydrating, $$_create_template } from \\"maverick.js/dom\\";
 
     const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div></div>\`);
     (() => {
       const [$$_root, $$_walker] = $$_create_walker($$_templ);
 
-      $$_inner_html($$_root, \\"baz\\");
+      if (!$$_hydrating) $$_root.innerHTML = \\"baz\\";
 
       return $$_root;
     })()"

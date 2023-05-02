@@ -21,7 +21,6 @@ import type {
 } from './component';
 import type { ElementAttributesRecord, ElementStylesRecord } from './controller';
 import type { HTMLCustomElement } from './host';
-import { setComponentInstance } from './internal';
 import type { PropDefinitions } from './props';
 
 export interface ComponentLifecycleCallback {
@@ -47,6 +46,7 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
   _scope!: Scope;
   _el: HTMLElement | null = null;
   _renderer: (() => JSX.Element) | null = null;
+  _innerHTML = false;
   _destroyed = false;
 
   _attrs: ElementAttributesRecord | null = {};
@@ -90,19 +90,16 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
         }
       }
 
+      if ((init.props as any)?.innerHTML) {
+        this._innerHTML = true;
+      }
+
       onDispose(this._destroy.bind(this));
     });
   }
 
   _render(): JSX.Element {
-    return scoped(() => {
-      try {
-        setComponentInstance(this);
-        return this._renderer?.();
-      } finally {
-        setComponentInstance(null);
-      }
-    }, this._scope);
+    return scoped(() => this._renderer?.(), this._scope);
   }
 
   _destroy() {

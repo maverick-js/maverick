@@ -30,8 +30,7 @@ import {
 
 export function isComponentTagName(tagName: string) {
   return (
-    tagName !== 'CustomElement' &&
-    tagName !== 'HostElement' &&
+    !tagName.includes('-') &&
     ((tagName[0] && tagName[0].toLowerCase() !== tagName[0]) ||
       tagName.includes('.') ||
       /[^a-zA-Z]/.test(tagName[0]))

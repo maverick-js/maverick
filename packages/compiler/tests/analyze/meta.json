@@ -292,6 +292,7 @@
         },
         {
           "name": "state",
+          "docs": "This object contains the state of the component store when available.",
           "type": "FooStoreRecord",
           "readonly": true
         }
@@ -356,6 +357,7 @@
         },
         {
           "name": "subscribe",
+          "docs": "Enables subscribing to live updates of component store state.",
           "parameters": [
             {
               "name": "callback",

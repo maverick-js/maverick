@@ -1,10 +1,5 @@
-import {
-  type ComponentConstructor,
-  createComponent,
-  getComponentInstance,
-  type HTMLCustomElement,
-  registerCustomElement,
-} from '../../element';
+import { createComponent, type HTMLCustomElement } from '../../element';
+import { customElementRegistrations } from '../../element/register';
 import { attachDeclarativeShadowDOM } from '../../std/dom';
 import { createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
 import { listenEvent } from '../../std/event';
@@ -34,7 +29,7 @@ export function $$_create_walker(
   try {
     return [$$_next_element(walker!), walker!];
   } catch (e) {
-    return $$_create_walker(fragment, createMarkerWalker(fragment.cloneNode(true)));
+    return $$_create_walker(fragment, createMarkerWalker(document.importNode(fragment, true)));
   }
 }
 
@@ -49,56 +44,36 @@ export function $$_next_element(walker: TreeWalker): Node {
 }
 
 /** @internal */
-export function $$_host_element() {
-  return getComponentInstance()!._el!;
-}
+export const $$_hydrating = hydration;
 
 /** @internal */
-export function $$_next_custom_element(
-  Component: ComponentConstructor,
-  walker = hydration?.w,
-): Node {
-  const { tagName } = Component.el;
-  registerCustomElement(Component);
+export function $$_setup_custom_element(host: HTMLCustomElement, props?: Record<string, any>) {
+  const Component = customElementRegistrations.get(host.localName);
 
-  let next: Comment | undefined;
-  if (walker) {
-    next = walker.nextNode() as Comment;
-    const element = next.nextSibling as Element | null;
-    if (element && element.localName === tagName) return element;
+  if (!Component) {
+    throw Error(__DEV__ ? `[maverick] custom element \`${host.localName}\` not registered` : '');
   }
 
-  const element = $$_create_element(tagName);
-  element.setAttribute('mk-d', '');
-  if (next) insert(next.parentElement!, element, next);
-
-  return element;
-}
-
-/** @internal */
-export function $$_setup_custom_element(
-  host: HTMLCustomElement,
-  Component: ComponentConstructor,
-  props?: Record<string, any>,
-) {
-  if (Component.el.shadowRoot) $$_attach_declarative_shadow_dom(host);
+  // TODO: turning off for now as not needed in Vidstack.
+  if (__TEST__) {
+    if (Component.el.shadowRoot) $$_attach_declarative_shadow_dom(host);
+  }
 
   const component = createComponent(Component, { props }),
     instance = component.instance;
 
   host.attachComponent(component);
 
-  if (!props) return;
-  if (props.innerHTML) return $$_inner_html(host, props.innerHTML);
+  if (!props || !props.$children || props.innerHTML) return;
 
-  if ((!instance._renderer || Component.el.shadowRoot) && props.$children) {
+  if (!instance._renderer || Component.el.shadowRoot) {
     scoped(() => insert(host, props.$children), instance._scope);
   }
 }
 
 /** @internal */
 export function $$_clone(fragment: DocumentFragment): Element {
-  const clone = fragment.cloneNode(true) as DocumentFragment;
+  const clone = document.importNode(fragment, true) as DocumentFragment;
   return clone.firstElementChild!;
 }
 
@@ -166,17 +141,6 @@ export function $$_directive(element: Element, directive: JSX.Directive, args: u
 
 /** @internal */
 export const $$_attr = setAttribute;
-
-/** @internal */
-export function $$_inner_html(element: Element, value: unknown) {
-  if (isFunction(value)) {
-    effect(() => {
-      if (!hydration) element.innerHTML = value() + '';
-    });
-  } else if (!hydration) {
-    element.innerHTML = value + '';
-  }
-}
 
 /** @internal */
 export const $$_class = toggleClass;

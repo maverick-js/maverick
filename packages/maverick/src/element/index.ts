@@ -1,4 +1,3 @@
-export { getComponentInstance } from './internal';
 export * from './component';
 export * from './controller';
 export * from './create-html-element';
@@ -8,5 +7,10 @@ export * from './define';
 export * from './host';
 export * from './instance';
 export * from './props';
-export * from './register';
 export * from './decorators';
+export {
+  registerCustomElement,
+  registerHeadlessCustomElement,
+  registerLiteCustomElement,
+  type CustomElementRegistrar,
+} from './register';

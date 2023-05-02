@@ -3,57 +3,89 @@ import { transform } from 'maverick.js/transformer';
 const t = (code: string) => transform(code, { hydratable: true }).code;
 
 it('should compile', () => {
-  const result = t(`<CustomElement $this={DEFINITION} />`);
+  const result = t(`<v-foo />`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_next_custom_element, $$_setup_custom_element } from \\"maverick.js/dom\\";
+    "import { $$_create_walker, $$_clone, $$_setup_custom_element, $$_create_template } from \\"maverick.js/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><v-foo mk-d></v-foo>\`);
     (() => {
-      const $$_el = $$_next_custom_element(DEFINITION);
+      const [$$_root, $$_walker] = $$_create_walker($$_templ);
 
-      $$_setup_custom_element($$_el, DEFINITION);
+      $$_setup_custom_element($$_root);
 
-      return $$_el;
+      return $$_root;
+    })()"
+  `);
+});
+
+it('should compile inner HTML', () => {
+  const result = t(`<v-foo $prop:innerHTML="<div>Foo</div>" />`);
+  expect(result).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_clone, $$_hydrating, $$_setup_custom_element, $$_create_template } from \\"maverick.js/dom\\";
+
+    const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><v-foo mk-d></v-foo>\`);
+    (() => {
+      const [$$_root, $$_walker] = $$_create_walker($$_templ);
+
+      if (!$$_hydrating) $$_root.innerHTML = \\"<div>Foo</div>\\";
+      $$_setup_custom_element($$_root, { innerHTML: true });
+
+      return $$_root;
     })()"
   `);
 });
 
 it('should compile with children', () => {
-  const result = t(`<CustomElement $this={DEFINITION}><div>{id}</div></CustomElement>`);
+  const result = t(`<v-foo><div>{id}</div><v-bar></v-bar></v-foo>`);
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_next_custom_element, $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_children, $$_setup_custom_element } from \\"maverick.js/dom\\";
+    "import { $$_create_walker, $$_clone, $$_insert_at_marker, $$_create_template, $$_setup_custom_element, $$_children } from \\"maverick.js/dom\\";
 
-    const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><!$></div>\`);
+    const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><v-foo mk-d></v-foo>\`),
+      $$_templ_2 = /* #__PURE__ */ $$_create_template(\`<!$><div><!$></div>\`),
+      $$_templ_3 = /* #__PURE__ */ $$_create_template(\`<!$><v-bar mk-d></v-bar>\`);
     (() => {
-      const $$_el = $$_next_custom_element(DEFINITION);
+      const [$$_root, $$_walker] = $$_create_walker($$_templ);
 
-      $$_setup_custom_element($$_el, DEFINITION, {
+      $$_setup_custom_element($$_root, {
         $children: $$_children(() => {
-          const [$$_root, $$_walker] = $$_create_walker($$_templ),
-            $$_expr = $$_walker.nextNode();
+          return [
+            (() => {
+              const [$$_root, $$_walker] = $$_create_walker($$_templ_2),
+                $$_expr = $$_walker.nextNode();
 
-          $$_insert_at_marker($$_expr, id);
+              $$_insert_at_marker($$_expr, id);
 
-          return $$_root;
+              return $$_root;
+            })(),
+            (() => {
+              const [$$_root, $$_walker] = $$_create_walker($$_templ_3);
+
+              $$_setup_custom_element($$_root);
+
+              return $$_root;
+            })(),
+          ];
         }),
       });
 
-      return $$_el;
+      return $$_root;
     })()"
   `);
 });
 
 it('should compile as child', () => {
   const result = t(
-    `<div><div>Foo</div><CustomElement $prop:foo={props.foo} $this={DEFINITION}>{id()}</CustomElement><div>Bar</div></div>`,
+    `<div><div>Foo</div><v-foo $prop:foo={props.foo}>{id()}</v-foo><div>Bar</div></div>`,
   );
   expect(result).toMatchInlineSnapshot(`
-    "import { $$_create_walker, $$_clone, $$_next_custom_element, $$_children, $$_setup_custom_element, $$_create_template } from \\"maverick.js/dom\\";
+    "import { $$_create_walker, $$_clone, $$_next_element, $$_children, $$_setup_custom_element, $$_create_template } from \\"maverick.js/dom\\";
 
-    const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><div>Foo</div><!$><div>Bar</div></div>\`);
+    const $$_templ = /* #__PURE__ */ $$_create_template(\`<!$><div><div>Foo</div><!$><v-foo mk-d></v-foo><div>Bar</div></div>\`);
     (() => {
       const [$$_root, $$_walker] = $$_create_walker($$_templ),
-        $$_el = $$_next_custom_element(DEFINITION, $$_walker);
+        $$_el = $$_next_element($$_walker);
 
-      $$_setup_custom_element($$_el, DEFINITION, {
+      $$_setup_custom_element($$_el, {
         foo: props.foo,
         $children: $$_children(() => {
           return id();

@@ -1,6 +1,13 @@
 /// <reference lib="dom" />
 import type { ConditionalPick, KebabCase } from 'type-fest';
 
+import type {
+  InferComponentCSSProps,
+  InferComponentEvents,
+  InferComponentProps,
+} from '../element/component';
+import type { HTMLCustomElement, InferElementComponent } from '../element/host';
+import type { PickWritable } from '../std/types';
 import type { ReadSignal } from './reactivity';
 
 type DOMNode = Node;
@@ -51,6 +58,30 @@ declare global {
    * ```
    */
   interface MaverickUseAttributes extends JSX.DirectiveRecord {}
+
+  /**
+   * Store all custom element types in this interface so they can be used in JSX. This will also
+   * include elements in the global `HTMLElementTagNameMap` interface so DOM API's such as
+   * `querySelector` will be typed correctly.
+   *
+   * @example
+   * ```ts
+   * import { Component, type HTMLCustomElement } from 'maverick.js/elements'
+   *
+   * class Foo extends Component<FooAPI> {}
+   *
+   * interface FooElement extends HTMLCustomElement<Foo> {}
+   *
+   * declare global {
+   *   interface MaverickElements {
+   *     'v-foo': FooElement
+   *   }
+   * }
+   * ```
+   */
+  interface MaverickElements {}
+
+  interface HTMLElementTagNameMap extends MaverickElements {}
 }
 
 export namespace JSX {
@@ -358,6 +389,18 @@ export namespace JSX {
     OnAttributes<Element, Events> &
     CSSVarAttributes<CSSVars> &
     OnAttributes<Element, MaverickOnAttributes>;
+
+  export type HTMLCustomElementAttributes<
+    T extends HTMLCustomElement,
+    C = InferElementComponent<T>,
+  > = JSX.HTMLElementAttributes<
+    T,
+    Partial<InferComponentProps<C>>,
+    InferComponentEvents<C>,
+    PickWritable<InferComponentCSSProps<C>>
+  > & {
+    $children?: JSX.Element;
+  };
 
   export interface HTMLMarqueeElement extends HTMLElement, HTMLMarqueeElementProperties {}
 
@@ -971,7 +1014,11 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
-  export interface IntrinsicElements {
+  export type IntrinsicCustomElements = {
+    [TagName in keyof MaverickElements]: HTMLCustomElementAttributes<MaverickElements[TagName]>;
+  };
+
+  export interface IntrinsicElements extends IntrinsicCustomElements {
     // HTML
     a: HTMLElementAttributes<HTMLAnchorElement>;
     abbr: HTMLElementAttributes<HTMLElement>;

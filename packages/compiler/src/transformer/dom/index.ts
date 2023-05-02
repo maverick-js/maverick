@@ -1,5 +1,4 @@
 import { encode } from 'html-entities';
-import kleur from 'kleur';
 
 import { escape } from '../../utils/html';
 import {
@@ -11,7 +10,6 @@ import {
   trimTrailingSemicolon,
 } from '../../utils/print';
 import {
-  type AST,
   type AttributeNode,
   type ComponentChildren,
   type ElementNode,
@@ -44,7 +42,6 @@ const ID = {
   root: '$$_root',
   walker: '$$_walker',
   element: '$$_el',
-  host: '$$_host',
   component: '$$_comp',
   expression: '$$_expr',
 };
@@ -56,8 +53,6 @@ const RUNTIME = {
   createWalker: '$$_create_walker',
   nextTemplate: '$$_next_template',
   nextElement: '$$_next_element',
-  nextCustomElement: '$$_next_custom_element',
-  hostElement: '$$_host_element',
   createElement: '$$_create_element',
   setupCustomElement: '$$_setup_custom_element',
   children: '$$_children',
@@ -75,10 +70,10 @@ const RUNTIME = {
   style: '$$_style',
   spread: '$$_spread',
   mergeProps: '$$_merge_props',
-  innerHTML: '$$_inner_html',
   computed: '$$_computed',
   effect: '$$_effect',
   peek: '$$_peek',
+  hydrating: '$$_hydrating',
 };
 
 const MARKER = {
@@ -96,7 +91,6 @@ export const dom: ASTSerializer = {
     const firstNode = ast.tree[0],
       isFirstNodeElement = isElementNode(firstNode),
       isFirstNodeExpression = isExpressionNode(firstNode),
-      isFirstNodeHostElement = isFirstNodeElement && firstNode.tagName === 'HostElement',
       isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
 
     if (
@@ -115,11 +109,8 @@ export const dom: ASTSerializer = {
       childrenFragment = false,
       currentId!: string,
       component!: ElementNode | undefined,
-      definition!: AttributeNode | undefined,
-      hostElement!: ElementNode | undefined,
       customElement!: ElementNode | undefined,
       templateId: string | undefined,
-      returnId: string | undefined,
       hierarchy: number[] = [],
       props: string[] = [],
       styles: string[] = [],
@@ -226,15 +217,9 @@ export const dom: ASTSerializer = {
           : RUNTIME.insert;
         expressions.push(createFunctionCall(insertId, [parentId, block, beforeId]));
         ctx.runtime.add(insertId);
-      },
-      isVirtualElement = () => customElement || hostElement;
+      };
 
-    if (
-      isFirstNodeElement &&
-      !firstNode.isComponent &&
-      firstNode.tagName !== 'HostElement' &&
-      firstNode.tagName !== 'CustomElement'
-    ) {
+    if (isFirstNodeElement && !firstNode.isComponent) {
       hierarchy.push(0);
       if (ctx.hydratable) {
         template.push(MARKER.element);
@@ -278,21 +263,22 @@ export const dom: ASTSerializer = {
         }
       } else if (isStructuralNode(node)) {
         if (isAttributesEnd(node)) {
-          if (hostElement) continue;
+          const element = elements.at(-1);
 
-          if (customElement) {
-            if (!innerHTML && customElement.children) {
-              addChildren(customElement.children);
+          if (element && element.tagName.includes('-')) {
+            if (!innerHTML && element.children) {
+              addChildren(element.children);
             }
 
             expressions.push(
               createFunctionCall(RUNTIME.setupCustomElement, [
                 currentId,
-                definition!.value,
                 props.length > 0 ? `{ ${props.join(', ')} }` : null,
               ]),
             );
 
+            props = [];
+            template.push(` mk-d`);
             ctx.runtime.add(RUNTIME.setupCustomElement);
           }
 
@@ -301,8 +287,7 @@ export const dom: ASTSerializer = {
             styles = [];
           }
 
-          const element = elements.at(-1);
-          if (element && !element.isVoid && !customElement) template.push('>');
+          if (element && !element.isVoid) template.push('>');
         } else if (isChildrenStart(node)) {
           if (innerHTML) {
             let depth = 0;
@@ -335,43 +320,15 @@ export const dom: ASTSerializer = {
         } else if (isChildrenEnd(node)) {
           elementChildIndex = hierarchy.pop()!;
         } else if (isElementEnd(node)) {
-          if (hostElement) {
-            if (expressions.length === 0) locals.delete(ID.host);
+          const element = elements.pop();
 
-            if (hostElement.children) {
-              expressions.push(
-                serializeChildren(dom, hostElement.children, { ...ctx, scoped: true }),
-              );
-              childrenFragment = true;
+          if (element) {
+            if (textContent) {
+              template.push(' ');
+              textContent = false;
             }
 
-            hostElement = undefined;
-            continue;
-          }
-
-          if (customElement) {
-            if (!ctx.hydratable) {
-              if (initRoot) {
-                insert(null, currentId);
-              } else {
-                returnId = currentId;
-              }
-            } else if (elements.length === 0) {
-              returnId = currentId;
-            }
-
-            definition = undefined;
-            customElement = undefined;
-          } else {
-            const element = elements.pop();
-            if (element) {
-              if (textContent) {
-                template.push(' ');
-                textContent = false;
-              }
-
-              template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
-            }
+            template.push(element.isVoid ? ` />` : `</${element.tagName}>`);
           }
 
           innerHTML = false;
@@ -391,46 +348,22 @@ export const dom: ASTSerializer = {
           expressions.push('""');
         }
       } else if (isElementNode(node)) {
-        if (node.tagName === 'HostElement') {
-          currentId = locals.create(ID.host, createFunctionCall(RUNTIME.hostElement));
-          ctx.runtime.add(RUNTIME.hostElement);
-          hostElement = node;
-          continue;
-        }
-
         if (isFirstNodeComponent && node == firstNode) {
           component = node;
           continue;
         }
 
         if (node.isComponent) component = node;
-        if (node.tagName === 'CustomElement') customElement = node;
 
-        const isElement = !component && !customElement;
+        const isCustomElement = node.tagName.includes('-');
+        if (isCustomElement) customElement = node;
+
+        const isElement = !component;
         if (i > 0 && isElement) elementChildIndex++;
 
         const dynamic = node.dynamic();
 
-        if (customElement) {
-          if (elements.length > 0) createRootId();
-
-          definition = findCustomElementDefinition(ast, node, i);
-          currentId = locals.create(
-            ID.element,
-            ctx.hydratable
-              ? createFunctionCall(RUNTIME.nextCustomElement, [
-                  definition.value,
-                  elements.length > 0 ? ID.walker : null,
-                ])
-              : createFunctionCall(RUNTIME.createElement, [`${definition.value}.tagName`]),
-          );
-
-          if (ctx.hydratable) {
-            ctx.runtime.add(RUNTIME.nextCustomElement);
-          } else {
-            ctx.runtime.add(RUNTIME.createElement);
-          }
-        } else if (dynamic) {
+        if (dynamic) {
           if (ctx.hydratable) {
             if (node.isComponent) {
               currentId = locals.create(ID.component, nextMarker());
@@ -455,12 +388,38 @@ export const dom: ASTSerializer = {
       } else if (isAttributeNode(node)) {
         if (node.namespace) {
           if (node.namespace === '$prop') {
-            if (node.name === 'innerHTML') innerHTML = true;
-            if (customElement) {
-              props.push(serializeComponentProp(dom, node, ctx));
-            } else if (node.name === 'innerHTML') {
-              expressions.push(createFunctionCall(RUNTIME.innerHTML, [currentId, node.value]));
-              ctx.runtime.add(RUNTIME.innerHTML);
+            if (node.name === 'innerHTML') {
+              innerHTML = true;
+
+              if (customElement) {
+                props.push(`innerHTML: true`);
+              }
+
+              if (node.observable) {
+                expressions.push(
+                  createFunctionCall(RUNTIME.effect, [
+                    ctx.hydratable
+                      ? `() => { if (!${RUNTIME.hydrating}) (${currentId}.innerHTML = ${node.value}) }`
+                      : `() => void (${currentId}.innerHTML = ${node.value})`,
+                  ]),
+                );
+
+                ctx.runtime.add(RUNTIME.effect);
+              } else {
+                expressions.push(
+                  ctx.hydratable
+                    ? `if (!${RUNTIME.hydrating}) ${currentId}.innerHTML = ${node.value}`
+                    : `${currentId}.innerHTML = ${node.value}`,
+                );
+              }
+
+              if (ctx.hydratable) ctx.runtime.add(RUNTIME.hydrating);
+            } else if (customElement) {
+              if (!node.children && node.observable) {
+                props.push(`${node.name}: ${node.callId ?? `() => ${node.value}`}`);
+              } else {
+                props.push(serializeComponentProp(dom, node, ctx));
+              }
             } else if (node.observable) {
               if (ctx.groupDOMEffects) {
                 if (node.name === 'textContent') {
@@ -487,25 +446,25 @@ export const dom: ASTSerializer = {
           } else if (node.namespace === '$class') {
             addAttrExpression(node, RUNTIME.class);
           } else if (node.namespace === '$style') {
-            if (!node.dynamic && !isVirtualElement()) {
+            if (!node.dynamic) {
               styles.push(`${node.name}: ${trimQuotes(node.value)}`);
             } else {
               addAttrExpression(node, RUNTIME.style);
             }
           } else if (node.namespace === '$cssvar') {
-            if (!node.dynamic && !isVirtualElement()) {
+            if (!node.dynamic) {
               styles.push(`--${node.name}: ${trimQuotes(node.value)}`);
             } else {
               addAttrExpression(node, RUNTIME.style, `--${node.name}`);
             }
           }
-        } else if (!node.dynamic && !isVirtualElement()) {
+        } else if (!node.dynamic) {
           if (node.name === 'style') {
             styles.push(trimTrailingSemicolon(trimQuotes(node.value)));
           } else {
             template.push(` ${node.name}="${escape(trimQuotes(node.value), true)}"`);
           }
-        } else if (!isVirtualElement() || node.name !== '$this') {
+        } else {
           addAttrExpression(node, RUNTIME.attr);
         }
       } else if (isRefNode(node)) {
@@ -531,7 +490,7 @@ export const dom: ASTSerializer = {
         if (!ctx.hydratable) elementChildIndex++;
         template.push(node.value);
       } else if (isExpressionNode(node)) {
-        if (!node.dynamic && !isVirtualElement()) {
+        if (!node.dynamic) {
           template.push(encode(trimQuotes(node.value)));
         } else {
           const shouldInsert = !isFirstNodeExpression || node !== firstNode;
@@ -609,13 +568,7 @@ export const dom: ASTSerializer = {
             ';',
             '\n',
             '\n',
-            `return ${
-              isFirstNodeHostElement
-                ? childrenFragment
-                  ? expressions[expressions.length - 1]
-                  : ID.host
-                : returnId ?? createRootId()
-            }`,
+            `return ${createRootId()}`,
             ctx.scoped && '})()',
           ]
             .filter(Boolean)
@@ -665,23 +618,4 @@ function getElementId(
   }
 
   return id;
-}
-
-function findCustomElementDefinition(ast: AST, node: ElementNode, start: number) {
-  for (let j = start; j < ast.tree.length; j++) {
-    const attr = ast.tree[j];
-    if (isAttributeNode(attr) && attr.name === '$this') {
-      return attr;
-    } else if (isStructuralNode(attr)) {
-      break;
-    }
-  }
-
-  const loc = kleur.bold(
-    `${node.ref.getSourceFile().fileName} ${kleur.cyan(
-      `${node.ref.getStart()}:${node.ref.getEnd()}`,
-    )}`,
-  );
-
-  throw Error(`[maverick] \`element\` prop was not provided for \`CustomElement\` at ${loc}`);
 }

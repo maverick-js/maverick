@@ -76,8 +76,7 @@ function parseNode(node: ts.Node, ast: AST, meta: JSXNodeMeta) {
 function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   const tagName = getTagName(node),
     isComponent = isComponentTagName(tagName),
-    isHostElement = tagName === 'HostElement',
-    isCustomElement = tagName === 'CustomElement',
+    isCustomElement = tagName.includes('-'),
     isVoid = !isComponent && VOID_ELEMENT_TAGNAME.has(tagName),
     isSVG = !isComponent && (tagName === 'svg' || SVG_ELEMENT_TAGNAME.has(tagName)),
     isSelfClosing = ts.isJsxSelfClosingElement(node),
@@ -96,7 +95,7 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
 
   // Whether this element contains any dynamic top-level expressions which would require a new marker.
   // For example, a property set or attaching an event listener.
-  let isDynamic = isComponent || isCustomElement || isHostElement;
+  let isDynamic = isComponent || isCustomElement;
   const dynamic = onceFn(() => {
     isDynamic = true;
   });
@@ -127,7 +126,7 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   ast.tree.push(createStructuralNode(StructuralNodeType.AttributesEnd));
 
   if (hasChildren) {
-    if (isComponent || isCustomElement || isHostElement) {
+    if (isComponent || isCustomElement) {
       const childNodes: ComponentChildren[] = [];
 
       for (const child of children) {

@@ -1,5 +1,4 @@
 import { encode } from 'html-entities';
-import kleur from 'kleur';
 
 import { escape } from '../../utils/html';
 import {
@@ -43,7 +42,6 @@ const ID = {
 const RUNTIME = {
   createComponent: '$$_create_component',
   customElement: '$$_custom_element',
-  hostElement: '$$_host_element',
   ssr: '$$_ssr',
   attr: '$$_attr',
   classes: '$$_classes',
@@ -70,7 +68,6 @@ export const ssr: ASTSerializer = {
       spreads: string[] = [],
       elements: ElementNode[] = [],
       component!: ElementNode | undefined,
-      hostElement!: ElementNode | undefined,
       customElement!: ElementNode | undefined,
       commit = (part: string) => {
         parts.push(part);
@@ -109,7 +106,7 @@ export const ssr: ASTSerializer = {
       isFirstNodeElement = isElementNode(firstNode),
       isFirstNodeComponent = isFirstNodeElement && firstNode.isComponent;
 
-    if (isFirstNodeElement && !firstNode.isComponent && firstNode.tagName !== 'HostElement') {
+    if (isFirstNodeElement && !firstNode.isComponent) {
       template += HYDRATION_MARKER;
     }
 
@@ -153,8 +150,7 @@ export const ssr: ASTSerializer = {
           const element = elements.at(-1);
 
           if (merging) {
-            let definition!: string | undefined,
-              $spread: string[] = [],
+            let $spread: string[] = [],
               $attrs: Record<string, string> = {},
               $$class: Record<string, string> = {},
               $$style: Record<string, string> = {};
@@ -181,8 +177,6 @@ export const ssr: ASTSerializer = {
               if (isAttributeNode(prop)) {
                 if (prop.namespace === '$prop') {
                   props.push(serializeComponentProp(ssr, prop, ctx));
-                } else if (prop.name === '$this') {
-                  definition = prop.value;
                 } else {
                   let group = prop.namespace
                     ? prop.namespace === '$class'
@@ -203,37 +197,19 @@ export const ssr: ASTSerializer = {
 
             commitAttrs();
 
-            if (hostElement) {
-              if ($spread.length > 0) {
-                commit(
-                  createFunctionCall(RUNTIME.hostElement, [
-                    $spread.length > 0 ? `[${$spread.join(', ')}]` : null,
-                  ]),
-                );
-
-                ctx.runtime.add(RUNTIME.hostElement);
-              }
-            } else if (customElement) {
-              if (!definition) {
-                const ref = customElement.ref;
-                const loc = kleur.bold(
-                  `${ref.getSourceFile().fileName} ${kleur.cyan(
-                    `${ref.getStart()}:${ref.getEnd()}`,
-                  )}`,
-                );
-                throw Error(
-                  `[maverick] \`element\` prop was not provided for \`CustomElement\` at ${loc}`,
-                );
-              }
-
+            if (customElement) {
               if (customElement.children) {
                 props.push(serializeComponentChildrenProp(ssr, customElement.children, ctx));
               }
 
               commit(
                 createFunctionCall(RUNTIME.customElement, [
-                  definition,
-                  props.length > 0 || $spread.length > 0 ? `{ ${props.join(', ')} }` : null,
+                  `'${customElement.tagName}'`,
+                  props.length > 0
+                    ? `{ ${props.join(', ')} }`
+                    : $spread.length > 0
+                    ? 'undefined'
+                    : null,
                   $spread.length > 0 ? `[${$spread.join(', ')}]` : null,
                 ]),
               );
@@ -304,7 +280,7 @@ export const ssr: ASTSerializer = {
           }
 
           merging = false;
-          if (!customElement && !hostElement && element && !element.isVoid) {
+          if (!customElement && element && !element.isVoid) {
             template += '>';
           }
         } else if (isChildrenStart(node)) {
@@ -314,23 +290,12 @@ export const ssr: ASTSerializer = {
             if (element) template += element.isVoid ? ` />` : `</${element.tagName}>`;
           }
         } else if (isElementEnd(node)) {
-          if (hostElement) {
-            if (hostElement.children) {
-              commit(serializeChildren(ssr, hostElement.children, ctx));
-              childrenFragment = true;
-            }
-
-            hostElement = undefined;
-          } else {
-            const element = elements.pop();
-
-            if (element?.childCount === 0) commitInnerHTML(i);
-
-            if (customElement) {
-              customElement = undefined;
-            } else if (element) {
-              template += element.isVoid ? ` />` : `</${element.tagName}>`;
-            }
+          const element = elements.pop();
+          if (element?.childCount === 0) commitInnerHTML(i);
+          if (customElement) {
+            customElement = undefined;
+          } else if (element) {
+            template += element.isVoid ? ` />` : `</${element.tagName}>`;
           }
         }
       } else if (isFragmentNode(node)) {
@@ -349,15 +314,11 @@ export const ssr: ASTSerializer = {
           if (i > 0) marker();
           component = node;
         } else {
-          const isCustomElement = node.tagName === 'CustomElement',
-            isHostElement = node.tagName === 'HostElement',
-            isVirtualElement = isCustomElement || isHostElement;
+          const isCustomElement = node.tagName.includes('-');
 
-          if (i > 0 && !isVirtualElement && node.dynamic()) marker();
+          if (i > 0 && node.dynamic()) marker();
 
-          if (isHostElement) {
-            hostElement = node;
-          } else if (isCustomElement) {
+          if (isCustomElement) {
             customElement = node;
             elements.push(node);
           } else {
@@ -365,7 +326,7 @@ export const ssr: ASTSerializer = {
             elements.push(node);
           }
 
-          merging = isVirtualElement || node.spread();
+          merging = isCustomElement || node.spread();
         }
       } else if (isAttributeNode(node)) {
         if (node.namespace) {

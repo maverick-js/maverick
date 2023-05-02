@@ -7,7 +7,6 @@ import {
   $$_create_component,
   $$_create_template,
   $$_directive,
-  $$_inner_html,
   $$_insert,
   $$_listen,
   $$_merge_props,
@@ -200,12 +199,6 @@ it('should remove falsy attribute', () => {
   $$_attr(el, 'foo', 'bar');
   $$_attr(el, 'foo', null);
   expect(el.getAttribute('foo')).toBe(null);
-});
-
-it('should set inner html', () => {
-  const el = element('div');
-  $$_inner_html(el, 'foo');
-  expect(el.innerHTML).toBe('foo');
 });
 
 it('set class', () => {

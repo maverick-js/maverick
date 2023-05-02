@@ -23,7 +23,7 @@ export class Component<
 > extends ComponentController<API> {
   constructor(instance: ComponentInstance<API>) {
     super(instance);
-    if (this.render && !instance._renderer) {
+    if (this.render && !instance._innerHTML && !instance._renderer) {
       instance._renderer = this.render.bind(this);
     }
   }

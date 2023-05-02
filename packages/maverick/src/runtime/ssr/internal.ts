@@ -1,5 +1,5 @@
-import { type ComponentConstructor, createComponent, createServerElement } from '../../element';
-import { getComponentInstance } from '../../element/internal';
+import { createComponent, createServerElement, type ServerHTMLElement } from '../../element';
+import { customElementRegistrations } from '../../element/register';
 import { escape } from '../../std/html';
 import { unwrapDeep } from '../../std/signal';
 import { trimTrailingSemicolon } from '../../std/string';
@@ -19,8 +19,18 @@ export function $$_ssr(template: string[], ...parts: unknown[]) {
 }
 
 /** @internal */
-export function $$_host_element(spreads?: Record<string, unknown>[]) {
-  const host = getComponentInstance()!._el!;
+export function $$_custom_element(
+  tagName: string,
+  props?: Record<string, any>,
+  spreads?: Record<string, unknown>[],
+) {
+  const Component = customElementRegistrations.get(tagName);
+
+  if (!Component) {
+    throw Error(__DEV__ ? `[maverick] custom element \`${tagName}\` not registered` : '');
+  }
+
+  const host = new (createServerElement(Component))();
 
   if (spreads && spreads.length > 0) {
     const spread = $$_merge_spreads(spreads);
@@ -38,43 +48,16 @@ export function $$_host_element(spreads?: Record<string, unknown>[]) {
     }
   }
 
-  return '';
-}
-
-/** @internal */
-export function $$_custom_element(
-  Component: ComponentConstructor,
-  props?: Record<string, any>,
-  spreads?: Record<string, unknown>[],
-) {
-  const host = new (createServerElement(Component))();
-
-  if (spreads && spreads.length > 0) {
-    const spread = $$_merge_spreads(spreads);
-
-    for (const [key, value] of spread.attributes) {
-      host.attributes.setAttribute(key, value);
-    }
-
-    for (const token of spread.classList) {
-      host.classList.add(token);
-    }
-
-    for (const [key, value] of spread.styles) {
-      host.style.setProperty(key, value);
-    }
-  }
+  host.attachComponent(createComponent(Component, { props }));
 
   const hasInnerHTML = !!props?.innerHTML,
     innerHTML = hasInnerHTML ? resolve(props.innerHTML) : null,
     children = hasInnerHTML ? innerHTML! : resolve(props?.$children);
 
-  host.attachComponent(createComponent(Component, { props }));
-
   return {
-    [SSR_TEMPLATE]: `<${Component.el.tagName}${host.attributes}>${
+    [SSR_TEMPLATE]: `<${tagName}${host.attributes}>${
       hasInnerHTML ? children : host.render() + children
-    }</${Component.el.tagName}>`,
+    }</${tagName}>`,
   };
 }
 

@@ -1,6 +1,8 @@
 import {
   type Dispose,
+  effect,
   getScope,
+  isFunction,
   onDispose,
   root,
   type Scope,
@@ -85,7 +87,14 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
         this._props = createInstanceProps(props);
         if (init.props) {
           for (const prop of Object.keys(init.props)) {
-            if (prop in props) this._props[prop].set(init.props[prop]!);
+            if (prop in props) {
+              const value = init.props[prop]!;
+              if (isFunction(value)) {
+                effect(() => void this._props[prop].set(value()));
+              } else {
+                this._props[prop].set(value);
+              }
+            }
           }
         }
       }

@@ -1,4 +1,4 @@
-import { createContext, provideContext, tick, useContext } from 'maverick.js';
+import { createContext, provideContext, signal, tick, useContext } from 'maverick.js';
 
 import { render } from 'maverick.js/dom';
 import {
@@ -193,6 +193,58 @@ it('should forward context to another custom element', () => {
   tick();
 });
 
+it('should forward props', () => {
+  class TestComponent extends Component {
+    static el = defineElement({
+      tagName: `mk-test-8`,
+      props: { foo: 0 },
+    });
+    override render() {
+      return <div>{this.$props.foo()}</div>;
+    }
+  }
+
+  registerCustomElement(TestComponent);
+
+  const root = document.createElement('root');
+
+  const foo = signal(0);
+  render(() => <mk-test-8 $prop:foo={foo()} />, { target: root });
+
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <mk-test-8
+        mk-d=""
+      >
+        <shadow-root>
+          <div>
+            0
+            <!--$-->
+          </div>
+        </shadow-root>
+      </mk-test-8>
+    </root>
+  `);
+
+  foo.set(1);
+  tick();
+
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <mk-test-8
+        mk-d=""
+      >
+        <shadow-root>
+          <div>
+            1
+            <!--$-->
+          </div>
+        </shadow-root>
+      </mk-test-8>
+    </root>
+  `);
+});
+
 interface TestElement extends HTMLCustomElement {}
 
 declare global {
@@ -204,5 +256,6 @@ declare global {
     'mk-test-5': TestElement;
     'mk-test-6': TestElement;
     'mk-test-7': TestElement;
+    'mk-test-8': TestElement;
   }
 }

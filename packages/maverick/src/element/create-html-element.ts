@@ -21,6 +21,7 @@ import type { StylesheetAdopter } from './css';
 import type { HostElement, HTMLCustomElementConstructor } from './host';
 import type { ComponentLifecycleCallback } from './instance';
 import { CONNECT, METHODS, PROPS } from './internal';
+import { register } from './register';
 
 export interface HTMLCustomElementInit {
   render: Renderer;
@@ -36,6 +37,11 @@ export function createHTMLElement<T extends Component>(
     throw Error(
       '[maverick] `createHTMLElement` was called outside of browser - use `createServerElement`',
     );
+  }
+
+  if (Component.register) {
+    const result = Component.register();
+    if (isArray(result)) for (const Component of result) register(Component, init);
   }
 
   let attrs: Map<string, string> | undefined;

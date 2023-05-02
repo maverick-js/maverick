@@ -29,7 +29,7 @@ export function registerHeadlessCustomElement(Component: ComponentConstructor) {
 
 export const customElementRegistrations = new Map<string, ComponentConstructor>();
 
-function register(Component: ComponentConstructor, init?: HTMLCustomElementInit) {
+export function register(Component: ComponentConstructor, init?: HTMLCustomElementInit) {
   const tagName = Component.el.tagName;
 
   if (customElementRegistrations.has(tagName)) return;

@@ -3,10 +3,11 @@ import { parseClassAttr, parseStyleAttr, renderToString } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
 import { escape } from '../std/html';
 import { unwrapDeep } from '../std/signal';
-import { isBoolean, noop } from '../std/unit';
+import { isArray, isBoolean, noop } from '../std/unit';
 import type { AnyComponent, Component, ComponentConstructor } from './component';
 import type { HostElement } from './host';
 import type { ComponentLifecycleCallback } from './instance';
+import { customElementRegistrations } from './register';
 
 const registry = new Map<ComponentConstructor, typeof ServerCustomElement>();
 
@@ -14,6 +15,15 @@ export function createServerElement<T extends Component = AnyComponent>(
   Component: ComponentConstructor<T>,
 ): typeof ServerCustomElement<T> {
   if (registry.has(Component)) return registry.get(Component)!;
+
+  if (Component.register) {
+    const result = Component.register();
+    if (isArray(result)) {
+      for (const Component of result) {
+        customElementRegistrations.set(Component.el.tagName, Component);
+      }
+    }
+  }
 
   class MaverickElement extends ServerCustomElement<T> {
     static override get _component() {

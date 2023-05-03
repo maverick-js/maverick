@@ -1,4 +1,5 @@
 import {
+  createScope,
   type Dispose,
   effect,
   getScope,
@@ -46,7 +47,10 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
   private _dispose!: Dispose;
 
   _scope!: Scope;
+  _renderScope!: Scope;
+
   _el: HTMLElement | null = null;
+
   _renderer: (() => JSX.Element) | null = null;
   _innerHTML = false;
   _destroyed = false;
@@ -70,6 +74,7 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
   ) {
     root((dispose) => {
       this._scope = getScope()!;
+
       this._dispose = dispose;
       if (init.scope) init.scope.append(this._scope);
 
@@ -108,7 +113,15 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
   }
 
   _render(): JSX.Element {
-    return scoped(() => this._renderer?.(), this._scope);
+    if (!this._renderer) return null;
+
+    if (!this._renderScope) {
+      scoped(() => {
+        this._renderScope = createScope();
+      }, this._scope);
+    }
+
+    return scoped(() => this._renderer!(), this._renderScope);
   }
 
   _destroy() {

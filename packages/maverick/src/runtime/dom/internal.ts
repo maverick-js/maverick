@@ -74,9 +74,7 @@ export function $$_setup_custom_element(host: HTMLCustomElement, props?: Record<
   host.attachComponent(component);
 
   if (props && props.$children && !props.innerHTML) {
-    if (!instance._renderer || Component.el.shadowRoot) {
-      scoped(() => insert(host, props.$children), instance._scope);
-    }
+    scoped(() => insert(host, props.$children), instance._scope);
   }
 
   if (__DEV__) {

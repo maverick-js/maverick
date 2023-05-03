@@ -60,6 +60,9 @@ it('should render custom element with only internal content', () => {
             Test
           </button>
         </shadow-root>
+        <div>
+          Foo
+        </div>
       </mk-test-2>
     </root>
   `);
@@ -147,7 +150,7 @@ it('should render custom element with shadow dom', () => {
 
 it('should forward context to another custom element', () => {
   const Context = createContext(() => 0);
-  const ContextB = createContext(() => 0);
+  const ContextB = createContext();
 
   function InnerChild() {
     provideContext(ContextB, 1);

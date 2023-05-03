@@ -165,7 +165,7 @@ export namespace JSX {
    */
   export type PropAttributes<Props> = {
     [Prop in keyof Props as `$prop:${Stringify<Prop>}`]?: Props[Prop];
-  } & KebabCaseRecord<ConditionalPick<Props, AttrValue>>;
+  } & Partial<KebabCaseRecord<ConditionalPick<Props, AttrValue>>>;
 
   export interface InnerContentAttributes {
     '$prop:innerHTML'?: AttrValue;
@@ -335,7 +335,7 @@ export namespace JSX {
    * ```
    */
   export type CSSVarAttributes<Variables> = {
-    [Var in keyof Variables as `$cssvar:${Stringify<Var>}`]: Variables[Var] | null | undefined;
+    [Var in keyof Variables as `$cssvar:${Stringify<Var>}`]?: Variables[Var] | null;
   } & AnyCSSVarAttribute;
 
   /**
@@ -367,8 +367,7 @@ export namespace JSX {
     [id: `data-${string}`]: AttrValue;
   };
 
-  // Separate interface so TS can cache it.
-  export interface BaseHTMLElementAttributes
+  export interface HTMLElementAttributes
     extends HTMLAttributes,
       ClassAttributes,
       StyleAttributes,
@@ -378,29 +377,17 @@ export namespace JSX {
       CSSVarAttributes<MaverickCSSVarAttributes>,
       UseAttributes<MaverickUseAttributes> {}
 
-  export type HTMLElementAttributes<
-    Element extends DOMElement = DOMElement,
-    Props = {},
-    Events = {},
-    CSSVars = {},
-  > = BaseHTMLElementAttributes &
-    RefAttributes<Element> &
-    PropAttributes<Props> &
-    OnAttributes<Element, Events> &
-    CSSVarAttributes<CSSVars> &
-    OnAttributes<Element, MaverickOnAttributes>;
-
   export type HTMLCustomElementAttributes<
-    T extends HTMLCustomElement,
-    C = InferElementComponent<T>,
-  > = JSX.HTMLElementAttributes<
-    T,
-    Partial<InferComponentProps<C>>,
-    InferComponentEvents<C>,
-    PickWritable<InferComponentCSSProps<C>>
-  > & {
-    $children?: JSX.Element;
-  };
+    Element extends HTMLCustomElement,
+    Component = InferElementComponent<Element>,
+  > = Omit<HTMLElementAttributes, keyof InferComponentProps<Component>> &
+    RefAttributes<Element> &
+    PropAttributes<InferComponentProps<Component>> &
+    CSSVarAttributes<PickWritable<InferComponentCSSProps<Component>>> &
+    OnAttributes<Element, InferComponentEvents<Component>> &
+    OnAttributes<Element, Omit<MaverickOnAttributes, keyof InferComponentEvents<Component>>> & {
+      $children?: JSX.Element;
+    };
 
   export interface HTMLMarqueeElement extends HTMLElement, HTMLMarqueeElementProperties {}
 
@@ -614,8 +601,9 @@ export namespace JSX {
       Pick<SVGProperties, CamelCaseSVGProperties>,
       Omit<SVGProperties, KebabCaseSVGProperties | CamelCaseSVGProperties> {}
 
-  export type SVGElementAttributes<Element extends DOMElement = SVGElement> =
-    HTMLElementAttributes<Element> & SVGAttributes;
+  export interface SVGElementAttributes<Element extends DOMElement = SVGElement>
+    extends IntrinsicElementAttributes<Element>,
+      SVGAttributes {}
 
   export interface PathAttributes {
     d: string;
@@ -1014,127 +1002,132 @@ export namespace JSX {
    * -------------------------------------------------------------------------------------------
    */
 
+  export interface IntrinsicElementAttributes<Element extends DOMElement>
+    extends HTMLElementAttributes,
+      RefAttributes<Element>,
+      OnAttributes<Element, MaverickOnAttributes> {}
+
   export type IntrinsicCustomElements = {
     [TagName in keyof MaverickElements]: HTMLCustomElementAttributes<MaverickElements[TagName]>;
   };
 
   export interface IntrinsicElements extends IntrinsicCustomElements {
     // HTML
-    a: HTMLElementAttributes<HTMLAnchorElement>;
-    abbr: HTMLElementAttributes<HTMLElement>;
-    address: HTMLElementAttributes<HTMLElement>;
-    area: HTMLElementAttributes<HTMLAreaElement>;
-    article: HTMLElementAttributes<HTMLElement>;
-    aside: HTMLElementAttributes<HTMLElement>;
-    audio: HTMLElementAttributes<HTMLAudioElement>;
-    b: HTMLElementAttributes<HTMLElement>;
-    base: HTMLElementAttributes<HTMLBaseElement>;
-    bdi: HTMLElementAttributes<HTMLElement>;
-    bdo: HTMLElementAttributes<HTMLElement>;
-    big: HTMLElementAttributes<HTMLElement>;
-    blockquote: HTMLElementAttributes<HTMLQuoteElement>;
-    body: HTMLElementAttributes<HTMLBodyElement>;
-    br: HTMLElementAttributes<HTMLBRElement>;
-    button: HTMLElementAttributes<HTMLButtonElement>;
-    canvas: HTMLElementAttributes<HTMLCanvasElement>;
-    caption: HTMLElementAttributes<HTMLTableCaptionElement>;
-    cite: HTMLElementAttributes<HTMLElement>;
-    code: HTMLElementAttributes<HTMLElement>;
-    col: HTMLElementAttributes<HTMLTableColElement>;
-    colgroup: HTMLElementAttributes<HTMLTableColElement>;
-    data: HTMLElementAttributes<HTMLDataElement>;
-    datalist: HTMLElementAttributes<HTMLDataListElement>;
-    dd: HTMLElementAttributes<HTMLElement>;
-    del: HTMLElementAttributes<HTMLModElement>;
-    details: HTMLElementAttributes<HTMLDetailsElement>;
-    dfn: HTMLElementAttributes<HTMLElement>;
-    dialog: HTMLElementAttributes<HTMLDialogElement>;
-    div: HTMLElementAttributes<HTMLDivElement>;
-    dl: HTMLElementAttributes<HTMLDListElement>;
-    dt: HTMLElementAttributes<HTMLElement>;
-    em: HTMLElementAttributes<HTMLElement>;
-    embed: HTMLElementAttributes<HTMLEmbedElement>;
-    fieldset: HTMLElementAttributes<HTMLFieldSetElement>;
-    figcaption: HTMLElementAttributes<HTMLElement>;
-    figure: HTMLElementAttributes<HTMLElement>;
-    footer: HTMLElementAttributes<HTMLElement>;
-    form: HTMLElementAttributes<HTMLFormElement>;
-    h1: HTMLElementAttributes<HTMLHeadingElement>;
-    h2: HTMLElementAttributes<HTMLHeadingElement>;
-    h3: HTMLElementAttributes<HTMLHeadingElement>;
-    h4: HTMLElementAttributes<HTMLHeadingElement>;
-    h5: HTMLElementAttributes<HTMLHeadingElement>;
-    h6: HTMLElementAttributes<HTMLHeadingElement>;
-    head: HTMLElementAttributes<HTMLHeadElement>;
-    header: HTMLElementAttributes<HTMLElement>;
-    hgroup: HTMLElementAttributes<HTMLElement>;
-    hr: HTMLElementAttributes<HTMLHRElement>;
-    html: HTMLElementAttributes<HTMLHtmlElement>;
-    i: HTMLElementAttributes<HTMLElement>;
-    iframe: HTMLElementAttributes<HTMLIFrameElement>;
-    img: HTMLElementAttributes<HTMLImageElement>;
-    input: HTMLElementAttributes<HTMLInputElement> & { defaultValue?: string };
-    ins: HTMLElementAttributes<HTMLModElement>;
-    kbd: HTMLElementAttributes<HTMLElement>;
-    keygen: HTMLElementAttributes<HTMLUnknownElement>;
-    label: HTMLElementAttributes<HTMLLabelElement>;
-    legend: HTMLElementAttributes<HTMLLegendElement>;
-    li: HTMLElementAttributes<HTMLLIElement>;
-    link: HTMLElementAttributes<HTMLLinkElement>;
-    main: HTMLElementAttributes<HTMLElement>;
-    map: HTMLElementAttributes<HTMLMapElement>;
-    mark: HTMLElementAttributes<HTMLElement>;
-    marquee: HTMLElementAttributes<HTMLMarqueeElement> & HTMLMarqueeElementAttributes;
-    menu: HTMLElementAttributes<HTMLMenuElement>;
-    menuitem: HTMLElementAttributes<HTMLUnknownElement>;
-    meta: HTMLElementAttributes<HTMLMetaElement>;
-    meter: HTMLElementAttributes<HTMLMeterElement>;
-    nav: HTMLElementAttributes<HTMLElement>;
-    noscript: HTMLElementAttributes<HTMLElement>;
-    object: HTMLElementAttributes<HTMLObjectElement>;
-    ol: HTMLElementAttributes<HTMLOListElement>;
-    optgroup: HTMLElementAttributes<HTMLOptGroupElement>;
-    option: HTMLElementAttributes<HTMLOptionElement>;
-    output: HTMLElementAttributes<HTMLOutputElement>;
-    p: HTMLElementAttributes<HTMLParagraphElement>;
-    param: HTMLElementAttributes<HTMLParamElement>;
-    picture: HTMLElementAttributes<HTMLPictureElement>;
-    pre: HTMLElementAttributes<HTMLPreElement>;
-    progress: HTMLElementAttributes<HTMLProgressElement>;
-    q: HTMLElementAttributes<HTMLQuoteElement>;
-    rp: HTMLElementAttributes<HTMLElement>;
-    rt: HTMLElementAttributes<HTMLElement>;
-    ruby: HTMLElementAttributes<HTMLElement>;
-    s: HTMLElementAttributes<HTMLElement>;
-    samp: HTMLElementAttributes<HTMLElement>;
-    script: HTMLElementAttributes<HTMLScriptElement>;
-    section: HTMLElementAttributes<HTMLElement>;
-    select: HTMLElementAttributes<HTMLSelectElement>;
-    slot: HTMLElementAttributes<HTMLSlotElement>;
-    small: HTMLElementAttributes<HTMLElement>;
-    source: HTMLElementAttributes<HTMLSourceElement>;
-    span: HTMLElementAttributes<HTMLSpanElement>;
-    strong: HTMLElementAttributes<HTMLElement>;
-    style: HTMLElementAttributes<HTMLStyleElement>;
-    sub: HTMLElementAttributes<HTMLElement>;
-    summary: HTMLElementAttributes<HTMLElement>;
-    sup: HTMLElementAttributes<HTMLElement>;
-    table: HTMLElementAttributes<HTMLTableElement>;
-    tbody: HTMLElementAttributes<HTMLTableSectionElement>;
-    td: HTMLElementAttributes<HTMLTableCellElement>;
-    textarea: HTMLElementAttributes<HTMLTextAreaElement>;
-    tfoot: HTMLElementAttributes<HTMLTableSectionElement>;
-    th: HTMLElementAttributes<HTMLTableCellElement>;
-    thead: HTMLElementAttributes<HTMLTableSectionElement>;
-    time: HTMLElementAttributes<HTMLTimeElement>;
-    title: HTMLElementAttributes<HTMLTitleElement>;
-    tr: HTMLElementAttributes<HTMLTableRowElement>;
-    track: HTMLElementAttributes<HTMLTrackElement>;
-    u: HTMLElementAttributes<HTMLElement>;
-    ul: HTMLElementAttributes<HTMLUListElement>;
-    var: HTMLElementAttributes<HTMLElement>;
-    video: HTMLElementAttributes<HTMLVideoElement>;
-    wbr: HTMLElementAttributes<HTMLElement>;
+    a: IntrinsicElementAttributes<HTMLAnchorElement>;
+    abbr: IntrinsicElementAttributes<HTMLElement>;
+    address: IntrinsicElementAttributes<HTMLElement>;
+    area: IntrinsicElementAttributes<HTMLAreaElement>;
+    article: IntrinsicElementAttributes<HTMLElement>;
+    aside: IntrinsicElementAttributes<HTMLElement>;
+    audio: IntrinsicElementAttributes<HTMLAudioElement>;
+    b: IntrinsicElementAttributes<HTMLElement>;
+    base: IntrinsicElementAttributes<HTMLBaseElement>;
+    bdi: IntrinsicElementAttributes<HTMLElement>;
+    bdo: IntrinsicElementAttributes<HTMLElement>;
+    big: IntrinsicElementAttributes<HTMLElement>;
+    blockquote: IntrinsicElementAttributes<HTMLQuoteElement>;
+    body: IntrinsicElementAttributes<HTMLBodyElement>;
+    br: IntrinsicElementAttributes<HTMLBRElement>;
+    button: IntrinsicElementAttributes<HTMLButtonElement>;
+    canvas: IntrinsicElementAttributes<HTMLCanvasElement>;
+    caption: IntrinsicElementAttributes<HTMLTableCaptionElement>;
+    cite: IntrinsicElementAttributes<HTMLElement>;
+    code: IntrinsicElementAttributes<HTMLElement>;
+    col: IntrinsicElementAttributes<HTMLTableColElement>;
+    colgroup: IntrinsicElementAttributes<HTMLTableColElement>;
+    data: IntrinsicElementAttributes<HTMLDataElement>;
+    datalist: IntrinsicElementAttributes<HTMLDataListElement>;
+    dd: IntrinsicElementAttributes<HTMLElement>;
+    del: IntrinsicElementAttributes<HTMLModElement>;
+    details: IntrinsicElementAttributes<HTMLDetailsElement>;
+    dfn: IntrinsicElementAttributes<HTMLElement>;
+    dialog: IntrinsicElementAttributes<HTMLDialogElement>;
+    div: IntrinsicElementAttributes<HTMLDivElement>;
+    dl: IntrinsicElementAttributes<HTMLDListElement>;
+    dt: IntrinsicElementAttributes<HTMLElement>;
+    em: IntrinsicElementAttributes<HTMLElement>;
+    embed: IntrinsicElementAttributes<HTMLEmbedElement>;
+    fieldset: IntrinsicElementAttributes<HTMLFieldSetElement>;
+    figcaption: IntrinsicElementAttributes<HTMLElement>;
+    figure: IntrinsicElementAttributes<HTMLElement>;
+    footer: IntrinsicElementAttributes<HTMLElement>;
+    form: IntrinsicElementAttributes<HTMLFormElement>;
+    h1: IntrinsicElementAttributes<HTMLHeadingElement>;
+    h2: IntrinsicElementAttributes<HTMLHeadingElement>;
+    h3: IntrinsicElementAttributes<HTMLHeadingElement>;
+    h4: IntrinsicElementAttributes<HTMLHeadingElement>;
+    h5: IntrinsicElementAttributes<HTMLHeadingElement>;
+    h6: IntrinsicElementAttributes<HTMLHeadingElement>;
+    head: IntrinsicElementAttributes<HTMLHeadElement>;
+    header: IntrinsicElementAttributes<HTMLElement>;
+    hgroup: IntrinsicElementAttributes<HTMLElement>;
+    hr: IntrinsicElementAttributes<HTMLHRElement>;
+    html: IntrinsicElementAttributes<HTMLHtmlElement>;
+    i: IntrinsicElementAttributes<HTMLElement>;
+    iframe: IntrinsicElementAttributes<HTMLIFrameElement>;
+    img: IntrinsicElementAttributes<HTMLImageElement>;
+    input: IntrinsicElementAttributes<HTMLInputElement> & { defaultValue?: string };
+    ins: IntrinsicElementAttributes<HTMLModElement>;
+    kbd: IntrinsicElementAttributes<HTMLElement>;
+    keygen: IntrinsicElementAttributes<HTMLUnknownElement>;
+    label: IntrinsicElementAttributes<HTMLLabelElement>;
+    legend: IntrinsicElementAttributes<HTMLLegendElement>;
+    li: IntrinsicElementAttributes<HTMLLIElement>;
+    link: IntrinsicElementAttributes<HTMLLinkElement>;
+    main: IntrinsicElementAttributes<HTMLElement>;
+    map: IntrinsicElementAttributes<HTMLMapElement>;
+    mark: IntrinsicElementAttributes<HTMLElement>;
+    marquee: IntrinsicElementAttributes<HTMLMarqueeElement> & HTMLMarqueeElementAttributes;
+    menu: IntrinsicElementAttributes<HTMLMenuElement>;
+    menuitem: IntrinsicElementAttributes<HTMLUnknownElement>;
+    meta: IntrinsicElementAttributes<HTMLMetaElement>;
+    meter: IntrinsicElementAttributes<HTMLMeterElement>;
+    nav: IntrinsicElementAttributes<HTMLElement>;
+    noscript: IntrinsicElementAttributes<HTMLElement>;
+    object: IntrinsicElementAttributes<HTMLObjectElement>;
+    ol: IntrinsicElementAttributes<HTMLOListElement>;
+    optgroup: IntrinsicElementAttributes<HTMLOptGroupElement>;
+    option: IntrinsicElementAttributes<HTMLOptionElement>;
+    output: IntrinsicElementAttributes<HTMLOutputElement>;
+    p: IntrinsicElementAttributes<HTMLParagraphElement>;
+    param: IntrinsicElementAttributes<HTMLParamElement>;
+    picture: IntrinsicElementAttributes<HTMLPictureElement>;
+    pre: IntrinsicElementAttributes<HTMLPreElement>;
+    progress: IntrinsicElementAttributes<HTMLProgressElement>;
+    q: IntrinsicElementAttributes<HTMLQuoteElement>;
+    rp: IntrinsicElementAttributes<HTMLElement>;
+    rt: IntrinsicElementAttributes<HTMLElement>;
+    ruby: IntrinsicElementAttributes<HTMLElement>;
+    s: IntrinsicElementAttributes<HTMLElement>;
+    samp: IntrinsicElementAttributes<HTMLElement>;
+    script: IntrinsicElementAttributes<HTMLScriptElement>;
+    section: IntrinsicElementAttributes<HTMLElement>;
+    select: IntrinsicElementAttributes<HTMLSelectElement>;
+    slot: IntrinsicElementAttributes<HTMLSlotElement>;
+    small: IntrinsicElementAttributes<HTMLElement>;
+    source: IntrinsicElementAttributes<HTMLSourceElement>;
+    span: IntrinsicElementAttributes<HTMLSpanElement>;
+    strong: IntrinsicElementAttributes<HTMLElement>;
+    style: IntrinsicElementAttributes<HTMLStyleElement>;
+    sub: IntrinsicElementAttributes<HTMLElement>;
+    summary: IntrinsicElementAttributes<HTMLElement>;
+    sup: IntrinsicElementAttributes<HTMLElement>;
+    table: IntrinsicElementAttributes<HTMLTableElement>;
+    tbody: IntrinsicElementAttributes<HTMLTableSectionElement>;
+    td: IntrinsicElementAttributes<HTMLTableCellElement>;
+    textarea: IntrinsicElementAttributes<HTMLTextAreaElement>;
+    tfoot: IntrinsicElementAttributes<HTMLTableSectionElement>;
+    th: IntrinsicElementAttributes<HTMLTableCellElement>;
+    thead: IntrinsicElementAttributes<HTMLTableSectionElement>;
+    time: IntrinsicElementAttributes<HTMLTimeElement>;
+    title: IntrinsicElementAttributes<HTMLTitleElement>;
+    tr: IntrinsicElementAttributes<HTMLTableRowElement>;
+    track: IntrinsicElementAttributes<HTMLTrackElement>;
+    u: IntrinsicElementAttributes<HTMLElement>;
+    ul: IntrinsicElementAttributes<HTMLUListElement>;
+    var: IntrinsicElementAttributes<HTMLElement>;
+    video: IntrinsicElementAttributes<HTMLVideoElement>;
+    wbr: IntrinsicElementAttributes<HTMLElement>;
 
     //SVG
     svg: SVGElementAttributes<SVGSVGElement>;

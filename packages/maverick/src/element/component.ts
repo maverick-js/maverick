@@ -42,7 +42,7 @@ export interface ComponentConstructor<
   API extends ComponentAPI = InferComponentAPI<T>,
 > {
   el: CustomElementDefinition<API>;
-  register?: () => void | ComponentConstructor[];
+  register?: ComponentConstructor[] | (() => void | ComponentConstructor[]);
   new (instance: ComponentInstance<API>): Component<API>;
 }
 

@@ -16,8 +16,9 @@ export function createServerElement<T extends Component = AnyComponent>(
 ): typeof ServerCustomElement<T> {
   if (registry.has(Component)) return registry.get(Component)!;
 
+  const register = Component.register;
   if (Component.register) {
-    const result = Component.register();
+    const result = isArray(register) ? register : register?.();
     if (isArray(result)) {
       for (const Component of result) {
         customElementRegistrations.set(Component.el.tagName, Component);

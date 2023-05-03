@@ -39,8 +39,9 @@ export function createHTMLElement<T extends Component>(
     );
   }
 
+  const _register = Component.register;
   if (Component.register) {
-    const result = Component.register();
+    const result = isArray(_register) ? _register : _register?.();
     if (isArray(result)) for (const Component of result) register(Component, init);
   }
 

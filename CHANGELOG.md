@@ -1,3 +1,23 @@
+# [0.36.0](https://github.com/maverick-js/maverick/compare/v0.35.2...v0.36.0) (2023-05-06)
+
+
+### Bug Fixes
+
+* better error message when custom el not registered ([720582e](https://github.com/maverick-js/maverick/commit/720582e66f170a7301a9124b21c7138718e52b8e))
+* custom el render should use own scope ([4cc2350](https://github.com/maverick-js/maverick/commit/4cc23503e296a51682d4ba0a3ddf50a552ed2130))
+* forward signal props on custom element ([5438559](https://github.com/maverick-js/maverick/commit/54385594e63ce63580dbaa37a0bd6330d79162c8))
+* improve jsx types ([455324e](https://github.com/maverick-js/maverick/commit/455324e4fee376a9126b118415944c8a4f98868a))
+* use computed for store getters ([308fbfd](https://github.com/maverick-js/maverick/commit/308fbfdabf94cdecc7d355c672b517125c97a34b))
+
+
+### Features
+
+* add new `register` method on component constructor ([67b80d4](https://github.com/maverick-js/maverick/commit/67b80d49e32494f444d04b575c4a19f8be087eef))
+* add support for custom elements in jsx ([f788960](https://github.com/maverick-js/maverick/commit/f788960d7312d717fb8727534384ee0818c5d03c))
+* allow register to be set to array ([c90bf1c](https://github.com/maverick-js/maverick/commit/c90bf1c19736a77fd807708f610f2fcdfba5cd3c))
+
+
+
 ## [0.35.3](https://github.com/maverick-js/maverick/compare/v0.35.2...v0.35.3) (2023-05-01)
 
 

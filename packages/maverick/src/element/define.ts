@@ -114,6 +114,7 @@ export const OBJECT: AttributeType<object | null> = {
 };
 
 export function inferAttributeType(value: unknown): AttributeType<any> {
+  if (value === null) return STRING;
   switch (typeof value) {
     case 'undefined':
       return STRING;

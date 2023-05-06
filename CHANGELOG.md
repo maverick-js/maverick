@@ -1,3 +1,12 @@
+## [0.36.1](https://github.com/maverick-js/maverick/compare/v0.36.0...v0.36.1) (2023-05-06)
+
+
+### Bug Fixes
+
+* default to string attr type for null prop types ([f3dff42](https://github.com/maverick-js/maverick/commit/f3dff42b830b7fe438da386ff0a31d0360044651))
+
+
+
 # [0.36.0](https://github.com/maverick-js/maverick/compare/v0.35.2...v0.36.0) (2023-05-06)
 
 

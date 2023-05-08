@@ -38,7 +38,7 @@
     "test:server:watch": "SERVER=true vitest --watch"
   },
   "dependencies": {
-    "@maverick-js/signals": "^5.9.4",
+    "@maverick-js/signals": "^5.10.1",
     "type-fest": "^3.8.0"
   },
   "devDependencies": {

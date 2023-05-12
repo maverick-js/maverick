@@ -8,7 +8,6 @@ import type {
   InferComponentProps,
 } from '../element/component';
 import type { HTMLCustomElement, InferElementComponent } from '../element/host';
-import type { JSX } from '../runtime/jsx';
 
 export interface ReactElement<Props> extends React.ForwardRefExoticComponent<Props> {}
 
@@ -30,13 +29,14 @@ export type ReactElementProps<
     children?: React.ReactNode | undefined;
     part?: string | undefined;
     __forwardedRef?: React.Ref<T>;
-  } & ReactElementEventCallbacks<T, InferComponentEvents<R> & ReactEventMap>;
+  } & ReactElementEventCallbacks<InferComponentEvents<R>>;
 
-export interface ReactEventMap extends Omit<MaverickOnAttributes, keyof HTMLElementEventMap> {}
+export interface EventHandler<Event> {
+  (event: Event): void;
+}
 
-export type ReactElementEventCallbacks<Target extends EventTarget, Events> = {
-  [EventType in keyof Events as `on${PascalCase<EventType & string>}`]?: JSX.TargetedEventHandler<
-    Target,
+export type ReactElementEventCallbacks<Events> = {
+  [EventType in keyof Events as `on${PascalCase<EventType & string>}`]?: EventHandler<
     Events[EventType]
   >;
 };

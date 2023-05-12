@@ -1,3 +1,12 @@
+## [0.36.3](https://github.com/maverick-js/maverick/compare/v0.36.2...v0.36.3) (2023-05-12)
+
+
+### Bug Fixes
+
+* **react:** resolve correct event callback types ([a4a552f](https://github.com/maverick-js/maverick/commit/a4a552f3696ff69e34edd9d1487706d3f15e9293))
+
+
+
 ## [0.36.2](https://github.com/maverick-js/maverick/compare/v0.36.1...v0.36.2) (2023-05-12)
 
 

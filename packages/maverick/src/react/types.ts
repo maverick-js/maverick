@@ -10,13 +10,17 @@ import type {
 import type { HTMLCustomElement, InferElementComponent } from '../element/host';
 import type { JSX } from '../runtime/jsx';
 
-export interface ReactElement<T extends HTMLCustomElement>
-  extends React.ForwardRefExoticComponent<ReactElementProps<T>> {}
+export interface ReactElement<Props> extends React.ForwardRefExoticComponent<Props> {}
+
+export type InferReactElement<T> = T extends ReactElementProps<infer E, any> ? E : never;
 
 export type ReactElementProps<
-  T extends HTMLCustomElement,
+  T extends HTMLCustomElement = HTMLCustomElement<any>,
   R extends Component = InferElementComponent<T>,
-> = Partial<InferComponentProps<R>> &
+> = {
+  /** @internal types only */
+  ts__element?: T;
+} & Partial<InferComponentProps<R>> &
   React.RefAttributes<T> &
   Omit<React.HTMLAttributes<T>, 'style'> & {
     style?:

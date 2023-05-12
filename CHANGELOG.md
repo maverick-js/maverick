@@ -1,3 +1,18 @@
+## [0.36.2](https://github.com/maverick-js/maverick/compare/v0.36.1...v0.36.2) (2023-05-12)
+
+
+### Bug Fixes
+
+* **react:** allow props to be exported ([9eb39a8](https://github.com/maverick-js/maverick/commit/9eb39a819ffd403f1a3d9dfd47d6f98c904089aa))
+* **ssr:** class tokens can be undefined ([33a52eb](https://github.com/maverick-js/maverick/commit/33a52ebfdad863f9348d31a7ef99ab6464408085))
+
+
+### Features
+
+* update all dependencies ([e3bf6bc](https://github.com/maverick-js/maverick/commit/e3bf6bc1576855a6e23be0041ae4d37f78644c02))
+
+
+
 ## [0.36.1](https://github.com/maverick-js/maverick/compare/v0.36.0...v0.36.1) (2023-05-06)
 
 

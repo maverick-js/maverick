@@ -12,10 +12,11 @@ import { type AnalyzeCommandConfig, runAnalyzeCommand } from './commands/analyze
 export function cli(): void {
   yargs(hideBin(process.argv))
     .usage('Usage: $0 <command> [glob..] [options]')
-    .command<AnalyzeCommandConfig>({
-      command: ['analyze [glob..]', '$0 [glob..]'],
-      describe: 'Analyzes component metadata.',
-      handler: async (config) => {
+    .command<AnalyzeCommandConfig>(
+      ['analyze [glob..]', '$0 [glob..]'],
+      'Analyzes component metadata.',
+      undefined,
+      async (config) => {
         setGlobalLogLevel(mapLogLevelStringToNumber(config.logLevel as LogLevelName));
 
         try {
@@ -28,7 +29,7 @@ export function cli(): void {
           }
         }
       },
-    })
+    )
     .example('$ $0', '')
     .option('cwd', {
       string: true,

@@ -77,11 +77,11 @@ function resolveAtrr(value: unknown) {
 }
 
 /** @internal */
-export function $$_classes(base: unknown, tokens: Record<string, unknown>) {
+export function $$_classes(base: unknown, tokens?: Record<string, unknown>) {
   let baseValue = unwrapDeep(base),
     result = isString(baseValue) ? baseValue : '';
 
-  if (Object.keys(tokens).length > 0) {
+  if (tokens && Object.keys(tokens).length > 0) {
     const classList = new Set<string>();
     parseClassAttr(classList, result);
     resolveClasses(classList, tokens);

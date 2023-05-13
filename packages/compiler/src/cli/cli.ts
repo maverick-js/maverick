@@ -15,7 +15,7 @@ export function cli(): void {
     .command<AnalyzeCommandConfig>(
       ['analyze [glob..]', '$0 [glob..]'],
       'Analyzes component metadata.',
-      undefined,
+      () => {},
       async (config) => {
         setGlobalLogLevel(mapLogLevelStringToNumber(config.logLevel as LogLevelName));
 

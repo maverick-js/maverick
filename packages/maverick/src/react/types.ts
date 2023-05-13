@@ -14,22 +14,23 @@ export interface ReactElement<Props> extends React.ForwardRefExoticComponent<Pro
 export type InferReactElement<T> = T extends ReactElementProps<infer E, any> ? E : never;
 
 export type ReactElementProps<
-  T extends HTMLCustomElement = HTMLCustomElement<any>,
-  R extends Component = InferElementComponent<T>,
+  Element extends HTMLCustomElement = HTMLCustomElement<any>,
+  Comp extends Component = InferElementComponent<Element>,
+  Events = ReactElementEventCallbacks<InferComponentEvents<Comp>>,
 > = {
   /** @internal types only */
-  ts__element?: T;
-} & Partial<InferComponentProps<R>> &
-  React.RefAttributes<T> &
-  Omit<React.HTMLAttributes<T>, 'style'> & {
+  ts__element?: Element;
+} & Partial<InferComponentProps<Comp>> &
+  React.RefAttributes<Element> &
+  Omit<React.HTMLAttributes<Element>, 'style' | keyof Events> & {
     style?:
       | (React.CSSProperties &
-          Partial<InferComponentCSSVars<R>> & { [name: `--${string}`]: string })
+          Partial<InferComponentCSSVars<Comp>> & { [name: `--${string}`]: string })
       | undefined;
     children?: React.ReactNode | undefined;
     part?: string | undefined;
-    __forwardedRef?: React.Ref<T>;
-  } & ReactElementEventCallbacks<InferComponentEvents<R>>;
+    __forwardedRef?: React.Ref<Element>;
+  } & Events;
 
 export interface EventHandler<Event> {
   (event: Event): void;

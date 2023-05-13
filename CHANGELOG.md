@@ -1,3 +1,14 @@
+## [0.36.5](https://github.com/maverick-js/maverick/compare/v0.36.4...v0.36.5) (2023-05-13)
+
+
+### Bug Fixes
+
+* ensure marker exists when claiming array ([f52bb53](https://github.com/maverick-js/maverick/commit/f52bb536d9cdbd3061bb1ec7c43ff9f28269fc39))
+* forward correct insert function to internal custom el setup ([324d764](https://github.com/maverick-js/maverick/commit/324d764e8e645f78b68ddc893f163d353e7ebe63))
+* **ssr:** resolve children in parent scope ([a35b68f](https://github.com/maverick-js/maverick/commit/a35b68fc49974eaf06cec752acc3a795a3f93cfb))
+
+
+
 ## [0.36.4](https://github.com/maverick-js/maverick/compare/v0.36.3...v0.36.4) (2023-05-13)
 
 

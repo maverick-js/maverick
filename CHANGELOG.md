@@ -1,3 +1,12 @@
+## [0.36.4](https://github.com/maverick-js/maverick/compare/v0.36.3...v0.36.4) (2023-05-13)
+
+
+### Bug Fixes
+
+* **react:** omit duplicate react event callbacks ([067708a](https://github.com/maverick-js/maverick/commit/067708a1a5ffca52a303b6117ad0eccc13fb5709))
+
+
+
 ## [0.36.3](https://github.com/maverick-js/maverick/compare/v0.36.2...v0.36.3) (2023-05-12)
 
 

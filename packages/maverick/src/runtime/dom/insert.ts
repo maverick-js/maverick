@@ -45,18 +45,19 @@ function insertExpression(
 
   if (isArray(value)) {
     const newNodes: Node[] = [],
-      currentNodes = hydration
-        ? claimArray(marker as Comment)
-        : current && isArray(current)
-        ? (current as Node[])
-        : [];
+      currentNodes =
+        hydration && marker
+          ? claimArray(marker as Comment)
+          : current && isArray(current)
+          ? (current as Node[])
+          : [];
 
     if (value.length && resolveArray(newNodes, value, currentNodes, isSignal)) {
       effect(() => void (current = insertExpression(parent, newNodes, marker, currentNodes, true)));
       return () => current;
     }
 
-    if (hydration) return currentNodes;
+    if (hydration && marker) return currentNodes;
 
     if (newNodes.length === 0) {
       updateDOM(parent, current);

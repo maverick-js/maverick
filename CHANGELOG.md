@@ -1,3 +1,12 @@
+## [0.36.6](https://github.com/maverick-js/maverick/compare/v0.36.5...v0.36.6) (2023-05-13)
+
+
+### Bug Fixes
+
+* **cli:** yargs expects function for builder arg ([4b2b8bf](https://github.com/maverick-js/maverick/commit/4b2b8bf9fd59d4125d9470f7ddf95a3a59dcb6a0))
+
+
+
 ## [0.36.5](https://github.com/maverick-js/maverick/compare/v0.36.4...v0.36.5) (2023-05-13)
 
 

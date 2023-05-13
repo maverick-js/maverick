@@ -205,6 +205,7 @@ export const dom: ASTSerializer = {
         );
         ctx.runtime.add(RUNTIME.children);
       },
+      RUNTIME_INSERT = !ctx.diffArrays ? RUNTIME.insertLite : RUNTIME.insert,
       insert = (marker: (() => string) | null, block: string) => {
         const beforeId = ctx.hydratable ? null : getNextElementId();
         const parentId = ctx.hydratable ? marker?.() ?? null : getParentElementId();
@@ -212,9 +213,7 @@ export const dom: ASTSerializer = {
           ? !ctx.diffArrays
             ? RUNTIME.insertAtMarkerLite
             : RUNTIME.insertAtMarker
-          : !ctx.diffArrays
-          ? RUNTIME.insertLite
-          : RUNTIME.insert;
+          : RUNTIME_INSERT;
         expressions.push(createFunctionCall(insertId, [parentId, block, beforeId]));
         ctx.runtime.add(insertId);
       };
@@ -273,12 +272,14 @@ export const dom: ASTSerializer = {
             expressions.push(
               createFunctionCall(RUNTIME.setupCustomElement, [
                 currentId,
-                props.length > 0 ? `{ ${props.join(', ')} }` : null,
+                props.length > 0 ? `{ ${props.join(', ')} }` : 'null',
+                RUNTIME_INSERT,
               ]),
             );
 
             props = [];
             template.push(` mk-d`);
+            ctx.runtime.add(RUNTIME_INSERT);
             ctx.runtime.add(RUNTIME.setupCustomElement);
           }
 

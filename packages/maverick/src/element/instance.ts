@@ -32,7 +32,7 @@ export interface ComponentLifecycleCallback {
 
 export interface ComponentInstanceInit<Props = {}> {
   scope?: Scope | null;
-  props?: Readonly<Partial<Props>>;
+  props?: Readonly<Partial<Props>> | null;
 }
 
 export function createComponent<T extends Component>(

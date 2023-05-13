@@ -49,7 +49,11 @@ export const $$_hydrating = hydration;
 const element_stack: string[] | undefined = __DEV__ ? [] : undefined;
 
 /** @internal */
-export function $$_setup_custom_element(host: HTMLCustomElement, props?: Record<string, any>) {
+export function $$_setup_custom_element(
+  host: HTMLCustomElement,
+  props: Record<string, any> | null,
+  insert: (parent: Node | DocumentFragment, value: JSX.Element, before?: Node | null) => void,
+) {
   if (__DEV__) element_stack!.push(host.localName);
 
   const Component = customElementRegistrations.get(host.localName);

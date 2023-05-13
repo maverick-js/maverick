@@ -1,5 +1,6 @@
-import { createComponent, createServerElement, type ServerHTMLElement } from '../../element';
+import { createComponent, createServerElement } from '../../element';
 import { customElementRegistrations } from '../../element/register';
+import { scoped } from '../../runtime';
 import { escape } from '../../std/html';
 import { unwrapDeep } from '../../std/signal';
 import { trimTrailingSemicolon } from '../../std/string';
@@ -48,11 +49,14 @@ export function $$_custom_element(
     }
   }
 
-  host.attachComponent(createComponent(Component, { props }));
+  const component = createComponent(Component, { props }),
+    scope = component.instance._scope;
+
+  host.attachComponent(component);
 
   const hasInnerHTML = !!props?.innerHTML,
-    innerHTML = hasInnerHTML ? resolve(props.innerHTML) : null,
-    children = hasInnerHTML ? innerHTML! : resolve(props?.$children);
+    innerHTML = hasInnerHTML ? scoped(() => resolve(props.innerHTML), scope) : null,
+    children = hasInnerHTML ? innerHTML! : scoped(() => resolve(props?.$children), scope);
 
   return {
     [SSR_TEMPLATE]: `<${tagName}${host.attributes}>${

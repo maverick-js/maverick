@@ -26,8 +26,11 @@ export function buildPropsMeta(
     propTypes = checker.getPropertiesOfType(typeRoot);
 
   if (propTypes.length > 0) {
-    const props = getPropertyAssignmentValue(checker, definition, 'props'),
-      values = props ? getProperties(checker, props) : null;
+    let props = getValueNode(checker, getPropertyAssignmentValue(checker, definition, 'props'));
+
+    if (props && !ts.isObjectLiteralExpression(props)) {
+      props = undefined;
+    }
 
     for (const symbol of propTypes) {
       const signature = symbol.declarations?.[0];
@@ -35,8 +38,14 @@ export function buildPropsMeta(
 
       const name = escapeQuotes(signature.name.getText()),
         type = checker.getTypeOfSymbol(symbol),
-        valueNode = values?.props.get(name),
-        value = valueNode ? getValueNode(checker, valueNode.initializer) ?? valueNode : null;
+        valueNode = props ? getPropertyAssignmentValue(checker, props, name) : null,
+        value =
+          valueNode &&
+          (ts.isVariableDeclaration(valueNode) ||
+            ts.isPropertyDeclaration(valueNode) ||
+            ts.isPropertyAssignment(valueNode))
+            ? getValueNode(checker, valueNode.initializer) ?? valueNode
+            : null;
 
       let info: PropMetaInfo = {
         type,
@@ -46,8 +55,12 @@ export function buildPropsMeta(
         if (ts.isCallExpression(value) && value.arguments[0]) {
           const declaration = getValueNode(checker, value.arguments[0]);
           if (declaration && ts.isObjectLiteralExpression(declaration)) {
+            const val = getPropertyAssignmentValue(checker, declaration, 'value');
+
             info.value =
-              getPropertyAssignmentValue(checker, declaration, 'value')?.getText() ?? 'undefined';
+              (val as ts.PropertyAssignment)?.initializer?.getText() ??
+              val?.getText() ??
+              'undefined';
 
             const attr = getValueNode(
                 checker,

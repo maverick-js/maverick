@@ -62,16 +62,7 @@ export function getPropertyAssignmentValue(
   obj: ts.ObjectLiteralExpression,
   key: string,
 ): ts.Declaration | ts.Expression | undefined {
-  const prop = findPropertyAssignment(obj, key);
-  if (!prop) {
-    return undefined;
-  } else if (ts.isPropertyAssignment(prop)) {
-    return prop.initializer;
-  } else if (ts.isMethodDeclaration(prop)) {
-    return prop;
-  } else {
-    return getShorthandAssignmentDeclaration(checker, prop);
-  }
+  return checker.getPropertyOfType(checker.getTypeAtLocation(obj), key)?.valueDeclaration;
 }
 
 export function getValueNode(checker: ts.TypeChecker, node?: ts.Node): ts.Node | undefined {

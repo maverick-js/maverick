@@ -1,3 +1,12 @@
+## [0.36.7](https://github.com/maverick-js/maverick/compare/v0.36.6...v0.36.7) (2023-05-15)
+
+
+### Bug Fixes
+
+* **analyze:** improve prop def resolution ([45da773](https://github.com/maverick-js/maverick/commit/45da773a84be6a889bc70697b418358a12cdb378))
+
+
+
 ## [0.36.6](https://github.com/maverick-js/maverick/compare/v0.36.5...v0.36.6) (2023-05-13)
 
 

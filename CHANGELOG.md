@@ -1,3 +1,12 @@
+## [0.36.8](https://github.com/maverick-js/maverick/compare/v0.36.7...v0.36.8) (2023-05-16)
+
+
+### Bug Fixes
+
+* hydrate child custom elements correctly ([1a55c12](https://github.com/maverick-js/maverick/commit/1a55c12493147889df104204ef301a1e71fca166))
+
+
+
 ## [0.36.7](https://github.com/maverick-js/maverick/compare/v0.36.6...v0.36.7) (2023-05-15)
 
 

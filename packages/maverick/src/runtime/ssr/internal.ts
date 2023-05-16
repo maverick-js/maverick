@@ -49,20 +49,19 @@ export function $$_custom_element(
     }
   }
 
-  const component = createComponent(Component, { props }),
-    scope = component.instance._scope;
-
+  const component = createComponent(Component, { props });
   host.attachComponent(component);
 
-  const hasInnerHTML = !!props?.innerHTML,
-    innerHTML = hasInnerHTML ? scoped(() => resolve(props.innerHTML), scope) : null,
-    children = hasInnerHTML ? innerHTML! : scoped(() => resolve(props?.$children), scope);
+  const children =
+    !props?.innerHTML && props?.$children
+      ? scoped(() => props.$children(), component.instance._scope)
+      : [];
 
-  return {
-    [SSR_TEMPLATE]: `<${tagName}${host.attributes}>${
-      hasInnerHTML ? children : host.render() + children
-    }</${tagName}>`,
-  };
+  return [
+    host.attributes + '>',
+    injectHTML(!props?.innerHTML ? host.render() : props.innerHTML),
+    ...children,
+  ];
 }
 
 /** @internal */
@@ -227,5 +226,7 @@ export function $$_spread(spreads: Record<string, unknown>[]) {
 export function $$_inject_html(value: unknown): any {
   return injectHTML(resolve(value));
 }
+
+export const $$_scoped = scoped;
 
 export { $$_merge_props, $$_create_component } from '../dom';

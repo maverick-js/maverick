@@ -54,10 +54,10 @@ const RUNTIME = {
 export const ssr: ASTSerializer = {
   name: 'ssr',
   serialize(ast, ctx) {
-    let template = '',
-      skip = -1,
+    let skip = -1,
       merging = false,
       childrenFragment = false,
+      template = '',
       templates: string[] = [],
       parts: string[] = [],
       innerHTML: string | undefined,
@@ -68,19 +68,28 @@ export const ssr: ASTSerializer = {
       spreads: string[] = [],
       elements: ElementNode[] = [],
       component!: ElementNode | undefined,
-      customElement!: ElementNode | undefined,
-      commit = (part: string) => {
-        parts.push(part);
+      customElements: {
+        el: ElementNode;
+        part: number;
+        children: string[];
+        props?: string[];
+        spreads?: string[];
+      }[] = [],
+      commit = (part: string | null) => {
+        if (part !== null) parts.push(part);
         templates.push(template);
         template = '';
       },
       marker = () => {
         template += HYDRATION_MARKER;
       },
-      commitInnerHTML = (i: number) => {
+      commitInnerHTML = (i: number, inject = true) => {
         if (!innerHTML) return;
-        commit(createFunctionCall(RUNTIME.injectHTML, [innerHTML]));
-        ctx.runtime.add(RUNTIME.injectHTML);
+
+        if (inject) {
+          commit(createFunctionCall(RUNTIME.injectHTML, [innerHTML]));
+          ctx.runtime.add(RUNTIME.injectHTML);
+        }
 
         let depth = 0;
         for (let j = i + 1; j < ast.tree.length; j++) {
@@ -100,6 +109,36 @@ export const ssr: ASTSerializer = {
         }
 
         innerHTML = undefined;
+      },
+      insertCustomElement = () => {
+        const customEl = customElements.at(-1);
+        if (!customEl) return;
+
+        if (customEl.children.length) {
+          props.push(`$children: () => [${customEl.children.join(', ')}]`);
+        }
+
+        const setup =
+          '...' +
+          createFunctionCall(RUNTIME.customElement, [
+            `'${customEl.el.tagName}'`,
+            props.length > 0
+              ? `{ ${props.join(', ')} }`
+              : customEl.spreads?.length
+              ? 'undefined'
+              : null,
+            customEl.spreads?.length ? `[${customEl.spreads.join(', ')}]` : null,
+          ]);
+
+        const parent = customElements.at(-2);
+        if (parent) {
+          parent.children.push(setup);
+        } else {
+          parts[customEl.part] = setup;
+        }
+
+        customElements.pop();
+        ctx.runtime.add(RUNTIME.customElement);
       };
 
     const firstNode = ast.tree[0],
@@ -197,24 +236,10 @@ export const ssr: ASTSerializer = {
 
             commitAttrs();
 
-            if (customElement) {
-              if (customElement.children) {
-                props.push(serializeComponentChildrenProp(ssr, customElement.children, ctx));
-              }
-
-              commit(
-                createFunctionCall(RUNTIME.customElement, [
-                  `'${customElement.tagName}'`,
-                  props.length > 0
-                    ? `{ ${props.join(', ')} }`
-                    : $spread.length > 0
-                    ? 'undefined'
-                    : null,
-                  $spread.length > 0 ? `[${$spread.join(', ')}]` : null,
-                ]),
-              );
-
-              ctx.runtime.add(RUNTIME.customElement);
+            const customEl = customElements.at(-1);
+            if (customEl) {
+              if (props.length) customEl.props = props;
+              if ($spread.length) customEl.spreads = $spread;
             } else if ($spread.length) {
               commit(createFunctionCall(RUNTIME.spread, [`[${$spread.join(', ')}]`]));
               ctx.runtime.add(RUNTIME.spread);
@@ -280,21 +305,25 @@ export const ssr: ASTSerializer = {
           }
 
           merging = false;
-          if (!customElement && element && !element.isVoid) {
+          if (element && !element.isVoid && !element.tagName.includes('-')) {
             template += '>';
           }
         } else if (isChildrenStart(node)) {
           if (innerHTML) {
-            commitInnerHTML(i);
+            const hasCustomElement = customElements.length > 0;
+            insertCustomElement();
+            commitInnerHTML(i, !hasCustomElement);
             const element = elements.pop();
             if (element) template += element.isVoid ? ` />` : `</${element.tagName}>`;
           }
         } else if (isElementEnd(node)) {
           const element = elements.pop();
+
           if (element?.childCount === 0) commitInnerHTML(i);
-          if (customElement) {
-            customElement = undefined;
-          } else if (element) {
+
+          if (element) {
+            const customEl = customElements.at(-1);
+            if (element === customEl?.el) insertCustomElement();
             template += element.isVoid ? ` />` : `</${element.tagName}>`;
           }
         }
@@ -318,22 +347,28 @@ export const ssr: ASTSerializer = {
 
           if (i > 0 && node.dynamic()) marker();
 
-          if (isCustomElement) {
-            customElement = node;
-            elements.push(node);
-          } else {
-            template += `<${node.tagName}`;
-            elements.push(node);
-          }
-
+          template += `<${node.tagName}`;
+          elements.push(node);
           merging = isCustomElement || node.spread();
+
+          if (isCustomElement) {
+            customElements.push({
+              el: node,
+              part: parts.length,
+              children: [],
+            });
+            commit(null); // attrs
+            commit(null); // shadow-root
+          }
         }
       } else if (isAttributeNode(node)) {
         if (node.namespace) {
           if (node.namespace === '$prop' && node.name === 'innerHTML') {
             if (merging) {
               merger.push(node);
-            } else if (!elements[elements.length - 1].isVoid) {
+            }
+
+            if (!elements[elements.length - 1].isVoid) {
               innerHTML = node.value;
             }
           } else if (node.namespace === '$class') {
@@ -384,7 +419,13 @@ export const ssr: ASTSerializer = {
           }
 
           const code = !node.children ? node.value : serializeParentExpression(ssr, node, ctx);
-          commit(node.callId ?? code);
+
+          if (customElements.length) {
+            commit(null);
+            customElements.at(-1)!.children.push(code);
+          } else {
+            commit(node.callId ?? code);
+          }
         }
       } else if (isSpreadNode(node)) {
         merger.push(node);

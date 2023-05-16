@@ -46,25 +46,17 @@ export function $$_next_element(walker: TreeWalker): Node {
 /** @internal */
 export const $$_hydrating = hydration;
 
-const element_stack: string[] | undefined = __DEV__ ? [] : undefined;
-
 /** @internal */
 export function $$_setup_custom_element(
   host: HTMLCustomElement,
   props: Record<string, any> | null,
-  insert: (parent: Node | DocumentFragment, value: JSX.Element, before?: Node | null) => void,
 ) {
-  if (__DEV__) element_stack!.push(host.localName);
-
   const Component = customElementRegistrations.get(host.localName);
 
   if (!Component) {
-    if (__DEV__) {
-      const path = element_stack!.join(' > ');
-      throw Error(`[maverick] custom element not registered: ${path}`);
-    } else {
-      throw Error();
-    }
+    throw Error(
+      __DEV__ ? `[maverick] custom element not registered: ${host.localName}` : host.localName,
+    );
   }
 
   // TODO: turning off for now as not needed in Vidstack.
@@ -72,18 +64,9 @@ export function $$_setup_custom_element(
     if (Component.el.shadowRoot) $$_attach_declarative_shadow_dom(host);
   }
 
-  const component = createComponent(Component, { props }),
-    instance = component.instance;
-
+  const component = createComponent(Component, { props });
   host.attachComponent(component);
-
-  if (props && props.$children && !props.innerHTML) {
-    scoped(() => insert(host, props.$children), instance._scope);
-  }
-
-  if (__DEV__) {
-    element_stack!.length = 0;
-  }
+  return component.instance._scope;
 }
 
 /** @internal */
@@ -252,5 +235,6 @@ function delegated_event_handler(event: Event) {
 }
 
 export const $$_peek = peek;
+export const $$_scoped = scoped;
 export const $$_effect = effect;
 export const $$_computed = computed;

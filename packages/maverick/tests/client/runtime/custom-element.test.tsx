@@ -270,9 +270,7 @@ it('should throw error if element not registered', () => {
   expect(() => {
     const root = document.createElement('root');
     render(() => <mk-test-9 />, { target: root });
-  }).toThrowErrorMatchingInlineSnapshot(
-    '"[maverick] custom element not registered: mk-test-9 > mk-test-10 > mk-test-11"',
-  );
+  }).toThrowErrorMatchingInlineSnapshot('"[maverick] custom element not registered: mk-test-11"');
 });
 
 interface TestElement extends HTMLCustomElement {}

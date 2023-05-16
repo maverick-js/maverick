@@ -73,6 +73,7 @@ const RUNTIME = {
   computed: '$$_computed',
   effect: '$$_effect',
   peek: '$$_peek',
+  scoped: '$$_scoped',
   hydrating: '$$_hydrating',
 };
 
@@ -116,6 +117,7 @@ export const dom: ASTSerializer = {
       styles: string[] = [],
       spreads: string[] = [],
       expressions: string[] = [],
+      scopes: [index: number, setup: string][] = [],
       groupedEffects: string[] = [],
       template: string[] = [],
       elements: ElementNode[] = [],
@@ -265,21 +267,13 @@ export const dom: ASTSerializer = {
           const element = elements.at(-1);
 
           if (element && element.tagName.includes('-')) {
-            if (!innerHTML && element.children) {
-              addChildren(element.children);
-            }
-
-            expressions.push(
-              createFunctionCall(RUNTIME.setupCustomElement, [
-                currentId,
-                props.length > 0 ? `{ ${props.join(', ')} }` : 'null',
-                RUNTIME_INSERT,
-              ]),
-            );
-
+            const setup = createFunctionCall(RUNTIME.setupCustomElement, [
+              currentId,
+              props.length > 0 ? `{ ${props.join(', ')} }` : null,
+            ]);
+            scopes.push([expressions.length, setup]);
             props = [];
             template.push(` mk-d`);
-            ctx.runtime.add(RUNTIME_INSERT);
             ctx.runtime.add(RUNTIME.setupCustomElement);
           }
 
@@ -291,6 +285,11 @@ export const dom: ASTSerializer = {
           if (element && !element.isVoid) template.push('>');
         } else if (isChildrenStart(node)) {
           if (innerHTML) {
+            if (elements.at(-1)?.tagName.includes('-')) {
+              const scope = scopes.pop();
+              if (scope) expressions.push(scope[1]);
+            }
+
             let depth = 0;
             for (let j = i + 1; j < ast.tree.length; j++) {
               const node = ast.tree[j];
@@ -324,6 +323,25 @@ export const dom: ASTSerializer = {
           const element = elements.pop();
 
           if (element) {
+            if (element.tagName.includes('-')) {
+              const scope = scopes.pop();
+              if (scope) {
+                const inserts = expressions.slice(scope[0]);
+                if (inserts.length) {
+                  expressions = [
+                    ...expressions.slice(0, scope[0]),
+                    createFunctionCall(RUNTIME.scoped, [
+                      `() => { ${inserts.join(';')} }`,
+                      scope[1],
+                    ]),
+                  ];
+                  ctx.runtime.add(RUNTIME.scoped);
+                } else {
+                  expressions.push(scope[1]);
+                }
+              }
+            }
+
             if (textContent) {
               template.push(' ');
               textContent = false;

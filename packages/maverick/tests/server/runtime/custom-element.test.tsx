@@ -42,7 +42,7 @@ it('should render with children', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-test-2 mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root><!$><div>Child</div></mk-test-2>"',
+    '"<!$><mk-test-2 mk-h=\\"\\" mk-d=\\"\\"><shadow-root><!$><div class=\\"foo\\">Test</div></shadow-root><div>Child</div></mk-test-2>"',
   );
 });
 
@@ -65,7 +65,7 @@ it('should render with shadow dom', () => {
   )).code;
 
   expect(result).toMatchInlineSnapshot(
-    '"<!$><mk-test-3 mk-h=\\"\\" mk-d=\\"\\"><template shadowroot=\\"open\\"><!$><div class=\\"foo\\">Test</div></template><!$><div>Light A</div><!$><div>Light B</div><!$><div>Light C</div><!/[]></mk-test-3>"',
+    '"<!$><mk-test-3 mk-h=\\"\\" mk-d=\\"\\"><template shadowroot=\\"open\\"><!$><div class=\\"foo\\">Test</div></template><div>Light A</div><div>Light B</div><div>Light C</div></mk-test-3>"',
   );
 });
 

@@ -1,4 +1,4 @@
-import { signal, tick } from 'maverick.js';
+import { signal } from 'maverick.js';
 
 import { hydrate } from 'maverick.js/dom';
 import { Component, defineElement, registerCustomElement } from 'maverick.js/element';
@@ -19,6 +19,7 @@ it('should hydrate custom element', () => {
   el.setAttribute('mk-d', '');
   el.setAttribute('mk-h', '');
   el.appendChild(startMarker());
+  el.appendChild(startMarker());
   el.appendChild(child);
 
   const root = document.createElement('root');
@@ -35,6 +36,7 @@ it('should hydrate custom element', () => {
         mk-h=""
       >
         <!--$-->
+        <!--$-->
         <div>
           Foo
         </div>
@@ -43,9 +45,13 @@ it('should hydrate custom element', () => {
   `);
 
   const click = vi.fn();
-  const $children = signal<any>(() => <div $on:click={click}>Foo</div>);
+  const $children = signal<any>(() => (
+    <div $ref={(el) => expect(el === child).toBeTruthy()} $on:click={click}>
+      Foo
+    </div>
+  ));
 
-  hydrate(() => <mk-test-1>{$children}</mk-test-1>, {
+  hydrate(() => <mk-test-1 $ref={(e) => expect(e === el).toBeTruthy()}>{$children()}</mk-test-1>, {
     target: root,
   });
 
@@ -57,6 +63,7 @@ it('should hydrate custom element', () => {
         mk-h=""
       >
         <!--$-->
+        <!--$-->
         <div>
           Foo
         </div>
@@ -64,11 +71,10 @@ it('should hydrate custom element', () => {
     </root>
   `);
 
+  expect(el.component).toBeDefined();
+
   child.dispatchEvent(new MouseEvent('click'));
   expect(click).toHaveBeenCalledOnce();
-
-  $children.set(null);
-  tick();
 
   expect(root).toMatchInlineSnapshot(`
     <root>
@@ -76,7 +82,13 @@ it('should hydrate custom element', () => {
       <mk-test-1
         mk-d=""
         mk-h=""
-      />
+      >
+        <!--$-->
+        <!--$-->
+        <div>
+          Foo
+        </div>
+      </mk-test-1>
     </root>
   `);
 });

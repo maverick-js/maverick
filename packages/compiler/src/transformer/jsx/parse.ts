@@ -126,7 +126,7 @@ function parseElement(node: JSXElementNode, ast: AST, meta: JSXNodeMeta) {
   ast.tree.push(createStructuralNode(StructuralNodeType.AttributesEnd));
 
   if (hasChildren) {
-    if (isComponent || isCustomElement) {
+    if (isComponent) {
       const childNodes: ComponentChildren[] = [];
 
       for (const child of children) {

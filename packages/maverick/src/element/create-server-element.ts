@@ -7,7 +7,7 @@ import { isArray, isBoolean, noop } from '../std/unit';
 import type { AnyComponent, Component, ComponentConstructor } from './component';
 import type { HostElement } from './host';
 import type { ComponentLifecycleCallback } from './instance';
-import { customElementRegistrations } from './register';
+import { serverElementRegistry } from './register';
 
 const registry = new Map<ComponentConstructor, typeof ServerCustomElement>();
 
@@ -21,7 +21,7 @@ export function createServerElement<T extends Component = AnyComponent>(
     const result = isArray(register) ? register : register?.();
     if (isArray(result)) {
       for (const Component of result) {
-        customElementRegistrations.set(Component.el.tagName, Component);
+        serverElementRegistry!.set(Component.el.tagName, Component);
       }
     }
   }

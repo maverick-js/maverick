@@ -1,5 +1,5 @@
 import { createComponent, type HTMLCustomElement } from '../../element';
-import { customElementRegistrations } from '../../element/register';
+import { DOM_ELEMENT_REGISTRY } from '../../element/register';
 import { attachDeclarativeShadowDOM } from '../../std/dom';
 import { createFragment, setAttribute, setStyle, toggleClass } from '../../std/dom';
 import { listenEvent } from '../../std/event';
@@ -51,7 +51,7 @@ export function $$_setup_custom_element(
   host: HTMLCustomElement,
   props: Record<string, any> | null,
 ) {
-  const Component = customElementRegistrations.get(host.localName);
+  const Component = window[DOM_ELEMENT_REGISTRY]?.get(host.localName);
 
   if (!Component) {
     throw Error(

@@ -27,16 +27,23 @@ export function registerHeadlessCustomElement(Component: ComponentConstructor) {
   register(Component);
 }
 
-export const customElementRegistrations = new Map<string, ComponentConstructor>();
+export const DOM_ELEMENT_REGISTRY = Symbol(__DEV__ ? 'MAVERICK_REGISTRY' : 0);
+
+export const serverElementRegistry = __SERVER__
+  ? new Map<string, ComponentConstructor>()
+  : undefined;
 
 export function register(Component: ComponentConstructor, init?: HTMLCustomElementInit) {
   const tagName = Component.el.tagName;
 
-  if (customElementRegistrations.has(tagName)) return;
+  if (__SERVER__) {
+    serverElementRegistry!.set(tagName, Component);
+    return;
+  }
 
-  customElementRegistrations.set(tagName, Component);
-
-  if (!__SERVER__ && !window.customElements.get(tagName)) {
+  if (!window.customElements.get(tagName)) {
+    if (!window[DOM_ELEMENT_REGISTRY]) window[DOM_ELEMENT_REGISTRY] = new Map();
+    window[DOM_ELEMENT_REGISTRY].set(tagName, Component);
     window.customElements.define(tagName, createHTMLElement(Component, init));
   }
 }

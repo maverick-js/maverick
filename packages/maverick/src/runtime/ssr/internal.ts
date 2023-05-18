@@ -1,5 +1,5 @@
 import { createComponent, createServerElement } from '../../element';
-import { customElementRegistrations } from '../../element/register';
+import { serverElementRegistry } from '../../element/register';
 import { scoped } from '../../runtime';
 import { escape } from '../../std/html';
 import { unwrapDeep } from '../../std/signal';
@@ -25,7 +25,7 @@ export function $$_custom_element(
   props?: Record<string, any>,
   spreads?: Record<string, unknown>[],
 ) {
-  const Component = customElementRegistrations.get(tagName);
+  const Component = serverElementRegistry!.get(tagName);
 
   if (!Component) {
     throw Error(`[maverick] custom element not registered: ${tagName}`);

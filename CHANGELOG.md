@@ -1,3 +1,12 @@
+## [0.36.10](https://github.com/maverick-js/maverick/compare/v0.36.9...v0.36.10) (2023-05-18)
+
+
+### Bug Fixes
+
+* **react:** hmr issue in remix ([2cdabec](https://github.com/maverick-js/maverick/commit/2cdabecf2725bef95a35dc57cd5b500cf4f61285))
+
+
+
 ## [0.36.9](https://github.com/maverick-js/maverick/compare/v0.36.8...v0.36.9) (2023-05-18)
 
 

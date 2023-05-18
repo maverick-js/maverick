@@ -1,3 +1,12 @@
+## [0.36.9](https://github.com/maverick-js/maverick/compare/v0.36.8...v0.36.9) (2023-05-18)
+
+
+### Bug Fixes
+
+* **react:** hmr causing element register error ([aea9264](https://github.com/maverick-js/maverick/commit/aea9264b5ecca19fe325e49fda9a5e8d6355d740))
+
+
+
 ## [0.36.8](https://github.com/maverick-js/maverick/compare/v0.36.7...v0.36.8) (2023-05-16)
 
 

@@ -36,7 +36,7 @@ export function register(Component: ComponentConstructor, init?: HTMLCustomEleme
 
   customElementRegistrations.set(tagName, Component);
 
-  if (!__SERVER__) {
-    customElements.define(tagName, createHTMLElement(Component, init));
+  if (!__SERVER__ && !window.customElements.get(tagName)) {
+    window.customElements.define(tagName, createHTMLElement(Component, init));
   }
 }

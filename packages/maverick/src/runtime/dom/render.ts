@@ -12,9 +12,7 @@ export type HydrationContext = {
 
 export { type MarkerWalker };
 
-export interface HydrateOptions extends RenderOptions {
-  resume?: boolean;
-}
+export interface HydrateOptions extends RenderOptions {}
 
 export interface Hydrator {
   (root: () => JSX.Element, options: HydrateOptions): Dispose;
@@ -30,7 +28,7 @@ export function runHydration(
   options: HydrateOptions,
 ): Dispose {
   const prev = hydration;
-  hydration = options.resume && hydration ? hydration : { w: createMarkerWalker(options.target) };
+  hydration = { w: createMarkerWalker(options.target) };
   const dispose = renderer(root, options);
   hydration = prev;
   return dispose;

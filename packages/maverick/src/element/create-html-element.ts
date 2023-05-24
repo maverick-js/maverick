@@ -361,10 +361,7 @@ class HTMLCustomElement<T extends Component = AnyComponent>
     if (this._root && init && instance._renderer) {
       scoped(() => {
         const renderer = this._hydrate ? init.hydrate : init.render;
-        renderer(() => instance._render(), {
-          target: this._root!,
-          resume: !def.shadowRoot,
-        });
+        renderer(() => instance._render(), { target: this._root! });
       }, instance._scope);
     }
 
@@ -449,7 +446,11 @@ class HTMLCustomElement<T extends Component = AnyComponent>
 }
 
 function resolveShadowRootElement(root: Element) {
-  if (isDOMElement(root.firstChild) && root.firstChild.localName === 'shadow-root') {
+  if (
+    root.firstChild &&
+    isDOMElement(root.firstChild) &&
+    root.firstChild.localName === 'shadow-root'
+  ) {
     return root.firstChild;
   } else {
     const shadowRoot = $$_create_element('shadow-root');

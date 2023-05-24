@@ -39,8 +39,19 @@ export function $$_next_template(fragment: DocumentFragment) {
 }
 
 /** @internal */
-export function $$_next_element(walker: TreeWalker): Node {
-  return walker.nextNode()!.nextSibling as Element;
+export function $$_next_element(walker: TreeWalker): Element {
+  let element = walker.nextNode()!.nextSibling as Element;
+
+  if (
+    element.localName.indexOf('-') > 0 &&
+    element.firstChild &&
+    element.firstChild.nodeName === 'SHADOW-ROOT'
+  ) {
+    let node = (element.firstChild.nextSibling || element.nextSibling) as Node;
+    if (node) walker.currentNode = node;
+  }
+
+  return element;
 }
 
 /** @internal */

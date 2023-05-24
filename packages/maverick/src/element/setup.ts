@@ -7,7 +7,7 @@ import { CONNECT } from './internal';
  * This function is dynamically imported and used to setup when there is no delegate (i.e., no
  * host framework such as loading over a CDN).
  */
-export async function setup(host: HTMLCustomElement) {
+export async function setup(host: HTMLCustomElement<any>) {
   const parent = findParent(host);
 
   const hostCtor = host.constructor as any,
@@ -24,14 +24,13 @@ export async function setup(host: HTMLCustomElement) {
     if (parent?.keepAlive) host.keepAlive = true;
     host.attachComponent(
       createComponent(componentCtor, {
-        props: resolvePropsFromAttrs(host),
         scope: parent?.component?.instance!._scope,
       }),
     );
   }
 }
 
-function resolvePropsFromAttrs(host: HTMLCustomElement): Record<string, any> {
+export function resolvePropsFromAttrs(host: HTMLCustomElement<any>): Record<string, any> {
   const hostCtor = host.constructor as any,
     componentCtor = hostCtor._component as ComponentConstructor,
     props = {};
@@ -50,7 +49,7 @@ function resolvePropsFromAttrs(host: HTMLCustomElement): Record<string, any> {
   return props;
 }
 
-function findParent(host: HTMLCustomElement): HTMLCustomElement | null {
+export function findParent(host: HTMLCustomElement<any>): HTMLCustomElement<any> | null {
   let hostCtor = host.constructor as any,
     componentCtor = hostCtor._component as ComponentConstructor,
     node: Node | null = host.parentNode,

@@ -22,6 +22,7 @@ import type { HostElement, HTMLCustomElementConstructor } from './host';
 import type { ComponentLifecycleCallback } from './instance';
 import { CONNECT, METHODS, PROPS } from './internal';
 import { register } from './register';
+import { resolvePropsFromAttrs, setup } from './setup';
 
 export interface HTMLCustomElementInit {
   render: Renderer;
@@ -157,10 +158,6 @@ class HTMLCustomElement<T extends Component = AnyComponent>
 
   /** @internal */
   [CONNECT]: boolean | ComponentLifecycleCallback[] = [];
-
-  private get _hydrate() {
-    return this.hasAttribute('mk-h');
-  }
 
   private get _delegate() {
     return this.hasAttribute('mk-d');
@@ -320,6 +317,11 @@ class HTMLCustomElement<T extends Component = AnyComponent>
     instance._el = this;
     this._component = component;
 
+    const attrValues = resolvePropsFromAttrs(this);
+    for (const name of Object.keys(attrValues)) {
+      instance._props[name].set(attrValues[name]);
+    }
+
     if (this._queuedActions?.size) {
       for (const action of this._queuedActions.values()) action();
     }
@@ -360,7 +362,7 @@ class HTMLCustomElement<T extends Component = AnyComponent>
 
     if (this._root && init && instance._renderer) {
       scoped(() => {
-        const renderer = this._hydrate ? init.hydrate : init.render;
+        const renderer = this.hasAttribute('mk-h') ? init.hydrate : init.render;
         renderer(() => instance._render(), { target: this._root! });
       }, instance._scope);
     }
@@ -425,8 +427,7 @@ class HTMLCustomElement<T extends Component = AnyComponent>
   private async _setup() {
     if (this._pendingSetup) return;
     this._pendingSetup = true;
-    const { setup } = await import('./setup');
-    await setup(this as any);
+    await setup(this);
     this._pendingSetup = false;
   }
 

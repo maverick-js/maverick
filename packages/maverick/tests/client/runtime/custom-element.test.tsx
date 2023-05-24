@@ -171,11 +171,18 @@ it('should forward context to another custom element', () => {
   }
 
   class ChildComponent extends Component {
-    static el = defineElement({ tagName: `mk-test-7` });
+    static el = defineElement({
+      tagName: `mk-test-7`,
+      props: { foo: 0 },
+    });
     constructor(instance) {
       super(instance);
       expect(useContext(Context)).toBe(1);
       expect(() => useContext(ContextB)).toThrow();
+    }
+    protected override onAttach() {
+      const { foo } = this.$props;
+      this.setAttributes({ foo });
     }
   }
 
@@ -187,11 +194,26 @@ it('should forward context to another custom element', () => {
   render(
     () => (
       <mk-test-6>
-        <mk-test-7 />
+        <mk-test-7 foo="5" />
       </mk-test-6>
     ),
     { target: root },
   );
+
+  expect(root).toMatchInlineSnapshot(`
+    <root>
+      <mk-test-6
+        mk-d=""
+      >
+        <shadow-root />
+        <!--$-->
+        <mk-test-7
+          foo="5"
+          mk-d=""
+        />
+      </mk-test-6>
+    </root>
+  `);
 
   tick();
 });

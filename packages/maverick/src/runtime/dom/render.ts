@@ -19,19 +19,15 @@ export interface Hydrator {
 }
 
 export function hydrate(root: () => JSX.Element, options: HydrateOptions) {
-  return runHydration(root, render, options);
+  return runHydration(() => render(root, options), options);
 }
 
-export function runHydration(
-  root: () => JSX.Element,
-  renderer: Renderer,
-  options: HydrateOptions,
-): Dispose {
+export function runHydration<T>(run: () => T, options: HydrateOptions): T {
   const prev = hydration;
   hydration = { w: createMarkerWalker(options.target) };
-  const dispose = renderer(root, options);
+  const result = run();
   hydration = prev;
-  return dispose;
+  return result;
 }
 
 export interface RenderOptions {

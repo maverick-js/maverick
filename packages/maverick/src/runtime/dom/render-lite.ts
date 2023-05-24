@@ -6,7 +6,7 @@ import { insertLite } from './insert-lite';
 import { type HydrateOptions, hydration, type RenderOptions, runHydration } from './render';
 
 export function hydrateLite(root: () => JSX.Element, options: HydrateOptions) {
-  return runHydration(root, renderLite, options);
+  return runHydration(() => renderLite(root, options), options);
 }
 
 export function renderLite(root: () => JSX.Element, options: RenderOptions): Dispose {

@@ -6,12 +6,12 @@ import {
   root,
   type Scope,
   scoped,
-  tick,
   untrack,
 } from '@maverick-js/signals';
 
-import { hydration, type Hydrator, type Renderer } from '../runtime/dom';
+import { hydration, runHydration } from '../runtime/dom';
 import { $$_create_element } from '../runtime/dom/internal';
+import type { JSX } from '../runtime/jsx';
 import { isDOMElement, setAttribute, setStyle } from '../std/dom';
 import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
@@ -25,8 +25,7 @@ import { register } from './register';
 import { resolvePropsFromAttrs, setup } from './setup';
 
 export interface HTMLCustomElementInit {
-  render: Renderer;
-  hydrate: Hydrator;
+  insert: (parent: Node, value: JSX.Element, marker?: Node | null) => void;
   adoptCSS?: StylesheetAdopter;
 }
 
@@ -216,7 +215,6 @@ class HTMLCustomElement<T extends Component = AnyComponent>
 
     // Connect
     this._connected = true;
-    tick();
 
     if (instance._connectCallbacks.length) {
       scoped(() => {
@@ -244,7 +242,6 @@ class HTMLCustomElement<T extends Component = AnyComponent>
       this[CONNECT] = true;
     }
 
-    tick();
     return;
   }
 
@@ -254,7 +251,6 @@ class HTMLCustomElement<T extends Component = AnyComponent>
     if (!this._connected || this._destroyed) return;
 
     this._connected = false;
-    tick();
 
     for (const callback of this._disconnectCallbacks) {
       scoped(callback, this._connectScope);
@@ -267,7 +263,6 @@ class HTMLCustomElement<T extends Component = AnyComponent>
     }
 
     this._connectScope = null;
-    tick();
 
     if (!this._delegate && !this.keepAlive) {
       requestAnimationFrame(() => {
@@ -362,12 +357,15 @@ class HTMLCustomElement<T extends Component = AnyComponent>
 
     if (this._root && init && instance._renderer) {
       scoped(() => {
-        const renderer = this.hasAttribute('mk-h') ? init.hydrate : init.render;
-        renderer(() => instance._render(), { target: this._root! });
+        const insert = () => init.insert(this._root!, instance._renderer);
+        if (this.hasAttribute('mk-h')) {
+          runHydration(insert, { target: this._root! });
+        } else {
+          insert();
+        }
       }, instance._scope);
     }
 
-    tick();
     this.connectedCallback();
   }
 

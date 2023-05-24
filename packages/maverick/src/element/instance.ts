@@ -47,7 +47,6 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
   private _dispose!: Dispose;
 
   _scope!: Scope;
-  _renderScope!: Scope;
 
   _el: HTMLElement | null = null;
 
@@ -110,18 +109,6 @@ export class ComponentInstance<API extends ComponentAPI = AnyComponentAPI> {
 
       onDispose(this._destroy.bind(this));
     });
-  }
-
-  _render(): JSX.Element {
-    if (!this._renderer) return null;
-
-    if (!this._renderScope) {
-      scoped(() => {
-        this._renderScope = createScope();
-      }, this._scope);
-    }
-
-    return scoped(() => this._renderer!(), this._renderScope);
   }
 
   _destroy() {

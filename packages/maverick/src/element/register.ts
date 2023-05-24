@@ -1,5 +1,5 @@
-import { hydrate, render } from '../runtime/dom/render';
-import { hydrateLite, renderLite } from '../runtime/dom/render-lite';
+import { insert } from '../runtime/dom/insert';
+import { insertLite } from '../runtime/dom/insert-lite';
 import type { ComponentConstructor } from './component';
 import { createHTMLElement, type HTMLCustomElementInit } from './create-html-element';
 import { adoptCSS } from './css';
@@ -10,16 +10,14 @@ export interface CustomElementRegistrar {
 
 export function registerCustomElement(Component: ComponentConstructor) {
   register(Component, {
-    render,
-    hydrate,
+    insert,
     adoptCSS,
   });
 }
 
 export function registerLiteCustomElement(Component: ComponentConstructor) {
   register(Component, {
-    render: renderLite,
-    hydrate: hydrateLite,
+    insert: insertLite,
   });
 }
 

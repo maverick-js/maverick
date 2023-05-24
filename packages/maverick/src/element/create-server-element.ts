@@ -120,7 +120,10 @@ class ServerCustomElement<Component extends AnyComponent = AnyComponent>
     }
 
     this._rendered = !!instance._renderer;
-    this._ssr = instance._renderer ? renderToString(() => instance._render()).code : '';
+
+    this._ssr = instance._renderer
+      ? scoped(() => renderToString(() => instance._render()).code, instance._scope)
+      : '';
 
     if (this.classList.length > 0) {
       this.setAttribute('class', this.classList.toString());

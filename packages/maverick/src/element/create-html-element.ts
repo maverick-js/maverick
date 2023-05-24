@@ -359,11 +359,13 @@ class HTMLCustomElement<T extends Component = AnyComponent>
     this.dispatchEvent(new Event('attached'));
 
     if (this._root && init && instance._renderer) {
-      const renderer = this._hydrate ? init.hydrate : init.render;
-      renderer(() => instance._render(), {
-        target: this._root,
-        resume: !def.shadowRoot,
-      });
+      scoped(() => {
+        const renderer = this._hydrate ? init.hydrate : init.render;
+        renderer(() => instance._render(), {
+          target: this._root!,
+          resume: !def.shadowRoot,
+        });
+      }, instance._scope);
     }
 
     tick();

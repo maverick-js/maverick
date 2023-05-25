@@ -24,11 +24,6 @@ export function waitAnimationFrame(callback?: FrameRequestCallback): Promise<voi
   });
 }
 
-export type AnimationFrameThrottled<Fn extends (...args: any) => void> = Fn & {
-  cancel: () => void;
-  pending: () => boolean;
-};
-
 /**
  * Creates a throttled function that only invokes `func` at most once per animation frame. This is
  * a noop server-side.
@@ -36,38 +31,23 @@ export type AnimationFrameThrottled<Fn extends (...args: any) => void> = Fn & {
  * @param func - The function to throttle.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame}
  */
-export function animationFrameThrottle<Fn extends (...args: any[]) => void>(
-  func: Fn,
-): AnimationFrameThrottled<Fn> {
-  if (__SERVER__) {
-    const raf = noop as AnimationFrameThrottled<Fn>;
-    raf.cancel = noop;
-    raf.pending = () => false;
-    return raf;
-  }
+export function animationFrameThrottle<Fn extends (...args: any[]) => void>(func: Fn): Fn {
+  if (__SERVER__) return noop as Fn;
 
-  let id: number | undefined;
+  let id = -1,
+    lastArgs: any[] | undefined;
 
-  const pending = () => !isUndefined(id);
-
-  const cancel = () => {
-    if (isUndefined(id)) return;
-    window.cancelAnimationFrame(id);
-    id = undefined;
-  };
-
-  function throttled(this: any, ...args: any[]) {
-    if (pending()) return;
+  function throttle(this: any, ...args: any[]) {
+    lastArgs = args;
+    if (id >= 0) return;
     id = window.requestAnimationFrame(() => {
-      func.apply(this, args);
-      id = undefined;
+      func.apply(this, lastArgs as any[]);
+      id = -1;
+      lastArgs = undefined;
     });
   }
 
-  throttled.cancel = cancel;
-  throttled.pending = pending;
-
-  return throttled as AnimationFrameThrottled<Fn>;
+  return throttle as Fn;
 }
 
 const requestIdleCallback = __SERVER__

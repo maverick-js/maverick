@@ -60,70 +60,52 @@
   },
   "exports": {
     ".": {
-      "import": {
-        "test": "./dist/dev/runtime.js",
-        "node": "./dist/server/runtime.js",
-        "deno": "./dist/server/runtime.js",
-        "bun": "./dist/server/runtime.js",
-        "development": "./dist/dev/runtime.js",
-        "default": "./dist/prod/runtime.js"
-      },
-      "require": "./dist/server/runtime.cjs"
+      "test": "./dist/dev/runtime.js",
+      "node": "./dist/server/runtime.js",
+      "deno": "./dist/server/runtime.js",
+      "bun": "./dist/server/runtime.js",
+      "development": "./dist/dev/runtime.js",
+      "default": "./dist/prod/runtime.js"
     },
     "./dom": {
-      "import": {
-        "test": "./dist/dev/dom.js",
-        "node": "./dist/server/dom.js",
-        "deno": "./dist/server/dom.js",
-        "bun": "./dist/server/dom.js",
-        "development": "./dist/dev/dom.js",
-        "default": "./dist/prod/dom.js"
-      },
-      "require": "./dist/server/dom.cjs"
+      "test": "./dist/dev/dom.js",
+      "node": "./dist/server/dom.js",
+      "deno": "./dist/server/dom.js",
+      "bun": "./dist/server/dom.js",
+      "development": "./dist/dev/dom.js",
+      "default": "./dist/prod/dom.js"
     },
     "./ssr": {
-      "import": {
-        "test": "./dist/dev/ssr.js",
-        "node": "./dist/server/ssr.js",
-        "deno": "./dist/server/ssr.js",
-        "bun": "./dist/server/ssr.js",
-        "development": "./dist/dev/ssr.js",
-        "default": "./dist/prod/ssr.js"
-      },
-      "require": "./dist/server/ssr.cjs"
+      "test": "./dist/dev/ssr.js",
+      "node": "./dist/server/ssr.js",
+      "deno": "./dist/server/ssr.js",
+      "bun": "./dist/server/ssr.js",
+      "development": "./dist/dev/ssr.js",
+      "default": "./dist/prod/ssr.js"
     },
     "./element": {
-      "import": {
-        "test": "./dist/dev/element.js",
-        "node": "./dist/server/element.js",
-        "deno": "./dist/server/element.js",
-        "bun": "./dist/server/element.js",
-        "development": "./dist/dev/element.js",
-        "default": "./dist/prod/element.js"
-      },
-      "require": "./dist/server/element.cjs"
+      "test": "./dist/dev/element.js",
+      "node": "./dist/server/element.js",
+      "deno": "./dist/server/element.js",
+      "bun": "./dist/server/element.js",
+      "development": "./dist/dev/element.js",
+      "default": "./dist/prod/element.js"
     },
     "./react": {
-      "import": {
-        "test": "./dist/dev/react.js",
-        "node": "./dist/server/react.js",
-        "deno": "./dist/server/react.js",
-        "bun": "./dist/server/react.js",
-        "development": "./dist/dev/react.js",
-        "default": "./dist/prod/react.js"
-      },
-      "require": "./dist/server/react.cjs"
+      "test": "./dist/dev/react.js",
+      "node": "./dist/server/react.js",
+      "deno": "./dist/server/react.js",
+      "bun": "./dist/server/react.js",
+      "development": "./dist/dev/react.js",
+      "default": "./dist/prod/react.js"
     },
     "./std": {
-      "import": {
-        "test": "./dist/dev/std.js",
-        "node": "./dist/server/std.js",
-        "deno": "./dist/server/std.js",
-        "bun": "./dist/server/std.js",
-        "development": "./dist/dev/std.js",
-        "default": "./dist/prod/std.js"
-      },
-      "require": "./dist/server/std.cjs"
+      "test": "./dist/dev/std.js",
+      "node": "./dist/server/std.js",
+      "deno": "./dist/server/std.js",
+      "bun": "./dist/server/std.js",
+      "development": "./dist/dev/std.js",
+      "default": "./dist/prod/std.js"
     },
     "./package.json": "./package.json"
   },

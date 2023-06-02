@@ -2,7 +2,7 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig([
   {
-    format: ['esm', 'cjs'],
+    format: 'esm',
     external: ['typescript', 'rollup', 'chokidar', 'esbuild', 'webpack', 'vite'],
     treeshake: true,
     splitting: true,

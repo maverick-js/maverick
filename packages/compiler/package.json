@@ -62,14 +62,8 @@
     "vitest": "^0.30.0"
   },
   "exports": {
-    ".": {
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.js"
-    },
-    "./analyze": {
-      "require": "./dist/analyze.cjs",
-      "default": "./dist/analyze.js"
-    },
+    ".": "./dist/index.js",
+    "./analyze": "./dist/analyze.js",
     "./cli.js": "./cli.js",
     "./package.json": "./package.json"
   },

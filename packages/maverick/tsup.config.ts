@@ -10,7 +10,7 @@ function base({ dev = false, server = false } = {}): Options {
       react: './src/react/index.ts',
       std: './src/std/index.ts',
     },
-    format: server ? ['esm', 'cjs'] : 'esm',
+    format: 'esm',
     external: ['typescript', 'react', 'react-dom', 'vue', 'svelte', 'preact', 'solid-js'],
     treeshake: true,
     splitting: true,

@@ -115,15 +115,15 @@ export const ssr: ASTSerializer = {
         if (!customEl) return;
 
         if (customEl.children.length) {
-          props.push(`$children: () => [${customEl.children.join(', ')}]`);
+          (customEl.props ??= []).push(`$children: () => [${customEl.children.join(', ')}]`);
         }
 
         const setup =
           '...' +
           createFunctionCall(RUNTIME.customElement, [
             `'${customEl.el.tagName}'`,
-            props.length > 0
-              ? `{ ${props.join(', ')} }`
+            customEl.props?.length
+              ? `{ ${customEl.props.join(', ')} }`
               : customEl.spreads?.length
               ? 'undefined'
               : null,
@@ -236,10 +236,12 @@ export const ssr: ASTSerializer = {
 
             commitAttrs();
 
-            const customEl = customElements.at(-1);
-            if (customEl) {
+            if (element?.tagName.includes('-')) {
+              const customEl = customElements.at(-1)!;
               if (props.length) customEl.props = props;
               if ($spread.length) customEl.spreads = $spread;
+              props = [];
+              spreads = [];
             } else if ($spread.length) {
               commit(createFunctionCall(RUNTIME.spread, [`[${$spread.join(', ')}]`]));
               ctx.runtime.add(RUNTIME.spread);

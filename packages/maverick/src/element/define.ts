@@ -56,6 +56,10 @@ export interface CustomElementDefinition<API extends ComponentAPI = AnyComponent
    * if the `shadowRoot` option is truthy.
    */
   readonly css?: CSS[];
+  /**
+   * Whether hydration should never occur.
+   */
+  readonly nohydrate?: boolean;
 }
 
 /** Ensuring props/store is only required when declared. */

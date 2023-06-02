@@ -358,7 +358,7 @@ class HTMLCustomElement<T extends Component = AnyComponent>
     if (this._root && init && instance._renderer) {
       scoped(() => {
         const insert = () => init.insert(this._root!, instance._renderer);
-        if (this.hasAttribute('mk-h')) {
+        if (this.hasAttribute('mk-h') && !ctor._component.el.nohydrate) {
           runHydration(insert, { target: this._root! });
         } else {
           insert();

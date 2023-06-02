@@ -182,7 +182,7 @@ function parseElementAttrs(attributes: ts.JsxAttributes, ast: AST, meta: JSXNode
     const value = !initializer
       ? meta.component || namespace === '$prop'
         ? 'true'
-        : ''
+        : '""'
       : (literal || expression)!.getText();
 
     const dynamic =

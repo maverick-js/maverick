@@ -13,14 +13,21 @@ it('should compile', () => {
 });
 
 it('should compile with attrs/props', () => {
-  const result = t(`<v-foo foo={10} bar={20} $prop:foo={10} $prop:bar={id()} $class:foo={true} />`);
+  const result = t(
+    `<v-foo foo={10} bar={20} $prop:foo={10} $prop:bar={id()} $class:foo={true} default-appearance />`,
+  );
   expect(result).toMatchInlineSnapshot(`
     "import { $$_custom_element, $$_ssr } from \\"maverick.js/ssr\\";
 
     const $$_templ = /* #__PURE__ */ [\\"<!$><v-foo\\", \\"\\", \\"</v-foo>\\"];
     $$_ssr(
       $$_templ,
-      ...$$_custom_element(\\"v-foo\\", { foo: 10, bar: id() }, [{ \\"foo\\": 10, \\"bar\\": 20, \\"$$class\\": { \\"foo\\": true } }]),
+      ...$$_custom_element(\\"v-foo\\", { foo: 10, bar: id() }, [{
+        \\"foo\\": 10,
+        \\"bar\\": 20,
+        \\"default-appearance\\": \\"\\",
+        \\"$$class\\": { \\"foo\\": true },
+      }]),
     )"
   `);
 });

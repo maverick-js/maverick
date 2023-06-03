@@ -1,5 +1,4 @@
 import {
-  createScope,
   type Dispose,
   effect,
   getScope,

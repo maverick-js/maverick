@@ -1,4 +1,5 @@
-import { scoped } from '../runtime';
+import { scoped } from '@maverick-js/signals';
+
 import { parseClassAttr, parseStyleAttr, renderToString } from '../runtime/ssr';
 import { setAttribute, setStyle } from '../std/dom';
 import { escape } from '../std/html';
@@ -86,52 +87,52 @@ class ServerCustomElement<Component extends AnyComponent = AnyComponent>
   }
 
   attachComponent(component: Component) {
-    this.setAttribute('mk-h', '');
-    this.setAttribute('mk-d', '');
+    scoped(() => {
+      this.setAttribute('mk-h', '');
+      this.setAttribute('mk-d', '');
 
-    if (this.hasAttribute('class')) {
-      parseClassAttr(this.classList.tokens, this.getAttribute('class')!);
-    }
+      if (this.hasAttribute('class')) {
+        parseClassAttr(this.classList.tokens, this.getAttribute('class')!);
+      }
 
-    if (this.hasAttribute('style')) {
-      parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
-    }
+      if (this.hasAttribute('style')) {
+        parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
+      }
 
-    const instance = component.instance;
+      const instance = component.instance;
 
-    instance._el = this as any;
-    this._component = component;
+      instance._el = this as any;
+      this._component = component;
 
-    for (const callback of [...instance._attachCallbacks, ...this._attachCallbacks!]) {
-      scoped(() => callback(this as any), instance._scope);
-    }
+      for (const callback of [...instance._attachCallbacks, ...this._attachCallbacks!]) {
+        callback(this as any);
+      }
 
-    this._attachCallbacks = null;
+      this._attachCallbacks = null;
 
-    const $attrs = instance._attrs,
-      $styles = instance._styles;
+      const $attrs = instance._attrs,
+        $styles = instance._styles;
 
-    if ($attrs) {
-      for (const name of Object.keys($attrs)) setAttribute(this, name, unwrapDeep($attrs[name]));
-    }
+      if ($attrs) {
+        for (const name of Object.keys($attrs)) setAttribute(this, name, unwrapDeep($attrs[name]));
+      }
 
-    if ($styles) {
-      for (const name of Object.keys($styles)) setStyle(this, name, unwrapDeep($styles[name]));
-    }
+      if ($styles) {
+        for (const name of Object.keys($styles)) setStyle(this, name, unwrapDeep($styles[name]));
+      }
 
-    this._rendered = !!instance._renderer;
+      this._rendered = !!instance._renderer;
 
-    this._ssr = instance._renderer
-      ? scoped(() => renderToString(instance._renderer!).code, instance._scope)
-      : '';
+      this._ssr = instance._renderer ? renderToString(instance._renderer!).code : '';
 
-    if (this.classList.length > 0) {
-      this.setAttribute('class', this.classList.toString());
-    }
+      if (this.classList.length > 0) {
+        this.setAttribute('class', this.classList.toString());
+      }
 
-    if (this.style.length > 0) {
-      this.setAttribute('style', this.style.toString());
-    }
+      if (this.style.length > 0) {
+        this.setAttribute('style', this.style.toString());
+      }
+    }, component.instance._scope);
   }
 
   render(): string {

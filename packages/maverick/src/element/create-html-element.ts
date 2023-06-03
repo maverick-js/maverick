@@ -290,83 +290,83 @@ class HTMLCustomElement<T extends Component = AnyComponent>
 
     if (this._component || this._destroyed) return;
 
-    this._root = instance._renderer
-      ? def.shadowRoot
-        ? this.shadowRoot ??
-          this.attachShadow(isBoolean(def.shadowRoot) ? { mode: 'open' } : def.shadowRoot)
-        : resolveShadowRootElement(this)
-      : null;
+    scoped(() => {
+      this._root = instance._renderer
+        ? def.shadowRoot
+          ? this.shadowRoot ??
+            this.attachShadow(isBoolean(def.shadowRoot) ? { mode: 'open' } : def.shadowRoot)
+          : resolveShadowRootElement(this)
+        : null;
 
-    if (__DEV__ && def.css && !init?.adoptCSS) {
-      console.warn(
-        `[maverick] \`css\` was provided for \`${def.tagName}\` but element registration` +
-          " doesn't support adopting stylesheets. Resolve this by registering element with" +
-          ' `registerElement` instead of lite or headless.',
-      );
-    }
+      if (__DEV__ && def.css && !init?.adoptCSS) {
+        console.warn(
+          `[maverick] \`css\` was provided for \`${def.tagName}\` but element registration` +
+            " doesn't support adopting stylesheets. Resolve this by registering element with" +
+            ' `registerElement` instead of lite or headless.',
+        );
+      }
 
-    if (!hydration && def.shadowRoot && def.css && init?.adoptCSS) {
-      init.adoptCSS(this._root as ShadowRoot, def.css);
-    }
+      if (!hydration && def.shadowRoot && def.css && init?.adoptCSS) {
+        init.adoptCSS(this._root as ShadowRoot, def.css);
+      }
 
-    instance._el = this;
-    this._component = component;
+      instance._el = this;
+      this._component = component;
 
-    const attrValues = resolvePropsFromAttrs(this);
-    for (const name of Object.keys(attrValues)) {
-      instance._props[name].set(attrValues[name]);
-    }
+      const attrValues = resolvePropsFromAttrs(this);
+      for (const name of Object.keys(attrValues)) {
+        instance._props[name].set(attrValues[name]);
+      }
 
-    if (this._queuedActions?.size) {
-      for (const action of this._queuedActions.values()) action();
-    }
+      if (this._queuedActions?.size) {
+        for (const action of this._queuedActions.values()) action();
+      }
 
-    this._queuedActions = null;
+      this._queuedActions = null;
 
-    for (const callback of [...instance._attachCallbacks, ...this._attachCallbacks!]) {
-      scoped(() => callback(this), instance._scope);
-    }
+      for (const callback of [...instance._attachCallbacks, ...this._attachCallbacks!]) {
+        scoped(() => callback(this), instance._scope);
+      }
 
-    instance._attachCallbacks.length = 0;
-    this._attachCallbacks = null;
+      instance._attachCallbacks.length = 0;
+      this._attachCallbacks = null;
 
-    const $attrs = instance._attrs,
-      $styles = instance._styles;
+      const $attrs = instance._attrs,
+        $styles = instance._styles;
 
-    if ($attrs) {
-      for (const name of Object.keys($attrs)) {
-        if (isFunction($attrs[name])) {
-          effect(() => setAttribute(this, name, ($attrs[name] as Function)()));
-        } else {
-          setAttribute(this, name, $attrs[name]);
+      if ($attrs) {
+        for (const name of Object.keys($attrs)) {
+          if (isFunction($attrs[name])) {
+            effect(() => setAttribute(this, name, ($attrs[name] as Function)()));
+          } else {
+            setAttribute(this, name, $attrs[name]);
+          }
         }
       }
-    }
 
-    if ($styles) {
-      for (const name of Object.keys($styles)) {
-        if (isFunction($styles[name])) {
-          effect(() => setStyle(this, name, ($styles[name] as Function)()));
-        } else {
-          setStyle(this, name, $styles[name]);
+      if ($styles) {
+        for (const name of Object.keys($styles)) {
+          if (isFunction($styles[name])) {
+            effect(() => setStyle(this, name, ($styles[name] as Function)()));
+          } else {
+            setStyle(this, name, $styles[name]);
+          }
         }
       }
-    }
 
-    this.dispatchEvent(new Event('attached'));
+      this.dispatchEvent(new Event('attached'));
 
-    if (this._root && init && instance._renderer) {
-      scoped(() => {
+      if (this._root && init && instance._renderer) {
         const insert = () => init.insert(this._root!, instance._renderer);
         if (this.hasAttribute('mk-h') && !ctor._component.el.nohydrate) {
           runHydration(insert, { target: this._root! });
         } else {
           insert();
         }
-      }, instance._scope);
-    }
+      }
 
-    this.connectedCallback();
+      this.connectedCallback();
+    }, instance._scope);
   }
 
   subscribe(callback: (state: any) => void) {

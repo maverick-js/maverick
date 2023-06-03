@@ -1,3 +1,4 @@
+import { effect, onDispose } from '@maverick-js/signals';
 import { createContext, type JSX, provideContext, signal, tick, useContext } from 'maverick.js';
 
 import { render } from 'maverick.js/dom';
@@ -7,6 +8,8 @@ import {
   type HTMLCustomElement,
   registerCustomElement,
 } from 'maverick.js/element';
+
+import { waitAnimationFrame } from '../../../src/std/timing';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -295,6 +298,48 @@ it('should throw error if element not registered', () => {
   }).toThrowErrorMatchingInlineSnapshot('"[maverick] custom element not registered: mk-test-11"');
 });
 
+it('should dispose of children', async () => {
+  const disposeCallback = vi.fn();
+
+  class ParentComponent extends Component {
+    static el = defineElement({ tagName: `mk-test-11` });
+    protected override onDestroy(el) {
+      disposeCallback(el);
+    }
+  }
+
+  class ChildComponent extends Component {
+    static el = defineElement({ tagName: `mk-test-12` });
+    protected override onAttach(el: HTMLElement) {
+      el.setAttribute('keep-alive', '');
+      effect(() => {
+        onDispose(disposeCallback);
+      });
+    }
+
+    protected override onDestroy(el) {
+      disposeCallback(el);
+    }
+  }
+
+  registerCustomElement(ParentComponent);
+  registerCustomElement(ChildComponent);
+
+  const parent = document.createElement(ParentComponent.el.tagName),
+    child = document.createElement(ChildComponent.el.tagName);
+
+  parent.append(child);
+  document.body.append(parent);
+  await waitAnimationFrame();
+
+  document.body.innerHTML = '';
+  await waitAnimationFrame();
+
+  expect((parent as any)._component).toBe(null);
+  expect((child as any)._component).toBe(null);
+  expect(disposeCallback).toHaveBeenCalledTimes(3);
+});
+
 interface TestElement extends HTMLCustomElement {}
 
 declare global {
@@ -311,5 +356,7 @@ declare global {
     'mk-test-10': TestElement;
     'mk-test-11': TestElement;
     'mk-test-12': TestElement;
+    'mk-test-13': TestElement;
+    'mk-test-14': TestElement;
   }
 }

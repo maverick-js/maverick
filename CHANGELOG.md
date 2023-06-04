@@ -1,3 +1,26 @@
+# [0.37.0](https://github.com/maverick-js/maverick/compare/v0.36.10...v0.37.0) (2023-06-04)
+
+
+### Bug Fixes
+
+* **compiler:** reset props/spreads during custom el render ([659e2df](https://github.com/maverick-js/maverick/commit/659e2dfb2061210a4820f8b54010243021eb86a9))
+* **compiler:** use empty string when no jsx initializer ([3a7cd7b](https://github.com/maverick-js/maverick/commit/3a7cd7b55af5e130075ab6b9f9a0f4ad0d8754e7))
+* drop `.cjs` exports ([d318f9d](https://github.com/maverick-js/maverick/commit/d318f9d6c254a162f7a2a020fc1ca67518c03f80))
+* **element:** always forward attr values on attach ([c22241c](https://github.com/maverick-js/maverick/commit/c22241c31945e9846d7c24661739d6e7fe9fde8c))
+* **element:** drop render scope ([626a409](https://github.com/maverick-js/maverick/commit/626a40943f68545e0d0678a30c5ad6ea6129459b))
+* **element:** scope custom el render functions ([a404c40](https://github.com/maverick-js/maverick/commit/a404c40b71f76acaf13f9f403ad3856eed8ac53e))
+* **element:** skip shadow roots during main hydration ([aca271d](https://github.com/maverick-js/maverick/commit/aca271de4b12d364a7b257437d69c95e482bb36f))
+* simplify animation frame throttle ([e38da39](https://github.com/maverick-js/maverick/commit/e38da390b950bf7fedafb6df22d9e2e4355ccab9))
+* update signals to resolve mem leaks ([21945ec](https://github.com/maverick-js/maverick/commit/21945ecbd2cb36557fe39277f91c1f96a6067347))
+
+
+### Features
+
+* **element:** new `nohydrate` custom el option ([85da078](https://github.com/maverick-js/maverick/commit/85da0783e0855a886185115b998b26762f0d9535))
+* update `pnpm-lock` ([2ec411b](https://github.com/maverick-js/maverick/commit/2ec411b7ffc1ac5cbbce3dda4a6015c5e4de4960))
+
+
+
 ## [0.36.10](https://github.com/maverick-js/maverick/compare/v0.36.9...v0.36.10) (2023-05-18)
 
 

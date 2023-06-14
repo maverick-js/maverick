@@ -1,7 +1,9 @@
-import { createScope, getContext } from '@maverick-js/signals';
+import { getContext } from '@maverick-js/signals';
 import * as React from 'react';
 
-import { type Context, provideContext, type Scope } from '../runtime';
+import { type Context, provideContext } from '../core/context';
+import { createScope } from '../core/signals';
+import type { Scope } from '../core/signals';
 
 export interface ReactScopeProvider {
   new (props: React.PropsWithChildren): React.Component<React.PropsWithChildren>;
@@ -13,8 +15,8 @@ export interface ReactContextProvider {
 
 export const ReactComputeScopeContext = React.createContext<Scope | null>(null);
 
-export function WithScope(scope: Scope, children: React.ReactNode) {
-  return React.createElement(ReactComputeScopeContext.Provider, { value: scope }, children);
+export function WithScope(scope: Scope, ...children: React.ReactNode[]) {
+  return React.createElement(ReactComputeScopeContext.Provider, { value: scope }, ...children);
 }
 
 export function useReactScope(): Scope | null {
@@ -54,12 +56,11 @@ class ScopeProvider extends React.Component<React.PropsWithChildren> {
   constructor(props, context?: Scope) {
     super(props);
 
-    const scope = createScope();
-    this._scope = scope;
-    if (context) context.append(scope);
+    this._scope = createScope();
+    if (context) context.append(this._scope);
 
-    const ctor = this.constructor as typeof ScopeProvider;
-    if (ctor._context) provideContext(ctor._context, ctor._provide?.(), scope);
+    const Ctor = this.constructor as typeof ScopeProvider;
+    if (Ctor._context) provideContext(Ctor._context, Ctor._provide?.(), this._scope);
   }
 
   override render() {

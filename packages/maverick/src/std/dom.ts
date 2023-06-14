@@ -1,4 +1,4 @@
-import type { ServerHTMLElement } from '../element/create-server-element';
+import type { ServerElement } from '../element/server';
 
 export function isDOMNode(node: any): node is Node {
   return node instanceof Node;
@@ -30,11 +30,11 @@ export function createComment(data: string): Comment {
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
-export function setAttribute(host: Element | ServerHTMLElement, name: string, value: unknown) {
+export function setAttribute(host: Element | ServerElement, name: string, value: unknown) {
   if (!value && value !== '' && value !== 0) {
     host.removeAttribute(name);
   } else {
-    const attrValue = value + '';
+    const attrValue = value === true ? '' : value + '';
     if (host.getAttribute(name) !== attrValue) {
       host.setAttribute(name, attrValue);
     }
@@ -49,7 +49,7 @@ export function setAttribute(host: Element | ServerHTMLElement, name: string, va
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
-export function setStyle(host: HTMLElement | ServerHTMLElement, property: string, value: unknown) {
+export function setStyle(host: HTMLElement | ServerElement, property: string, value: unknown) {
   if (!value && value !== 0) {
     host.style.removeProperty(property);
   } else {
@@ -65,7 +65,7 @@ export function setStyle(host: HTMLElement | ServerHTMLElement, property: string
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
-export function toggleClass(host: Element | ServerHTMLElement, name: string, value: unknown) {
+export function toggleClass(host: Element | ServerElement, name: string, value: unknown) {
   host.classList[value ? 'add' : 'remove'](name);
 }
 

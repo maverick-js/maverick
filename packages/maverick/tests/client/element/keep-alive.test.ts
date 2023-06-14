@@ -1,13 +1,9 @@
-import { tick } from '@maverick-js/signals';
+import { Component } from 'maverick.js';
 
-import {
-  Component,
-  createComponent,
-  defineElement,
-  type HTMLCustomElement,
-  registerCustomElement,
-} from 'maverick.js/element';
+import { defineCustomElement, Host } from 'maverick.js/element';
 import { waitAnimationFrame } from 'maverick.js/std';
+
+import { COMPONENT } from '../../../src/element/symbols';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -20,112 +16,81 @@ it('should keep elements alive', async () => {
     grandchildADispose = vi.fn(),
     grandchildBDispose = vi.fn();
 
-  class Parent extends Component {
-    static el = defineElement({ tagName: 'mk-parent' });
-    protected override onDestroy() {
-      parentDispose();
-    }
+  function createElement(name: string, dispose: () => void) {
+    return class extends Host(
+      HTMLElement,
+      class extends Component {
+        protected override onDestroy() {
+          dispose();
+        }
+      },
+    ) {
+      static tagName = name;
+    };
   }
 
-  class ChildA extends Component {
-    static el = defineElement({ tagName: 'mk-child-a' });
-    protected override onDestroy() {
-      childADispose();
-    }
-  }
+  const ParentElement = createElement('mk-parent', parentDispose),
+    ChildAElement = createElement('mk-child-a', childADispose),
+    ChildBElement = createElement('mk-child-b', childBDispose),
+    GrandchildAElement = createElement('mk-grandchild-a', grandchildADispose),
+    GrandchildBElement = createElement('mk-grandchild-b', grandchildBDispose);
 
-  class ChildB extends Component {
-    static el = defineElement({ tagName: 'mk-child-b' });
-    protected override onDestroy() {
-      childBDispose();
-    }
-  }
-
-  class GrandchildA extends Component {
-    static el = defineElement({ tagName: 'mk-grandchild-a' });
-    protected override onDestroy() {
-      grandchildADispose();
-    }
-  }
-
-  class GrandchildB extends Component {
-    static el = defineElement({ tagName: 'mk-grandchild-b' });
-    protected override onDestroy() {
-      grandchildBDispose();
-    }
-  }
-
-  const parent = document.createElement(Parent.el.tagName) as HTMLCustomElement;
-  parent.setAttribute('mk-d', '');
+  const parent = document.createElement(ParentElement.tagName);
   parent.setAttribute('keep-alive', '');
 
-  const childA = document.createElement(ChildA.el.tagName) as HTMLCustomElement;
+  const childA = document.createElement(ChildAElement.tagName);
   parent.append(childA);
 
-  const grandchildA = document.createElement(GrandchildA.el.tagName) as HTMLCustomElement;
+  const grandchildA = document.createElement(GrandchildAElement.tagName);
   childA.append(grandchildA);
 
-  const childB = document.createElement(ChildB.el.tagName) as HTMLCustomElement;
+  const childB = document.createElement(ChildBElement.tagName);
   parent.append(childB);
 
-  const grandchildB = document.createElement(GrandchildB.el.tagName) as HTMLCustomElement;
+  const grandchildB = document.createElement(GrandchildBElement.tagName);
   childB.append(grandchildB);
 
   document.body.append(parent);
 
-  expect(document.body).toMatchInlineSnapshot(`
-    <body>
-      <mk-parent
-        keep-alive=""
-        mk-d=""
-      >
-        <mk-child-a>
-          <mk-grandchild-a />
-        </mk-child-a>
-        <mk-child-b>
-          <mk-grandchild-b />
-        </mk-child-b>
-      </mk-parent>
-    </body>
-  `);
+  defineCustomElement(ParentElement);
+  defineCustomElement(ChildAElement);
+  defineCustomElement(ChildBElement);
+  defineCustomElement(GrandchildAElement);
+  defineCustomElement(GrandchildBElement);
 
-  registerCustomElement(Parent);
-  registerCustomElement(ChildA);
-  registerCustomElement(ChildB);
-  registerCustomElement(GrandchildA);
-  registerCustomElement(GrandchildB);
-
-  parent.attachComponent(createComponent(Parent));
   await waitAnimationFrame();
-  expect(parent.component).toBeTruthy();
 
   expect(parent).toMatchInlineSnapshot(`
     <mk-parent
       keep-alive=""
-      mk-d=""
     >
-      <mk-child-a>
-        <mk-grandchild-a />
+      <mk-child-a
+        keep-alive=""
+      >
+        <mk-grandchild-a
+          keep-alive=""
+        />
       </mk-child-a>
-      <mk-child-b>
-        <mk-grandchild-b />
+      <mk-child-b
+        keep-alive=""
+      >
+        <mk-grandchild-b
+          keep-alive=""
+        />
       </mk-child-b>
     </mk-parent>
   `);
 
-  parent.removeAttribute('mk-d');
   parent.remove();
-
   await waitAnimationFrame();
 
-  expect(parent.component).toBeTruthy();
-  expect(childA.component).toBeTruthy();
-  expect(childB.component).toBeTruthy();
-  expect(grandchildA.component).toBeTruthy();
-  expect(grandchildB.component).toBeTruthy();
+  expect(parent[COMPONENT].$._destroyed).toBeFalsy();
+  expect(childA[COMPONENT].$._destroyed).toBeFalsy();
+  expect(childB[COMPONENT].$._destroyed).toBeFalsy();
+  expect(grandchildA[COMPONENT].$._destroyed).toBeFalsy();
+  expect(grandchildB[COMPONENT].$._destroyed).toBeFalsy();
 
-  parent.component?.destroy();
-  tick();
+  (parent as any).destroy();
 
   expect(parentDispose).toHaveBeenCalledTimes(1);
   expect(childADispose).toHaveBeenCalledTimes(1);
@@ -133,9 +98,9 @@ it('should keep elements alive', async () => {
   expect(grandchildADispose).toHaveBeenCalledTimes(1);
   expect(grandchildBDispose).toHaveBeenCalledTimes(1);
 
-  expect(parent.component).toBeNull();
-  expect(childA.component).toBeNull();
-  expect(childB.component).toBeNull();
-  expect(grandchildA.component).toBeNull();
-  expect(grandchildB.component).toBeNull();
+  expect(parent[COMPONENT].$._destroyed).toBeTruthy();
+  expect(childA[COMPONENT].$._destroyed).toBeTruthy();
+  expect(childB[COMPONENT].$._destroyed).toBeTruthy();
+  expect(grandchildA[COMPONENT].$._destroyed).toBeTruthy();
+  expect(grandchildB[COMPONENT].$._destroyed).toBeTruthy();
 });

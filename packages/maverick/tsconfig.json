@@ -5,12 +5,10 @@
     "jsx": "preserve",
     "jsxImportSource": "maverick.js",
     "paths": {
-      "maverick.js": ["./src/runtime"],
-      "maverick.js/*": ["./src/runtime/*"],
-      "maverick.js/dom": ["./src/runtime/dom"],
+      "maverick.js": ["./src/core"],
       "maverick.js/element": ["./src/element"],
+      "maverick.js/element/server": ["./src/element/server"],
       "maverick.js/react": ["./src/react"],
-      "maverick.js/ssr": ["./src/runtime/ssr"],
       "maverick.js/std": ["./src/std"]
     },
     "types": ["@types/node", "vitest/globals"]

@@ -1,6 +1,7 @@
 dist/
 types/
 packages/*/plugins/
+packages/*/*.d.ts
 sandbox/
 
 *~

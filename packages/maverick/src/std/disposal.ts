@@ -1,4 +1,4 @@
-import { onDispose } from '../runtime';
+import { onDispose } from '../core/signals';
 
 export interface DisposalBin {
   add(...callbacks: (() => any)[]): void;

@@ -1,8 +1,9 @@
 import type { Constructor } from 'type-fest';
 
-import type { InferComponentEvents } from '../element/component';
+import type { Dispose, InferComponentEvents } from '../core';
+import { onDispose } from '../core/signals';
+import type { TargetedEventHandler } from '../core/types';
 import type { HostElement } from '../element/host';
-import { type Dispose, type JSX, onDispose } from '../runtime';
 import { noop } from './unit';
 
 const EVENT: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event,
@@ -155,9 +156,11 @@ export function appendTriggerEvent(event: DOMEvent, trigger?: Event) {
   });
 }
 
-export type InferEventDetail<T> = T extends DOMEventInit<infer Detail>
+export type InferEventDetail<T> = T extends { detail: infer Detail }
   ? Detail
   : T extends DOMEvent<infer Detail>
+  ? Detail
+  : T extends DOMEventInit<infer Detail>
   ? Detail
   : unknown;
 
@@ -203,21 +206,21 @@ export class EventsTarget<Events> extends EventTarget {
 export function listenEvent<
   Target extends EventTarget,
   Events = Target extends HostElement<infer API>
-    ? InferComponentEvents<API> & MaverickOnAttributes
+    ? InferComponentEvents<API> & HTMLElementTagNameMap
     : Target extends EventsTarget<infer Events>
     ? Events extends {}
       ? Events
-      : MaverickOnAttributes
+      : HTMLElementTagNameMap
     : Target extends { ts__events?: infer Events }
     ? Events extends {}
       ? Events
-      : MaverickOnAttributes
-    : MaverickOnAttributes,
+      : HTMLElementTagNameMap
+    : HTMLElementTagNameMap,
   Type extends keyof Events = keyof Events,
 >(
   target: Target,
   type: Type & string,
-  handler: JSX.TargetedEventHandler<Target, Events[Type] extends Event ? Events[Type] : Event>,
+  handler: TargetedEventHandler<Target, Events[Type] extends Event ? Events[Type] : Event>,
   options?: AddEventListenerOptions | boolean,
 ): Dispose {
   if (__SERVER__) return noop;

@@ -6,38 +6,59 @@ import type {
   InferComponentCSSVars,
   InferComponentEvents,
   InferComponentProps,
-} from '../element/component';
-import type { HTMLCustomElement, InferElementComponent } from '../element/host';
+} from '../core/component';
+import type { InferEventDetail } from '../std/event';
 
-export interface ReactElement<Props> extends React.ForwardRefExoticComponent<Props> {}
-
-export type InferReactElement<T> = T extends ReactElementProps<infer E, any> ? E : never;
-
-export type ReactElementProps<
-  Element extends HTMLCustomElement = HTMLCustomElement<any>,
-  Comp extends Component = InferElementComponent<Element>,
-  Events = ReactElementEventCallbacks<InferComponentEvents<Comp>>,
-> = {
-  /** @internal types only */
-  ts__element?: Element;
-} & Partial<InferComponentProps<Comp>> &
-  React.RefAttributes<Element> &
-  Omit<React.HTMLAttributes<Element>, 'style' | keyof Events> & {
-    style?:
-      | (React.CSSProperties &
-          Partial<InferComponentCSSVars<Comp>> & { [name: `--${string}`]: string })
-      | undefined;
-    children?: React.ReactNode | undefined;
-    part?: string | undefined;
-    __forwardedRef?: React.Ref<Element>;
-  } & Events;
-
-export interface EventHandler<Event> {
-  (event: Event): void;
+export interface ReactComponent<T extends Component> {
+  (props: ReactProps<T>): React.ReactNode;
 }
 
-export type ReactElementEventCallbacks<Events> = {
-  [EventType in keyof Events as `on${PascalCase<EventType & string>}`]?: EventHandler<
-    Events[EventType]
-  >;
+export interface ReactComponentBridge<T extends Component> {
+  displayName?: string;
+  (props: ReactBridgeProps<T>): React.ReactNode;
+}
+
+export type ReactProps<
+  C extends Component,
+  E = ReactEventCallbacks<InferComponentEvents<C>>,
+> = Partial<InferComponentProps<C>> &
+  E & {
+    style?:
+      | ((React.CSSProperties & { [name: `--${string}`]: string | number | null }) &
+          Partial<InferComponentCSSVars<C>>)
+      | undefined;
+    part?: string | undefined;
+  };
+
+export type ReactBridgeProps<C extends Component> = ReactProps<C> & {
+  className?: string;
+  ref?: React.Ref<C>;
+  forwardRef?: React.Ref<C>;
+  children?:
+    | React.ReactNode
+    | ((
+        props: React.HTMLAttributes<HTMLElement> & React.RefAttributes<any>,
+        component: C,
+      ) => React.ReactNode);
 };
+
+export type ReactElementProps<
+  C extends Component,
+  T extends HTMLElement | SVGElement = HTMLElement,
+  E = ReactEventCallbacks<InferComponentEvents<C>>,
+> = ReactProps<C, E> &
+  Omit<T extends HTMLElement ? React.HTMLAttributes<T> : React.SVGAttributes<T>, 'style' | keyof E>;
+
+export type ReactEventCallbacks<E> = {
+  [Type in keyof E as `on${PascalCase<Type & string>}`]?: InferEventDetail<E[Type]> extends void
+    ? (nativeEvent: E[Type]) => void
+    : (detail: InferEventDetail<E[Type]>, nativeEvent: E[Type]) => void;
+};
+
+export type InferReactElement<T> = T extends ReactElementProps<any, infer E, any> ? E : never;
+
+export type InferReactComponent<T> = T extends ReactProps<infer C, any>
+  ? C
+  : T extends ReactElementProps<infer C, any>
+  ? C
+  : never;

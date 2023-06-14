@@ -1,5 +1,5 @@
 import { run } from './fn';
-import { isUndefined, noop } from './unit';
+import { noop } from './unit';
 
 /**
  * Resolves after the given `delay` timeout has passed.

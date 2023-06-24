@@ -1,6 +1,7 @@
 import type { WritableKeys } from '../std/types';
 import { Controller } from './controller';
 import { Instance } from './instance';
+import { type Dispose, effect, type Maybe, scoped } from './signals';
 import type { StoreFactory } from './store';
 
 export class Component<Props = {}, State = {}, Events = {}, CSSVars = {}> extends Controller<
@@ -9,6 +10,17 @@ export class Component<Props = {}, State = {}, Events = {}, CSSVars = {}> extend
   Events,
   CSSVars
 > {
+  subscribe(callback: (state: Readonly<State>) => Maybe<Dispose>) {
+    if (__DEV__ && !this.state) {
+      const name = this.constructor.name;
+      throw Error(
+        `[maverick] component \`${name}\` can not be subscribed to because it has no internal state`,
+      );
+    }
+
+    return scoped(() => effect(() => callback(this.state)), this.$$._scope)!;
+  }
+
   destroy(): void {
     this.$$._destroy();
   }

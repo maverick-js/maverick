@@ -203,7 +203,7 @@ export type MaverickElement<
   E = InferComponentEvents<R>,
 > = Omit<T, 'addEventListener' | 'removeEventListener'> &
   HostElement<R> &
-  InferComponentMembers<R> & {
+  Omit<InferComponentMembers<R>, 'state' | 'subscribe' | 'destroy'> & {
     addEventListener<K extends keyof E>(
       type: K,
       listener: (this: T, ev: E[K]) => any,

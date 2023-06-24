@@ -7,7 +7,7 @@ import { DOMEvent, type DOMEventInit, listenEvent } from '../std/event';
 import { noop } from '../std/unit';
 import type { Component, ComponentConstructor, InferComponentProps } from './component';
 import { type AnyInstance, Instance, type InstanceInit } from './instance';
-import { type Dispose, effect, getScope, type Maybe, root, scoped, untrack } from './signals';
+import { type Dispose, getScope, root, untrack } from './signals';
 import { ON_DISPATCH } from './symbols';
 import type { ReadSignalRecord, TargetedEventHandler, WriteSignalRecord } from './types';
 
@@ -31,51 +31,24 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
   /** @internal */
   $$!: Instance<Props, State, Events, CSSVars>;
 
-  /**
-   * The element this component is attached to. This is safe to use server-side with the
-   * limited API listed below.
-   *
-   * **Important:** Only specific DOM APIs are safe to call server-side. This includes:
-   *
-   * - Attributes: `getAttribute`, `setAttribute`, `removeAttribute`, and `hasAttribute`
-   * - Classes: `classList` API
-   * - Styles: `style` API
-   * - Events (noop): `addEventListener`, `removeEventListener`, and `dispatchEvent`
-   */
   get el(): HTMLElement | null {
     return this.$$._el;
   }
 
-  /**
-   * Reactive reference to attached element.
-   *
-   * @signal
-   */
   get $el(): HTMLElement | null {
     return this.$$.$el();
   }
 
-  /**
-   * Reactive component properties.
-   *
-   * @internal
-   */
+  /** @internal */
   get $props(): ReadSignalRecord<Props> {
     return this.$$._props;
   }
 
-  /**
-   * Reactive component state.
-   *
-   * @internal
-   */
+  /** @internal */
   get $state(): WriteSignalRecord<State> {
     return this.$$._$state;
   }
 
-  /**
-   * A proxy to the internal component state.
-   */
   get state(): Readonly<State> {
     return this.$$._state;
   }
@@ -224,17 +197,5 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
   ): Dispose {
     if (__SERVER__ || !this.el) return noop;
     return listenEvent(this.el, type as any, handler, options);
-  }
-
-  /**
-   * Subscribe to live updates of internal component state.
-   */
-  subscribe(callback: (state: Readonly<State>) => Maybe<Dispose>) {
-    if (__DEV__ && !this.state) {
-      const name = this.constructor.name;
-      throw Error(`[maverick] component \`${name}\` is not subscribable`);
-    }
-
-    return scoped(() => effect(() => callback(this.state)), this.$$._scope)!;
   }
 }

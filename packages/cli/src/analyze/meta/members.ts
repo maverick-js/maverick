@@ -42,7 +42,7 @@ export function buildMembersMeta(checker: ts.TypeChecker, root: ts.Type): Member
 }
 
 const validDecoratorName = /^prop|method$/,
-  ignoredNamed = new Set(['$', 'el', '$el', 'attach', 'render', 'destroy']),
+  ignoredNamed = new Set(['$', 'el', '$el', '$props', '$state', 'attach', 'render', 'destroy']),
   decoratorWarnings = new Set<ts.Node>();
 
 function ignoreMember(

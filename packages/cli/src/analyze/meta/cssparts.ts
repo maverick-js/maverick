@@ -1,5 +1,6 @@
-import type { CSSPartMeta, DocTagMeta } from './component';
+import type { DocTagMeta } from './component';
 import { buildMetaFromDocTags } from './doctags';
+import type { CSSPartMeta } from './element';
 
 export function buildCSSPartsMeta(doctags?: DocTagMeta[]): CSSPartMeta[] | undefined {
   if (!doctags) return undefined;

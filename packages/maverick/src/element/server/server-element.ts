@@ -2,37 +2,35 @@ import { type AnyComponent } from '../../core/component';
 import { scoped } from '../../core/signals';
 import { escape } from '../../std/html';
 import { noop } from '../../std/unit';
-import type { HostElement } from '../host';
-import { COMPONENT, SETUP } from '../symbols';
+import { SETUP } from '../symbols';
 import { parseClassAttr, parseStyleAttr } from './server-utils';
 
-export class MaverickServerElement<T extends AnyComponent = AnyComponent>
-  implements ServerElement, HostElement<T>
-{
-  /** @internal type only */
-  ts__component?: T | undefined;
-
+export class MaverickServerElement<T extends AnyComponent = AnyComponent> implements ServerElement {
   keepAlive = false;
 
-  readonly [COMPONENT]: T;
+  readonly $: T;
   readonly attributes = new ServerAttributes();
   readonly style = new ServerStyle();
   readonly classList = new ServerClassList();
 
+  get $props() {
+    return this.$.$$._props;
+  }
+
   get $state() {
-    return this[COMPONENT].$._$state as any;
+    return this.$.$$._$state;
   }
 
   get state() {
-    return this[COMPONENT].state;
+    return this.$.state;
   }
 
   constructor(component: T) {
-    this[COMPONENT] = component;
+    this.$ = component;
   }
 
   attach() {
-    const instance = this[COMPONENT].$;
+    const instance = this.$.$$;
     scoped(() => {
       if (this.hasAttribute('class')) {
         parseClassAttr(this.classList.tokens, this.getAttribute('class')!);
@@ -86,12 +84,8 @@ export class MaverickServerElement<T extends AnyComponent = AnyComponent>
     return noop;
   }
 
-  onAttach() {
-    return noop;
-  }
-
   destroy() {
-    this[COMPONENT].destroy();
+    this.$.destroy();
   }
 }
 

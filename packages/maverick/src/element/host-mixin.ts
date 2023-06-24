@@ -12,14 +12,14 @@ import type {
 import { createComponent } from '../core/controller';
 import type { LifecycleCallback } from '../core/instance';
 import { type Dispose, type Maybe } from '../core/signals';
-import type { InferStoreRecord, StoreFactory } from '../core/store';
+import type { InferStoreRecord, Store, StoreFactory } from '../core/store';
 import { METHODS, PROPS } from '../core/symbols';
+import type { ReadSignalRecord } from '../core/types';
 import { runAll } from '../std/fn';
 import { camelToKebabCase } from '../std/string';
-import { isArray, isString, noop } from '../std/unit';
+import { isArray, isString } from '../std/unit';
 import { type AttributeConverter, type Attributes, inferAttributeConverter } from './attrs';
-import type { HostElement } from './host';
-import { ATTRS, COMPONENT, SETUP, SETUP_CALLBACKS, SETUP_STATE } from './symbols';
+import { ATTRS, SETUP, SETUP_CALLBACKS, SETUP_STATE } from './symbols';
 
 const enum SetupState {
   Idle = 0,
@@ -32,7 +32,7 @@ export function Host<T extends HTMLElement, R extends Component>(
   Component: ComponentConstructor<R>,
 ) {
   // @ts-expect-error
-  class MaverickElement extends Super implements HostElement<R>, SubscribableElement<R> {
+  class MaverickElement extends Super implements HostElement<R>, HostElement<R> {
     static attrs?: Attributes<InferComponentProps<R>>;
 
     private static [ATTRS]: Map<
@@ -65,23 +65,28 @@ export function Host<T extends HTMLElement, R extends Component>(
       return this[ATTRS] ? Array.from(this[ATTRS].keys()) : [];
     }
 
-    [COMPONENT]: R;
+    readonly $: R;
     [SETUP_STATE] = SetupState.Idle;
     [SETUP_CALLBACKS]: LifecycleCallback[] | null = null;
 
     keepAlive = false;
 
+    get $props() {
+      return this.$.$$._props as any;
+    }
+
     get $state() {
-      return this[COMPONENT].$._$state as any;
+      return this.$.$$._$state as any;
     }
 
     get state() {
-      return this[COMPONENT].state as any;
+      return this.$.state as any;
     }
 
     constructor(...args: any[]) {
       super(...args);
-      this[COMPONENT] = createComponent(Component);
+      this.$ = createComponent(Component);
+      this.$.$$._addHooks(this as any);
     }
 
     attributeChangedCallback(name, _, newValue) {
@@ -98,10 +103,7 @@ export function Host<T extends HTMLElement, R extends Component>(
     }
 
     connectedCallback() {
-      // @ts-expect-error
-      super.connectedCallback?.();
-
-      const instance = this[COMPONENT].$;
+      const instance = this.$.$$;
       if (instance._destroyed) return;
 
       if (this[SETUP_STATE] !== SetupState.Ready) {
@@ -121,29 +123,32 @@ export function Host<T extends HTMLElement, R extends Component>(
       if (isArray(this[SETUP_CALLBACKS])) runAll(this[SETUP_CALLBACKS], this);
       this[SETUP_CALLBACKS] = null;
 
+      // @ts-expect-error
+      const callback = super.connectedCallback;
+      if (callback) callback.call(this);
+
       return;
     }
 
     disconnectedCallback() {
-      // @ts-expect-error
-      super.disconnectedCallback?.();
-
-      const instance = this[COMPONENT].$;
+      const instance = this.$.$$;
       if (instance._destroyed) return;
 
       instance._disconnect();
 
+      // @ts-expect-error
+      const callback = super.disconnectedCallback;
+      if (callback) callback.call(this);
+
       if (!this.keepAlive && !this.hasAttribute('keep-alive')) {
         requestAnimationFrame(() => {
-          if (!this.isConnected) {
-            instance._destroy();
-          }
+          if (!this.isConnected) instance._destroy();
         });
       }
     }
 
     [SETUP]() {
-      const instance = this[COMPONENT].$,
+      const instance = this.$.$$,
         Ctor = this.constructor as typeof MaverickElement;
 
       if (__DEV__ && instance._destroyed) {
@@ -170,28 +175,12 @@ export function Host<T extends HTMLElement, R extends Component>(
 
     // @ts-expect-error
     subscribe(callback: (state: any) => void) {
-      return this[COMPONENT].subscribe(callback);
-    }
-
-    private static _onAttachDeprecationWarning = false;
-    onAttach() {
-      if (__DEV__) {
-        const Ctor = this.constructor as typeof MaverickElement;
-        if (!Ctor._onAttachDeprecationWarning) {
-          console.warn(
-            `[maverick] \`onAttach\` is deprecated and no longer required` +
-              ` - called on \`${this.tagName}\``,
-          );
-          Ctor._onAttachDeprecationWarning = true;
-        }
-      }
-
-      return noop;
+      return this.$.subscribe(callback);
     }
 
     destroy() {
       this.disconnectedCallback();
-      this[COMPONENT].destroy();
+      this.$.destroy();
     }
   }
 
@@ -209,12 +198,11 @@ export interface MaverickElementConstructor<
 }
 
 export type MaverickElement<
-  T extends HTMLElement,
+  T extends HTMLElement = HTMLElement,
   R extends Component = AnyComponent,
   E = InferComponentEvents<R>,
 > = Omit<T, 'addEventListener' | 'removeEventListener'> &
   HostElement<R> &
-  SubscribableElement<R> &
   InferComponentMembers<R> & {
     addEventListener<K extends keyof E>(
       type: K,
@@ -248,7 +236,37 @@ export type MaverickElement<
     ): void;
   };
 
-export interface SubscribableElement<T extends Component> {
+export interface HostElement<T extends Component = AnyComponent> {
+  /**
+   * Whether this component should be kept-alive on DOM disconnection. If `true`, all child
+   * host elements will also be kept alive and the instance will need to be manually destroyed.
+   *
+   * Important to note that if a parent element is kept alive, calling destroy will also destroy
+   * all child element instances.
+   *
+   * ```ts
+   * // Destroy this component and all children.
+   * element.destroy();
+   * ```
+   */
+  keepAlive: boolean;
+
+  /** Component instance. */
+  readonly $: T;
+
+  /** @internal */
+  readonly $props: ReadSignalRecord<InferComponentProps<T>>;
+
+  /** @internal */
+  readonly $state: Store<InferComponentState<T>>;
+
+  /** @internal */
+  onAttach?(): void;
+  /** @internal */
+  onConnect?(): void;
+  /** @internal */
+  onDestroy?(): void;
+
   /**
    * This object contains the state of the component store when available.
    *
@@ -273,6 +291,11 @@ export interface SubscribableElement<T extends Component> {
   subscribe: InferComponentState<T> extends StoreFactory<infer Record>
     ? (callback: (state: Readonly<Record>) => Maybe<Dispose>) => Dispose
     : never;
+
+  /**
+   * Destroys the underlying component instance.
+   */
+  destroy(): void;
 }
 
 export type InferElementComponent<T> = T extends MaverickElement<infer Component>
@@ -289,10 +312,10 @@ function extendProto(Element: Constructor<HTMLElement>, Component: ComponentCons
         enumerable: true,
         configurable: true,
         get(this) {
-          return this[COMPONENT].$._props[prop]();
+          return this.$props[prop]();
         },
         set(this, value) {
-          this[COMPONENT].$._props[prop].set(value);
+          this.$props[prop].set(value);
         },
       });
     }
@@ -304,10 +327,10 @@ function extendProto(Element: Constructor<HTMLElement>, Component: ComponentCons
         enumerable: true,
         configurable: true,
         get(this) {
-          return this[COMPONENT][name];
+          return this.$[name];
         },
         set(this, value) {
-          this[COMPONENT]![name] = value;
+          this.$[name] = value;
         },
       });
     }
@@ -316,7 +339,7 @@ function extendProto(Element: Constructor<HTMLElement>, Component: ComponentCons
   if (ComponentProto[METHODS]) {
     for (const name of ComponentProto[METHODS]) {
       ElementProto[name] = function (this, ...args) {
-        return this[COMPONENT][name](...args);
+        return this.$[name](...args);
       };
     }
   }
@@ -358,7 +381,7 @@ function attach(this: HostElement & HTMLElement, parent: HostElement | null) {
       this.setAttribute('keep-alive', '');
     }
 
-    parent[COMPONENT].$._attachScope!.append(this[COMPONENT].$._scope);
+    parent.$.$$._attachScope!.append(this.$.$$._scope);
   }
 
   this[SETUP]();

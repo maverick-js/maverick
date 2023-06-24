@@ -31,7 +31,7 @@ export class ClientComponent<T extends Component> extends React.Component<Intern
       scope: context,
     });
 
-    this._scope = this._component.$._scope;
+    this._scope = this._component.$$._scope;
     if (!__SERVER__) this._component[ON_DISPATCH] = this._onDispatch.bind(this);
   }
 
@@ -41,17 +41,17 @@ export class ClientComponent<T extends Component> extends React.Component<Intern
     if (!this._attached) return;
 
     if (el) {
-      this._component.$._attach(el);
-      this._component.$._connect();
+      this._component.$$._attach(el);
+      this._component.$$._connect();
     } else {
-      this._component.$._detach();
+      this._component.$$._detach();
     }
   };
 
   protected _onAttach = () => {
     if (this._el) {
-      this._component.$._attach(this._el);
-      this._component.$._connect();
+      this._component.$$._attach(this._el);
+      this._component.$$._connect();
     }
 
     setRef(this._forwardRef, this._component);
@@ -61,14 +61,14 @@ export class ClientComponent<T extends Component> extends React.Component<Intern
   };
 
   protected _onDetach() {
-    this._component.$._detach();
+    this._component.$$._detach();
     this._attached = false;
   }
 
   override componentWillUnmount(): void {
     this._forwardRef = null;
     this._component[ON_DISPATCH] = null;
-    this._component.$._destroy();
+    this._component.$$._destroy();
   }
 
   protected _onDispatch(event: Event) {
@@ -90,7 +90,7 @@ export class ClientComponent<T extends Component> extends React.Component<Intern
     }
 
     if (Ctor._props.size) {
-      let $props = this._component.$._props;
+      let $props = this._component.$$._props;
 
       for (const prop of Object.keys(props)) {
         if (Ctor._props.has(prop)) {

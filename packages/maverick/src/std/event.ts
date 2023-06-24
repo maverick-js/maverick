@@ -1,9 +1,9 @@
 import type { Constructor } from 'type-fest';
 
-import type { Dispose, InferComponentEvents } from '../core';
+import type { Component, Dispose, InferComponentEvents } from '../core';
 import { onDispose } from '../core/signals';
 import type { TargetedEventHandler } from '../core/types';
-import type { HostElement } from '../element/host';
+import type { MaverickElement } from '../element/host-mixin';
 import { noop } from './unit';
 
 const EVENT: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event,
@@ -179,7 +179,7 @@ export type EventCallback<T extends Event> =
 
 export class EventsTarget<Events> extends EventTarget {
   /** @internal type only */
-  ts__events?: Events;
+  $ts__events?: Events;
   override addEventListener<Type extends keyof Events>(
     type: Type & string,
     callback: EventCallback<Events[Type] & Event>,
@@ -205,17 +205,19 @@ export class EventsTarget<Events> extends EventTarget {
  */
 export function listenEvent<
   Target extends EventTarget,
-  Events = Target extends HostElement<infer API>
-    ? InferComponentEvents<API> & HTMLElementTagNameMap
+  Events = Target extends Component<any, any, infer Events>
+    ? Events
+    : Target extends MaverickElement<infer Component>
+    ? InferComponentEvents<Component> & HTMLElementEventMap
     : Target extends EventsTarget<infer Events>
     ? Events extends {}
       ? Events
-      : HTMLElementTagNameMap
-    : Target extends { ts__events?: infer Events }
+      : HTMLElementEventMap
+    : Target extends { $ts__events?: infer Events }
     ? Events extends {}
       ? Events
-      : HTMLElementTagNameMap
-    : HTMLElementTagNameMap,
+      : HTMLElementEventMap
+    : HTMLElementEventMap,
   Type extends keyof Events = keyof Events,
 >(
   target: Target,

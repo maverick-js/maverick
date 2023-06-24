@@ -18,10 +18,8 @@ const props = {
 /**
  * This is the `TestComponent` documentation.
  *
- * @slot This is the default slot.
- * @slot foo - This is the foo slot.
- * @csspart foo - This is the foo CSS Part.
- * @csspart bar - This is the bar CSS Part.
+ * @part foo - This is the foo CSS Part.
+ * @part bar - This is the bar CSS Part.
  */
 class TestComponent extends BaseComponent {
   static props = {
@@ -92,6 +90,10 @@ class TestComponent extends BaseComponent {
  * Something about this element.
  *
  * @tag foo
+ * @slot This is the default slot.
+ * @slot foo - This is the foo slot.
+ * @csspart foo - This is the foo CSS Part.
+ * @csspart bar - This is the bar CSS Part.
  */
 class TestElement extends Host(HTMLElement, TestComponent) {
   static tagName = 'mk-test';

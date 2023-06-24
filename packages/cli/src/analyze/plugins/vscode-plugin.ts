@@ -10,7 +10,10 @@ import type { AnalyzePluginBuilder } from './analyze-plugin';
 export interface VSCodePluginConfig extends Record<string, unknown> {
   cwd: string;
   outFile: string;
-  transformTagData?: (component: ComponentMeta, data: ITagData) => ITagData;
+  transformTagData?: (
+    meta: { element: ElementMeta; component: ComponentMeta },
+    data: ITagData,
+  ) => ITagData;
   transformAttributeData?: (prop: PropMeta, data: IAttributeData) => IAttributeData;
 }
 
@@ -46,19 +49,19 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
 
     elements
       .filter((el) => !isUndefined(el.tag) && map.has(el))
-      .forEach((el) => {
-        const component = map.get(el)!;
+      .forEach((element) => {
+        const component = map.get(element)!;
 
         const tagData: ITagData = {
-          name: el.tag!.name,
-          description: el.docs || component.docs,
+          name: element.tag!.name,
+          description: element.docs || component.docs,
           attributes: (component.props ?? [])
             .filter((prop) => {
-              const attr = el.attrs?.[prop.name]?.attr;
+              const attr = element.attrs?.[prop.name]?.attr;
               return attr !== false && !prop.readonly && !prop.internal;
             })
             .map((prop) => {
-              const attr = el.attrs?.[prop.name].attr as string | undefined;
+              const attr = element.attrs?.[prop.name].attr as string | undefined;
               const data: IAttributeData = {
                 name: attr || camelToKebabCase(prop.name),
                 description: prop.docs,
@@ -74,7 +77,7 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
             }),
         };
 
-        output.tags?.push(config.transformTagData?.(component, tagData) ?? tagData);
+        output.tags?.push(config.transformTagData?.({ element, component }, tagData) ?? tagData);
       });
 
     const dir = dirname(normalizedConfig.outFile);

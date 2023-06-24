@@ -10,7 +10,7 @@ export class Component<Props = {}, State = {}, Events = {}, CSSVars = {}> extend
   CSSVars
 > {
   destroy(): void {
-    this.$._destroy();
+    this.$$._destroy();
   }
 }
 
@@ -33,7 +33,7 @@ export type InferComponentCSSProps<T> = T extends Component<any, any, any, infer
   : {};
 
 export type InferComponentMembers<T> = T extends Component<infer Props>
-  ? Omit<Props, keyof T> & T
+  ? Omit<Props, keyof T> & Omit<T, 'onAttach' | 'onConnect' | 'onDestroy'>
   : {};
 
 export type InferComponentCSSVars<

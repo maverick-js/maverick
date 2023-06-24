@@ -7,11 +7,16 @@ import type { Component, ComponentConstructor } from './component';
 import { provideContext } from './context';
 import { createScope, effect, onDispose } from './signals';
 import { type Scope, scoped, signal } from './signals';
-import type { Store } from './store';
 import type { WriteSignalRecord } from './types';
 
 export interface LifecycleCallback {
   (el: HTMLElement): any;
+}
+
+export interface LifecycleHooks {
+  onAttach?(el: HTMLElement): void;
+  onConnect?(el: HTMLElement): void;
+  onDestroy?(el: HTMLElement): void;
 }
 
 export interface InstanceInit<Props = {}> {
@@ -20,6 +25,8 @@ export interface InstanceInit<Props = {}> {
 }
 
 const EMPTY_PROPS = {} as any;
+
+export interface AnyInstance extends Instance<any, any, any, any> {}
 
 export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   /** @internal type only */
@@ -33,6 +40,7 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   _scope: Scope;
   _attachScope: Scope | null = null;
   _connectScope: Scope | null = null;
+  _component: Component | null = null;
   _destroyed = false;
 
   _props: WriteSignalRecord<Props> = EMPTY_PROPS;
@@ -40,7 +48,7 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   _styles: ElementStylesRecord | null = null;
 
   readonly _state!: Readonly<State>;
-  readonly _$state!: Store<State>;
+  readonly _$state!: any;
 
   readonly _attachCallbacks: LifecycleCallback[] = [];
   readonly _connectCallbacks: LifecycleCallback[] = [];
@@ -133,6 +141,13 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this._attachCallbacks.length = 0;
     this._connectCallbacks.length = 0;
     this._destroyCallbacks.length = 0;
+    this._component = null;
+  }
+
+  _addHooks(target: LifecycleHooks) {
+    if (target.onAttach) this._attachCallbacks.push(target.onAttach.bind(target));
+    if (target.onConnect) this._connectCallbacks.push(target.onConnect.bind(target));
+    if (target.onDestroy) this._destroyCallbacks.push(target.onDestroy.bind(target));
   }
 
   private _attachAttrs() {

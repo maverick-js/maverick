@@ -1,9 +1,7 @@
 import { Component } from 'maverick.js';
 
-import { defineCustomElement, Host } from 'maverick.js/element';
+import { defineCustomElement, Host, MaverickElement } from 'maverick.js/element';
 import { waitAnimationFrame } from 'maverick.js/std';
-
-import { COMPONENT } from '../../../src/element/symbols';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -35,19 +33,19 @@ it('should keep elements alive', async () => {
     GrandchildAElement = createElement('mk-grandchild-a', grandchildADispose),
     GrandchildBElement = createElement('mk-grandchild-b', grandchildBDispose);
 
-  const parent = document.createElement(ParentElement.tagName);
+  const parent = document.createElement(ParentElement.tagName) as MaverickElement;
   parent.setAttribute('keep-alive', '');
 
-  const childA = document.createElement(ChildAElement.tagName);
+  const childA = document.createElement(ChildAElement.tagName) as MaverickElement;
   parent.append(childA);
 
-  const grandchildA = document.createElement(GrandchildAElement.tagName);
+  const grandchildA = document.createElement(GrandchildAElement.tagName) as MaverickElement;
   childA.append(grandchildA);
 
-  const childB = document.createElement(ChildBElement.tagName);
+  const childB = document.createElement(ChildBElement.tagName) as MaverickElement;
   parent.append(childB);
 
-  const grandchildB = document.createElement(GrandchildBElement.tagName);
+  const grandchildB = document.createElement(GrandchildBElement.tagName) as MaverickElement;
   childB.append(grandchildB);
 
   document.body.append(parent);
@@ -84,11 +82,11 @@ it('should keep elements alive', async () => {
   parent.remove();
   await waitAnimationFrame();
 
-  expect(parent[COMPONENT].$._destroyed).toBeFalsy();
-  expect(childA[COMPONENT].$._destroyed).toBeFalsy();
-  expect(childB[COMPONENT].$._destroyed).toBeFalsy();
-  expect(grandchildA[COMPONENT].$._destroyed).toBeFalsy();
-  expect(grandchildB[COMPONENT].$._destroyed).toBeFalsy();
+  expect(parent.$.$$._destroyed).toBeFalsy();
+  expect(childA.$.$$._destroyed).toBeFalsy();
+  expect(childB.$.$$._destroyed).toBeFalsy();
+  expect(grandchildA.$.$$._destroyed).toBeFalsy();
+  expect(grandchildB.$.$$._destroyed).toBeFalsy();
 
   (parent as any).destroy();
 
@@ -98,9 +96,9 @@ it('should keep elements alive', async () => {
   expect(grandchildADispose).toHaveBeenCalledTimes(1);
   expect(grandchildBDispose).toHaveBeenCalledTimes(1);
 
-  expect(parent[COMPONENT].$._destroyed).toBeTruthy();
-  expect(childA[COMPONENT].$._destroyed).toBeTruthy();
-  expect(childB[COMPONENT].$._destroyed).toBeTruthy();
-  expect(grandchildA[COMPONENT].$._destroyed).toBeTruthy();
-  expect(grandchildB[COMPONENT].$._destroyed).toBeTruthy();
+  expect(parent.$.$$._destroyed).toBeTruthy();
+  expect(childA.$.$$._destroyed).toBeTruthy();
+  expect(childB.$.$$._destroyed).toBeTruthy();
+  expect(grandchildA.$.$$._destroyed).toBeTruthy();
+  expect(grandchildB.$.$$._destroyed).toBeTruthy();
 });

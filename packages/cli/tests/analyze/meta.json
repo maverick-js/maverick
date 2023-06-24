@@ -28,7 +28,26 @@
         "huxBox": {
           "attr": "zoo"
         }
-      }
+      },
+      "cssparts": [
+        {
+          "name": "foo",
+          "description": "This is the foo CSS Part."
+        },
+        {
+          "name": "bar",
+          "description": "This is the bar CSS Part."
+        }
+      ],
+      "slots": [
+        {
+          "docs": "This is the default slot."
+        },
+        {
+          "name": "foo",
+          "docs": "This is the foo slot."
+        }
+      ]
     }
   ],
   "components": [
@@ -170,6 +189,16 @@
           "detail": "FooBoo"
         }
       ],
+      "parts": [
+        {
+          "name": "foo",
+          "description": "This is the foo CSS Part."
+        },
+        {
+          "name": "bar",
+          "description": "This is the bar CSS Part."
+        }
+      ],
       "cssvars": [
         {
           "name": "foo",
@@ -192,25 +221,6 @@
           "type": "number | undefined",
           "readonly": true,
           "optional": true
-        }
-      ],
-      "cssparts": [
-        {
-          "name": "foo",
-          "description": "This is the foo CSS Part."
-        },
-        {
-          "name": "bar",
-          "description": "This is the bar CSS Part."
-        }
-      ],
-      "slots": [
-        {
-          "docs": "This is the default slot."
-        },
-        {
-          "name": "foo",
-          "docs": "This is the foo slot."
         }
       ],
       "state": [

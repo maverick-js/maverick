@@ -70,7 +70,7 @@ importers:
   packages/maverick:
     specifiers:
       '@edge-runtime/vm': ^2.1.0
-      '@maverick-js/signals': ^5.11.1
+      '@maverick-js/signals': ^5.11.2
       '@rollup/plugin-node-resolve': ^15.1.0
       '@types/node': ^18.0.3
       '@types/react': ^18.0.24
@@ -89,7 +89,7 @@ importers:
       vitest: ^0.32.0
     devDependencies:
       '@edge-runtime/vm': 2.1.2
-      '@maverick-js/signals': 5.11.1
+      '@maverick-js/signals': 5.11.2
       '@rollup/plugin-node-resolve': 15.1.0_rollup@3.25.1
       '@types/node': 18.16.16
       '@types/react': 18.2.8
@@ -442,8 +442,8 @@ packages:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
     dev: true
 
-  /@maverick-js/signals/5.11.1:
-    resolution: {integrity: sha512-yr6ZIpQxupgbDl6364t1L7bOSJqK2xiwjf8hoxJ632SL+0nBL0bLNCQaiK4GFRQEhYhBwX2yYyA+eKgZLEJ6mg==}
+  /@maverick-js/signals/5.11.2:
+    resolution: {integrity: sha512-jKAyNE2O7H+xrigPoqdV0Iq2AeQ6cysfBf/b2jasJ4FfCUKjGyazgtp+pIspTW6skFvpPrvq40Qft+7HuR+Tlg==}
     dev: true
 
   /@nodelib/fs.scandir/2.1.5:

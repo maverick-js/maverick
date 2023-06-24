@@ -2,8 +2,9 @@ import kleur from 'kleur';
 
 import { filterArrayUnique } from '../../utils/array';
 import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
-import { type DocTagMeta, type SlotMeta, TS_NODE } from './component';
+import { type DocTagMeta, TS_NODE } from './component';
 import { splitJsDocTagText } from './doctags';
+import type { SlotMeta } from './element';
 
 export function buildSlotsMeta(doctags?: DocTagMeta[]): SlotMeta[] | undefined {
   if (!doctags) return undefined;

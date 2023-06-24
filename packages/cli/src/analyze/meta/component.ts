@@ -71,15 +71,9 @@ export interface CSSVarMeta {
   deprecated?: boolean;
 }
 
-export interface CSSPartMeta {
+export interface PartMeta {
   [TS_NODE]: ts.Node;
   name: string;
-  docs?: string;
-}
-
-export interface SlotMeta {
-  [TS_NODE]: ts.Node;
-  name?: string;
   docs?: string;
 }
 
@@ -120,8 +114,7 @@ export interface ComponentMeta extends Record<string, unknown> {
   props?: PropMeta[];
   state?: StateMeta[];
   events?: EventMeta[];
+  parts?: PartMeta[];
   cssvars?: CSSVarMeta[];
-  cssparts?: CSSPartMeta[];
-  slots?: SlotMeta[];
   members?: MembersMeta;
 }

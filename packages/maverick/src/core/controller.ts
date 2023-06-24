@@ -6,28 +6,30 @@ import type {
 import { DOMEvent, type DOMEventInit, listenEvent } from '../std/event';
 import { noop } from '../std/unit';
 import type { Component, ComponentConstructor, InferComponentProps } from './component';
-import { Instance, type InstanceInit } from './instance';
+import { type AnyInstance, Instance, type InstanceInit } from './instance';
 import { type Dispose, effect, getScope, type Maybe, root, scoped, untrack } from './signals';
-import type { Store } from './store';
 import { ON_DISPATCH } from './symbols';
-import type { ReadSignalRecord, TargetedEventHandler } from './types';
+import type { ReadSignalRecord, TargetedEventHandler, WriteSignalRecord } from './types';
 
-let currentInstance: Instance<any, any, any, any> | null = null;
+// Match component interface.
+let currentInstance: { $$: AnyInstance | null } = { $$: null };
 
 export function createComponent<T extends Component>(
   Component: ComponentConstructor<T>,
   init?: InstanceInit<InferComponentProps<T>>,
 ) {
   return root(() => {
-    currentInstance = new Instance(Component, getScope()!, init);
+    currentInstance.$$ = new Instance(Component, getScope()!, init);
     const component = new Component();
-    currentInstance = null;
+    currentInstance.$$._component = component;
+    currentInstance.$$ = null;
     return component;
   });
 }
 
-export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> {
-  $!: Instance<Props, State, Events, CSSVars>;
+export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> extends EventTarget {
+  /** @internal */
+  $$!: Instance<Props, State, Events, CSSVars>;
 
   /**
    * The element this component is attached to. This is safe to use server-side with the
@@ -41,7 +43,7 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> {
    * - Events (noop): `addEventListener`, `removeEventListener`, and `dispatchEvent`
    */
   get el(): HTMLElement | null {
-    return this.$._el;
+    return this.$$._el;
   }
 
   /**
@@ -50,39 +52,64 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> {
    * @signal
    */
   get $el(): HTMLElement | null {
-    return this.$.$el();
+    return this.$$.$el();
   }
 
   /**
    * Reactive component properties.
+   *
+   * @internal
    */
-  protected get $props(): ReadSignalRecord<Props> {
-    return this.$._props;
+  get $props(): ReadSignalRecord<Props> {
+    return this.$$._props;
   }
 
   /**
    * Reactive component state.
+   *
+   * @internal
    */
-  protected get $state(): Store<State> {
-    return this.$._$state;
+  get $state(): WriteSignalRecord<State> {
+    return this.$$._$state;
   }
 
   /**
    * A proxy to the internal component state.
    */
   get state(): Readonly<State> {
-    return this.$._state;
+    return this.$$._state;
   }
 
   constructor() {
-    if (currentInstance) this.attach(currentInstance);
+    super();
+    if (currentInstance.$$) this.attach(currentInstance as { $$: AnyInstance });
   }
 
-  attach(instance: Instance<Props, State, Events, CSSVars>) {
-    this.$ = instance;
-    if (this.onAttach) instance._attachCallbacks.push(this.onAttach.bind(this));
-    if (this.onConnect) instance._connectCallbacks.push(this.onConnect.bind(this));
-    if (this.onDestroy) instance._destroyCallbacks.push(this.onDestroy.bind(this));
+  attach({ $$ }: { $$: Instance<Props, State, Events, CSSVars> }) {
+    this.$$ = $$;
+    $$._addHooks(this);
+    return this;
+  }
+
+  override addEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    options?: boolean | AddEventListenerOptions | undefined,
+  ): void {
+    if (__DEV__ && !this.el) {
+      const name = this.constructor.name;
+      console.warn(`[maverick] adding event listener to \`${name}\` before element is attached`);
+    }
+
+    this.listen(type as any, callback as any, options);
+  }
+
+  override removeEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    options?: boolean | EventListenerOptions | undefined,
+  ): void {
+    this.el?.removeEventListener(type, callback as any, options);
   }
 
   /**
@@ -92,7 +119,7 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> {
    * - This hook may be called while the host element is not connected to the DOM yet.
    * - This hook is called both client-side and server-side.
    */
-  protected onAttach?(el: HTMLElement): void;
+  onAttach?(el: HTMLElement): void;
 
   /**
    * The given callback is invoked when the host element has connected to the DOM.
@@ -100,7 +127,7 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> {
    * - This hook can run more than once as the host disconnects and re-connects to the DOM.
    * - If a function is returned it will be invoked when the host disconnects from the DOM.
    */
-  protected onConnect?(el: HTMLElement): void;
+  onConnect?(el: HTMLElement): void;
 
   /**
    * The given callback is invoked when the component is destroyed.
@@ -109,15 +136,15 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> {
    * - This hook may be called before being attached to a host element.
    * - This hook is called both client-side and server-side.
    */
-  protected onDestroy?(): void;
+  onDestroy?(): void;
 
   /**
    * This method can be used to specify attributes that should be set on the host element. Any
    * attributes that are assigned to a function will be considered a signal and updated accordingly.
    */
   protected setAttributes(attributes: ElementAttributesRecord): void {
-    if (!this.$._attrs) this.$._attrs = {};
-    Object.assign(this.$._attrs, attributes);
+    if (!this.$$._attrs) this.$$._attrs = {};
+    Object.assign(this.$$._attrs, attributes);
   }
 
   /**
@@ -125,8 +152,8 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> {
    * styles that are assigned to a function will be considered a signal and updated accordingly.
    */
   protected setStyles(styles: ElementStylesRecord): void {
-    if (!this.$._styles) this.$._styles = {};
-    Object.assign(this.$._styles, styles);
+    if (!this.$$._styles) this.$$._styles = {};
+    Object.assign(this.$$._styles, styles);
   }
 
   /**
@@ -173,6 +200,10 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     const event =
       type instanceof Event ? type : new DOMEvent(type as string, init[0] as DOMEventInit);
 
+    Object.defineProperty(event, 'target', {
+      get: () => this.$$._component,
+    });
+
     return untrack(() => {
       this[ON_DISPATCH]?.(event);
       return this.el!.dispatchEvent(event);
@@ -204,6 +235,6 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> {
       throw Error(`[maverick] component \`${name}\` is not subscribable`);
     }
 
-    return scoped(() => effect(() => callback(this.state)), this.$._scope);
+    return scoped(() => effect(() => callback(this.state)), this.$$._scope)!;
   }
 }

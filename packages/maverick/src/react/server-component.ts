@@ -13,7 +13,7 @@ export class ServerComponent<T extends Component> extends ClientComponent<T> {
       { className, style = {}, children, forwardRef, ...props } = this.props;
 
     if (Ctor._props.size) {
-      let $props = this._component.$._props;
+      let $props = this._component.$$._props;
       for (const prop of Object.keys(props)) {
         if (Ctor._props.has(prop)) {
           $props[prop].set(props[prop]);

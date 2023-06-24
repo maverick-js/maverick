@@ -16,6 +16,18 @@ export interface AttrsMeta {
   [propName: string]: AttrMeta;
 }
 
+export interface SlotMeta {
+  [TS_NODE]: ts.Node;
+  name?: string;
+  docs?: string;
+}
+
+export interface CSSPartMeta {
+  [TS_NODE]: ts.Node;
+  name: string;
+  docs?: string;
+}
+
 export interface ElementMeta {
   [TS_NODE]: ts.ClassDeclaration;
   name: string;
@@ -28,4 +40,6 @@ export interface ElementMeta {
   docs?: string;
   doctags?: DocTagMeta[];
   attrs?: AttrsMeta;
+  slots?: SlotMeta[];
+  cssparts?: CSSPartMeta[];
 }

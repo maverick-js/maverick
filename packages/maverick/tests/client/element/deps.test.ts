@@ -2,10 +2,10 @@ import { getContext, setContext } from '@maverick-js/signals';
 import { Component, createContext, onError, provideContext, useContext } from 'maverick.js';
 
 import 'maverick.js/element';
-import { defineCustomElement, Host } from 'maverick.js/element';
+import { defineCustomElement, Host, type MaverickElement } from 'maverick.js/element';
 import { waitAnimationFrame } from 'maverick.js/std';
 
-import { COMPONENT, SETUP_STATE } from '../../../src/element/symbols';
+import { SETUP_STATE } from '../../../src/element/symbols';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -82,15 +82,15 @@ it('should wait for parents to connect', async () => {
     static tagName = 'mk-grandchild';
   }
 
-  const parentA = document.createElement(ParentAElement.tagName);
+  const parentA = document.createElement(ParentAElement.tagName) as MaverickElement;
 
-  const parentB = document.createElement(ParentBElement.tagName);
+  const parentB = document.createElement(ParentBElement.tagName) as MaverickElement;
   parentA.append(parentB);
 
-  const child = document.createElement(ChildElement.tagName);
+  const child = document.createElement(ChildElement.tagName) as MaverickElement;
   parentB.append(child);
 
-  const grandchild = document.createElement(GrandChildElement.tagName);
+  const grandchild = document.createElement(GrandChildElement.tagName) as MaverickElement;
   child.append(grandchild);
 
   document.body.append(parentA);
@@ -135,10 +135,10 @@ it('should wait for parents to connect', async () => {
   parentA.remove();
   await waitAnimationFrame();
 
-  expect(parentA[COMPONENT].$._destroyed).toBeTruthy();
-  expect(parentB[COMPONENT].$._destroyed).toBeTruthy();
-  expect(child[COMPONENT].$._destroyed).toBeTruthy();
-  expect(grandchild[COMPONENT].$._destroyed).toBeTruthy();
+  expect(parentA.$.$$._destroyed).toBeTruthy();
+  expect(parentB.$.$$._destroyed).toBeTruthy();
+  expect(child.$.$$._destroyed).toBeTruthy();
+  expect(grandchild.$.$$._destroyed).toBeTruthy();
 
   expect(errorHandler).toBeCalledTimes(1);
   expect(errorHandler).toHaveBeenCalledWith(error);

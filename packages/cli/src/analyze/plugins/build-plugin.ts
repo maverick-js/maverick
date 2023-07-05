@@ -35,10 +35,9 @@ export function createBuildPlugin(): AnalyzePlugin {
           [TS_NODE]: node.tag.node,
           name: node.tag.name,
         },
-        component: {
-          [TS_NODE]: node.component.node,
-          name: node.component.name,
-        },
+        component: node.component
+          ? { [TS_NODE]: node.component.node, name: node.component.name }
+          : undefined,
         attrs: buildAttrsMeta(checker, node.attrs),
         cssparts: buildCSSPartsMeta(doctags),
         slots: buildSlotsMeta(doctags),
@@ -58,7 +57,7 @@ export function createBuildPlugin(): AnalyzePlugin {
         parts: buildPartsMeta(doctags),
         cssvars: buildCSSVarsMeta(checker, node.types.cssvars, doctags),
         state: buildStateMeta(checker, node.state, node.types.state),
-        members: buildMembersMeta(checker, node.types.root),
+        members: buildMembersMeta(checker, node.types.root, node.state, node.types.state),
       };
     },
   };

@@ -7,13 +7,19 @@ import type { Component, ComponentConstructor } from './component';
 import { provideContext } from './context';
 import { createScope, effect, onDispose } from './signals';
 import { type Scope, scoped, signal } from './signals';
+import { ON_DISPATCH } from './symbols';
 import type { WriteSignalRecord } from './types';
 
-export interface LifecycleCallback {
+export interface SetupCallback {
+  (): void;
+}
+
+export interface ElementCallback {
   (el: HTMLElement): any;
 }
 
 export interface LifecycleHooks {
+  onSetup?(): void;
   onAttach?(el: HTMLElement): void;
   onConnect?(el: HTMLElement): void;
   onDestroy?(el: HTMLElement): void;
@@ -34,6 +40,9 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   /** @internal type only */
   $ts__vars?: CSSVars;
 
+  /* @internal */
+  [ON_DISPATCH]?: ((event: Event) => void) | null = null;
+
   readonly $el = signal<HTMLElement | null>(null);
 
   _el: HTMLElement | null = null;
@@ -50,9 +59,10 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   readonly _state!: Readonly<State>;
   readonly _$state!: any;
 
-  readonly _attachCallbacks: LifecycleCallback[] = [];
-  readonly _connectCallbacks: LifecycleCallback[] = [];
-  readonly _destroyCallbacks: LifecycleCallback[] = [];
+  readonly _setupCallbacks: SetupCallback[] = [];
+  readonly _attachCallbacks: ElementCallback[] = [];
+  readonly _connectCallbacks: ElementCallback[] = [];
+  readonly _destroyCallbacks: ElementCallback[] = [];
 
   constructor(
     Component: ComponentConstructor<Component<Props, State, any, any>>,
@@ -62,15 +72,15 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this._scope = scope;
     if (init?.scope) init.scope.append(scope);
 
-    let store = Component.state,
+    let stateFactory = Component.state,
       props = Component.props;
 
-    if (store) {
-      this._$state = store.create();
+    if (stateFactory) {
+      this._$state = stateFactory.create();
       this._state = new Proxy(this._$state, {
         get: (_, prop: string) => this._$state[prop](),
       }) as State;
-      provideContext(store, this._$state);
+      provideContext(stateFactory, this._$state);
     }
 
     if (props) {
@@ -83,6 +93,12 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     }
 
     onDispose(this._destroy.bind(this));
+  }
+
+  _setup() {
+    scoped(() => {
+      for (const callback of this._setupCallbacks) callback();
+    }, this._scope);
   }
 
   _attach(el: HTMLElement | ServerElement) {
@@ -112,14 +128,16 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   }
 
   _connect() {
-    if (!this._el || !this._attachScope || !this._connectCallbacks.length) return;
+    if (!this._el || !this._attachScope) return;
 
     this._connectScope = createScope();
     this._attachScope.append(this._connectScope);
 
-    scoped(() => {
-      for (const callback of this._connectCallbacks) callback(this._el!);
-    }, this._connectScope);
+    if (this._connectCallbacks.length) {
+      scoped(() => {
+        for (const callback of this._connectCallbacks) callback(this._el!);
+      }, this._connectScope);
+    }
   }
 
   _disconnect() {
@@ -138,13 +156,16 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this._detach();
     this._scope.dispose();
 
+    this._setupCallbacks.length = 0;
     this._attachCallbacks.length = 0;
     this._connectCallbacks.length = 0;
     this._destroyCallbacks.length = 0;
+
     this._component = null;
   }
 
   _addHooks(target: LifecycleHooks) {
+    if (target.onSetup) this._setupCallbacks.push(target.onSetup.bind(target));
     if (target.onAttach) this._attachCallbacks.push(target.onAttach.bind(target));
     if (target.onConnect) this._connectCallbacks.push(target.onConnect.bind(target));
     if (target.onDestroy) this._destroyCallbacks.push(target.onDestroy.bind(target));
@@ -152,44 +173,36 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
 
   private _attachAttrs() {
     if (!this._attrs) return;
-
-    let value: unknown;
-
     for (const name of Object.keys(this._attrs)) {
-      value = this._attrs[name];
       if (__SERVER__) {
-        setAttribute(this._el!, name, unwrapDeep(value));
-      } else if (isFunction(value)) {
-        effect(this._setAttr.bind(this, name, value));
+        setAttribute(this._el!, name, unwrapDeep.call(this._component, this._attrs[name]));
+      } else if (isFunction(this._attrs[name])) {
+        effect(this._setAttr.bind(this, name));
       } else {
-        setAttribute(this._el!, name, value);
+        setAttribute(this._el!, name, this._attrs[name]);
       }
     }
   }
 
   private _attachStyles() {
     if (!this._styles) return;
-
-    let value: unknown;
-
     for (const name of Object.keys(this._styles)) {
-      value = this._styles[name];
       if (__SERVER__) {
-        setStyle(this._el!, name, unwrapDeep(value));
-      } else if (isFunction(value)) {
-        effect(this._setStyle.bind(this, name, value));
+        setStyle(this._el!, name, unwrapDeep.call(this._component, this._styles[name]));
+      } else if (isFunction(this._styles[name])) {
+        effect(this._setStyle.bind(this, name));
       } else {
-        setStyle(this._el!, name, value);
+        setStyle(this._el!, name, this._styles[name]);
       }
     }
   }
 
-  private _setAttr(name: string, value: Function) {
-    this._el && setAttribute(this._el, name, value());
+  private _setAttr(name: string) {
+    setAttribute(this._el!, name, (this._attrs![name] as Function).call(this._component));
   }
 
-  private _setStyle(name: string, value: Function) {
-    this._el && setStyle(this._el, name, value());
+  private _setStyle(name: string) {
+    setStyle(this._el!, name, (this._styles![name] as Function).call(this._component));
   }
 }
 

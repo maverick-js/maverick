@@ -24,7 +24,7 @@ export interface ElementNode {
     node: ts.PropertyDeclaration;
     name: string;
   };
-  component: {
+  component?: {
     node: ts.ClassDeclaration;
     name: string;
   };

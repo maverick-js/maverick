@@ -7,7 +7,7 @@ import {
   createReactComponent,
   createReactContextProvider,
   createReactScopeProvider,
-  type ReactProps,
+  type InternalReactProps,
   useReactContext,
   useReactScope,
 } from 'maverick.js/react';
@@ -19,7 +19,7 @@ it('should render', () => {
 
   class TestComponent extends Component<Props> {
     static props: Props = { id: '' };
-    protected override onAttach(el: HTMLElement) {
+    override onAttach(el: HTMLElement) {
       expect(el.localName).toBe('button');
       expect(el).toBeInstanceOf(HTMLButtonElement);
       this.setAttributes({
@@ -64,7 +64,7 @@ it('should invoke event callback', () => {
   const event = new MouseEvent('foo', { detail: 1 });
 
   class TestComponent extends Component<{}, {}, Events> {
-    protected override onAttach() {
+    override onAttach() {
       this.dispatch(event);
     }
   }
@@ -138,7 +138,10 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-function setup<T extends Component>(TestComponent: ComponentConstructor<T>, props: ReactProps<T>) {
+function setup<T extends Component>(
+  TestComponent: ComponentConstructor<T>,
+  props: InternalReactProps<T>,
+) {
   const container = document.createElement('root'),
     root = createRoot(container),
     node = createReactComponent(TestComponent);
@@ -152,7 +155,7 @@ function setup<T extends Component>(TestComponent: ComponentConstructor<T>, prop
   return {
     root,
     container,
-    update(props: ReactProps<T>) {
+    update(props: InternalReactProps<T>) {
       act(() => {
         root.render(React.createElement(node, props));
       });

@@ -2,7 +2,7 @@ import type { WritableKeys } from '../std/types';
 import { Controller } from './controller';
 import { Instance } from './instance';
 import { type Dispose, effect, type Maybe, scoped } from './signals';
-import type { StoreFactory } from './store';
+import type { State } from './state';
 
 export class Component<Props = {}, State = {}, Events = {}, CSSVars = {}> extends Controller<
   Props,
@@ -30,7 +30,7 @@ export interface AnyComponent extends Component<any, any, any, any> {}
 
 export interface ComponentConstructor<T extends Component = AnyComponent> {
   readonly props?: InferComponentProps<T>;
-  readonly state?: StoreFactory<InferComponentState<T>>;
+  readonly state?: State<InferComponentState<T>>;
   new (): T;
 }
 
@@ -45,7 +45,7 @@ export type InferComponentCSSProps<T> = T extends Component<any, any, any, infer
   : {};
 
 export type InferComponentMembers<T> = T extends Component<infer Props>
-  ? Omit<Props, keyof T> & Omit<T, 'onAttach' | 'onConnect' | 'onDestroy'>
+  ? Omit<Props, keyof T> & Omit<T, keyof Component>
   : {};
 
 export type InferComponentCSSVars<

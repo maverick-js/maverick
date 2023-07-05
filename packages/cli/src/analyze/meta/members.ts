@@ -2,11 +2,17 @@ import ts from 'typescript';
 
 import { reportDiagnosticByNode } from '../../utils/logger';
 import { escapeQuotes } from '../../utils/str';
-import { type MembersMeta, type MethodMeta, type PropMeta } from './component';
+import { serializeType } from '../utils/types';
+import { type MembersMeta, type MethodMeta, type PropMeta, TS_NODE } from './component';
 import { buildMethodMeta } from './methods';
 import { buildPropMeta } from './props';
 
-export function buildMembersMeta(checker: ts.TypeChecker, root: ts.Type): MembersMeta | undefined {
+export function buildMembersMeta(
+  checker: ts.TypeChecker,
+  root: ts.Type,
+  stateDeclaration?: ts.PropertyDeclaration,
+  stateType?: ts.Type,
+): MembersMeta | undefined {
   const props: PropMeta[] = [],
     methods: MethodMeta[] = [];
 
@@ -32,6 +38,25 @@ export function buildMembersMeta(checker: ts.TypeChecker, root: ts.Type): Member
     }
   }
 
+  if (stateType && stateDeclaration) {
+    const type = serializeType(checker, stateType);
+    props.push({
+      [TS_NODE]: stateDeclaration,
+      name: 'state',
+      docs: 'This object contains the current state of the component.',
+      type,
+      readonly: true,
+    });
+    methods.push({
+      [TS_NODE]: stateDeclaration,
+      name: 'subscribe',
+      docs: 'Subscribe to live updates of component state.',
+      parameters: [{ name: 'callback', type: `(state: ${type}) => Maybe<Dispose>` }],
+      signature: { type: `(callback: (state: ${type}) => Maybe<Dispose>) => Unsubscribe` },
+      return: { type: 'Unsubscribe' },
+    });
+  }
+
   return props.length > 0 || methods.length > 0
     ? {
         props: props.length > 0 ? props : undefined,
@@ -42,7 +67,31 @@ export function buildMembersMeta(checker: ts.TypeChecker, root: ts.Type): Member
 }
 
 const validDecoratorName = /^prop|method$/,
-  ignoredNamed = new Set(['$', 'el', '$el', '$props', '$state', 'attach', 'render', 'destroy']),
+  ignoredName = new Set([
+    '$',
+    '$$',
+    'scope',
+    'attachScope',
+    'connectScope',
+    'el',
+    '$el',
+    '$props',
+    'state',
+    '$state',
+    'subscribe',
+    'attach',
+    'render',
+    'destroy',
+    'onSetup',
+    'onAttach',
+    'onConnect',
+    'onDestroy',
+    'createEvent',
+    'listen',
+    'dispatch',
+    'addEventListener',
+    'removeEventListener',
+  ]),
   decoratorWarnings = new Set<ts.Node>();
 
 function ignoreMember(
@@ -53,6 +102,8 @@ function ignoreMember(
     | ts.GetAccessorDeclaration
     | ts.SetAccessorDeclaration,
 ) {
+  if (ignoredName.has(name)) return true;
+
   const isPublic =
     (!node.modifiers ||
       !node.modifiers.some(
@@ -70,13 +121,7 @@ function ignoreMember(
         validDecoratorName.test(modifier.expression.escapedText as string),
     );
 
-  if (
-    isPublic &&
-    !hasDecorator &&
-    !decoratorWarnings.has(node) &&
-    !name.startsWith('_') &&
-    !ignoredNamed.has(name)
-  ) {
+  if (isPublic && !hasDecorator && !decoratorWarnings.has(node) && !name.startsWith('_')) {
     const isMethod = ts.isMethodDeclaration(node);
 
     reportDiagnosticByNode(

@@ -35,7 +35,7 @@ it('should wait for parents to connect', async () => {
       super();
     }
 
-    protected override onAttach(): void {
+    override onSetup(): void {
       const value = useContext(Context);
       expect(value).toEqual([1]);
       provideContext(Context, [...value, 2]);
@@ -51,7 +51,7 @@ it('should wait for parents to connect', async () => {
       super();
     }
 
-    protected override onAttach(): void {
+    override onSetup(): void {
       expect(getContext('foo')).toBe(10);
       const value = useContext(Context);
       expect(value).toEqual([1, 2]);
@@ -68,12 +68,12 @@ it('should wait for parents to connect', async () => {
       super();
     }
 
-    protected override onAttach(): void {
+    override onSetup(): void {
       const value = useContext(Context);
       expect(value).toEqual([1, 2, 3]);
     }
 
-    protected override onConnect() {
+    override onConnect() {
       throw error;
     }
   }

@@ -5,12 +5,12 @@ import { computed, type ReadSignal, signal, type WriteSignal } from './signals';
 import type { AnyRecord, ReadSignalRecord } from './types';
 
 /**
- * Converts objects into stores. A store stores the initial object and enables producing new
+ * Converts objects into signals. The factory stores the initial object and enables producing new
  * objects where each value in the provided object becomes a signal.
  *
  * @example
  * ```ts
- * const factory = new StoreFactory({
+ * const factory = new State({
  *   foo: 0,
  *   bar: '...',
  *   get baz() {
@@ -20,18 +20,18 @@ import type { AnyRecord, ReadSignalRecord } from './types';
  *
  * console.log(factory.record); // logs `{ foo: 0, bar: '...' }`
  *
- * const $store = factory.create();
+ * const $state = factory.create();
  *
- * effect(() => console.log($store.foo()));
+ * effect(() => console.log($state.foo()));
  * // Run effect ^
- * $store.foo.set(1);
+ * $state.foo.set(1);
  *
  * // Reset all values
- * factory.reset($store);
+ * factory.reset($state);
  * ```
  */
-export class StoreFactory<Record extends AnyRecord> {
-  readonly id = Symbol(__DEV__ ? 'STORE' : 0);
+export class State<Record extends AnyRecord> {
+  readonly id = Symbol(__DEV__ ? 'STATE' : 0);
   readonly record: Record;
 
   private _descriptors: {
@@ -70,25 +70,23 @@ export type Store<T> = {
   readonly [P in keyof PickWritable<T>]: WriteSignal<T[P]>;
 };
 
-export type InferStore<T> = T extends StoreFactory<infer Record>
+export type InferStore<T> = T extends State<infer Record>
   ? Store<Record>
   : T extends Store<any>
   ? T
   : never;
 
-export type InferStoreRecord<T> = T extends StoreFactory<infer Record>
+export type InferStoreRecord<T> = T extends State<infer Record>
   ? Record
   : T extends Store<infer Record>
   ? Record
   : never;
 
-export type StoreContext<T> = ReadSignalRecord<T extends StoreFactory<infer Record> ? Record : T>;
+export type StateContext<T> = ReadSignalRecord<T extends State<infer Record> ? Record : T>;
 
 /**
  * Returns the state record context value for the current component tree.
  */
-export function useStore<Record extends AnyRecord>(
-  store: StoreFactory<Record>,
-): StoreContext<Record> {
-  return useContext(store);
+export function useState<Record extends AnyRecord>(state: State<Record>): StateContext<Record> {
+  return useContext(state);
 }

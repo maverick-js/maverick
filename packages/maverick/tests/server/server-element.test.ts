@@ -2,25 +2,31 @@ import { Component, createComponent } from 'maverick.js';
 
 import { MaverickServerElement } from 'maverick.js/element/server';
 
-it('should call `onAttach` lifecycle hook', () => {
-  const attach = vi.fn();
+it('should call `onSetup` lifecycle hook', () => {
+  const setup = vi.fn(),
+    attach = vi.fn();
 
   class TestComponent extends Component {
-    protected override onAttach() {
+    override onSetup() {
+      setup();
+    }
+    override onAttach() {
       attach();
     }
   }
 
   const host = new MaverickServerElement(createComponent(TestComponent));
-  host.attach();
-  host.destroy();
+  host.setup();
 
+  expect(setup).toBeCalledTimes(1);
   expect(attach).toBeCalledTimes(1);
+
+  host.destroy();
 });
 
 it('should render attributes', () => {
   class TestComponent extends Component {
-    protected override onAttach(el) {
+    override onAttach(el) {
       el.setAttribute('foo', '1');
       el.setAttribute('bar', '2');
       el.setAttribute('baz', '3');
@@ -29,7 +35,7 @@ it('should render attributes', () => {
   }
 
   const host = new MaverickServerElement(createComponent(TestComponent));
-  host.attach();
+  host.setup();
   host.destroy();
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
@@ -42,7 +48,7 @@ it('should render attributes', () => {
 
 it('should render class list', () => {
   class TestComponent extends Component {
-    protected override onAttach(el) {
+    override onAttach(el) {
       el.classList.add('foo');
       el.classList.add('baz', 'bam', 'doh');
       el.classList.toggle('boo');
@@ -55,7 +61,7 @@ it('should render class list', () => {
   }
 
   const host = new MaverickServerElement(createComponent(TestComponent));
-  host.attach();
+  host.setup();
   host.destroy();
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
@@ -67,7 +73,7 @@ it('should render class list', () => {
 
 it('should render styles', () => {
   class TestComponent extends Component {
-    protected override onAttach(el) {
+    override onAttach(el) {
       el.style.setProperty('foo', '1');
       el.style.setProperty('bar', '2');
       el.style.setProperty('baz', '3');
@@ -78,7 +84,7 @@ it('should render styles', () => {
   }
 
   const host = new MaverickServerElement(createComponent(TestComponent));
-  host.attach();
+  host.setup();
   host.destroy();
 
   expect(host.attributes.tokens).toMatchInlineSnapshot(`
@@ -90,7 +96,7 @@ it('should render styles', () => {
 
 it('should noop dom events api', () => {
   class TestComponent extends Component {
-    protected override onAttach(el) {
+    override onAttach(el) {
       el.addEventListener('click', () => {});
       el.removeEventListener('click', () => {});
     }
@@ -98,7 +104,7 @@ it('should noop dom events api', () => {
 
   expect(() => {
     const host = new MaverickServerElement(createComponent(TestComponent));
-    host.attach();
+    host.setup();
     host.destroy();
   }).not.toThrow();
 });

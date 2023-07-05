@@ -76,14 +76,14 @@ it('should call lifecycle hooks', async () => {
         provideContext(Context, 1);
       }
 
-      protected override onAttach(el) {
+       override onAttach(el) {
         expect(el).toBeDefined();
         expect(useContext(Context)).toBe(1);
         attach();
         onDispose(detach);
       }
 
-      protected override onConnect(el) {
+       override onConnect(el) {
         expect(el).toBeDefined();
         expect(useContext(Context)).toBe(1);
         connect();
@@ -116,7 +116,7 @@ it('should render `setAttributes`', () => {
   class TestElement extends Host(
     HTMLElement,
     class extends Component {
-      protected override onAttach() {
+       override onAttach() {
         this.setAttributes({
           foo: () => 10,
           bar: 'none',
@@ -145,7 +145,7 @@ it('should render `setStyles`', () => {
   class TestElement extends Host(
     HTMLElement,
     class extends Component {
-      protected override onAttach() {
+       override onAttach() {
         this.setStyles({
           flex: '1',
           'flex-basis': null,

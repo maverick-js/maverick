@@ -12,9 +12,9 @@ export function unwrap<T>(fn: T): T extends () => any ? ReturnType<T> : T {
  * Recursively unwraps possible function calls and returns the final value. It will return
  * the value if the given argument is not a function.
  */
-export function unwrapDeep<T>(fn: T): DeepReturnType<T> {
+export function unwrapDeep<T>(this: any, fn: T): DeepReturnType<T> {
   let value: any = fn;
-  while (typeof value === 'function') value = value();
+  while (typeof value === 'function') value = value.call(this);
   return value;
 }
 

@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import type { Component } from '../core';
 import { MaverickServerElement } from '../element/server';
 import { kebabToCamelCase } from '../std/string';
@@ -9,7 +11,7 @@ export class ServerComponent<T extends Component> extends ClientComponent<T> {
   override render() {
     let Ctor = this.constructor as typeof ClientComponent,
       host = new MaverickServerElement(this._component),
-      attrs = {},
+      attrs: Record<string, any> = {},
       { className, style = {}, children, forwardRef, ...props } = this.props;
 
     if (Ctor._props.size) {
@@ -23,8 +25,7 @@ export class ServerComponent<T extends Component> extends ClientComponent<T> {
       }
     }
 
-    host.attach();
-    host.destroy();
+    host.setup();
 
     if (host.hasAttribute('class')) {
       className = ((isString(className) ? className + ' ' : '') +
@@ -41,13 +42,25 @@ export class ServerComponent<T extends Component> extends ClientComponent<T> {
       host.removeAttribute('style');
     }
 
+    if (host.hasAttribute('tabindex') && !('tabIndex' in attrs)) {
+      attrs.tabIndex = host.getAttribute('tabindex');
+      host.removeAttribute('tabindex');
+    }
+
     return WithScope(
       this._scope,
-      children?.({
-        ...Object.fromEntries(host.attributes.tokens),
-        ...attrs,
-        className,
-        style,
+      children?.(
+        {
+          ...Object.fromEntries(host.attributes.tokens),
+          ...attrs,
+          className,
+          style,
+        },
+        this._component,
+      ),
+      React.createElement(() => {
+        host.destroy();
+        return null;
       }),
     );
   }

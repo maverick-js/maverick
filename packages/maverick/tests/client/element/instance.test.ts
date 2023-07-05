@@ -1,11 +1,4 @@
-import {
-  Component,
-  createComponent,
-  createScope,
-  Instance,
-  StoreFactory,
-  useStore,
-} from 'maverick.js';
+import { Component, createComponent, createScope, Instance, State, useState } from 'maverick.js';
 
 it('should create props', () => {
   class TestComponent extends Component<{ foo: number; bar: number }> {
@@ -30,16 +23,16 @@ it('should forward props', () => {
   expect(instance._props.bar()).toBe(40);
 });
 
-it('should create store', () => {
-  const TestStore = new StoreFactory({ foo: 1 });
+it('should create state', () => {
+  const TestState = new State({ foo: 1 });
 
   class TestComponent extends Component<{}, { foo: number }> {
-    static state = TestStore;
+    static state = TestState;
 
     constructor() {
       super();
       expect(this.$state.foo()).toBe(1);
-      expect(useStore(TestStore)).toBeDefined();
+      expect(useState(TestState)).toBeDefined();
     }
   }
 

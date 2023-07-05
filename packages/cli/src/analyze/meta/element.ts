@@ -33,7 +33,7 @@ export interface ElementMeta {
   name: string;
   file: FileMeta;
   tag: TagMeta;
-  component: {
+  component?: {
     [TS_NODE]: ts.ClassDeclaration;
     name: string;
   };

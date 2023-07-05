@@ -13,21 +13,21 @@ export interface ReactContextProvider {
   new (props: React.PropsWithChildren): React.Component<React.PropsWithChildren>;
 }
 
-export const ReactComputeScopeContext = React.createContext<Scope | null>(null);
+const ReactScopeContext = React.createContext<Scope | null>(null);
+ReactScopeContext.displayName = 'Scope';
+export { ReactScopeContext };
 
 export function WithScope(scope: Scope, ...children: React.ReactNode[]) {
-  return React.createElement(ReactComputeScopeContext.Provider, { value: scope }, ...children);
+  return React.createElement(ReactScopeContext.Provider, { value: scope }, ...children);
 }
 
 export function useReactScope(): Scope | null {
-  return React.useContext(ReactComputeScopeContext);
+  return React.useContext(ReactScopeContext);
 }
 
 export function useReactContext<T>(context: Context<T>): T | undefined {
   const scope = useReactScope();
-  return React.useMemo(() => {
-    return getContext(context.id, scope);
-  }, [scope]);
+  return React.useMemo(() => getContext(context.id, scope), [scope]);
 }
 
 export function createReactScopeProvider(): ReactScopeProvider {
@@ -45,8 +45,8 @@ export function createReactContextProvider<T>(
 }
 
 class ScopeProvider extends React.Component<React.PropsWithChildren> {
-  static override contextType = ReactComputeScopeContext;
-  declare context: React.ContextType<typeof ReactComputeScopeContext>;
+  static override contextType = ReactScopeContext;
+  declare context: React.ContextType<typeof ReactScopeContext>;
 
   static _context?: Context<unknown>;
   static _provide?: () => unknown;

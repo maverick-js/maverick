@@ -20,15 +20,26 @@ export function createDiscoverPlugin(): AnalyzePlugin {
         if (!ts.isClassDeclaration(node) || !node.name || !node.heritageClauses) return;
 
         const heritage = getHeritage(checker, node),
-          hostMixin = heritage.mixins.get('Host');
+          hostMixin = heritage.mixins.get('Host'),
+          hostMixinDeclaration =
+            hostMixin &&
+            ts.isIdentifier(hostMixin.expression) &&
+            getDeclaration(checker, hostMixin.expression);
 
-        if (!hostMixin || !hostMixin.getSourceFile().fileName.includes('maverick')) return;
+        if (
+          !heritage.classes.has('HTMLElement') &&
+          (!hostMixinDeclaration ||
+            !hostMixinDeclaration.getSourceFile().fileName.includes('maverick'))
+        ) {
+          return;
+        }
 
         // Host(HTMLElement, Component)
-        if (!ts.isIdentifier(hostMixin.arguments[1])) return;
+        if (hostMixin && !ts.isIdentifier(hostMixin.arguments[1])) return;
 
-        const component = getDeclaration(checker, hostMixin.arguments[1]);
-        if (!component || !ts.isClassDeclaration(component)) {
+        const component =
+          hostMixin && getDeclaration(checker, hostMixin.arguments[1] as ts.Identifier);
+        if (component && !ts.isClassDeclaration(component)) {
           reportDiagnosticByNode('expected component', hostMixin.arguments[1], LogLevel.Warn);
           return;
         }
@@ -54,7 +65,7 @@ export function createDiscoverPlugin(): AnalyzePlugin {
           name: node.name.escapedText as string,
           root: node,
           tag: { node: tagNameProp, name: tagNameProp.initializer.text },
-          component: { node: component, name: component.name?.text || '' },
+          component: component ? { node: component, name: component.name?.text || '' } : undefined,
           attrs,
         });
       });
@@ -76,7 +87,7 @@ export function createDiscoverPlugin(): AnalyzePlugin {
           root: checker.getTypeAtLocation(node)!,
         } as ComponentNode['types'];
 
-        const instanceSymbol = checker.getPropertyOfType(types.root, '$')!,
+        const instanceSymbol = checker.getPropertyOfType(types.root, '$$')!,
           instanceType = instanceSymbol && (checker.getTypeOfSymbol(instanceSymbol) as any);
 
         if (instanceType && (instanceType.resolvedTypeArguments as ts.Type[])) {

@@ -11,7 +11,7 @@ export default defineConfig([
   // prod
   define({ dev: false }),
   // server
-  define({ dev: true, server: true }),
+  define({ server: true }),
   // types
   defineTypes(),
 ]);

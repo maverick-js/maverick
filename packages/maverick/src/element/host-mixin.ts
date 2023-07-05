@@ -10,9 +10,9 @@ import type {
   InferComponentState,
 } from '../core/component';
 import { createComponent } from '../core/controller';
-import type { LifecycleCallback } from '../core/instance';
-import { type Dispose, type Maybe } from '../core/signals';
-import type { InferStoreRecord, Store, StoreFactory } from '../core/store';
+import type { ElementCallback } from '../core/instance';
+import { type Dispose, type Maybe, type Scope, scoped } from '../core/signals';
+import type { InferStoreRecord, State, Store } from '../core/state';
 import { METHODS, PROPS } from '../core/symbols';
 import type { ReadSignalRecord } from '../core/types';
 import { runAll } from '../std/fn';
@@ -32,7 +32,7 @@ export function Host<T extends HTMLElement, R extends Component>(
   Component: ComponentConstructor<R>,
 ) {
   // @ts-expect-error
-  class MaverickElement extends Super implements HostElement<R>, HostElement<R> {
+  class MaverickElement extends Super implements HostElement<R> {
     static attrs?: Attributes<InferComponentProps<R>>;
 
     private static [ATTRS]: Map<
@@ -67,9 +67,21 @@ export function Host<T extends HTMLElement, R extends Component>(
 
     readonly $: R;
     [SETUP_STATE] = SetupState.Idle;
-    [SETUP_CALLBACKS]: LifecycleCallback[] | null = null;
+    [SETUP_CALLBACKS]: ElementCallback[] | null = null;
 
     keepAlive = false;
+
+    get scope(): Scope {
+      return this.$.$$._scope;
+    }
+
+    get attachScope(): Scope | null {
+      return this.$.$$._attachScope;
+    }
+
+    get connectScope(): Scope | null {
+      return this.$.$$._connectScope;
+    }
 
     get $props() {
       return this.$.$$._props as any;
@@ -125,7 +137,7 @@ export function Host<T extends HTMLElement, R extends Component>(
 
       // @ts-expect-error
       const callback = super.connectedCallback;
-      if (callback) callback.call(this);
+      if (callback) scoped(() => callback.call(this), this.connectScope);
 
       return;
     }
@@ -167,6 +179,7 @@ export function Host<T extends HTMLElement, R extends Component>(
         }
       }
 
+      instance._setup();
       instance._attach(this);
       this[SETUP_STATE] = SetupState.Ready;
 
@@ -202,8 +215,8 @@ export type MaverickElement<
   R extends Component = AnyComponent,
   E = InferComponentEvents<R>,
 > = Omit<T, 'addEventListener' | 'removeEventListener'> &
-  HostElement<R> &
-  Omit<InferComponentMembers<R>, 'state' | 'subscribe' | 'destroy'> & {
+  InferComponentMembers<R> &
+  HostElement<R> & {
     addEventListener<K extends keyof E>(
       type: K,
       listener: (this: T, ev: E[K]) => any,
@@ -254,21 +267,18 @@ export interface HostElement<T extends Component = AnyComponent> {
   /** Component instance. */
   readonly $: T;
 
+  readonly scope: Scope;
+  readonly attachScope: Scope | null;
+  readonly connectScope: Scope | null;
+
   /** @internal */
   readonly $props: ReadSignalRecord<InferComponentProps<T>>;
 
   /** @internal */
   readonly $state: Store<InferComponentState<T>>;
 
-  /** @internal */
-  onAttach?(): void;
-  /** @internal */
-  onConnect?(): void;
-  /** @internal */
-  onDestroy?(): void;
-
   /**
-   * This object contains the state of the component store when available.
+   * This object contains the state of the component.
    *
    * ```ts
    * const el = document.querySelector('foo-el');
@@ -278,7 +288,7 @@ export interface HostElement<T extends Component = AnyComponent> {
   readonly state: Readonly<InferStoreRecord<InferComponentState<T>>>;
 
   /**
-   * Enables subscribing to live updates of component store state.
+   * Enables subscribing to live updates of component state.
    *
    * @example
    * ```ts
@@ -288,7 +298,7 @@ export interface HostElement<T extends Component = AnyComponent> {
    * });
    * ```
    */
-  subscribe: InferComponentState<T> extends StoreFactory<infer Record>
+  subscribe: InferComponentState<T> extends State<infer Record>
     ? (callback: (state: Readonly<Record>) => Maybe<Dispose>) => Dispose
     : never;
 

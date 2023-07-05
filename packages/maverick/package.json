@@ -82,6 +82,7 @@
       "development": "./dist/dev/std.js",
       "default": "./dist/prod/std.js"
     },
+    "./dist/types/*": "./dist/types/*",
     "./package.json": "./package.json"
   },
   "publishConfig": {

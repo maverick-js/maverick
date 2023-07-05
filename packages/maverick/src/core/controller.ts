@@ -6,8 +6,8 @@ import type {
 import { DOMEvent, type DOMEventInit, listenEvent } from '../std/event';
 import { noop } from '../std/unit';
 import type { Component, ComponentConstructor, InferComponentProps } from './component';
-import { type AnyInstance, Instance, type InstanceInit } from './instance';
-import { type Dispose, getScope, root, untrack } from './signals';
+import { type AnyInstance, Instance, type InstanceInit, type LifecycleHooks } from './instance';
+import { type Dispose, getScope, root, type Scope, untrack } from './signals';
 import { ON_DISPATCH } from './symbols';
 import type { ReadSignalRecord, TargetedEventHandler, WriteSignalRecord } from './types';
 
@@ -39,6 +39,18 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
     return this.$$.$el();
   }
 
+  get scope(): Scope {
+    return this.$$._scope;
+  }
+
+  get attachScope(): Scope | null {
+    return this.$$._attachScope;
+  }
+
+  get connectScope(): Scope | null {
+    return this.$$._connectScope;
+  }
+
   /** @internal */
   get $props(): ReadSignalRecord<Props> {
     return this.$$._props;
@@ -60,7 +72,7 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
 
   attach({ $$ }: { $$: Instance<Props, State, Events, CSSVars> }) {
     this.$$ = $$;
-    $$._addHooks(this);
+    $$._addHooks(this as unknown as LifecycleHooks);
     return this;
   }
 
@@ -86,13 +98,23 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
   }
 
   /**
+   * The given callback is invoked when the component is ready to be set up.
+   *
+   * - This hook will run once.
+   * - This hook is called both client-side and server-side.
+   * - It's safe to use context inside this hook.
+   * - The host element has not attached yet - wait for `onAttach`.
+   */
+  protected onSetup?(): void;
+
+  /**
    * The given callback is invoked when the component instance has attached to a host element.
    *
    * - This hook can run more than once as the component attaches/detaches from a host element.
    * - This hook may be called while the host element is not connected to the DOM yet.
    * - This hook is called both client-side and server-side.
    */
-  onAttach?(el: HTMLElement): void;
+  protected onAttach?(el: HTMLElement): void;
 
   /**
    * The given callback is invoked when the host element has connected to the DOM.
@@ -100,7 +122,7 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
    * - This hook can run more than once as the host disconnects and re-connects to the DOM.
    * - If a function is returned it will be invoked when the host disconnects from the DOM.
    */
-  onConnect?(el: HTMLElement): void;
+  protected onConnect?(el: HTMLElement): void;
 
   /**
    * The given callback is invoked when the component is destroyed.
@@ -109,7 +131,7 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
    * - This hook may be called before being attached to a host element.
    * - This hook is called both client-side and server-side.
    */
-  onDestroy?(): void;
+  protected onDestroy?(): void;
 
   /**
    * This method can be used to specify attributes that should be set on the host element. Any
@@ -140,7 +162,7 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
   /**
    * Type-safe utility for creating component DOM events.
    */
-  protected createEvent<Type extends keyof Events = keyof Events>(
+  createEvent<Type extends keyof Events = keyof Events>(
     type: Type & string,
     ...init: Events[Type] extends DOMEvent
       ? Events[Type]['detail'] extends void | undefined | never
@@ -151,14 +173,11 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
     return new DOMEvent(type, init[0] as DOMEventInit) as Events[Type];
   }
 
-  /* @internal */
-  [ON_DISPATCH]?: ((event: Event) => void) | null = null;
-
   /**
    * Creates a `DOMEvent` and dispatches it from the host element. This method is typed to
    * match all component events.
    */
-  protected dispatch<Type extends Event | keyof Events>(
+  dispatch<Type extends Event | keyof Events>(
     type: Type,
     ...init: Type extends keyof Events
       ? Events[Type] extends DOMEvent
@@ -178,7 +197,7 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
     });
 
     return untrack(() => {
-      this[ON_DISPATCH]?.(event);
+      this.$$[ON_DISPATCH]?.(event);
       return this.el!.dispatchEvent(event);
     });
   }
@@ -190,7 +209,7 @@ export class Controller<Props = {}, State = {}, Events = {}, CSSVars = {}> exten
    * - The listener is removed if the current scope is disposed.
    * - This method is safe to use on the server (noop).
    */
-  protected listen<E = Events & HTMLElementEventMap, Type extends keyof E = keyof E>(
+  listen<E = Events & HTMLElementEventMap, Type extends keyof E = keyof E>(
     type: Type & string,
     handler: TargetedEventHandler<HTMLElement, E[Type] & Event>,
     options?: AddEventListenerOptions | boolean,

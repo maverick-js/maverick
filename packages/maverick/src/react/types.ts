@@ -14,6 +14,7 @@ export interface ReactComponent<T extends Component> {
 }
 
 export interface InternalReactComponent<T extends Component> {
+  displayName?: string;
   (props: InternalReactProps<T>): React.ReactNode;
 }
 
@@ -35,6 +36,7 @@ export type InternalReactProps<C extends Component> = ReactProps<C> & {
   forwardRef?: React.Ref<C>;
   children?: (
     props: React.HTMLAttributes<HTMLElement> & React.RefAttributes<any>,
+    component: C,
   ) => React.ReactNode;
 };
 

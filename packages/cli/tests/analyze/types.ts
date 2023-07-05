@@ -1,4 +1,4 @@
-import { Component as MaverickComponent, StoreFactory, method, prop, } from '../../../maverick/src/core';
+import { Component, State, method, prop, } from '../../../maverick/src/core';
 import type { DOMEvent } from '../../../maverick/src/std';
 
 interface MooProps<T> {
@@ -123,7 +123,7 @@ interface FooState {
   boom: string;
 }
 
-const state = new StoreFactory<FooState>({
+const state = new State<FooState>({
   get foo() {
     return this.baz + 10;
   },
@@ -133,7 +133,7 @@ const state = new StoreFactory<FooState>({
   },
 })
 
-export class BaseComponent extends MaverickComponent<
+export class BaseComponent extends Component<
   FooProps & BaxProps,
   FooState,
   FooEvents,
@@ -154,9 +154,10 @@ export class BaseComponent extends MaverickComponent<
   // ...
 
   /** These should be ignored */
-  protected override onAttach() {}
-  protected override onConnect() {}
-  protected override onDestroy() {}
+  override onSetup() {}
+  override onAttach() {}
+  override onConnect() {}
+  override onDestroy() {}
 
   override destroy() {}
 

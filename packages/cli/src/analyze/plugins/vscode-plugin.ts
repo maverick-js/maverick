@@ -11,10 +11,11 @@ export interface VSCodePluginConfig extends Record<string, unknown> {
   cwd: string;
   outFile: string;
   transformTagData?: (
-    meta: { element: ElementMeta; component: ComponentMeta },
+    meta: { element: ElementMeta; component?: ComponentMeta },
     data: ITagData,
   ) => ITagData;
   transformAttributeData?: (prop: PropMeta, data: IAttributeData) => IAttributeData;
+  transformOutput?: (output: HTMLDataV1) => void;
 }
 
 const DEFAULT_CONFIG: VSCodePluginConfig = {
@@ -41,10 +42,11 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
       tags: [],
     };
 
-    const map = new Map<ElementMeta, ComponentMeta>();
+    const map = new Map<ElementMeta, ComponentMeta | undefined>();
     for (const el of elements) {
-      const component = components.find((c) => c.name === el.component.name);
-      if (component) map.set(el, component);
+      if (!el.component) continue;
+      const component = components.find((c) => c.name === el.component!.name);
+      map.set(el, component);
     }
 
     elements
@@ -54,14 +56,15 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
 
         const tagData: ITagData = {
           name: element.tag!.name,
-          description: element.docs || component.docs,
-          attributes: (component.props ?? [])
+          description: element.docs || component?.docs,
+          attributes: (component?.props ?? [])
             .filter((prop) => {
               const attr = element.attrs?.[prop.name]?.attr;
               return attr !== false && !prop.readonly && !prop.internal;
             })
             .map((prop) => {
-              const attr = element.attrs?.[prop.name].attr as string | undefined;
+              const attr = element.attrs?.[prop.name]?.attr;
+
               const data: IAttributeData = {
                 name: attr || camelToKebabCase(prop.name),
                 description: prop.docs,
@@ -85,7 +88,10 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
     const { existsSync, mkdirSync, writeFileSync } = await import('node:fs');
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
-    writeFileSync(normalizedConfig.outFile, JSON.stringify(output, undefined, 2));
+    writeFileSync(
+      normalizedConfig.outFile,
+      JSON.stringify(config.transformOutput?.(output) ?? output, undefined, 2),
+    );
   },
 });
 
@@ -135,7 +141,7 @@ export interface IValueSet {
 
 export interface HTMLDataV1 {
   version: 1 | 1.1;
-  tags?: ITagData[];
+  tags: ITagData[];
   globalAttributes?: IAttributeData[];
   valueSets?: IValueSet[];
 }

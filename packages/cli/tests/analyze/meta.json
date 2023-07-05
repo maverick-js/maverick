@@ -275,6 +275,12 @@
             "name": "baseGetter",
             "type": "number",
             "readonly": true
+          },
+          {
+            "name": "state",
+            "docs": "This object contains the current state of the component.",
+            "type": "FooState",
+            "readonly": true
           }
         ],
         "methods": [
@@ -334,9 +340,25 @@
             "return": {
               "type": "void"
             }
+          },
+          {
+            "name": "subscribe",
+            "docs": "Subscribe to live updates of component state.",
+            "parameters": [
+              {
+                "name": "callback",
+                "type": "(state: FooState) => Maybe<Dispose>"
+              }
+            ],
+            "signature": {
+              "type": "(callback: (state: FooState) => Maybe<Dispose>) => Unsubscribe"
+            },
+            "return": {
+              "type": "Unsubscribe"
+            }
           }
         ],
-        "length": 9
+        "length": 11
       }
     }
   ]

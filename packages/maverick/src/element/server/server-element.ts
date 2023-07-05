@@ -29,7 +29,7 @@ export class MaverickServerElement<T extends AnyComponent = AnyComponent> implem
     this.$ = component;
   }
 
-  attach() {
+  setup() {
     const instance = this.$.$$;
     scoped(() => {
       if (this.hasAttribute('class')) {
@@ -40,6 +40,7 @@ export class MaverickServerElement<T extends AnyComponent = AnyComponent> implem
         parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
       }
 
+      instance._setup();
       instance._attach(this);
 
       if (this.classList.length > 0) {

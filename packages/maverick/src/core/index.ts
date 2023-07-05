@@ -4,5 +4,5 @@ export * from './controller';
 export * from './decorators';
 export * from './instance';
 export * from './signals';
-export * from './store';
+export * from './state';
 export * from './types';

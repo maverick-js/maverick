@@ -1,28 +1,29 @@
 import * as React from 'react';
 
-import type { Component } from '../core';
+import { type Component, type ComponentConstructor, createComponent } from '../core';
 import { MaverickServerElement } from '../element/server';
 import { kebabToCamelCase } from '../std/string';
 import { isString } from '../std/unit';
-import { ClientComponent } from './client-component';
-import { WithScope } from './scope';
+import { ReactScopeContext, WithScope } from './scope';
+import type { InternalReactProps } from './types';
 
-export class ServerComponent<T extends Component> extends ClientComponent<T> {
-  override render() {
-    let Ctor = this.constructor as typeof ClientComponent,
-      host = new MaverickServerElement(this._component),
+export function createServerComponent<T extends Component>(
+  Component: ComponentConstructor<T>,
+  componentProps: Set<string>,
+): React.FC<InternalReactProps<T>> {
+  function ServerComponent(props: InternalReactProps<T>) {
+    let scope = React.useContext(ReactScopeContext),
+      component = createComponent<T>(Component, { props, scope }),
+      host = new MaverickServerElement(component),
       attrs: Record<string, any> = {},
-      { className, style = {}, children, forwardRef, ...props } = this.props;
+      { className, style = {}, children, forwardRef, ...__props } = props;
 
-    if (Ctor._props.size) {
-      let $props = this._component.$$._props;
-      for (const prop of Object.keys(props)) {
-        if (Ctor._props.has(prop)) {
-          $props[prop].set(props[prop]);
-        } else {
-          attrs[prop] = props[prop];
-        }
+    if (componentProps.size) {
+      for (const prop of Object.keys(__props)) {
+        if (!componentProps.has(prop)) attrs[prop] = __props[prop];
       }
+    } else {
+      attrs = __props;
     }
 
     host.setup();
@@ -48,7 +49,7 @@ export class ServerComponent<T extends Component> extends ClientComponent<T> {
     }
 
     return WithScope(
-      this._scope,
+      component.$$._scope,
       children?.(
         {
           ...Object.fromEntries(host.attributes.tokens),
@@ -56,7 +57,7 @@ export class ServerComponent<T extends Component> extends ClientComponent<T> {
           className,
           style,
         },
-        this._component,
+        component,
       ),
       React.createElement(() => {
         host.destroy();
@@ -64,4 +65,7 @@ export class ServerComponent<T extends Component> extends ClientComponent<T> {
       }),
     );
   }
+
+  ServerComponent.displayName = Component.name + 'Bridge';
+  return ServerComponent;
 }

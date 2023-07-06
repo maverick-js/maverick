@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Component, type ComponentConstructor, createComponent, type Scope, tick } from '../core';
+import { Component, type ComponentConstructor, createComponent, tick } from '../core';
 import { ON_DISPATCH } from '../core/symbols';
 import { kebabToPascalCase } from '../std/string';
 import { isUndefined } from '../std/unit';
@@ -8,150 +8,154 @@ import { ReactScopeContext, WithScope } from './scope';
 import type { InternalReactProps } from './types';
 import { setRef } from './utils';
 
-export class ClientComponent<T extends Component> extends React.Component<InternalReactProps<T>> {
-  declare context: React.ContextType<typeof ReactScopeContext>;
+export function createClientComponent<T extends Component>(
+  Component: ComponentConstructor<T>,
+  componentProps: Set<string>,
+  componentEvents: Set<string>,
+  componentEventsRE?: RegExp,
+) {
+  const forwardComponent = React.forwardRef<T, InternalReactProps<T>>((props, forwardRef) => {
+    let scope = React.useContext(ReactScopeContext),
+      elRef = React.useRef<HTMLElement | null>(),
+      componentRef = React.useRef<T>(),
+      attachedRef = React.useRef(false),
+      classNameRef = React.useRef<string>(),
+      propsRef = React.useRef<Set<string>>(),
+      connectRafIdRef = React.useRef(-1);
 
-  static _Component: ComponentConstructor;
-  static _props: Set<string>;
-  static _events: Set<string>;
-  static _eventsRegex?: RegExp;
-  static override contextType = ReactScopeContext;
+    if (componentRef.current == null) {
+      propsRef.current = new Set();
 
-  protected _el: HTMLElement | null = null;
-  protected _scope: Scope;
-  protected _component: T;
-  protected _attached = false;
-  protected _forwardRef?: React.Ref<T> | null;
-  protected _props = new Set<string>();
-  protected _baseClassName: string | undefined;
+      componentRef.current = createComponent<T>(Component, {
+        props,
+        scope,
+      });
 
-  constructor(props, context) {
-    super(props);
+      componentRef.current.$$._setup();
 
-    let Ctor = this.constructor as typeof ClientComponent;
-    this._component = createComponent<T>(Ctor._Component as ComponentConstructor<T>, {
-      props: props,
-      scope: context,
-    });
+      componentRef.current.$$[ON_DISPATCH] = function onDispatch(event: Event) {
+        let callbackProp = `on${kebabToPascalCase(event.type)}`,
+          args = !isUndefined((event as CustomEvent).detail)
+            ? [(event as CustomEvent).detail, event]
+            : [event];
 
-    this._component.$$._setup();
-
-    this._scope = this._component.$$._scope;
-    if (!__SERVER__) this._component.$$[ON_DISPATCH] = this._onDispatch.bind(this);
-  }
-
-  protected _onRefChange = (el: HTMLElement | null) => {
-    this._el = el;
-
-    if (!this._attached) return;
-
-    if (el) {
-      this._component.$$._attach(el);
-      this._component.$$._connect();
-      this._updateBaseClassName();
-    } else {
-      this._component.$$._detach();
-    }
-  };
-
-  protected _onAttach = () => {
-    if (this._el) {
-      this._component.$$._attach(this._el);
-      this._component.$$._connect();
-      this._updateBaseClassName();
+        props[callbackProp]?.(...args);
+      };
     }
 
-    setRef(this._forwardRef, this._component);
+    const onRefChange = React.useCallback((el: HTMLElement | null) => {
+      elRef.current = el;
 
-    this._attached = true;
-    return this._onDetach.bind(this);
-  };
+      if (!attachedRef.current) return;
 
-  protected _updateBaseClassName() {
-    const base = this._el?.classList.length ? this._el.classList + '' : void 0,
-      { className = '' } = this.props;
-    this._baseClassName = base?.replace(className, '').trim();
-  }
+      if (el) {
+        componentRef.current?.$$._attach(el);
+        onConnect(connectRafIdRef, componentRef);
+        updateBaseClassName(elRef, classNameRef, props.className);
+      } else {
+        componentRef.current?.$$._detach();
+      }
+    }, []);
 
-  protected _onDetach() {
-    this._component.$$._detach();
-    this._attached = false;
-  }
+    const onAttach = React.useCallback(() => {
+      if (elRef.current) {
+        componentRef.current?.$$._attach(elRef.current);
+        onConnect(connectRafIdRef, componentRef);
+        updateBaseClassName(elRef, classNameRef, props.className);
+      }
 
-  override componentWillUnmount(): void {
-    this._forwardRef = null;
-    this._component.$$[ON_DISPATCH] = null;
-    this._component.$$._destroy();
-  }
+      setRef(forwardRef, componentRef.current);
+      attachedRef.current = true;
 
-  override componentDidUpdate(): void {
-    tick();
-  }
+      return function onDetach() {
+        componentRef.current?.$$._detach();
+        attachedRef.current = false;
+      };
+    }, []);
 
-  protected _onDispatch(event: Event) {
-    let callbackProp = `on${kebabToPascalCase(event.type)}`,
-      args = !isUndefined((event as CustomEvent).detail)
-        ? [(event as CustomEvent).detail, event]
-        : [event];
+    React.useEffect(() => {
+      return function onDestroy() {
+        if (elRef.current) return;
+        window.cancelAnimationFrame(connectRafIdRef.current);
+        componentRef.current!.$$[ON_DISPATCH] = null;
+        componentRef.current!.$$._destroy();
+        setRef(forwardRef, null);
+      };
+    }, []);
 
-    this.props[callbackProp]?.(...args);
-  }
+    React.useEffect(tick);
 
-  override render(): React.ReactNode {
-    let Ctor = this.constructor as typeof ClientComponent,
-      attrs = {},
-      { className, children, forwardRef, ...props } = this.props;
+    let attrs = {},
+      { className, children, ...__props } = props;
 
     className = (
       className
-        ? className + (this._baseClassName ? ' ' + this._baseClassName : '')
-        : this._baseClassName
+        ? className + (classNameRef.current ? ' ' + classNameRef.current : '')
+        : classNameRef.current
     ) as any;
 
-    if (this._forwardRef !== forwardRef) {
-      if (this._attached) setRef(forwardRef, this._component);
-      this._forwardRef = forwardRef;
-    }
-
-    if (Ctor._props.size) {
-      let $props = this._component.$$._props,
+    if (componentProps.size) {
+      let $props = componentRef.current.$$._props,
         seen = new Set<string>();
 
       for (const prop of Object.keys(props)) {
-        if (Ctor._props.has(prop)) {
-          $props[prop].set(props[prop]);
+        if (componentProps.has(prop)) {
+          $props[prop].set(__props[prop]);
           seen.add(prop);
-          this._props.delete(prop);
-        } else if (!Ctor._events?.has(prop) && !Ctor._eventsRegex?.test(prop)) {
-          attrs[prop] = props[prop];
+          propsRef.current!.delete(prop);
+        } else if (!componentEvents?.has(prop) && !componentEventsRE?.test(prop)) {
+          attrs[prop] = __props[prop];
         }
       }
 
-      for (const prop of this._props) {
-        $props[prop].set(Ctor._Component.props![prop]);
+      for (const prop of propsRef.current!) {
+        $props[prop].set(Component.props![prop]);
       }
 
-      this._props = seen;
+      propsRef.current = seen;
+    } else {
+      attrs = __props;
     }
 
     return WithScope(
-      this._scope,
-      React.createElement(MountEffect, { effect: this._onAttach }),
+      componentRef.current.scope,
+      React.createElement(AttachEffect, { effect: onAttach }),
       children?.(
         {
           ...attrs,
           className,
           suppressHydrationWarning: true,
-          ref: this._onRefChange,
+          ref: onRefChange,
         },
-        this._component,
+        componentRef.current,
       ),
     );
-  }
+  });
+
+  forwardComponent.displayName = Component.name + 'Bridge';
+  return forwardComponent;
+}
+
+function onConnect(
+  rafIdRef: React.MutableRefObject<number>,
+  componentRef: React.RefObject<Component | undefined>,
+) {
+  rafIdRef.current = window.requestAnimationFrame(() => {
+    componentRef.current?.$$._connect();
+  });
+}
+
+function updateBaseClassName(
+  elRef: React.RefObject<HTMLElement | null | undefined>,
+  classNameRef: React.MutableRefObject<string | undefined>,
+  className: string = '',
+) {
+  const base = elRef.current?.classList.length ? elRef.current.classList + '' : void 0;
+  classNameRef.current = base?.replace(className, '').trim();
 }
 
 // Run effects in top-down order.
-function MountEffect({ effect }) {
+function AttachEffect({ effect }) {
   React.useEffect(effect, []);
   return null;
 }

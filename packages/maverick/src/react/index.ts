@@ -1,29 +1,25 @@
 import * as React from 'react';
 
 import type { Component, ComponentConstructor, InferComponentEvents } from '../core';
-import { ClientComponent } from './client-component';
-import { ServerComponent } from './server-component';
+import { createClientComponent } from './client-component';
+import { createServerComponent } from './server-component';
 import type { InternalReactComponent, ReactEventCallbacks } from './types';
 
 export function createReactComponent<T extends Component>(
   Component: ComponentConstructor<T>,
   events?: (keyof ReactEventCallbacks<InferComponentEvents<T>>)[],
   eventsRegex?: RegExp,
-) {
-  class MaverickComponent extends (__SERVER__ ? ServerComponent<T> : ClientComponent<T>) {
-    static displayName = Component.name + 'Bridge';
-    static _Component = Component;
-    static _props = new Set(Object.keys(Component.props || {}));
-    static _events = new Set(events);
-    static _eventsRegex = eventsRegex;
+): InternalReactComponent<T> {
+  if (__SERVER__) {
+    return createServerComponent<T>(Component, new Set(Object.keys(Component.props || {})));
+  } else {
+    return createClientComponent<T>(
+      Component,
+      new Set(Object.keys(Component.props || {})),
+      new Set(events as string[]),
+      eventsRegex,
+    ) as any;
   }
-
-  const component = React.forwardRef<T>((props, ref) =>
-    React.createElement(MaverickComponent as any, { ...props, forwardRef: ref }),
-  ) as unknown as InternalReactComponent<T>;
-
-  component.displayName = 'forwardRef(' + Component.name + 'Bridge)';
-  return component;
 }
 
 export * from './scope';

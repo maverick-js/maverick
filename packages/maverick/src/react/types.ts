@@ -41,10 +41,11 @@ export type InternalReactProps<C extends Component> = ReactProps<C> & {
 };
 
 export type ReactElementProps<
-  T extends HTMLElement,
+  T extends HTMLElement | SVGElement,
   C extends Component,
   E = ReactEventCallbacks<InferComponentEvents<C>>,
-> = ReactProps<C, E> & Omit<React.HTMLAttributes<T>, 'style' | keyof E>;
+> = ReactProps<C, E> &
+  Omit<T extends HTMLElement ? React.HTMLAttributes<T> : React.SVGAttributes<T>, 'style' | keyof E>;
 
 export type ReactEventCallbacks<E> = {
   [Type in keyof E as `on${PascalCase<Type & string>}`]?: InferEventDetail<E[Type]> extends void

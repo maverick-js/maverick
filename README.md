@@ -2,7 +2,7 @@
 
 [![package-badge]][package]
 
-Build and ship UI component libraries.
+Build fast and type-safe UI component libraries.
 
 ## License
 

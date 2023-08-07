@@ -1,3 +1,12 @@
+## [0.38.1](https://github.com/maverick-js/maverick/compare/v0.38.0...v0.38.1) (2023-08-07)
+
+
+### Bug Fixes
+
+* run effects in test env ([ea54f2d](https://github.com/maverick-js/maverick/commit/ea54f2d4df51aa8d3b9c08e15c5192129cd2f90c))
+
+
+
 # [0.38.0](https://github.com/maverick-js/maverick/compare/v0.37.0...v0.38.0) (2023-07-21)
 
 

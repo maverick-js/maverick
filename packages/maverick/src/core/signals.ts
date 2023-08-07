@@ -1,4 +1,4 @@
-import { effect as $effect } from '@maverick-js/signals';
+import { effect as $effect, type Effect, type StopEffect } from '@maverick-js/signals';
 
 import { noop } from '../std/unit';
 
@@ -43,4 +43,12 @@ export {
  *
  * @see {@link https://github.com/maverick-js/signals#effect}
  */
-export const effect = (__SERVER__ ? noop : $effect) as typeof $effect;
+export const effect = (__SERVER__ ? serverEffect : $effect) as typeof $effect;
+
+function serverEffect(effect: Effect, options?: { id?: string }): StopEffect {
+  if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') {
+    return $effect(effect, options);
+  }
+
+  return noop;
+}

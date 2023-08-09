@@ -27,14 +27,18 @@ export interface Attribute<Value = unknown> extends SignalOptions<Value> {
 }
 
 export const STRING: AttributeConverter<string | null> = (v) => (v === null ? '' : v + '');
+export const NULLABLE_STRING: AttributeConverter<string | null> = (v) =>
+  v === null ? null : v + '';
 export const NUMBER: AttributeConverter<number | null> = (v) => (v === null ? 0 : Number(v));
+export const NULLABLE_NUMBER: AttributeConverter<number | null> = (v) =>
+  v === null ? null : Number(v);
 export const BOOLEAN: AttributeConverter<boolean | null> = (v) => v !== null;
 export const FUNCTION: AttributeConverter<(() => void) | null> = () => null;
 export const ARRAY: AttributeConverter<unknown[] | null> = (v) => (v === null ? [] : JSON.parse(v));
 export const OBJECT: AttributeConverter<object | null> = (v) => (v === null ? {} : JSON.parse(v));
 
 export function inferAttributeConverter(value: unknown): AttributeConverter<any> {
-  if (value === null) return STRING;
+  if (value === null) return NULLABLE_STRING;
   switch (typeof value) {
     case 'undefined':
       return STRING;

@@ -24,7 +24,7 @@ export type ReactProps<
 > = Partial<InferComponentProps<C>> &
   E & {
     style?:
-      | ((React.CSSProperties & { [name: `--${string}`]: string | number | null }) &
+      | ((React.CSSProperties & { [name: `--${string}`]: string | number | null | undefined }) &
           Partial<InferComponentCSSVars<C>>)
       | undefined;
     part?: string | undefined;

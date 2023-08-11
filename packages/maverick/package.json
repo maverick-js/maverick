@@ -76,6 +76,10 @@
       "development": "./dist/dev/react.js",
       "default": "./dist/prod/react.js"
     },
+    "./rsc": {
+      "development": "./dist/rsc/dev.js",
+      "default": "./dist/rsc/prod.js"
+    },
     "./std": {
       "types": "./std.d.ts",
       "node": "./dist/server/std.js",

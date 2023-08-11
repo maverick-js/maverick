@@ -6,13 +6,11 @@ import dts from 'rollup-plugin-dts';
 import esbuildPlugin from 'rollup-plugin-esbuild';
 
 export default defineConfig([
-  // dev
-  define({ dev: true }),
-  // prod
-  define({ dev: false }),
-  // server
-  define({ server: true }),
-  // types
+  define({ type: 'dev' }),
+  define({ type: 'prod' }),
+  define({ type: 'server' }),
+  define({ type: 'rsc-dev' }),
+  define({ type: 'rsc-prod' }),
   defineTypes(),
 ]);
 
@@ -39,47 +37,71 @@ function defineTypes() {
   };
 }
 
-/** @returns {import('rollup').RollupOptions} */
-function define({ dev = false, server = false }) {
-  const alias = server ? 'server' : dev ? 'dev' : 'prod',
-    shouldMangle = !dev && !server;
+/**
+ * @typedef {{
+ *   type: 'dev' | 'prod' | 'server' | 'rsc-dev' | 'rsc-prod';
+ * }} BundleOptions
+ */
+
+/**
+ * @param {BundleOptions}
+ * @returns {import('rollup').RollupOptions}
+ */
+function define({ type = 'dev' }) {
+  const shouldMangle = type === 'prod',
+    isRSC = type.startsWith('rsc');
 
   /** @type {Record<string, string | false>} */
   let mangleCache = {};
 
   return {
-    input: {
-      index: 'src/core/index.ts',
-      element: 'src/element/index.ts',
-      react: 'src/react/index.ts',
-      std: 'src/std/index.ts',
-    },
+    input: isRSC
+      ? { [type.replace('rsc-', '')]: 'src/react/rsc.ts' }
+      : {
+          index: 'src/core/index.ts',
+          element: 'src/element/index.ts',
+          react: 'src/react/index.ts',
+          std: 'src/std/index.ts',
+        },
     treeshake: true,
     maxParallelFileOps: shouldMangle ? 1 : 20,
     preserveEntrySignatures: 'allow-extension',
     external: ['react'],
     output: {
       format: 'esm',
-      dir: `dist/${alias}`,
+      dir: isRSC ? `dist/rsc` : `dist/${type}`,
       chunkFileNames: `chunks/maverick-[hash].js`,
     },
     plugins: [
       nodeResolve({
-        exportConditions: dev
-          ? ['development', 'production', 'default']
-          : ['production', 'default'],
+        exportConditions:
+          type === 'dev' || type === 'rsc-dev'
+            ? ['development', 'production', 'default']
+            : ['production', 'default'],
       }),
       esbuildPlugin({
-        target: server ? 'node18' : 'esnext',
-        platform: server ? 'node' : 'browser',
+        target: type === 'server' ? 'node18' : 'esnext',
+        platform: type === 'server' ? 'node' : 'browser',
         tsconfig: 'tsconfig.build.json',
         minify: false,
+        banner: isRSC ? 'import { IS_SERVER } from "@virtual/env";\n' : '',
         define: {
-          __DEV__: dev ? 'true' : 'false',
-          __SERVER__: server ? 'true' : 'false',
+          __DEV__: type === 'dev' ? 'true' : 'false',
+          __SERVER__: isRSC ? 'IS_SERVER' : type === 'server' ? 'true' : 'false',
           __TEST__: 'false',
         },
       }),
+      {
+        name: 'env',
+        resolveId(id) {
+          if (id === '@virtual/env') return id;
+        },
+        load(id) {
+          if (id === '@virtual/env') {
+            return `export const IS_SERVER = typeof document === 'undefined';`;
+          }
+        },
+      },
       shouldMangle && {
         name: 'mangle',
         transform(code) {

@@ -1,3 +1,12 @@
+## [0.38.3](https://github.com/maverick-js/maverick/compare/v0.38.2...v0.38.3) (2023-08-11)
+
+
+### Bug Fixes
+
+* add rsc bundle ([90a5459](https://github.com/maverick-js/maverick/commit/90a545919784c8ca39115e1994f9d0f721273163))
+
+
+
 ## [0.38.2](https://github.com/maverick-js/maverick/compare/v0.38.1...v0.38.2) (2023-08-09)
 
 

@@ -1,3 +1,12 @@
+## [0.38.4](https://github.com/maverick-js/maverick/compare/v0.38.3...v0.38.4) (2023-08-14)
+
+
+### Bug Fixes
+
+* handle early assignment on `HTMLUnkownElement` ([7558957](https://github.com/maverick-js/maverick/commit/75589578799d47d96a18578e7c5835aadbe932df))
+
+
+
 ## [0.38.3](https://github.com/maverick-js/maverick/compare/v0.38.2...v0.38.3) (2023-08-11)
 
 

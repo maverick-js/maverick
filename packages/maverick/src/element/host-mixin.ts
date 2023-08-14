@@ -97,8 +97,22 @@ export function Host<T extends HTMLElement, R extends Component>(
 
     constructor(...args: any[]) {
       super(...args);
+
       this.$ = createComponent(Component);
       this.$.$$._addHooks(this as any);
+
+      // Properties might be assigned before element is registered. We need to assign them
+      // to the internal prop signals and delete from proto chain.
+      if (Component.props) {
+        const props = this.$props,
+          descriptors = Object.getOwnPropertyDescriptors(this);
+        for (const prop of Object.keys(descriptors)) {
+          if (prop in Component.props) {
+            props[prop].set(this[prop]);
+            delete this[prop];
+          }
+        }
+      }
     }
 
     attributeChangedCallback(name, _, newValue) {

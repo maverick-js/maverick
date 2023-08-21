@@ -1,3 +1,12 @@
+## [0.38.5](https://github.com/maverick-js/maverick/compare/v0.38.4...v0.38.5) (2023-08-21)
+
+
+### Bug Fixes
+
+* `window` error when prod called in node env ([e8a143a](https://github.com/maverick-js/maverick/commit/e8a143a06aa94df277bc06643dc3243a66ce5f00))
+
+
+
 ## [0.38.4](https://github.com/maverick-js/maverick/compare/v0.38.3...v0.38.4) (2023-08-14)
 
 

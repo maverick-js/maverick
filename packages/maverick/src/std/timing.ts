@@ -54,9 +54,11 @@ const requestIdleCallback = __SERVER__
   ? noop
   : __TEST__
   ? run
-  : 'requestIdleCallback' in window
-  ? window.requestIdleCallback
-  : (cb) => window.requestAnimationFrame(cb);
+  : typeof window !== 'undefined'
+  ? 'requestIdleCallback' in window
+    ? window.requestIdleCallback
+    : (cb) => window.setTimeout(cb, 1)
+  : noop;
 
 /**
  * Queues and waits for a function to be called during a browser's idle periods. This enables

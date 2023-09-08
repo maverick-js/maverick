@@ -1,3 +1,12 @@
+# [0.39.0](https://github.com/maverick-js/maverick/compare/v0.38.5...v0.39.0) (2023-09-08)
+
+
+### Features
+
+* **cli:** add react analysis ([7f89bc8](https://github.com/maverick-js/maverick/commit/7f89bc8c7d158cad53ab7d995591a1709f45acb2))
+
+
+
 ## [0.38.5](https://github.com/maverick-js/maverick/compare/v0.38.4...v0.38.5) (2023-08-21)
 
 

@@ -2,8 +2,24 @@ import ts from 'typescript';
 
 import type { TypeMeta } from '../meta/component';
 
+const CONCISE_TYPE_FORMAT_FLAGS =
+  ts.TypeFormatFlags.UseSingleQuotesForStringLiteralType |
+  ts.TypeFormatFlags.NoTruncation |
+  ts.TypeFormatFlags.InElementType;
+
+const FULL_TYPE_FORMAT_FLAGS =
+  ts.TypeFormatFlags.UseSingleQuotesForStringLiteralType |
+  ts.TypeFormatFlags.NoTypeReduction |
+  ts.TypeFormatFlags.NoTruncation |
+  ts.TypeFormatFlags.InTypeAlias |
+  ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope;
+
 export function buildTypeMeta(checker: ts.TypeChecker, type: ts.Type): TypeMeta {
-  return serializeType(checker, type);
+  return {
+    primitive: resolvePrimitiveType(type),
+    concise: serializeType(checker, type, CONCISE_TYPE_FORMAT_FLAGS),
+    full: serializeType(checker, type, FULL_TYPE_FORMAT_FLAGS),
+  };
 }
 
 export function resolveTypeUnion(checker: ts.TypeChecker, type: ts.Type): string[] {
@@ -41,56 +57,84 @@ export function parseTypeParts(checker: ts.TypeChecker, type: ts.Type, parts: Se
   }
 }
 
-const TYPE_FORMAT_FLAGS =
-  ts.TypeFormatFlags.UseSingleQuotesForStringLiteralType |
-  ts.TypeFormatFlags.NoTruncation |
-  ts.TypeFormatFlags.InElementType;
-
 export function serializeType(
   checker: ts.TypeChecker,
   type: ts.Type,
-  flags?: ts.TypeFormatFlags,
+  flags: ts.TypeFormatFlags = CONCISE_TYPE_FORMAT_FLAGS,
 ): string {
-  return checker.typeToString(type, undefined, flags ?? TYPE_FORMAT_FLAGS);
+  return checker.typeToString(type, undefined, flags);
 }
 
 export function resolvePrimitiveType(type: ts.Type) {
-  const isAny = isType(type, isAnyType);
-  if (isAny) return undefined;
+  if (isNeverType(type)) {
+    return 'never';
+  } else if (isAnyType(type)) {
+    return 'any';
+  } else if (isSymbolType(type)) {
+    return 'symbol';
+  } else if (isUnknownType(type)) {
+    return 'unknown';
+  } else if (type.getCallSignatures().length) {
+    return 'function';
+  }
 
-  const str = isType(type, isStringType);
-  const num = isType(type, isNumberType);
-  const bool = isType(type, isBooleanType);
+  const str = isType(type, isStringType),
+    num = isType(type, isNumberType),
+    bool = isType(type, isBooleanType);
 
-  if (Number(str) + Number(num) + Number(bool) > 1) return undefined;
+  if (str && num && bool) return 'mixed';
+  else if (str && num) return 'mixed';
+  else if (str && bool) return 'mixed';
+  else if (num && bool) return 'mixed';
+  else if (str) return 'string';
+  else if (num) return 'number';
+  else if (bool) return 'boolean';
 
-  if (str) return 'string';
-  if (num) return 'number';
-  if (bool) return 'boolean';
+  if (isType(type, isObjectType)) {
+    return 'object';
+  }
 
-  return undefined;
+  return 'unknown';
 }
 
-const isType = (type: ts.Type, is: (type: ts.Type) => boolean) => {
+function isType(type: ts.Type, is: (type: ts.Type) => boolean) {
   return type.isUnion() ? type.types.some((t) => isType(t, is)) : is(type);
-};
+}
 
+const BOOLEAN_FLAGS = ts.TypeFlags.Boolean | ts.TypeFlags.BooleanLike;
 export function isBooleanType(t: ts.Type) {
-  return (t.flags & (ts.TypeFlags.Boolean | ts.TypeFlags.BooleanLike)) > 0;
+  return (t.flags & BOOLEAN_FLAGS) > 0;
 }
 
+const NUMBER_FLAGS = ts.TypeFlags.Number | ts.TypeFlags.NumberLike | ts.TypeFlags.NumberLiteral;
 export function isNumberType(t: ts.Type) {
-  return (
-    (t.flags & (ts.TypeFlags.Number | ts.TypeFlags.NumberLike | ts.TypeFlags.NumberLiteral)) > 0
-  );
+  return (t.flags & NUMBER_FLAGS) > 0;
 }
 
+const STRING_FLAGS = ts.TypeFlags.String | ts.TypeFlags.StringLike | ts.TypeFlags.StringLiteral;
 export function isStringType(t: ts.Type) {
-  return (
-    (t.flags & (ts.TypeFlags.String | ts.TypeFlags.StringLike | ts.TypeFlags.StringLiteral)) > 0
-  );
+  return (t.flags & STRING_FLAGS) > 0;
+}
+
+const SYMBOL_FLAGS =
+  ts.TypeFlags.ESSymbol | ts.TypeFlags.ESSymbolLike | ts.TypeFlags.UniqueESSymbol;
+export function isSymbolType(t: ts.Type) {
+  return (t.flags & SYMBOL_FLAGS) > 0;
+}
+
+const OBJECT_FLAGS = ts.TypeFlags.Object;
+export function isObjectType(t: ts.Type) {
+  return (t.flags & OBJECT_FLAGS) > 0;
 }
 
 export function isAnyType(t: ts.Type) {
-  return (t.flags & (t.flags & ts.TypeFlags.Any)) > 0;
+  return (t.flags & ts.TypeFlags.Any) > 0;
+}
+
+export function isNeverType(t: ts.Type) {
+  return (t.flags & ts.TypeFlags.Never) > 0;
+}
+
+export function isUnknownType(t: ts.Type) {
+  return (t.flags & ts.TypeFlags.Unknown) > 0;
 }

@@ -4,8 +4,9 @@ import { escapeQuotes } from '../../utils/str';
 import { getDeclaration } from '../utils/declaration';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta, serializeType } from '../utils/types';
-import { type EventMeta, TS_NODE } from './component';
+import type { EventMeta } from './component';
 import { getDocTags, hasDocTag } from './doctags';
+import { TS_NODE } from './symbols';
 
 const filteredTagNames = new Set(['internal', 'deprecated', 'bubbles', 'composed', 'cancellable']);
 
@@ -42,11 +43,15 @@ export function buildEventsMeta(checker: ts.TypeChecker, typesRoot?: ts.Type) {
         : null,
       detail =
         detailType && detailType.declarations?.[0]
-          ? serializeType(
+          ? buildTypeMeta(
               checker,
               checker.getTypeOfSymbolAtLocation(detailType, detailType.declarations[0]),
             )
-          : 'unknown';
+          : {
+              concise: 'unknown',
+              primitive: 'unknown',
+              full: 'unknown',
+            };
 
     if (doctags) {
       if (hasDocTag(doctags, 'internal')) internal = true;

@@ -1,16 +1,11 @@
 import type { ComponentMeta } from './component';
+import type { CustomElementMeta } from './custom-element';
+import type { ReactComponentMeta } from './react';
 
-const propKeys = new Set<keyof ComponentMeta>([
-  'props',
-  'state',
-  'events',
-  'cssvars',
-  'cssparts',
-  'slots',
-]);
+const propKeys = new Set(['props', 'callbacks', 'state', 'events', 'cssvars', 'cssparts', 'slots']);
 
 export function walkComponentDocs(
-  component: ComponentMeta,
+  component: ComponentMeta | CustomElementMeta | ReactComponentMeta,
   callback: (docs: string) => void | string | undefined,
 ) {
   if (component.docs) {
@@ -18,10 +13,10 @@ export function walkComponentDocs(
     if (newDocs) component.docs = newDocs;
   }
 
-  const keys = Object.keys(component) as (keyof ComponentMeta)[];
+  const keys = Object.keys(component);
 
   for (const key of keys) {
-    if (key === 'members') {
+    if (key === 'members' && component.type === 'component') {
       if (component.members?.props) {
         for (const prop of component.members.props) {
           if (prop.docs) {
@@ -29,13 +24,13 @@ export function walkComponentDocs(
             if (newDocs) prop.docs = newDocs;
           }
         }
-      }
 
-      if (component.members?.methods) {
-        for (const method of component.members.methods) {
-          if (method.docs) {
-            const newDocs = callback(method.docs);
-            if (newDocs) method.docs = newDocs;
+        if (component.members?.methods) {
+          for (const method of component.members.methods) {
+            if (method.docs) {
+              const newDocs = callback(method.docs);
+              if (newDocs) method.docs = newDocs;
+            }
           }
         }
       }

@@ -5,7 +5,8 @@ import type ts from 'typescript';
 import { filterArrayUnique } from '../../utils/array';
 import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
 import { escapeQuotes } from '../../utils/str';
-import { type DocTagMeta, TS_NODE } from './component';
+import type { DocTagMeta } from './component';
+import { TS_NODE } from './symbols';
 
 export function splitJsDocTagText(tag: DocTagMeta) {
   const [title, description] = (tag.text?.split(' - ') ?? []).map((s) => s.trim());

@@ -1,8 +1,506 @@
 {
+  "components": [
+    {
+      "type": "component",
+      "name": "TestComponent",
+      "file": {
+        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/component.ts"
+      },
+      "docs": "This is the `TestComponent` documentation.",
+      "props": [
+        {
+          "name": "moo",
+          "type": {
+            "primitive": "string",
+            "concise": "string",
+            "full": "string"
+          },
+          "docs": "This is the moo docs."
+        },
+        {
+          "name": "mooBoo",
+          "default": "1",
+          "type": {
+            "primitive": "number",
+            "concise": "0 | 1",
+            "full": "0 | 1"
+          },
+          "docs": "This is the moo boo docs.",
+          "doctags": [
+            {
+              "name": "footag"
+            }
+          ]
+        },
+        {
+          "name": "foo",
+          "default": "0",
+          "type": {
+            "primitive": "number",
+            "concise": "number",
+            "full": "number"
+          },
+          "docs": "This is the foo prop docs."
+        },
+        {
+          "name": "bar",
+          "default": "10",
+          "type": {
+            "primitive": "number",
+            "concise": "number",
+            "full": "number"
+          }
+        },
+        {
+          "name": "lux",
+          "default": "20",
+          "type": {
+            "primitive": "number",
+            "concise": "number",
+            "full": "number"
+          }
+        },
+        {
+          "name": "box",
+          "default": "undefined",
+          "type": {
+            "primitive": "number",
+            "concise": "number | undefined",
+            "full": "number | undefined"
+          }
+        },
+        {
+          "name": "baxHux",
+          "default": "30",
+          "type": {
+            "primitive": "string",
+            "concise": "Bar",
+            "full": "string | null"
+          },
+          "docs": "This is the bax hux docs.",
+          "internal": true,
+          "deprecated": true
+        },
+        {
+          "name": "huxBux",
+          "default": "null",
+          "type": {
+            "primitive": "string",
+            "concise": "string | null",
+            "full": "string | null"
+          }
+        },
+        {
+          "name": "zoo",
+          "default": "null",
+          "type": {
+            "primitive": "number",
+            "concise": "number | undefined",
+            "full": "number | undefined"
+          }
+        },
+        {
+          "name": "bam",
+          "default": "'foo'",
+          "type": {
+            "primitive": "string",
+            "concise": "string",
+            "full": "string"
+          },
+          "docs": "This is the bam docs.",
+          "doctags": [
+            {
+              "name": "example",
+              "text": "```ts\nconst bam = 1;\n```"
+            }
+          ]
+        },
+        {
+          "name": "show",
+          "default": "'foo'",
+          "type": {
+            "primitive": "function",
+            "concise": "() => string",
+            "full": "() => string"
+          }
+        },
+        {
+          "name": "jax",
+          "type": {
+            "primitive": "number",
+            "concise": "number",
+            "full": "number"
+          }
+        },
+        {
+          "name": "loo",
+          "type": {
+            "primitive": "number",
+            "concise": "number",
+            "full": "number"
+          },
+          "docs": "This is the loo prop docs."
+        }
+      ],
+      "events": [
+        {
+          "name": "foo",
+          "type": {
+            "primitive": "object",
+            "concise": "FooEvent",
+            "full": "FooEvent"
+          },
+          "detail": {
+            "primitive": "boolean",
+            "concise": "boolean",
+            "full": "boolean"
+          },
+          "docs": "This is the foo event.",
+          "bubbles": true
+        },
+        {
+          "name": "bar",
+          "type": {
+            "primitive": "object",
+            "concise": "DOMEvent<void>",
+            "full": "DOMEvent<void>"
+          },
+          "detail": {
+            "primitive": "unknown",
+            "concise": "void",
+            "full": "void"
+          }
+        },
+        {
+          "name": "baz",
+          "type": {
+            "primitive": "object",
+            "concise": "BazEvent",
+            "full": "DOMEvent<0 | 1>"
+          },
+          "detail": {
+            "primitive": "number",
+            "concise": "0 | 1",
+            "full": "0 | 1"
+          },
+          "docs": "This is the `Baz` event docs.",
+          "internal": true
+        },
+        {
+          "name": "boo",
+          "type": {
+            "primitive": "object",
+            "concise": "DOMEvent<string | null>",
+            "full": "DOMEvent<string | null>"
+          },
+          "detail": {
+            "primitive": "string",
+            "concise": "string | null",
+            "full": "string | null"
+          }
+        },
+        {
+          "name": "lux",
+          "type": {
+            "primitive": "object",
+            "concise": "DOMEvent<string | null>",
+            "full": "DOMEvent<string | null>"
+          },
+          "detail": {
+            "primitive": "string",
+            "concise": "string | null",
+            "full": "string | null"
+          },
+          "docs": "*\nThis is the lux event.",
+          "composed": true,
+          "deprecated": true
+        },
+        {
+          "name": "hux",
+          "type": {
+            "primitive": "object",
+            "concise": "DOMEvent<number | null>",
+            "full": "DOMEvent<number | null>"
+          },
+          "detail": {
+            "primitive": "number",
+            "concise": "number | null",
+            "full": "number | null"
+          }
+        },
+        {
+          "name": "bax-hux",
+          "type": {
+            "primitive": "object",
+            "concise": "DOMEvent<0 | 1 | 2 | 3>",
+            "full": "DOMEvent<0 | 1 | 2 | 3>"
+          },
+          "detail": {
+            "primitive": "number",
+            "concise": "0 | 1 | 2 | 3",
+            "full": "0 | 1 | 2 | 3"
+          }
+        },
+        {
+          "name": "baz-boo",
+          "type": {
+            "primitive": "object",
+            "concise": "DOMEvent<FooBoo>",
+            "full": "DOMEvent<FooBoo>"
+          },
+          "detail": {
+            "primitive": "string",
+            "concise": "FooBoo",
+            "full": "'a' | 'b' | 'c'"
+          }
+        }
+      ],
+      "parts": [
+        {
+          "name": "foo",
+          "description": "This is the foo CSS Part."
+        },
+        {
+          "name": "bar",
+          "description": "This is the bar CSS Part."
+        }
+      ],
+      "cssvars": [
+        {
+          "name": "foo",
+          "default": "1",
+          "type": {
+            "primitive": "number",
+            "concise": "0 | 1",
+            "full": "0 | 1"
+          },
+          "docs": "This is the foo docs."
+        },
+        {
+          "name": "bar",
+          "type": {
+            "primitive": "string",
+            "concise": "string",
+            "full": "string"
+          }
+        },
+        {
+          "name": "baz",
+          "type": {
+            "primitive": "string",
+            "concise": "Bar",
+            "full": "string | null"
+          },
+          "readonly": true
+        },
+        {
+          "name": "bax",
+          "default": "1",
+          "type": {
+            "primitive": "number",
+            "concise": "number | undefined",
+            "full": "number | undefined"
+          },
+          "readonly": true,
+          "optional": true
+        }
+      ],
+      "state": [
+        {
+          "name": "foo",
+          "type": {
+            "primitive": "number",
+            "concise": "number",
+            "full": "number"
+          },
+          "readonly": true
+        },
+        {
+          "name": "baz",
+          "type": {
+            "primitive": "mixed",
+            "concise": "string | number",
+            "full": "string | number"
+          },
+          "docs": "This is the baz state docs.",
+          "doctags": [
+            {
+              "name": "tag",
+              "text": "test"
+            }
+          ],
+          "default": "20"
+        },
+        {
+          "name": "boom",
+          "type": {
+            "primitive": "string",
+            "concise": "string",
+            "full": "string"
+          },
+          "readonly": true
+        }
+      ],
+      "members": {
+        "props": [
+          {
+            "name": "foo",
+            "default": "true",
+            "type": {
+              "primitive": "boolean",
+              "concise": "boolean",
+              "full": "boolean"
+            },
+            "docs": "This is the foo docs."
+          },
+          {
+            "name": "bar",
+            "default": "100",
+            "type": {
+              "primitive": "number",
+              "concise": "100",
+              "full": "100"
+            },
+            "readonly": true
+          },
+          {
+            "name": "baz",
+            "type": {
+              "primitive": "boolean",
+              "concise": "boolean",
+              "full": "boolean"
+            },
+            "docs": "This is the baz docs.",
+            "readonly": true
+          },
+          {
+            "name": "bux",
+            "type": {
+              "primitive": "boolean",
+              "concise": "boolean",
+              "full": "boolean"
+            }
+          },
+          {
+            "name": "baseGetter",
+            "type": {
+              "primitive": "number",
+              "concise": "number",
+              "full": "number"
+            },
+            "readonly": true
+          },
+          {
+            "name": "state",
+            "docs": "This object contains the current state of the component.",
+            "type": {
+              "primitive": "object",
+              "concise": "FooState",
+              "full": "FooState"
+            },
+            "readonly": true
+          }
+        ],
+        "methods": [
+          {
+            "name": "start",
+            "parameters": [],
+            "signature": {
+              "type": "() => void"
+            },
+            "return": {
+              "type": "void"
+            }
+          },
+          {
+            "name": "stop",
+            "docs": "The stop method docs.",
+            "parameters": [
+              {
+                "name": "fooArg",
+                "type": {
+                  "primitive": "number",
+                  "concise": "number",
+                  "full": "number"
+                }
+              },
+              {
+                "name": "barArg",
+                "type": {
+                  "primitive": "any",
+                  "concise": "Bar",
+                  "full": "Bar"
+                }
+              }
+            ],
+            "signature": {
+              "type": "(fooArg: number, barArg: Bar) => Promise<void>"
+            },
+            "return": {
+              "type": "Promise<void>"
+            }
+          },
+          {
+            "name": "resume",
+            "docs": "The resume method docs.",
+            "parameters": [
+              {
+                "name": "foo",
+                "type": {
+                  "primitive": "unknown",
+                  "concise": "T",
+                  "full": "T"
+                }
+              }
+            ],
+            "signature": {
+              "type": "<T>(foo: T) => T"
+            },
+            "return": {
+              "type": "T"
+            }
+          },
+          {
+            "name": "baseMethod",
+            "docs": "This is a base method.",
+            "parameters": [],
+            "signature": {
+              "type": "() => void"
+            },
+            "return": {
+              "type": "void"
+            }
+          },
+          {
+            "name": "subscribe",
+            "docs": "Subscribe to live updates of component state.",
+            "parameters": [
+              {
+                "name": "callback",
+                "type": {
+                  "primitive": "function",
+                  "concise": "Effect<FooState>",
+                  "full": "(state: FooState) => Maybe<Dispose>"
+                }
+              }
+            ],
+            "signature": {
+              "type": "(callback: Effect<FooState>) => Unsubscribe"
+            },
+            "return": {
+              "type": "Unsubscribe"
+            }
+          }
+        ],
+        "length": 11
+      }
+    }
+  ],
   "elements": [
     {
+      "type": "element",
       "file": {
-        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures.ts"
+        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/custom-element.ts"
       },
       "name": "TestElement",
       "docs": "Something about this element.",
@@ -50,315 +548,164 @@
       ]
     }
   ],
-  "components": [
+  "react": [
     {
-      "name": "TestComponent",
+      "type": "react",
       "file": {
-        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures.ts"
+        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/react.tsx"
       },
-      "docs": "This is the `TestComponent` documentation.",
+      "namespace": "React",
+      "name": "Foo",
+      "displayName": "FooComponent",
+      "docs": "This is the Foo component docs.",
+      "doctags": [
+        {
+          "name": "internal"
+        }
+      ],
+      "attributes": "SVGAttributes<SVGElement>",
       "props": [
         {
-          "name": "moo",
-          "type": "string",
-          "docs": "This is the moo docs."
+          "name": "a",
+          "type": {
+            "primitive": "number",
+            "concise": "number",
+            "full": "number"
+          }
         },
         {
-          "name": "mooBoo",
-          "default": "1",
-          "type": "0 | 1",
-          "docs": "This is the moo boo docs.",
-          "doctags": [
+          "name": "b",
+          "type": {
+            "primitive": "string",
+            "concise": "string",
+            "full": "string"
+          }
+        }
+      ],
+      "propsType": "FooProps",
+      "callbacks": [
+        {
+          "name": "onFoo",
+          "type": {
+            "primitive": "function",
+            "concise": "() => void",
+            "full": "() => void"
+          },
+          "parameters": []
+        },
+        {
+          "name": "onBar",
+          "type": {
+            "primitive": "function",
+            "concise": "(detail: string) => void",
+            "full": "(detail: string) => void"
+          },
+          "parameters": [
             {
-              "name": "footag"
+              "name": "detail",
+              "type": {
+                "primitive": "string",
+                "concise": "string",
+                "full": "string"
+              }
             }
           ]
         },
         {
-          "name": "foo",
-          "default": "0",
-          "type": "number",
-          "docs": "This is the foo prop docs."
-        },
-        {
-          "name": "bar",
-          "default": "10",
-          "type": "number"
-        },
-        {
-          "name": "lux",
-          "default": "20",
-          "type": "number"
-        },
-        {
-          "name": "box",
-          "default": "undefined",
-          "type": "number | undefined"
-        },
-        {
-          "name": "baxHux",
-          "default": "30",
-          "type": "Bar",
-          "docs": "This is the bax hux docs.",
-          "internal": true,
-          "deprecated": true
-        },
-        {
-          "name": "huxBux",
-          "default": "null",
-          "type": "string | null"
-        },
-        {
-          "name": "zoo",
-          "default": "null",
-          "type": "number | undefined"
-        },
-        {
-          "name": "bam",
-          "default": "'foo'",
-          "type": "string",
-          "docs": "This is the bam docs.",
+          "name": "onBaz",
+          "docs": "This is the onBaz callback.",
           "doctags": [
             {
-              "name": "example",
-              "text": "```ts\nconst bam = 1;\n```"
-            }
-          ]
-        },
-        {
-          "name": "show",
-          "default": "'foo'",
-          "type": "() => string"
-        },
-        {
-          "name": "jax",
-          "type": "number"
-        },
-        {
-          "name": "loo",
-          "type": "number",
-          "docs": "This is the loo prop docs."
-        }
-      ],
-      "events": [
-        {
-          "name": "foo",
-          "type": "FooEvent",
-          "detail": "boolean",
-          "docs": "This is the foo event.",
-          "bubbles": true
-        },
-        {
-          "name": "bar",
-          "type": "DOMEvent<void>",
-          "detail": "void"
-        },
-        {
-          "name": "baz",
-          "type": "BazEvent",
-          "detail": "0 | 1",
-          "docs": "This is the `Baz` event docs.",
-          "internal": true
-        },
-        {
-          "name": "boo",
-          "type": "DOMEvent<string | null>",
-          "detail": "string | null"
-        },
-        {
-          "name": "lux",
-          "type": "DOMEvent<string | null>",
-          "detail": "string | null",
-          "docs": "*\nThis is the lux event.",
-          "composed": true,
-          "deprecated": true
-        },
-        {
-          "name": "hux",
-          "type": "DOMEvent<number | null>",
-          "detail": "number | null"
-        },
-        {
-          "name": "bax-hux",
-          "type": "DOMEvent<0 | 1 | 2 | 3>",
-          "detail": "0 | 1 | 2 | 3"
-        },
-        {
-          "name": "baz-boo",
-          "type": "DOMEvent<FooBoo>",
-          "detail": "FooBoo"
-        }
-      ],
-      "parts": [
-        {
-          "name": "foo",
-          "description": "This is the foo CSS Part."
-        },
-        {
-          "name": "bar",
-          "description": "This is the bar CSS Part."
-        }
-      ],
-      "cssvars": [
-        {
-          "name": "foo",
-          "default": "1",
-          "type": "0 | 1",
-          "docs": "This is the foo docs."
-        },
-        {
-          "name": "bar",
-          "type": "string"
-        },
-        {
-          "name": "baz",
-          "type": "Bar",
-          "readonly": true
-        },
-        {
-          "name": "bax",
-          "default": "1",
-          "type": "number | undefined",
-          "readonly": true,
-          "optional": true
-        }
-      ],
-      "state": [
-        {
-          "name": "foo",
-          "type": "number",
-          "readonly": true
-        },
-        {
-          "name": "baz",
-          "type": "string | number",
-          "docs": "This is the baz state docs.",
-          "doctags": [
-            {
-              "name": "tag",
-              "text": "test"
+              "name": "deprecated"
             }
           ],
-          "default": "20"
+          "type": {
+            "primitive": "function",
+            "concise": "(detail: number, nativeEvent: MouseEvent) => void",
+            "full": "(detail: number, nativeEvent: MouseEvent) => void"
+          },
+          "parameters": [
+            {
+              "name": "detail",
+              "type": {
+                "primitive": "number",
+                "concise": "number",
+                "full": "number"
+              }
+            },
+            {
+              "name": "nativeEvent",
+              "type": {
+                "primitive": "object",
+                "concise": "MouseEvent",
+                "full": "MouseEvent"
+              }
+            }
+          ],
+          "deprecated": true
+        }
+      ]
+    },
+    {
+      "type": "react",
+      "file": {
+        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/react.tsx"
+      },
+      "namespace": "React",
+      "name": "Bar",
+      "displayName": "BarComponent",
+      "instance": "BarComponent",
+      "attributes": "HTMLAttributes<HTMLButtonElement>",
+      "props": [
+        {
+          "name": "asChild",
+          "type": {
+            "primitive": "boolean",
+            "concise": "boolean | undefined",
+            "full": "boolean | undefined"
+          }
         },
         {
-          "name": "boom",
-          "type": "string",
-          "readonly": true
+          "name": "children",
+          "type": {
+            "primitive": "mixed",
+            "concise": "ReactNode",
+            "full": "string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined"
+          }
+        },
+        {
+          "name": "foo",
+          "type": {
+            "primitive": "number",
+            "concise": "number | undefined",
+            "full": "number | undefined"
+          }
+        },
+        {
+          "name": "bar",
+          "type": {
+            "primitive": "string",
+            "concise": "string | undefined",
+            "full": "string | undefined"
+          }
+        },
+        {
+          "name": "baz",
+          "type": {
+            "primitive": "boolean",
+            "concise": "boolean | undefined",
+            "full": "boolean | undefined"
+          },
+          "docs": "This is the baz prop docs."
         }
       ],
-      "members": {
-        "props": [
-          {
-            "name": "foo",
-            "default": "true",
-            "type": "boolean",
-            "docs": "This is the foo docs."
-          },
-          {
-            "name": "bar",
-            "default": "100",
-            "type": "100",
-            "readonly": true
-          },
-          {
-            "name": "baz",
-            "type": "boolean",
-            "docs": "This is the baz docs.",
-            "readonly": true
-          },
-          {
-            "name": "bux",
-            "type": "boolean"
-          },
-          {
-            "name": "baseGetter",
-            "type": "number",
-            "readonly": true
-          },
-          {
-            "name": "state",
-            "docs": "This object contains the current state of the component.",
-            "type": "FooState",
-            "readonly": true
-          }
-        ],
-        "methods": [
-          {
-            "name": "start",
-            "parameters": [],
-            "signature": {
-              "type": "() => void"
-            },
-            "return": {
-              "type": "void"
-            }
-          },
-          {
-            "name": "stop",
-            "docs": "The stop method docs.",
-            "parameters": [
-              {
-                "name": "fooArg",
-                "type": "number"
-              },
-              {
-                "name": "barArg",
-                "type": "Bar"
-              }
-            ],
-            "signature": {
-              "type": "(fooArg: number, barArg: Bar) => Promise<void>"
-            },
-            "return": {
-              "type": "Promise<void>"
-            }
-          },
-          {
-            "name": "resume",
-            "docs": "The resume method docs.",
-            "parameters": [
-              {
-                "name": "foo",
-                "type": "T"
-              }
-            ],
-            "signature": {
-              "type": "<T>(foo: T) => T"
-            },
-            "return": {
-              "type": "T"
-            }
-          },
-          {
-            "name": "baseMethod",
-            "docs": "This is a base method.",
-            "parameters": [],
-            "signature": {
-              "type": "() => void"
-            },
-            "return": {
-              "type": "void"
-            }
-          },
-          {
-            "name": "subscribe",
-            "docs": "Subscribe to live updates of component state.",
-            "parameters": [
-              {
-                "name": "callback",
-                "type": "(state: FooState) => Maybe<Dispose>"
-              }
-            ],
-            "signature": {
-              "type": "(callback: (state: FooState) => Maybe<Dispose>) => Unsubscribe"
-            },
-            "return": {
-              "type": "Unsubscribe"
-            }
-          }
-        ],
-        "length": 11
+      "propsType": "BarProps",
+      "ref": {
+        "type": {
+          "primitive": "object",
+          "concise": "HTMLButtonElement",
+          "full": "HTMLButtonElement"
+        }
       }
     }
   ]

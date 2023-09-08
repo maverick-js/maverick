@@ -3,7 +3,7 @@ import { dirname } from 'pathe';
 import { camelToKebabCase, escapeQuotes } from '../../utils/str';
 import { isUndefined } from '../../utils/unit';
 import type { ComponentMeta, PropMeta } from '../meta/component';
-import type { ElementMeta } from '../meta/element';
+import type { CustomElementMeta } from '../meta/custom-element';
 import { resolveConfigPaths } from '../utils/resolve';
 import type { AnalyzePluginBuilder } from './analyze-plugin';
 
@@ -11,7 +11,7 @@ export interface VSCodePluginConfig extends Record<string, unknown> {
   cwd: string;
   outFile: string;
   transformTagData?: (
-    meta: { element: ElementMeta; component?: ComponentMeta },
+    meta: { element: CustomElementMeta; component?: ComponentMeta },
     data: ITagData,
   ) => ITagData;
   transformAttributeData?: (prop: PropMeta, data: IAttributeData) => IAttributeData;
@@ -34,7 +34,7 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
 ) => ({
   name: 'maverick/vscode-html-data',
 
-  async transform({ components, elements }) {
+  async transform({ components, customElements }) {
     const normalizedConfig = await normalizeVSCodePluginConfig(config);
 
     const output: HTMLDataV1 = {
@@ -42,14 +42,14 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
       tags: [],
     };
 
-    const map = new Map<ElementMeta, ComponentMeta | undefined>();
-    for (const el of elements) {
+    const map = new Map<CustomElementMeta, ComponentMeta | undefined>();
+    for (const el of customElements) {
       if (!el.component) continue;
       const component = components.find((c) => c.name === el.component!.name);
       map.set(el, component);
     }
 
-    elements
+    customElements
       .filter((el) => !isUndefined(el.tag) && map.has(el))
       .forEach((element) => {
         const component = map.get(element)!;
@@ -68,8 +68,8 @@ export const createVSCodePlugin: AnalyzePluginBuilder<Partial<VSCodePluginConfig
               const data: IAttributeData = {
                 name: attr || camelToKebabCase(prop.name),
                 description: prop.docs,
-                values: prop.type.includes('|')
-                  ? prop.type
+                values: prop.type.full.includes('|')
+                  ? prop.type.full
                       .split(/\s+\|\s+/)
                       ?.filter((value) => !primitiveTypeRE.test(value))
                       .map((type) => ({ name: escapeQuotes(type) }))

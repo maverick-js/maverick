@@ -48,6 +48,12 @@ export function cli(): void {
       describe: 'The path to your configuration file.',
       default: './analyze.config.ts',
     })
+    .option('framework', {
+      describe: 'Select the JS framework that is being analyzed.',
+      nArgs: 1,
+      choices: ['default', 'react'],
+      default: 'default',
+    })
     .option('watch', {
       alias: 'w',
       boolean: true,

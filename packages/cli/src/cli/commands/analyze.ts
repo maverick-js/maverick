@@ -1,7 +1,7 @@
 import kleur from 'kleur';
 import type ts from 'typescript';
 
-import type { AnalyzePlugin } from '../../analyze/plugins/analyze-plugin';
+import type { AnalyzeFramework, AnalyzePlugin } from '../../analyze/plugins/analyze-plugin';
 import { createBuildPlugin } from '../../analyze/plugins/build-plugin';
 import { createDiscoverPlugin } from '../../analyze/plugins/discover-plugin';
 import { runPlugins } from '../../analyze/plugins/lifecycle';
@@ -18,6 +18,7 @@ export interface AnalyzeCommandConfig extends Record<string, unknown> {
   cwd: string;
   configFile: string;
   watch: boolean;
+  framework?: AnalyzeFramework;
   project: string | null;
 }
 
@@ -63,7 +64,7 @@ export async function runAnalyzeCommand(analyzeConfig: AnalyzeCommandConfig): Pr
     log('watching files for changes...');
     compileAndWatch(config.project ?? 'tsconfig.json', async (program) => {
       const filePaths = await parseGlobs(glob);
-      await run(program, plugins, filePaths, true);
+      await run(program, plugins, filePaths, config.framework, true);
     });
   } else {
     const startCompileTime = process.hrtime();
@@ -72,7 +73,7 @@ export async function runAnalyzeCommand(analyzeConfig: AnalyzeCommandConfig): Pr
       project: config.project ?? 'tsconfig.json',
     });
     logTime(`compiled program`, startCompileTime);
-    await run(program, plugins, filePaths);
+    await run(program, plugins, filePaths, config.framework);
   }
 }
 
@@ -80,11 +81,12 @@ async function run(
   program: ts.Program,
   plugins: AnalyzePlugin[],
   filePaths: string[],
+  framework: AnalyzeFramework | undefined = undefined,
   watching = false,
 ) {
   const startAnalyzeTime = process.hrtime();
 
-  const result = await runPlugins(program, plugins, filePaths, watching);
+  const result = await runPlugins(program, plugins, filePaths, framework, watching);
 
   if (result) {
     const { sourceFiles } = result;

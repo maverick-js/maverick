@@ -5,9 +5,18 @@ import type ts from 'typescript';
 import { formatPluginName, log, LogLevel, logTime } from '../../utils/logger';
 import { isUndefined } from '../../utils/unit';
 import type { ComponentMeta } from '../meta/component';
-import type { ElementMeta } from '../meta/element';
+import type { CustomElementMeta } from '../meta/custom-element';
+import type { ReactComponentMeta } from '../meta/react';
 import { resolvePath } from '../utils/path';
-import type { AnalyzePlugin, ComponentNode, ElementNode } from './analyze-plugin';
+import type {
+  AnalyzeFramework,
+  AnalyzePlugin,
+  ComponentNode,
+  CustomElementNode,
+  ReactComponentNode,
+  TransformData,
+  TransformSourceFiles,
+} from './analyze-plugin';
 
 export async function runPluginsInit(program: ts.Program, plugins: AnalyzePlugin[]): Promise<void> {
   for (const plugin of plugins) {
@@ -24,6 +33,7 @@ export async function runPlugins(
   program: ts.Program,
   plugins: AnalyzePlugin[],
   paths: string[],
+  framework: AnalyzeFramework = 'default',
   watching = false,
 ) {
   const validFilePaths = new Set(paths);
@@ -47,29 +57,44 @@ export async function runPlugins(
 
   await runPluginsInit(program, plugins);
 
-  const elements: ElementMeta[] = [],
-    components: ComponentMeta[] = [],
-    sources = new Map<ComponentMeta | ElementMeta, ts.SourceFile>();
+  const components: ComponentMeta[] = [],
+    customElements: CustomElementMeta[] = [],
+    reactComponents: ReactComponentMeta[] = [],
+    transformSourceFiles: TransformSourceFiles = new Map();
 
   for (const sourceFile of sourceFiles) {
-    const nodes = await runPluginsDiscover(plugins, sourceFile);
+    const nodes = await runPluginsDiscover(plugins, sourceFile, framework);
 
-    for (const node of nodes.components) {
-      const component = await runPluginsBuildComponent(plugins, node);
-      if (!component) continue;
-      sources.set(component, sourceFile);
-      components.push(component);
-    }
+    if (framework === 'default') {
+      for (const node of nodes.components) {
+        const component = await runPluginsBuildComponent(plugins, node);
+        if (!component) continue;
+        transformSourceFiles.set(component, sourceFile);
+        components.push(component);
+      }
 
-    for (const node of nodes.elements) {
-      const element = await runPluginsBuildElement(plugins, node);
-      if (!element) continue;
-      sources.set(element, sourceFile);
-      elements.push(element);
+      for (const node of nodes.customElements) {
+        const element = await runPluginsBuildCustomElement(plugins, node);
+        if (!element) continue;
+        transformSourceFiles.set(element, sourceFile);
+        customElements.push(element);
+      }
+    } else if (framework === 'react') {
+      for (const node of nodes.reactComponents) {
+        const component = await runPluginsBuildReactComponent(plugins, node);
+        if (!component) continue;
+        transformSourceFiles.set(component, sourceFile);
+        reactComponents.push(component);
+      }
     }
   }
 
-  await runPluginsTransform(plugins, components, elements, sources);
+  await runPluginsTransform(
+    plugins,
+    { components, customElements, reactComponents },
+    transformSourceFiles,
+  );
+
   await runPluginsDestroy(plugins);
 
   return { sourceFiles };
@@ -78,16 +103,28 @@ export async function runPlugins(
 export async function runPluginsDiscover(
   plugins: AnalyzePlugin[],
   sourceFile: ts.SourceFile,
+  framework: AnalyzeFramework,
 ): Promise<{
-  elements: ElementNode[];
   components: ComponentNode[];
+  customElements: CustomElementNode[];
+  reactComponents: ReactComponentNode[];
 }> {
   for (const plugin of plugins) {
-    if (isUndefined(plugin.discoverComponents) && isUndefined(plugin.discoverElements)) continue;
+    if (
+      isUndefined(plugin.discoverComponents) &&
+      isUndefined(plugin.discoverCustomElements) &&
+      isUndefined(plugin.discoverReactComponents)
+    ) {
+      continue;
+    }
 
     const startTime = process.hrtime(),
-      components = await plugin.discoverComponents?.(sourceFile),
-      elements = await plugin.discoverElements?.(sourceFile);
+      components =
+        framework === 'default' ? await plugin.discoverComponents?.(sourceFile) : undefined,
+      customElements =
+        framework === 'default' ? await plugin.discoverCustomElements?.(sourceFile) : undefined,
+      reactComponents =
+        framework === 'react' ? await plugin.discoverReactComponents?.(sourceFile) : undefined;
 
     logTime(`${formatPluginName(plugin.name)} \`discover\``, startTime, LogLevel.Verbose);
 
@@ -100,7 +137,7 @@ export async function runPluginsDiscover(
       );
     }
 
-    if (elements) {
+    if (customElements) {
       log(
         `${formatPluginName(plugin.name)} discovered elements in ${kleur.blue(
           sourceFile.fileName,
@@ -109,17 +146,28 @@ export async function runPluginsDiscover(
       );
     }
 
-    if (components || elements) {
+    if (reactComponents) {
+      log(
+        `${formatPluginName(plugin.name)} discovered react components in ${kleur.blue(
+          sourceFile.fileName,
+        )}`,
+        LogLevel.Verbose,
+      );
+    }
+
+    if (components || customElements || reactComponents) {
       return {
         components: components || [],
-        elements: elements || [],
+        customElements: customElements || [],
+        reactComponents: reactComponents || [],
       };
     }
   }
 
   return {
     components: [],
-    elements: [],
+    customElements: [],
+    reactComponents: [],
   };
 }
 
@@ -128,10 +176,10 @@ export async function runPluginsBuildComponent(
   node?: ComponentNode,
 ): Promise<ComponentMeta | null> {
   for (const plugin of plugins) {
-    if (isUndefined(plugin.buildComponent)) continue;
+    if (isUndefined(plugin.buildComponentMeta)) continue;
 
     const startTime = process.hrtime(),
-      component = node && (await plugin.buildComponent(node));
+      component = node && (await plugin.buildComponentMeta(node));
 
     logTime(`${formatPluginName(plugin.name)} \`build\``, startTime, LogLevel.Verbose);
 
@@ -150,15 +198,15 @@ export async function runPluginsBuildComponent(
   return null;
 }
 
-export async function runPluginsBuildElement(
+export async function runPluginsBuildCustomElement(
   plugins: AnalyzePlugin[],
-  node?: ElementNode,
-): Promise<ElementMeta | null> {
+  node?: CustomElementNode,
+): Promise<CustomElementMeta | null> {
   for (const plugin of plugins) {
-    if (isUndefined(plugin.buildElement)) continue;
+    if (isUndefined(plugin.buildCustomElementMeta)) continue;
 
     const startTime = process.hrtime(),
-      element = node && (await plugin.buildElement(node));
+      element = node && (await plugin.buildCustomElementMeta(node));
 
     logTime(`${formatPluginName(plugin.name)} \`build\``, startTime, LogLevel.Verbose);
 
@@ -177,16 +225,44 @@ export async function runPluginsBuildElement(
   return null;
 }
 
+export async function runPluginsBuildReactComponent(
+  plugins: AnalyzePlugin[],
+  node?: ReactComponentNode,
+): Promise<ReactComponentMeta | null> {
+  for (const plugin of plugins) {
+    if (isUndefined(plugin.buildReactComponentMeta)) continue;
+
+    const startTime = process.hrtime(),
+      component = node && (await plugin.buildReactComponentMeta(node));
+
+    logTime(`${formatPluginName(plugin.name)} \`build\``, startTime, LogLevel.Verbose);
+
+    if (component) {
+      log(
+        `${formatPluginName(plugin.name)} built react component meta for ${kleur.blue(
+          component.name,
+        )}`,
+        LogLevel.Verbose,
+      );
+    }
+
+    if (component) {
+      return component;
+    }
+  }
+
+  return null;
+}
+
 export async function runPluginsTransform(
   plugins: AnalyzePlugin[],
-  components: ComponentMeta[],
-  elements: ElementMeta[],
-  sourceFiles: Map<ComponentMeta | ElementMeta, ts.SourceFile>,
+  data: TransformData,
+  sourceFiles: TransformSourceFiles,
 ): Promise<void> {
   for (const plugin of plugins) {
     if (isUndefined(plugin.transform)) continue;
     const startTime = process.hrtime();
-    await plugin.transform({ components, elements }, sourceFiles);
+    await plugin.transform(data, sourceFiles);
     logTime(`${formatPluginName(plugin.name)} \`transform\``, startTime, LogLevel.Verbose);
   }
 }

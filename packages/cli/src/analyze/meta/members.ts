@@ -2,10 +2,11 @@ import ts from 'typescript';
 
 import { reportDiagnosticByNode } from '../../utils/logger';
 import { escapeQuotes } from '../../utils/str';
-import { serializeType } from '../utils/types';
-import { type MembersMeta, type MethodMeta, type PropMeta, TS_NODE } from './component';
+import { buildTypeMeta } from '../utils/types';
+import type { MembersMeta, MethodMeta, PropMeta } from './component';
 import { buildMethodMeta } from './methods';
 import { buildPropMeta } from './props';
+import { TS_NODE } from './symbols';
 
 export function buildMembersMeta(
   checker: ts.TypeChecker,
@@ -39,7 +40,7 @@ export function buildMembersMeta(
   }
 
   if (stateType && stateDeclaration) {
-    const type = serializeType(checker, stateType);
+    const type = buildTypeMeta(checker, stateType);
     props.push({
       [TS_NODE]: stateDeclaration,
       name: 'state',
@@ -51,8 +52,17 @@ export function buildMembersMeta(
       [TS_NODE]: stateDeclaration,
       name: 'subscribe',
       docs: 'Subscribe to live updates of component state.',
-      parameters: [{ name: 'callback', type: `(state: ${type}) => Maybe<Dispose>` }],
-      signature: { type: `(callback: (state: ${type}) => Maybe<Dispose>) => Unsubscribe` },
+      parameters: [
+        {
+          name: 'callback',
+          type: {
+            primitive: 'function',
+            concise: `Effect<${type.concise}>`,
+            full: `(state: ${type.concise}) => Maybe<Dispose>`,
+          },
+        },
+      ],
+      signature: { type: `(callback: Effect<${type.concise}>) => Unsubscribe` },
       return: { type: 'Unsubscribe' },
     });
   }

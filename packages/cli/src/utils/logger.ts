@@ -187,13 +187,18 @@ export const reportDiagnosticByLine: DiagnosticReporterByLine = (
   }
 };
 
-export type DiagnosticReporterByNode = (message: string, node: Node, level?: LogLevel) => void;
+export type DiagnosticReporterByNode = (
+  message: string,
+  node: Node | undefined,
+  level?: LogLevel,
+) => void;
 
 export const reportDiagnosticByNode: DiagnosticReporterByNode = (
   message: string,
-  node: Node,
+  node: Node | undefined,
   level = LogLevel.Info,
 ) => {
+  if (!node) return;
   const sourceFile = node.getSourceFile();
   const sourceFilePath = normalize(sourceFile.fileName);
   const sourceText = sourceFile.text;

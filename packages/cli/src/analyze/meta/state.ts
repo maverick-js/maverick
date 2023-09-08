@@ -4,8 +4,9 @@ import { escapeQuotes } from '../../utils/str';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta } from '../utils/types';
 import { getPropertiesAndGetters, getValueNode } from '../utils/walk';
-import { type StateMeta, TS_NODE } from './component';
+import type { StateMeta } from './component';
 import { getDocTags, hasDocTag } from './doctags';
+import { TS_NODE } from './symbols';
 
 export function buildStateMeta(
   checker: ts.TypeChecker,

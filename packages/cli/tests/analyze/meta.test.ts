@@ -2,7 +2,8 @@ import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import { TS_NODE } from 'maverick.js/analyze/meta/component';
+import type { ComponentNode, CustomElementNode, ReactComponentNode } from 'maverick.js/analyze';
+import { TS_NODE } from 'maverick.js/analyze/meta/symbols';
 import { createBuildPlugin } from 'maverick.js/analyze/plugins/build-plugin';
 import { createDiscoverPlugin } from 'maverick.js/analyze/plugins/discover-plugin';
 import { compileOnce } from 'maverick.js/cli/compile';
@@ -15,10 +16,11 @@ afterEach(() => {
 const replacer = (key, value) => (key !== TS_NODE ? value : undefined);
 
 it('should build component meta', async () => {
-  const meta = await buildMeta();
-  const output = path.resolve(__dirname, './meta.json');
-  const current = JSON.stringify(meta, replacer, 2);
-  const prev = existsSync(output) ? await readFile(output, 'utf-8') : null;
+  const meta = await buildMeta(),
+    output = path.resolve(__dirname, './meta.json'),
+    current = JSON.stringify(meta, replacer, 2),
+    prev = existsSync(output) ? await readFile(output, 'utf-8') : null;
+
   if (!prev) {
     await writeFile(output, current);
   } else {
@@ -27,25 +29,57 @@ it('should build component meta', async () => {
 });
 
 async function buildMeta() {
-  const filename = path.resolve(__dirname, `./fixtures.ts`),
-    program = compileOnce([filename]),
-    discoverPlugin = createDiscoverPlugin(),
-    buildPlugin = createBuildPlugin(),
-    sourceFile = program.getSourceFile(filename)!;
+  const components: any[] = [],
+    elements: any[] = [],
+    react: any[] = [];
 
-  await discoverPlugin.init!(program);
+  for (const fixture of ['component.ts', 'custom-element.ts', 'react.tsx']) {
+    const filename = path.resolve(__dirname, `./fixtures/${fixture}`),
+      program = compileOnce([filename]),
+      discoverPlugin = createDiscoverPlugin(),
+      buildPlugin = createBuildPlugin(),
+      sourceFile = program.getSourceFile(filename)!;
 
-  const discoveredElements = await discoverPlugin.discoverElements!(sourceFile),
-    discoveredComponents = await discoverPlugin.discoverComponents!(sourceFile);
+    await discoverPlugin.init!(program);
 
-  await buildPlugin.init!(program);
+    let componentNodes: ComponentNode[] | null | undefined,
+      customElementNodes: CustomElementNode[] | null | undefined,
+      reactNodes: ReactComponentNode[] | null | undefined;
 
-  return {
-    elements: await Promise.all(
-      (discoveredElements || []).map((node) => buildPlugin.buildElement!(node)),
-    ),
-    components: await Promise.all(
-      (discoveredComponents || []).map((node) => buildPlugin.buildComponent!(node)),
-    ),
-  };
+    if (fixture === 'react.tsx') {
+      reactNodes = await discoverPlugin.discoverReactComponents?.(sourceFile);
+    } else {
+      componentNodes = await discoverPlugin.discoverComponents!(sourceFile);
+      customElementNodes = await discoverPlugin.discoverCustomElements!(sourceFile);
+    }
+
+    await buildPlugin.init!(program);
+
+    if (componentNodes) {
+      components.push(
+        ...(await Promise.all(componentNodes.map((node) => buildPlugin.buildComponentMeta!(node)))),
+      );
+    }
+
+    if (customElementNodes) {
+      elements.push(
+        ...(await Promise.all(
+          customElementNodes.map((node) => buildPlugin.buildCustomElementMeta!(node)),
+        )),
+      );
+    }
+
+    if (reactNodes) {
+      react.push(
+        ...(await Promise.all(
+          reactNodes.map((node) => buildPlugin.buildReactComponentMeta!(node)),
+        )),
+      );
+    }
+
+    await discoverPlugin.destroy?.();
+    await buildPlugin.destroy?.();
+  }
+
+  return { components, elements, react };
 }

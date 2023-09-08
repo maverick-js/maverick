@@ -4,6 +4,8 @@ import { defineConfig } from 'rollup';
 import dts from 'rollup-plugin-dts';
 import esbuild from 'rollup-plugin-esbuild';
 
+const WATCH_MODE = process.argv.includes('--watch');
+
 export default defineConfig([
   defineTypes(),
   {
@@ -54,7 +56,7 @@ function defineTypes() {
       {
         name: 'cleanup',
         async closeBundle() {
-          await fs.rm('types', { recursive: true });
+          if (!WATCH_MODE) await fs.rm('types', { recursive: true });
         },
       },
     ],

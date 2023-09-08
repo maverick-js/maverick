@@ -3,8 +3,8 @@ import ts from 'typescript';
 import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
 import { escapeQuotes } from '../../utils/str';
 import { getProperties } from '../utils/walk';
-import { TS_NODE } from './component';
-import type { AttrsMeta } from './element';
+import type { AttrsMeta } from './custom-element';
+import { TS_NODE } from './symbols';
 
 export function buildAttrsMeta(
   checker: ts.TypeChecker,

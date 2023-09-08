@@ -3,8 +3,9 @@ import ts from 'typescript';
 import { isUndefined } from '../../utils/unit';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta, serializeType } from '../utils/types';
-import { type MethodMeta, type ParameterMeta, TS_NODE } from './component';
+import type { MethodMeta, ParameterMeta } from './component';
 import { getDocTags, hasDocTag } from './doctags';
+import { TS_NODE } from './symbols';
 
 export interface MethodMetaInfo {
   type: ts.Type;

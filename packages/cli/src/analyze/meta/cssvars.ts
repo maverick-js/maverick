@@ -3,8 +3,9 @@ import ts from 'typescript';
 import { escapeQuotes } from '../../utils/str';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta } from '../utils/types';
-import { type CSSVarMeta, type DocTagMeta, TS_NODE } from './component';
+import type { CSSVarMeta, DocTagMeta } from './component';
 import { buildMetaFromDocTags, findDocTag, getDocTags, hasDocTag } from './doctags';
+import { TS_NODE } from './symbols';
 
 const filteredTagNames = new Set([
   'internal',

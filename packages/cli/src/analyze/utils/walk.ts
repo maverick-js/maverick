@@ -16,8 +16,18 @@ export function getProperties(checker: ts.TypeChecker, node: ts.Node) {
   return props;
 }
 
-export function getPropertiesAndGetters(checker: ts.TypeChecker, node: ts.Node) {
+export function getPropertiesAndGetters(checker: ts.TypeChecker, node: ts.Node | undefined) {
   const props = new Map<string, ts.PropertyAssignment | ts.GetAccessorDeclaration>();
+
+  if (node && ts.isIdentifier(node)) {
+    node = getDeclaration(checker, node);
+  }
+
+  if (node && ts.isVariableDeclaration(node)) {
+    node = node.initializer;
+  }
+
+  if (!node) return props;
 
   for (const symbol of checker.getPropertiesOfType(checker.getTypeAtLocation(node))) {
     const declaration = symbol.declarations?.[0];
@@ -30,6 +40,49 @@ export function getPropertiesAndGetters(checker: ts.TypeChecker, node: ts.Node) 
   }
 
   return props;
+}
+
+export function walkTypeHeritage(
+  checker: ts.TypeChecker,
+  node: ts.Node,
+  visitor: {
+    interface?: (node: ts.InterfaceDeclaration) => any;
+    heritageClause?: (node: ts.HeritageClause) => any;
+    typeAlias?: (node: ts.TypeAliasDeclaration) => any;
+    typeLiteral?: (node: ts.TypeLiteralNode) => any;
+  },
+) {
+  if (ts.isIdentifier(node)) {
+    const declaration = getDeclaration(checker, node);
+    if (declaration) walkTypeHeritage(checker, declaration, visitor);
+  } else if (ts.isTypeReferenceNode(node)) {
+    walkTypeHeritage(checker, node.typeName, visitor);
+  } else if (ts.isInterfaceDeclaration(node)) {
+    const stop = visitor.interface?.(node);
+    if (stop) return;
+
+    if (node.heritageClauses) {
+      for (const clause of node.heritageClauses) {
+        const stop = visitor.heritageClause?.(clause);
+        if (stop) return;
+
+        const id = clause.types[0].expression;
+        walkTypeHeritage(checker, id, visitor);
+      }
+    }
+  } else if (ts.isTypeAliasDeclaration(node)) {
+    const stop = visitor.typeAlias?.(node);
+    if (stop) return;
+
+    if (ts.isIntersectionTypeNode(node.type)) {
+      for (const type of node.type.types) {
+        walkTypeHeritage(checker, type, visitor);
+      }
+    }
+  } else if (ts.isTypeLiteralNode(node)) {
+    const stop = visitor.typeLiteral?.(node);
+    if (stop) return;
+  }
 }
 
 export function getHeritage(checker: ts.TypeChecker, node: ts.ClassDeclaration | null) {
@@ -167,7 +220,7 @@ export function getReturnStatement(
     | ts.MethodDeclaration,
 ) {
   if (!node) return undefined;
-  return (node.body as ts.FunctionBody).statements.find((statement) =>
+  return (node.body as ts.FunctionBody)?.statements.find((statement) =>
     ts.isReturnStatement(statement),
   ) as ts.ReturnStatement | undefined;
 }

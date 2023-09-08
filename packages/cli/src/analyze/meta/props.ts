@@ -4,8 +4,9 @@ import { escapeQuotes } from '../../utils/str';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta } from '../utils/types';
 import { getPropertiesAndGetters } from '../utils/walk';
-import { type PropMeta, TS_NODE } from './component';
+import type { DocTagMeta, PropMeta } from './component';
 import { findDocTag, getDocTags, hasDocTag } from './doctags';
+import { TS_NODE } from './symbols';
 
 export interface PropMetaInfo {
   value?: string | false;
@@ -29,7 +30,10 @@ export function buildPropsMeta(
 
     for (const symbol of propTypes) {
       const signature = symbol.declarations?.[0];
-      if (!signature || !ts.isPropertySignature(signature)) continue;
+
+      if (!signature || !ts.isPropertySignature(signature)) {
+        continue;
+      }
 
       const name = escapeQuotes(signature.name.getText()),
         type = checker.getTypeOfSymbol(symbol),
@@ -87,18 +91,7 @@ export function buildPropMeta(
       (isGetAccessor && !hasSetAccessor) ||
       (!hasSetAccessor && doctags && hasDocTag(doctags, 'readonly'));
 
-  let internal!: PropMeta['internal'],
-    deprecated!: PropMeta['deprecated'],
-    required!: PropMeta['required'],
-    defaultValue!: PropMeta['default'];
-
-  if (doctags) {
-    if (hasDocTag(doctags, 'internal')) internal = true;
-    if (hasDocTag(doctags, 'deprecated')) deprecated = true;
-    if (hasDocTag(doctags, 'required')) required = true;
-    defaultValue =
-      findDocTag(doctags, 'default')?.text ?? findDocTag(doctags, 'defaultValue')?.text ?? '';
-  }
+  let { internal, required, deprecated, defaultValue } = resolvePropTags(doctags);
 
   if (!defaultValue && info?.value) {
     defaultValue = info.value;
@@ -119,5 +112,27 @@ export function buildPropMeta(
     readonly: readonly ? true : undefined,
     internal,
     deprecated,
+  };
+}
+
+export function resolvePropTags(doctags?: DocTagMeta[]) {
+  let internal!: PropMeta['internal'],
+    deprecated!: PropMeta['deprecated'],
+    required!: PropMeta['required'],
+    defaultValue!: PropMeta['default'];
+
+  if (doctags) {
+    if (hasDocTag(doctags, 'internal')) internal = true;
+    if (hasDocTag(doctags, 'deprecated')) deprecated = true;
+    if (hasDocTag(doctags, 'required')) required = true;
+    defaultValue =
+      findDocTag(doctags, 'default')?.text ?? findDocTag(doctags, 'defaultValue')?.text ?? '';
+  }
+
+  return {
+    internal,
+    deprecated,
+    required,
+    defaultValue,
   };
 }

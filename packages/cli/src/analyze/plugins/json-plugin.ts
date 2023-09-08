@@ -1,13 +1,16 @@
 import { dirname } from 'pathe';
 
-import { type ComponentMeta, TS_NODE } from '../meta/component';
-import type { ElementMeta } from '../meta/element';
+import type { ComponentMeta } from '../meta/component';
+import type { CustomElementMeta } from '../meta/custom-element';
+import type { ReactComponentMeta } from '../meta/react';
+import { TS_NODE } from '../meta/symbols';
 import { resolveConfigPaths } from '../utils/resolve';
 import type { AnalyzePluginBuilder } from './analyze-plugin';
 
 export type JSONPluginOutput = Record<string, any> & {
-  elements: ElementMeta[];
+  elements: CustomElementMeta[];
   components: ComponentMeta[];
+  react: ReactComponentMeta[];
 };
 
 export interface JSONPluginConfig extends Record<string, unknown> {
@@ -37,12 +40,13 @@ const replacer = (key: string | symbol, value: any) => {
 export const createJSONPlugin: AnalyzePluginBuilder<Partial<JSONPluginConfig>> = (config = {}) => ({
   name: 'maverick/json',
 
-  async transform({ components, elements }) {
+  async transform({ components, customElements, reactComponents }) {
     const normalizedConfig = await normalizeJSONPluginConfig(config);
 
     const output: JSONPluginOutput = {
-      elements,
       components,
+      elements: customElements,
+      react: reactComponents,
     };
 
     const stringify = config.stringifyJson ?? JSON.stringify;

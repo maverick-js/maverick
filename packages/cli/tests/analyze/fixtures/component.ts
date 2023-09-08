@@ -1,6 +1,5 @@
-// @ts-nocheck
-import { prop, method, Host } from '../../../maverick/src/element';
 import { BaseComponent } from './types';
+import { prop, method } from '../../../../maverick/src/core/decorators';
 
 const props = {
   foo: 0,
@@ -21,7 +20,7 @@ const props = {
  * @part foo - This is the foo CSS Part.
  * @part bar - This is the bar CSS Part.
  */
-class TestComponent extends BaseComponent {
+export class TestComponent extends BaseComponent {
   static props = {
     ...props,
     ...super.props,
@@ -86,21 +85,3 @@ class TestComponent extends BaseComponent {
   }
 }
 
-/**
- * Something about this element.
- *
- * @tag foo
- * @slot This is the default slot.
- * @slot foo - This is the foo slot.
- * @csspart foo - This is the foo CSS Part.
- * @csspart bar - This is the bar CSS Part.
- */
-class TestElement extends Host(HTMLElement, TestComponent) {
-  static tagName = 'mk-test';
-
-  static attrs = {
-    bar: { attr: 'boo' },
-    lux: { attr: false},
-    huxBox: 'zoo',
-  }
-}

@@ -1,3 +1,12 @@
+## [0.39.1](https://github.com/maverick-js/maverick/compare/v0.39.0...v0.39.1) (2023-09-13)
+
+
+### Bug Fixes
+
+* dispose of appended scopes correctly ([d273b40](https://github.com/maverick-js/maverick/commit/d273b40e774c2f15174d31da05da9f69be1517cc))
+
+
+
 # [0.39.0](https://github.com/maverick-js/maverick/compare/v0.38.5...v0.39.0) (2023-09-08)
 
 

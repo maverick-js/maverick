@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@edge-runtime/vm": "^2.1.0",
-    "@maverick-js/signals": "^5.11.2",
+    "@maverick-js/signals": "^5.11.3",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@types/node": "^18.0.3",
     "@types/react": "^18.0.24",

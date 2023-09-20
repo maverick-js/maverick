@@ -168,7 +168,7 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this._state = EMPTY_PROPS;
     this._$state = null;
     // @ts-expect-error
-    if (el) delete this._el.$;
+    if (el) delete el.$;
   }
 
   _addHooks(target: LifecycleHooks) {

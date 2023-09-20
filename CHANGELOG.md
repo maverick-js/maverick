@@ -1,3 +1,12 @@
+## [0.39.2](https://github.com/maverick-js/maverick/compare/v0.39.1...v0.39.2) (2023-09-20)
+
+
+### Features
+
+* **analyze:** add component generic types ([4858681](https://github.com/maverick-js/maverick/commit/485868130bd8bea7cf5aa7a5abc4d5b3aa3c4867))
+
+
+
 ## [0.39.1](https://github.com/maverick-js/maverick/compare/v0.39.0...v0.39.1) (2023-09-13)
 
 

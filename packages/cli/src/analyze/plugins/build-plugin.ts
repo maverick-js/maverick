@@ -6,6 +6,7 @@ import { buildCSSVarsMeta } from '../meta/cssvars';
 import { getDocTags } from '../meta/doctags';
 import { buildEventsMeta } from '../meta/events';
 import { buildFileMeta } from '../meta/file';
+import { buildGenericsMeta } from '../meta/generics';
 import { buildMembersMeta } from '../meta/members';
 import { buildPartsMeta } from '../meta/parts';
 import { buildPropMeta, buildPropsMeta, resolvePropTags } from '../meta/props';
@@ -45,6 +46,7 @@ export function createBuildPlugin(): AnalyzePlugin {
         cssvars: buildCSSVarsMeta(checker, node.types.cssvars, doctags),
         state: buildStateMeta(checker, node.state, node.types.state),
         members: buildMembersMeta(checker, node.types.root, node.state, node.types.state),
+        generics: buildGenericsMeta(checker, node.types.props, node.types.state, node.types.events),
       };
     },
     async buildCustomElementMeta(node: CustomElementNode) {

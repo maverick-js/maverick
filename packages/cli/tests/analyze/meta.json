@@ -493,6 +493,10 @@
           }
         ],
         "length": 11
+      },
+      "generics": {
+        "state": "FooState",
+        "events": "FooEvents"
       }
     }
   ],

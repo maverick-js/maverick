@@ -135,10 +135,10 @@ it('should wait for parents to connect', async () => {
   parentA.remove();
   await waitAnimationFrame();
 
-  expect(parentA.$.$$._destroyed).toBeTruthy();
-  expect(parentB.$.$$._destroyed).toBeTruthy();
-  expect(child.$.$$._destroyed).toBeTruthy();
-  expect(grandchild.$.$$._destroyed).toBeTruthy();
+  expect(parentA.$).toBeUndefined();
+  expect(parentB.$).toBeUndefined();
+  expect(child.$).toBeUndefined();
+  expect(grandchild.$).toBeUndefined();
 
   expect(errorHandler).toBeCalledTimes(1);
   expect(errorHandler).toHaveBeenCalledWith(error);

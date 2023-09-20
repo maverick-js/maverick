@@ -96,9 +96,9 @@ it('should keep elements alive', async () => {
   expect(grandchildADispose).toHaveBeenCalledTimes(1);
   expect(grandchildBDispose).toHaveBeenCalledTimes(1);
 
-  expect(parent.$.$$._destroyed).toBeTruthy();
-  expect(childA.$.$$._destroyed).toBeTruthy();
-  expect(childB.$.$$._destroyed).toBeTruthy();
-  expect(grandchildA.$.$$._destroyed).toBeTruthy();
-  expect(grandchildB.$.$$._destroyed).toBeTruthy();
+  expect(parent.$).toBeUndefined();
+  expect(childA.$).toBeUndefined();
+  expect(childB.$).toBeUndefined();
+  expect(grandchildA.$).toBeUndefined();
+  expect(grandchildB.$).toBeUndefined();
 });

@@ -109,6 +109,12 @@ export interface MembersMeta {
   length: number;
 }
 
+export interface ComponentGenericsMeta {
+  props?: string;
+  events?: string;
+  state?: string;
+}
+
 export interface ComponentMeta extends Record<string, unknown> {
   [TS_NODE]?: ts.ClassDeclaration;
   type: 'component';
@@ -122,4 +128,5 @@ export interface ComponentMeta extends Record<string, unknown> {
   parts?: PartMeta[];
   cssvars?: CSSVarMeta[];
   members?: MembersMeta;
+  generics?: ComponentGenericsMeta;
 }

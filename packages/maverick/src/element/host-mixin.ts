@@ -72,7 +72,7 @@ export function Host<T extends HTMLElement, R extends Component>(
     keepAlive = false;
 
     get scope(): Scope {
-      return this.$.$$._scope;
+      return this.$.$$._scope!;
     }
 
     get attachScope(): Scope | null {
@@ -98,7 +98,7 @@ export function Host<T extends HTMLElement, R extends Component>(
     constructor(...args: any[]) {
       super(...args);
 
-      this.$ = createComponent(Component);
+      this.$ = scoped(() => createComponent(Component), null)!;
       this.$.$$._addHooks(this as any);
 
       // Properties might be assigned before element is registered. We need to assign them
@@ -129,8 +129,8 @@ export function Host<T extends HTMLElement, R extends Component>(
     }
 
     connectedCallback() {
-      const instance = this.$.$$;
-      if (instance._destroyed) return;
+      const instance = this.$?.$$;
+      if (!instance || instance._destroyed) return;
 
       if (this[SETUP_STATE] !== SetupState.Ready) {
         setup.call(this);
@@ -157,8 +157,8 @@ export function Host<T extends HTMLElement, R extends Component>(
     }
 
     disconnectedCallback() {
-      const instance = this.$.$$;
-      if (instance._destroyed) return;
+      const instance = this.$?.$$;
+      if (!instance || instance._destroyed) return;
 
       instance._disconnect();
 
@@ -299,7 +299,9 @@ export interface HostElement<T extends Component = AnyComponent> {
    * el.state.foo;
    * ```
    */
-  readonly state: Readonly<InferStoreRecord<InferComponentState<T>>>;
+  readonly state: InferComponentState<T> extends Record<string, never>
+    ? never
+    : Readonly<InferComponentState<T>>;
 
   /**
    * Enables subscribing to live updates of component state.
@@ -312,9 +314,9 @@ export interface HostElement<T extends Component = AnyComponent> {
    * });
    * ```
    */
-  subscribe: InferComponentState<T> extends State<infer Record>
-    ? (callback: (state: Readonly<Record>) => Maybe<Dispose>) => Dispose
-    : never;
+  subscribe: InferComponentState<T> extends Record<string, never>
+    ? never
+    : (callback: (state: Readonly<InferComponentState<T>>) => Maybe<Dispose>) => Dispose;
 
   /**
    * Destroys the underlying component instance.
@@ -405,7 +407,8 @@ function attach(this: HostElement & HTMLElement, parent: HostElement | null) {
       this.setAttribute('keep-alive', '');
     }
 
-    parent.$.$$._attachScope!.append(this.$.$$._scope);
+    const scope = this.$.$$._scope;
+    if (scope) parent.$.$$._attachScope!.append(scope);
   }
 
   this[SETUP]();

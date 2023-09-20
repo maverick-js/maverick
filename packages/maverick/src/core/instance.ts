@@ -46,7 +46,7 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   readonly $el = signal<HTMLElement | null>(null);
 
   _el: HTMLElement | null = null;
-  _scope: Scope;
+  _scope: Scope | null = null;
   _attachScope: Scope | null = null;
   _connectScope: Scope | null = null;
   _component: Component | null = null;
@@ -56,8 +56,8 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   _attrs: ElementAttributesRecord | null = null;
   _styles: ElementStylesRecord | null = null;
 
-  readonly _state!: Readonly<State>;
-  readonly _$state!: any;
+  _state!: Readonly<State>;
+  _$state!: any;
 
   readonly _setupCallbacks: SetupCallback[] = [];
   readonly _attachCallbacks: ElementCallback[] = [];
@@ -107,14 +107,14 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this._el = el as HTMLElement;
     this.$el.set(el as HTMLElement);
 
-    this._attachScope = createScope();
-    this._scope.append(this._attachScope);
-
     scoped(() => {
-      for (const callback of this._attachCallbacks) callback(this._el!);
-      this._attachAttrs();
-      this._attachStyles();
-    }, this._attachScope);
+      this._attachScope = createScope();
+      scoped(() => {
+        for (const callback of this._attachCallbacks) callback(this._el!);
+        this._attachAttrs();
+        this._attachStyles();
+      }, this._attachScope);
+    }, this._scope);
 
     el.dispatchEvent(new Event('attached'));
   }
@@ -128,16 +128,13 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   }
 
   _connect() {
-    if (!this._el || !this._attachScope) return;
-
-    this._connectScope = createScope();
-    this._attachScope.append(this._connectScope);
-
-    if (this._connectCallbacks.length) {
+    if (!this._el || !this._attachScope || !this._connectCallbacks.length) return;
+    scoped(() => {
+      this._connectScope = createScope();
       scoped(() => {
         for (const callback of this._connectCallbacks) callback(this._el!);
       }, this._connectScope);
-    }
+    }, this._attachScope);
   }
 
   _disconnect() {
@@ -153,8 +150,11 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
       for (const callback of this._destroyCallbacks) callback(this._el!);
     }, this._scope);
 
+    // @ts-expect-error
+    if (this._el) delete this._el.$;
+
     this._detach();
-    this._scope.dispose();
+    this._scope!.dispose();
 
     this._setupCallbacks.length = 0;
     this._attachCallbacks.length = 0;
@@ -162,6 +162,12 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this._destroyCallbacks.length = 0;
 
     this._component = null;
+    this._attrs = null;
+    this._styles = null;
+    this._props = EMPTY_PROPS;
+    this._scope = null;
+    this._state = EMPTY_PROPS;
+    this._$state = null;
   }
 
   _addHooks(target: LifecycleHooks) {

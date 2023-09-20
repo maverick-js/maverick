@@ -109,8 +109,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.2
       '@maverick-js/signals':
-        specifier: ^5.11.3
-        version: 5.11.3
+        specifier: ^5.11.4
+        version: 5.11.4
       '@rollup/plugin-node-resolve':
         specifier: ^15.1.0
         version: 15.1.0(rollup@3.25.1)
@@ -495,8 +495,8 @@ packages:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
     dev: true
 
-  /@maverick-js/signals@5.11.3:
-    resolution: {integrity: sha512-+8pXNyFAyjv/6mskUVdgSnB+pDEo7D4mbwuITU9M4jsPeo8Rv3dUyByLFGQG1vPJ9gza/Gg6K1uqWSu+A+MDeA==}
+  /@maverick-js/signals@5.11.4:
+    resolution: {integrity: sha512-fkUqNfnJK1kgfsKimaLp2jcfQr7NXwHZWBhqhQ3pifnYSZrBJv+4tU/klKyGf1mA33mVBYustCAgilJppzGjig==}
     dev: true
 
   /@nodelib/fs.scandir@2.1.5:

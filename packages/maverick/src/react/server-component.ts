@@ -46,7 +46,7 @@ export function createServerComponent<T extends Component>(
     }
 
     return WithScope(
-      component.$$._scope,
+      component.$$._scope!,
       isFunction(children)
         ? children?.(
             {

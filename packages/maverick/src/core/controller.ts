@@ -40,7 +40,7 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
   }
 
   get scope(): Scope {
-    return this.$$._scope;
+    return this.$$._scope!;
   }
 
   get attachScope(): Scope | null {

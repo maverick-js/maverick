@@ -25,7 +25,10 @@ export function discoverComponents(checker: ts.TypeChecker, sourceFile: ts.Sourc
     if (instanceType && (instanceType.resolvedTypeArguments as ts.Type[])) {
       let i = 0;
       for (const arg of ['props', 'state', 'events', 'cssvars']) {
-        types[arg] = instanceType.resolvedTypeArguments[i];
+        types[arg] =
+          node.typeParameters && node.typeParameters[i]?.default
+            ? checker.getTypeAtLocation(node.typeParameters[i].default!)
+            : instanceType.resolvedTypeArguments[i];
         i++;
       }
     }

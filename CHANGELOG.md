@@ -1,3 +1,12 @@
+## [0.39.4](https://github.com/maverick-js/maverick/compare/v0.39.3...v0.39.4) (2023-09-20)
+
+
+### Bug Fixes
+
+* calling delete on wrong el reference ([b9f6516](https://github.com/maverick-js/maverick/commit/b9f6516b99052c90b5118a08785ef0a141661f71))
+
+
+
 ## [0.39.3](https://github.com/maverick-js/maverick/compare/v0.39.2...v0.39.3) (2023-09-20)
 
 

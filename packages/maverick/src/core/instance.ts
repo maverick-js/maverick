@@ -150,8 +150,7 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
       for (const callback of this._destroyCallbacks) callback(this._el!);
     }, this._scope);
 
-    // @ts-expect-error
-    if (this._el) delete this._el.$;
+    const el = this._el;
 
     this._detach();
     this._scope!.dispose();
@@ -168,6 +167,8 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this._scope = null;
     this._state = EMPTY_PROPS;
     this._$state = null;
+    // @ts-expect-error
+    if (el) delete this._el.$;
   }
 
   _addHooks(target: LifecycleHooks) {

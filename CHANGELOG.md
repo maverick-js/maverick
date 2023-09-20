@@ -1,3 +1,12 @@
+## [0.39.3](https://github.com/maverick-js/maverick/compare/v0.39.2...v0.39.3) (2023-09-20)
+
+
+### Bug Fixes
+
+* delete el instance ref at end of destroy ([281b049](https://github.com/maverick-js/maverick/commit/281b04931e00e845cf9b75ba4bd282076c58a194))
+
+
+
 ## [0.39.2](https://github.com/maverick-js/maverick/compare/v0.39.1...v0.39.2) (2023-09-20)
 
 

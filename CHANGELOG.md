@@ -1,3 +1,14 @@
+# [0.40.0](https://github.com/maverick-js/maverick/compare/v0.39.4...v0.40.0) (2023-09-26)
+
+
+### Features
+
+* **cli:** add solid jsx types plugin ([ff78e83](https://github.com/maverick-js/maverick/commit/ff78e83f47091a60507a7018a52e76fd7d6181bd))
+* **cli:** add svelte jsx types plugin ([153665f](https://github.com/maverick-js/maverick/commit/153665fdb4b4b1664a1318fa873d274b75ccde2b))
+* **cli:** add vue jsx types plugin ([7ab420c](https://github.com/maverick-js/maverick/commit/7ab420cb3ddaac717780345924042d63e043d5a9))
+
+
+
 ## [0.39.4](https://github.com/maverick-js/maverick/compare/v0.39.3...v0.39.4) (2023-09-20)
 
 

@@ -1,5 +1,9 @@
 import { isNull, isUndefined } from './unit';
 
+export function uniqueOnly<T>(items: T[]): T[] {
+  return [...new Set(items)];
+}
+
 export function filterArrayUnique<T>(
   items: T[],
   key: keyof T,

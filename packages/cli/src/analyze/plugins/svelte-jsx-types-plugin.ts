@@ -3,11 +3,11 @@ import { writeFileSync } from 'node:fs';
 import { uniqueOnly } from '../../utils/array';
 import type { AnalyzePlugin } from './analyze-plugin';
 
-export interface SolidJSXPluginConfig {
+export interface SvelteJSXPluginConfig {
   /**
    * The types output file name.
    *
-   * @defaultValue solid.d.ts
+   * @defaultValue svelte.d.ts
    */
   file?: string;
   /**
@@ -21,34 +21,33 @@ export interface SolidJSXPluginConfig {
 }
 
 /**
- * Generates Solid JSX types for all Custom Elements.
+ * Generates Svelte JSX types for all Custom Elements.
  */
-export function solidJSXTypesPlugin({
-  file = 'solid.d.ts',
+export function svelteJSXTypesPlugin({
+  file = 'svelte.d.ts',
   imports = [],
   components: userComponents = [],
-}: SolidJSXPluginConfig = {}): AnalyzePlugin {
+}: SvelteJSXPluginConfig = {}): AnalyzePlugin {
   return {
-    name: 'maverick/solid-jsx-types',
+    name: 'maverick/svelte-jsx-types',
     async transform({ components, customElements }) {
       const elementImports = customElements.map((el) => el.name),
         typeImports = customElements
           .map((el) => el.component?.name && components.find((c) => c.name === el.component!.name))
           .flatMap((c) => (c ? [c.generics?.props, c.generics?.events].filter(Boolean) : [])),
-        solidElements = customElements.map(
+        svelteElements = customElements.map(
           (el) => `"${el.tag.name}": ${el.name.replace('Element', '') + 'Attributes'}`,
         );
 
       const dts = [
-        "import type { JSX } from 'solid-js';",
         `import type { ${elementImports.join(', ')} } from './elements';`,
         `import type { ${uniqueOnly(typeImports).join(', ')} } from './index';`,
         ...imports,
         '',
-        'declare module "solid-js"{',
-        '  namespace JSX {',
+        'declare global {',
+        '  namespace svelteHTML {',
         '    interface IntrinsicElements {',
-        `      ${[...solidElements, ...userComponents].join(';\n    ')}`,
+        `      ${[...svelteElements, ...userComponents].join(';\n    ')}`,
         '    }',
         '  }',
         '}',
@@ -74,7 +73,7 @@ export function solidJSXTypesPlugin({
             _extends = [
               propsType && `Partial<${propsType}>`,
               hasEvents && eventsAttrsName,
-              `Omit<JSX.HTMLAttributes<${el.name}>, ${omitHTMLAttrs}>`,
+              `Omit<import('svelte/elements').HTMLAttributes<${el.name}>, ${omitHTMLAttrs}>`,
             ].filter(Boolean);
           return [
             '/**********************************************************************************************',

@@ -12,7 +12,7 @@ import type {
 import { createComponent } from '../core/controller';
 import type { ElementCallback } from '../core/instance';
 import { type Dispose, type Maybe, type Scope, scoped } from '../core/signals';
-import type { InferStoreRecord, State, Store } from '../core/state';
+import type { Store } from '../core/state';
 import { METHODS, PROPS } from '../core/symbols';
 import type { ReadSignalRecord } from '../core/types';
 import { runAll } from '../std/fn';

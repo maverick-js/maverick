@@ -39,6 +39,7 @@ export interface ReactComponentNode {
   namespace?: string;
   exports?: ModuleExport[];
   name: string;
+  statement?: ts.VariableStatement;
   root: ts.VariableDeclaration | ts.FunctionDeclaration;
   component: ts.FunctionDeclaration | ts.ArrowFunction;
   identifier: ts.Identifier;

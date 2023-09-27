@@ -105,7 +105,7 @@ export function createBuildPlugin(): AnalyzePlugin {
         name: node.name,
         displayName: node.displayName,
         docs: getDocs(checker, node.identifier),
-        doctags: getDocTags(node.root),
+        doctags: getDocTags(node.statement ?? node.root),
         instance: node.instance,
         attributes: node.attributes,
         props: props?.length ? props : undefined,

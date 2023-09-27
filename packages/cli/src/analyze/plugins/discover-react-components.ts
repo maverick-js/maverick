@@ -190,6 +190,7 @@ export function discoverReactComponents(checker: ts.TypeChecker, sourceFile: ts.
       file: root.getSourceFile().fileName,
       name,
       root,
+      statement: ts.isVariableStatement(node) ? node : undefined,
       component,
       identifier: root.name,
       instance,

@@ -1,3 +1,12 @@
+## [0.40.1](https://github.com/maverick-js/maverick/compare/v0.40.0...v0.40.1) (2023-09-27)
+
+
+### Bug Fixes
+
+* **cli:** discover doctags on react variable statements ([1236624](https://github.com/maverick-js/maverick/commit/1236624c86d5d4b3d484d8c1ab0f79ef7ff682ea))
+
+
+
 # [0.40.0](https://github.com/maverick-js/maverick/compare/v0.39.4...v0.40.0) (2023-09-26)
 
 

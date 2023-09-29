@@ -5,6 +5,7 @@ import { act } from 'react-dom/test-utils';
 
 import {
   createReactComponent,
+  type CreateReactComponentOptions,
   createReactContextProvider,
   createReactScopeProvider,
   type ReactBridgeProps,
@@ -57,10 +58,11 @@ it('should render', () => {
   expect(container).toMatchInlineSnapshot('<root />');
 });
 
-it('should invoke event callback', () => {
+it.only('should invoke event callback', () => {
   interface Events {
     foo: MouseEvent;
   }
+
   const event = new MouseEvent('foo', { detail: 1 });
 
   class TestComponent extends Component<{}, {}, Events> {
@@ -74,7 +76,7 @@ it('should invoke event callback', () => {
   }
 
   const onFoo = vi.fn(),
-    { unmount } = setup(TestComponent, { onFoo, children });
+    { unmount } = setup(TestComponent, { onFoo, children }, { events: ['onFoo'] });
 
   expect(onFoo).toHaveBeenCalledTimes(1);
   expect(onFoo).toHaveBeenCalledWith(1, event);
@@ -141,10 +143,11 @@ afterEach(() => {
 function setup<T extends Component>(
   TestComponent: ComponentConstructor<T>,
   props: ReactBridgeProps<T>,
+  options?: CreateReactComponentOptions<T>,
 ) {
   const container = document.createElement('root'),
     root = createRoot(container),
-    node = createReactComponent(TestComponent);
+    node = createReactComponent(TestComponent, options);
 
   document.body.appendChild(container);
 

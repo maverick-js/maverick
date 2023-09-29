@@ -8,6 +8,8 @@ import { ReactScopeContext, WithScope } from './scope';
 import type { ReactBridgeProps } from './types';
 import { setRef } from './utils';
 
+const eventTypeToCallbackName = new Map<string, string>();
+
 export interface CreateReactClientComponentOptions {
   props: Set<string>;
   events: Set<string>;
@@ -23,10 +25,11 @@ export function createClientComponent<T extends Component>(
       state = React.useRef<{
         _component: T;
         _el: HTMLElement | null;
-        _props: Set<string>;
         _attached: boolean;
-        _refChangeId: number;
         _connectId: number;
+        _refChangeId: number;
+        _props: Set<string>;
+        _callbacks: Record<string, (...args: any[]) => void>;
       }>();
 
     if (!state.current) {
@@ -37,22 +40,30 @@ export function createClientComponent<T extends Component>(
 
       _component.$$._setup();
 
-      _component.$$[ON_DISPATCH] = function onDispatch(event: Event) {
-        let callbackProp = `on${kebabToPascalCase(event.type)}`,
-          args = !isUndefined((event as CustomEvent).detail)
-            ? [(event as CustomEvent).detail, event]
-            : [event];
-
-        props[callbackProp]?.(...args);
-      };
-
       state.current = {
         _el: null,
         _props: new Set(),
+        _callbacks: {},
         _component,
         _attached: false,
         _refChangeId: -1,
         _connectId: -1,
+      };
+
+      _component.$$[ON_DISPATCH] = function dispatchCallback(event: Event) {
+        let callbackProp = eventTypeToCallbackName.get(event.type),
+          args = !isUndefined((event as CustomEvent).detail)
+            ? [(event as CustomEvent).detail, event]
+            : [event];
+
+        if (!callbackProp) {
+          eventTypeToCallbackName.set(
+            event.type,
+            (callbackProp = `on${kebabToPascalCase(event.type)}`),
+          );
+        }
+
+        state.current!._callbacks[callbackProp]?.(...args);
       };
     }
 
@@ -108,6 +119,7 @@ export function createClientComponent<T extends Component>(
         $state._connectId = -1;
         $state._component.$$._detach();
         $state._attached = false;
+        $state._callbacks = {};
       };
     }, []);
 
@@ -123,6 +135,7 @@ export function createClientComponent<T extends Component>(
 
         _component.$$[ON_DISPATCH] = null;
         _component.$$._destroy();
+        state.current!._callbacks = {};
 
         setRef(forwardRef, null);
       };
@@ -131,20 +144,22 @@ export function createClientComponent<T extends Component>(
     React.useEffect(tick);
 
     let attrs = {},
-      { _component, _props } = state.current,
+      { _component, _props, _callbacks } = state.current,
       { children, ...__props } = props;
 
     if (options.props.size) {
       let $props = _component.$$._props,
         seen = new Set<string>();
 
-      for (const prop of Object.keys(props)) {
+      for (const prop of Object.keys(__props)) {
         if (options.props.has(prop)) {
           $props[prop].set(__props[prop]);
           seen.add(prop);
           _props.delete(prop);
         } else if (!options.events?.has(prop) && !options.eventsRE?.test(prop)) {
           attrs[prop] = __props[prop];
+        } else if (prop.startsWith('on')) {
+          _callbacks[prop] = __props[prop];
         }
       }
 
@@ -154,7 +169,13 @@ export function createClientComponent<T extends Component>(
 
       state.current!._props = seen;
     } else {
-      attrs = __props;
+      for (const prop of Object.keys(__props)) {
+        if (!options.events?.has(prop) && !options.eventsRE?.test(prop)) {
+          attrs[prop] = __props[prop];
+        } else if (prop.startsWith('on')) {
+          _callbacks[prop] = __props[prop];
+        }
+      }
     }
 
     return WithScope(

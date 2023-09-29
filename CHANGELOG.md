@@ -1,3 +1,12 @@
+## [0.40.2](https://github.com/maverick-js/maverick/compare/v0.40.1...v0.40.2) (2023-09-29)
+
+
+### Bug Fixes
+
+* dispatch callbacks on latest prop ([1e47121](https://github.com/maverick-js/maverick/commit/1e4712154fc443ac2a1914c394ceeeffc4084faf))
+
+
+
 ## [0.40.1](https://github.com/maverick-js/maverick/compare/v0.40.0...v0.40.1) (2023-09-27)
 
 

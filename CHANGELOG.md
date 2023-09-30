@@ -1,3 +1,12 @@
+## [0.40.3](https://github.com/maverick-js/maverick/compare/v0.40.2...v0.40.3) (2023-09-30)
+
+
+### Bug Fixes
+
+* **react:** use signal record losing props on state change ([e2f9ce6](https://github.com/maverick-js/maverick/commit/e2f9ce68716db877001a30107dddad347a3fa8b3))
+
+
+
 ## [0.40.2](https://github.com/maverick-js/maverick/compare/v0.40.1...v0.40.2) (2023-09-29)
 
 

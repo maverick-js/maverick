@@ -1,3 +1,12 @@
+## [0.40.4](https://github.com/maverick-js/maverick/compare/v0.40.3...v0.40.4) (2023-09-30)
+
+
+### Bug Fixes
+
+* **react:** remove stale callbacks ([673578f](https://github.com/maverick-js/maverick/commit/673578f0cb74903c4d828bc13528e0a5041599c7))
+
+
+
 ## [0.40.3](https://github.com/maverick-js/maverick/compare/v0.40.2...v0.40.3) (2023-09-30)
 
 

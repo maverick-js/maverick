@@ -119,7 +119,6 @@ export function createClientComponent<T extends Component>(
         $state._connectId = -1;
         $state._component.$$._detach();
         $state._attached = false;
-        $state._callbacks = {};
       };
     }, []);
 
@@ -144,12 +143,15 @@ export function createClientComponent<T extends Component>(
     React.useEffect(tick);
 
     let attrs = {},
-      { _component, _props, _callbacks } = state.current,
+      { _component, _props } = state.current,
       { children, ...__props } = props;
 
     if (options.props.size) {
       let $props = _component.$$._props,
         seen = new Set<string>();
+
+      let callbacks = {};
+      state.current._callbacks = callbacks;
 
       for (const prop of Object.keys(__props)) {
         if (options.props.has(prop)) {
@@ -159,7 +161,7 @@ export function createClientComponent<T extends Component>(
         } else if (!options.events?.has(prop) && !options.eventsRE?.test(prop)) {
           attrs[prop] = __props[prop];
         } else if (prop.startsWith('on')) {
-          _callbacks[prop] = __props[prop];
+          callbacks[prop] = __props[prop];
         }
       }
 
@@ -169,11 +171,14 @@ export function createClientComponent<T extends Component>(
 
       state.current!._props = seen;
     } else {
+      let callbacks = {};
+      state.current._callbacks = callbacks;
+
       for (const prop of Object.keys(__props)) {
         if (!options.events?.has(prop) && !options.eventsRE?.test(prop)) {
           attrs[prop] = __props[prop];
         } else if (prop.startsWith('on')) {
-          _callbacks[prop] = __props[prop];
+          callbacks[prop] = __props[prop];
         }
       }
     }

@@ -26,26 +26,23 @@ export function useSignalRecord<T extends AnyRecord>($state: ReadSignalRecord<T>
   }
 
   React.useEffect(() => {
-    let { state, $update, props } = tracking.current,
-      stopEffect = effect(() => {
-        for (const prop of props) {
-          const value = $state[prop as keyof T]();
-          state[prop] = isArray(value) ? [...value] : value;
-        }
+    let { state, $update, props } = tracking.current;
+    return effect(() => {
+      for (const prop of props) {
+        const value = $state[prop as keyof T]();
+        state[prop] = isArray(value) ? [...value] : value;
+      }
 
-        scheduleReactUpdate($update());
-      });
-
-    return () => {
-      stopEffect();
-      props.clear();
-      tracking.current.state = {};
-    };
+      $update();
+      scheduleReactUpdate({});
+    });
   }, [$state]);
 
   return React.useMemo(() => {
     let { state, $update, props } = tracking.current,
       scheduledUpdate = false;
+
+    props.clear();
 
     return new Proxy(state, {
       get(_, prop: keyof T & string) {

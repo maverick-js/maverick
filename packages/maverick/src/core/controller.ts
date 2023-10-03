@@ -179,7 +179,9 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
    */
   dispatch<Type extends Event | keyof Events>(
     type: Type,
-    ...init: Type extends keyof Events
+    ...init: Type extends Event
+      ? [init?: never]
+      : Type extends keyof Events
       ? Events[Type] extends DOMEvent
         ? Events[Type]['detail'] extends void | undefined | never
           ? [init?: Partial<DOMEventInit<Events[Type]['detail']>>]
@@ -200,6 +202,10 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
       this.$$[ON_DISPATCH]?.(event);
       return this.el!.dispatchEvent(event);
     });
+  }
+
+  override dispatchEvent(event: Event): boolean {
+    return this.dispatch(event);
   }
 
   /**

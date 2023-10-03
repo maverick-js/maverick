@@ -1,3 +1,12 @@
+## [0.40.5](https://github.com/maverick-js/maverick/compare/v0.40.4...v0.40.5) (2023-10-03)
+
+
+### Bug Fixes
+
+* missing `dispatchEvent` proxy on view controller ([3c1e818](https://github.com/maverick-js/maverick/commit/3c1e8185d645413878cd4dd42a23a7095b4ce341))
+
+
+
 ## [0.40.4](https://github.com/maverick-js/maverick/compare/v0.40.3...v0.40.4) (2023-09-30)
 
 

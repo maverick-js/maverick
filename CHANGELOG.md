@@ -1,3 +1,12 @@
+## [0.40.6](https://github.com/maverick-js/maverick/compare/v0.40.5...v0.40.6) (2023-10-09)
+
+
+### Bug Fixes
+
+* attach component name to element for debugging ([f8343ed](https://github.com/maverick-js/maverick/commit/f8343ed28d0785b1f86e28219c11c296ccb6da04))
+
+
+
 ## [0.40.5](https://github.com/maverick-js/maverick/compare/v0.40.4...v0.40.5) (2023-10-03)
 
 

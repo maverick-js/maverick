@@ -107,6 +107,10 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this._el = el as HTMLElement;
     this.$el.set(el as HTMLElement);
 
+    if (__DEV__) {
+      (el as any).$$COMPONENT_NAME = this._component?.constructor.name;
+    }
+
     scoped(() => {
       this._attachScope = createScope();
       scoped(() => {
@@ -123,6 +127,11 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this._attachScope?.dispose();
     this._attachScope = null;
     this._connectScope = null;
+
+    if (__DEV__ && this._el) {
+      (this._el as any).$$COMPONENT_NAME = null;
+    }
+
     this._el = null;
     this.$el.set(null);
   }

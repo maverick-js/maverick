@@ -2,7 +2,7 @@
   "name": "@maverick-js/cli",
   "description": "Maverick CLI.",
   "license": "MIT",
-  "version": "0.40.6",
+  "version": "0.40.7",
   "type": "module",
   "files": [
     "dist/",

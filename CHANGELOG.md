@@ -1,3 +1,12 @@
+## [0.40.7](https://github.com/maverick-js/maverick/compare/v0.40.6...v0.40.7) (2023-10-09)
+
+
+### Bug Fixes
+
+* rsc-dev should include dev blocks ([00156ff](https://github.com/maverick-js/maverick/commit/00156ffd55717897bc7cbe96d7fd3e706c43b9ae))
+
+
+
 ## [0.40.6](https://github.com/maverick-js/maverick/compare/v0.40.5...v0.40.6) (2023-10-09)
 
 

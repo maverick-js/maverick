@@ -49,6 +49,7 @@ function defineTypes() {
  */
 function define({ type = 'dev' }) {
   const shouldMangle = type === 'prod',
+    isDev = type === 'dev' || type === 'rsc-dev',
     isRSC = type.startsWith('rsc');
 
   /** @type {Record<string, string | false>} */
@@ -74,10 +75,9 @@ function define({ type = 'dev' }) {
     },
     plugins: [
       nodeResolve({
-        exportConditions:
-          type === 'dev' || type === 'rsc-dev'
-            ? ['development', 'production', 'default']
-            : ['production', 'default'],
+        exportConditions: isDev
+          ? ['development', 'production', 'default']
+          : ['production', 'default'],
       }),
       esbuildPlugin({
         target: type === 'server' ? 'node18' : 'esnext',
@@ -86,7 +86,7 @@ function define({ type = 'dev' }) {
         minify: false,
         banner: isRSC ? 'import { IS_SERVER } from "@virtual/env";\n' : '',
         define: {
-          __DEV__: type === 'dev' ? 'true' : 'false',
+          __DEV__: isDev ? 'true' : 'false',
           __SERVER__: isRSC ? 'IS_SERVER' : type === 'server' ? 'true' : 'false',
           __TEST__: 'false',
         },

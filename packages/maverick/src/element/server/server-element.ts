@@ -7,6 +7,7 @@ import { parseClassAttr, parseStyleAttr } from './server-utils';
 
 export class MaverickServerElement<T extends AnyComponent = AnyComponent> implements ServerElement {
   keepAlive = false;
+  forwardKeepAlive = true;
 
   readonly $: T;
   readonly attributes = new ServerAttributes();

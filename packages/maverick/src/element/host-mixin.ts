@@ -70,6 +70,7 @@ export function Host<T extends HTMLElement, R extends Component>(
     [SETUP_CALLBACKS]: ElementCallback[] | null = null;
 
     keepAlive = false;
+    forwardKeepAlive = true;
 
     get scope(): Scope {
       return this.$.$$._scope!;
@@ -266,7 +267,8 @@ export type MaverickElement<
 export interface HostElement<T extends Component = AnyComponent> {
   /**
    * Whether this component should be kept-alive on DOM disconnection. If `true`, all child
-   * host elements will also be kept alive and the instance will need to be manually destroyed.
+   * host elements will also be kept alive and the instance will need to be manually destroyed. Do
+   * note, this can be prevented by setting `forwardKeepAlive` to ``false`.
    *
    * Important to note that if a parent element is kept alive, calling destroy will also destroy
    * all child element instances.
@@ -277,6 +279,13 @@ export interface HostElement<T extends Component = AnyComponent> {
    * ```
    */
   keepAlive: boolean;
+
+  /**
+   * If this is `false`, children will _not_ adopt the `keepAlive` state of this element.
+   *
+   * @defaultValue true
+   */
+  forwardKeepAlive: boolean;
 
   /** Component instance. */
   readonly $: T;
@@ -402,7 +411,7 @@ function attach(this: HostElement & HTMLElement, parent: HostElement | null) {
   if (!this.isConnected) return;
 
   if (parent) {
-    if (parent.keepAlive) {
+    if (parent.keepAlive && parent.forwardKeepAlive) {
       this.keepAlive = true;
       this.setAttribute('keep-alive', '');
     }

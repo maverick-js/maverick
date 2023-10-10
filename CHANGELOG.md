@@ -1,3 +1,12 @@
+## [0.40.8](https://github.com/maverick-js/maverick/compare/v0.40.7...v0.40.8) (2023-10-10)
+
+
+### Bug Fixes
+
+* add prop to prevent forwarding keep alive ([475e49c](https://github.com/maverick-js/maverick/commit/475e49c6817ebbe37117548a5ac05cee49dd7aa9))
+
+
+
 ## [0.40.7](https://github.com/maverick-js/maverick/compare/v0.40.6...v0.40.7) (2023-10-09)
 
 

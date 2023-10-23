@@ -1,3 +1,12 @@
+## [0.40.9](https://github.com/maverick-js/maverick/compare/v0.40.8...v0.40.9) (2023-10-23)
+
+
+### Bug Fixes
+
+* destroy on disconnect after last raf tick ([ed5bbbf](https://github.com/maverick-js/maverick/commit/ed5bbbffac165af233ed6dc59e6378301185c671))
+
+
+
 ## [0.40.8](https://github.com/maverick-js/maverick/compare/v0.40.7...v0.40.8) (2023-10-10)
 
 

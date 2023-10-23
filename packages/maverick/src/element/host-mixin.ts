@@ -168,9 +168,11 @@ export function Host<T extends HTMLElement, R extends Component>(
       if (callback) callback.call(this);
 
       if (!this.keepAlive && !this.hasAttribute('keep-alive')) {
-        requestAnimationFrame(() => {
-          if (!this.isConnected) instance._destroy();
-        });
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            if (!this.isConnected) instance._destroy();
+          });
+        }, 0);
       }
     }
 

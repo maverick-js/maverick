@@ -83,7 +83,7 @@ export function solidJSXTypesPlugin({
             '',
             '',
             `export interface ${attrsName} extends ${_extends.join(', ')} {`,
-            "  'keep-alive': boolean;",
+            "  'keep-alive'?: boolean;",
             '}',
             '',
             ...(hasEvents

@@ -82,7 +82,7 @@ export function svelteJSXTypesPlugin({
             '',
             '',
             `export interface ${attrsName} extends ${_extends.join(', ')} {`,
-            "  'keep-alive': boolean;",
+            "  'keep-alive'?: boolean;",
             '}',
             '',
             ...(hasEvents

@@ -88,6 +88,7 @@ export function vueJSXTypesPlugin({
             '}',
             '',
             `export interface ${attrsName} extends ${_extends.join(', ')} {`,
+            "  'keep-alive': boolean;",
             `  ref?: ElementRef<${el.name}>;`,
             '}',
             '',

@@ -1,3 +1,12 @@
+## [0.40.10](https://github.com/maverick-js/maverick/compare/v0.40.9...v0.40.10) (2023-11-07)
+
+
+### Bug Fixes
+
+* **analyze:** include `keep-alive` in framework jsx types ([098b020](https://github.com/maverick-js/maverick/commit/098b0206cbb54c546b661c6b58da13e085b60ec0))
+
+
+
 ## [0.40.9](https://github.com/maverick-js/maverick/compare/v0.40.8...v0.40.9) (2023-10-23)
 
 

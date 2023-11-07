@@ -1,3 +1,12 @@
+## [0.40.11](https://github.com/maverick-js/maverick/compare/v0.40.10...v0.40.11) (2023-11-07)
+
+
+### Bug Fixes
+
+* **analyze:** `keep-alive` jsx type should be optional ([17ba460](https://github.com/maverick-js/maverick/commit/17ba46004e4cdf8a56e01f9b038a696a3625cfeb))
+
+
+
 ## [0.40.10](https://github.com/maverick-js/maverick/compare/v0.40.9...v0.40.10) (2023-11-07)
 
 

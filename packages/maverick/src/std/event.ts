@@ -23,24 +23,31 @@ export class DOMEvent<Detail = unknown> extends EVENT {
   readonly detail!: Detail;
 
   /**
-   * The preceding event that was responsible for this event being fired.
+   * The event trigger chain.
    */
-  readonly trigger?: Event;
+  readonly triggers = new EventTriggers();
 
   /**
-   * Walks up the event chain (following each `trigger`) and returns the origin event
-   * that started the chain.
+   * The preceding event that was responsible for this event being fired.
    */
-  get originEvent() {
-    return getOriginEvent(this) ?? this;
+  get trigger(): Event | undefined {
+    return this.triggers.source;
   }
 
   /**
-   * Walks up the event chain (following each `trigger`) and determines whether the initial
-   * event was triggered by the end user (ie: check whether `isTrusted` on the `originEvent` `true`).
+   * The origin event that lead to this event being fired.
+   */
+  get originEvent() {
+    return this.triggers.origin;
+  }
+
+  /**
+   * Whether the origin event was triggered by the user.
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Event/isTrusted}
    */
   get isOriginTrusted() {
-    return getOriginEvent(this)?.isTrusted ?? false;
+    return this.triggers.origin?.isTrusted ?? false;
   }
 
   constructor(
@@ -51,12 +58,80 @@ export class DOMEvent<Detail = unknown> extends EVENT {
   ) {
     super(type, init[0]);
     this.detail = init[0]?.detail!;
-    this.trigger = init[0]?.trigger;
+
+    const trigger = init[0]?.trigger;
+    if (trigger) this.triggers.add(trigger);
+  }
+}
+
+export class EventTriggers implements Iterable<Event> {
+  readonly chain: Event[] = [];
+
+  get source(): Event | undefined {
+    return this.chain[0];
+  }
+
+  get origin(): Event | undefined {
+    return this.chain[this.chain.length - 1];
+  }
+
+  /**
+   * Appends the event to the end of the chain.
+   */
+  add(event: Event): void {
+    this.chain.push(event);
+    if (isDOMEvent(event)) {
+      this.chain.push(...event.triggers);
+    }
+  }
+
+  /**
+   * Removes the event from the chain and returns it (if found).
+   */
+  remove(event: Event): Event | undefined {
+    return this.chain.splice(this.chain.indexOf(event), 1)[0];
+  }
+
+  /**
+   * Returns whether the chain contains the given `event`.
+   */
+  has(event: Event): boolean {
+    return this.chain.some((e) => e === event);
+  }
+
+  /**
+   * Returns whether the chain contains the given event type.
+   */
+  hasType(type: string): boolean {
+    return !!this.findType(type);
+  }
+
+  /**
+   * Returns the first event with the given `type` found in the chain.
+   */
+  findType(type: string): Event | undefined {
+    return this.chain.find((e) => e.type === type);
+  }
+
+  /**
+   * Walks an event chain on a given `event`, and invokes the given `callback` for each trigger event.
+   */
+  walk<T>(
+    callback: (event: Event) => NonNullable<T> | void,
+  ): [event: Event, value: NonNullable<T>] | undefined {
+    for (const event of this.chain) {
+      const returnValue = callback(event);
+      if (returnValue) return [event, returnValue];
+    }
+  }
+
+  [Symbol.iterator](): Iterator<Event> {
+    return this.chain.values();
   }
 }
 
 /**
- * Whether the given `event` is a Maverick DOM Event class.
+ * Whether the given `event` is a `DOMEvent` class.
  */
 export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {
   return !!event?.[DOM_EVENT];
@@ -65,95 +140,46 @@ export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {
 /**
  * Walks up the event chain (following each `trigger`) and returns the origin event that
  * started the chain.
+ * @deprecated - Use `event.originEvent`
  */
 export function getOriginEvent(event: DOMEvent): Event | undefined {
-  let trigger = event.trigger as DOMEvent;
-
-  while (trigger && trigger.trigger) {
-    trigger = trigger.trigger as DOMEvent;
-  }
-
-  return trigger;
+  return event.originEvent;
 }
 
 /**
  * Walks an event chain on a given `event`, and invokes the given `callback` for each trigger event.
- *
- * @param event - The event on which to follow the chain.
- * @param callback - Invoked for each trigger event in the chain. If a `value` is returned by
- * this callback, the walk will end and `[event, value]` will be returned.
+ * @deprecated - Use `event.triggers.walk(callback)`
  */
 export function walkTriggerEventChain<T>(
   event: Event,
   callback: (event: Event) => NonNullable<T> | void,
 ): [event: Event, value: NonNullable<T>] | undefined {
   if (!isDOMEvent(event)) return;
-
-  let trigger = event.trigger as DOMEvent;
-
-  while (trigger) {
-    const returnValue = callback(trigger);
-    if (returnValue) return [trigger, returnValue];
-    trigger = trigger.trigger as DOMEvent;
-  }
-
-  return;
+  return event.triggers.walk(callback);
 }
 
 /**
  * Attempts to find a trigger event with a given `eventType` on the event chain.
- *
- * @param event - The event on which to look for a trigger event.
- * @param type - The type of event to find.
+ * @deprecated - Use `event.triggers.findType('')`
  */
 export function findTriggerEvent(event: Event, type: string): Event | undefined {
-  return walkTriggerEventChain(event, (e) => e.type === type)?.[0] as any;
+  return isDOMEvent(event) ? event.triggers.findType(type) : undefined;
 }
 
 /**
  * Whether a trigger event with the given `eventType` exists can be found in the event chain.
- *
- * @param event - The event on which to look for a trigger event.
- * @param type - The type of event to find.
+ * @deprecated - Use `event.triggers.hasType('')`
  */
 export function hasTriggerEvent(event: Event, type: string): boolean {
   return !!findTriggerEvent(event, type);
 }
 
 /**
- * Appends the given `trigger` to the event chain. This means the new origin event will be
- * the origin of the given `trigger`, or the `trigger` itself (if no chain exists on the
- * trigger).
- *
- * @param event - The event on which to extend the trigger event chain.
- * @param trigger - The trigger event that will becoming the new origin event.
+ * Appends the given `trigger` to the event chain.
+ * @deprecated - Use `event.triggers.add(event)`
  */
 export function appendTriggerEvent(event: DOMEvent, trigger?: Event) {
-  const origin = (getOriginEvent(event) as DOMEvent) ?? event;
-
-  if (origin === trigger) {
-    throw Error(
-      __DEV__ ? '[maverick] attemping to append event as a trigger on itself (cyclic)' : '',
-    );
-  }
-
-  if (__DEV__ && typeof origin.trigger !== 'undefined') {
-    console.warn(
-      `[maverick] overwriting existing trigger event: \`${origin.trigger.type}\` -> \`${trigger?.type}\`\n\n`,
-      'Event:\n',
-      event,
-      'Origin Event:\n',
-      origin,
-      'Trigger Event:\n',
-      trigger,
-    );
-  }
-
-  Object.defineProperty(origin, 'trigger', {
-    configurable: true,
-    enumerable: true,
-    get: () => trigger,
-  });
+  if (trigger) event.triggers.add(trigger);
 }
 
 export type InferEventDetail<T> = T extends { detail: infer Detail }

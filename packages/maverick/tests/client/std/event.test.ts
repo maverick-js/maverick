@@ -41,11 +41,6 @@ it('should define trigger event', () => {
   expect(event.trigger).toBe(trigger);
 });
 
-it('should return self as origin event', () => {
-  const event = new DOMEvent<void>('foo');
-  expect(event.originEvent).toBe(event);
-});
-
 it('should return shallow origin event', () => {
   const trigger = new MouseEvent('click');
   const event = new DOMEvent<void>('click', { trigger });
@@ -102,27 +97,4 @@ it('should append trigger event', () => {
   });
 
   expect(result).toEqual(['a', 'b', 'c']);
-});
-
-it('should throw if attempting to append event as trigger on itself', () => {
-  const event = new DOMEvent<void>('event');
-  expect(() => {
-    appendTriggerEvent(event, event);
-  }).toThrow(/cyclic/);
-});
-
-it('should throw if trigger event chain is cyclic', () => {
-  const a = new DOMEvent<void>('a');
-  const b = new DOMEvent<void>('b', { trigger: a });
-
-  expect(() => {
-    appendTriggerEvent(b, a);
-  }).toThrow(/cyclic/);
-
-  const c = new DOMEvent<void>('c', { trigger: a });
-  const d = new DOMEvent<void>('d', { trigger: c });
-
-  expect(() => {
-    appendTriggerEvent(d, a);
-  }).toThrow(/cyclic/);
 });

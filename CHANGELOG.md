@@ -1,3 +1,12 @@
+## [0.40.12](https://github.com/maverick-js/maverick/compare/v0.40.11...v0.40.12) (2023-11-23)
+
+
+### Bug Fixes
+
+* rework event triggers ([9cda025](https://github.com/maverick-js/maverick/commit/9cda025a828ab78e1ffa6ab55e68155bd9e2856e))
+
+
+
 ## [0.40.11](https://github.com/maverick-js/maverick/compare/v0.40.10...v0.40.11) (2023-11-07)
 
 

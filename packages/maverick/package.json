@@ -45,6 +45,7 @@
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
     "esbuild": "^0.19.8",
+    "globby": "^14.0.0",
     "jsdom": "^20.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -1,6 +1,6 @@
 {
   "name": "maverick-workspace",
-  "version": "0.40.12",
+  "version": "0.41.0",
   "license": "MIT",
   "type": "module",
   "private": true,

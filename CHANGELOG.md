@@ -1,3 +1,18 @@
+# [0.41.0](https://github.com/maverick-js/maverick/compare/v0.40.12...v0.41.0) (2023-12-10)
+
+
+### Bug Fixes
+
+* **analyze:** handle omit/pick when finding react instance ([0fd9945](https://github.com/maverick-js/maverick/commit/0fd9945fa3cdc9952c9d7996224ca3df003646be))
+* use mangle cache ([a954a30](https://github.com/maverick-js/maverick/commit/a954a30771cbdaee5946300bf1205ad10ab07a7c))
+
+
+### Features
+
+* update all deps ([7e867f1](https://github.com/maverick-js/maverick/commit/7e867f1af6679261b8e0e751c31c98ff7742f825))
+
+
+
 ## [0.40.12](https://github.com/maverick-js/maverick/compare/v0.40.11...v0.40.12) (2023-11-23)
 
 

@@ -212,8 +212,28 @@ function findElementTypeArgs(checker: ts.TypeChecker, props: ts.Declaration) {
 
   walkTypeHeritage(checker, props, {
     heritageClause(node) {
-      let id = node.types[0]?.expression;
+      let id = node.types[0]?.expression,
+        typeArgs: ts.NodeArray<ts.Node> | undefined = node.types,
+        unwrapped = false;
 
+      // Unwrap expression Omit<Foo, 'bar'>
+      const firstTypeArg = typeArgs[0];
+      if (
+        firstTypeArg &&
+        ts.isExpressionWithTypeArguments(firstTypeArg) &&
+        ts.isIdentifier(firstTypeArg.expression) &&
+        /Omit|Pick/.test(firstTypeArg.expression.escapedText + '') &&
+        firstTypeArg.typeArguments
+      ) {
+        const arg = firstTypeArg.typeArguments[0];
+        if (arg && ts.isTypeReferenceNode(arg) && ts.isIdentifier(arg.typeName)) {
+          id = arg.typeName;
+          typeArgs = arg.typeArguments;
+          unwrapped = true;
+        }
+      }
+
+      // React.SVGAttributes => SVGAttributes
       if (ts.isPropertyAccessExpression(id)) {
         id = id.name;
       }
@@ -223,12 +243,23 @@ function findElementTypeArgs(checker: ts.TypeChecker, props: ts.Declaration) {
           const declaration = getDeclaration(checker, id),
             file = declaration?.getSourceFile().fileName;
           if (file && /node_modules\/(@types\/)?react/.test(file)) {
-            attributes = node.types[0].getFullText().trim().replace('React.', '');
-            return true;
+            const attrsName = typeArgs?.[0].getFullText().trim().replace('React.', '');
+            if (attrsName) {
+              attributes = attrsName;
+              return true;
+            }
           }
         } else if (id.escapedText === 'ReactElementProps') {
-          const typeArgs = node.types[0].typeArguments,
-            instanceTypeArg = typeArgs?.[0],
+          if (!unwrapped && typeArgs?.[0]) {
+            if (
+              ts.isTypeReferenceNode(typeArgs[0]) ||
+              ts.isExpressionWithTypeArguments(typeArgs[0])
+            ) {
+              typeArgs = typeArgs[0].typeArguments;
+            }
+          }
+
+          const instanceTypeArg = typeArgs?.[0],
             elTypeArg = typeArgs?.[1];
 
           if (instanceTypeArg) {

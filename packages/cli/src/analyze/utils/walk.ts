@@ -50,12 +50,15 @@ export function walkTypeHeritage(
     heritageClause?: (node: ts.HeritageClause) => any;
     typeAlias?: (node: ts.TypeAliasDeclaration) => any;
     typeLiteral?: (node: ts.TypeLiteralNode) => any;
+    typeReference?: (node: ts.TypeReferenceNode) => any;
   },
 ) {
   if (ts.isIdentifier(node)) {
     const declaration = getDeclaration(checker, node);
     if (declaration) walkTypeHeritage(checker, declaration, visitor);
   } else if (ts.isTypeReferenceNode(node)) {
+    const stop = visitor.typeReference?.(node);
+    if (stop) return;
     walkTypeHeritage(checker, node.typeName, visitor);
   } else if (ts.isInterfaceDeclaration(node)) {
     const stop = visitor.interface?.(node);
@@ -82,6 +85,8 @@ export function walkTypeHeritage(
   } else if (ts.isTypeLiteralNode(node)) {
     const stop = visitor.typeLiteral?.(node);
     if (stop) return;
+  } else if (ts.isExpressionWithTypeArguments(node) && node.typeArguments) {
+    for (const arg of node.typeArguments) walkTypeHeritage(checker, arg, visitor);
   }
 }
 
@@ -232,10 +237,10 @@ export function getReturnExpression(node?: ts.Node) {
       ? node.body.expression
       : node.body
     : ts.isMethodDeclaration(node) ||
-      ts.isFunctionDeclaration(node) ||
-      (ts.isArrowFunction(node) && ts.isBlock(node.body))
-    ? getReturnStatement(node)?.expression
-    : undefined;
+        ts.isFunctionDeclaration(node) ||
+        (ts.isArrowFunction(node) && ts.isBlock(node.body))
+      ? getReturnStatement(node)?.expression
+      : undefined;
 }
 
 export function isExportedVariableStatement(node: ts.Node): node is ts.VariableStatement {

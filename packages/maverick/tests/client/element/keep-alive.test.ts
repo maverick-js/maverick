@@ -1,6 +1,6 @@
 import { Component } from 'maverick.js';
 
-import { defineCustomElement, Host, MaverickElement } from 'maverick.js/element';
+import { defineCustomElement, Host, type MaverickElement } from 'maverick.js/element';
 import { waitAnimationFrame } from 'maverick.js/std';
 
 afterEach(() => {
@@ -58,26 +58,9 @@ it('should keep elements alive', async () => {
 
   await waitAnimationFrame();
 
-  expect(parent).toMatchInlineSnapshot(`
-    <mk-parent
-      keep-alive=""
-    >
-      <mk-child-a
-        keep-alive=""
-      >
-        <mk-grandchild-a
-          keep-alive=""
-        />
-      </mk-child-a>
-      <mk-child-b
-        keep-alive=""
-      >
-        <mk-grandchild-b
-          keep-alive=""
-        />
-      </mk-child-b>
-    </mk-parent>
-  `);
+  expect(parent.outerHTML).toMatchInlineSnapshot(
+    `"<mk-parent keep-alive=""><mk-child-a keep-alive=""><mk-grandchild-a keep-alive=""></mk-grandchild-a></mk-child-a><mk-child-b keep-alive=""><mk-grandchild-b keep-alive=""></mk-grandchild-b></mk-child-b></mk-parent>"`,
+  );
 
   parent.remove();
   await waitAnimationFrame();

@@ -1,3 +1,12 @@
+## [0.41.1](https://github.com/maverick-js/maverick/compare/v0.41.0...v0.41.1) (2023-12-12)
+
+
+### Bug Fixes
+
+* allow build to happen in parallel ([407f217](https://github.com/maverick-js/maverick/commit/407f217721df1bb0d90fe8c8d3c898e7aefa4bd0))
+
+
+
 # [0.41.0](https://github.com/maverick-js/maverick/compare/v0.40.12...v0.41.0) (2023-12-10)
 
 

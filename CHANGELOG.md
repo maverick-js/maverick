@@ -1,3 +1,12 @@
+## [0.41.2](https://github.com/maverick-js/maverick/compare/v0.41.1...v0.41.2) (2023-12-13)
+
+
+### Bug Fixes
+
+* **react:** map attrs to props in server component ([bf4655f](https://github.com/maverick-js/maverick/commit/bf4655f2ac3cdb212dfd21666062509f81169dc9))
+
+
+
 ## [0.41.1](https://github.com/maverick-js/maverick/compare/v0.41.0...v0.41.1) (2023-12-12)
 
 

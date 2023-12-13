@@ -4,6 +4,7 @@ import { type Component, type ComponentConstructor, createComponent } from '../c
 import { MaverickServerElement } from '../element/server';
 import { kebabToCamelCase } from '../std/string';
 import { isFunction } from '../std/unit';
+import { attrsToProps } from './attrs-map';
 import { ReactScopeContext, WithScope } from './scope';
 import type { ReactBridgeProps } from './types';
 
@@ -40,9 +41,15 @@ export function createServerComponent<T extends Component>(
       host.removeAttribute('style');
     }
 
-    if (host.hasAttribute('tabindex')) {
-      if (!('tabIndex' in attrs)) attrs.tabIndex = host.getAttribute('tabindex');
-      host.removeAttribute('tabindex');
+    for (const [attrName, attrValue] of host.attributes.tokens) {
+      const propName = attrsToProps[attrName];
+      if (propName) {
+        if (!(propName in attrs)) {
+          attrs[propName] = attrValue;
+        }
+
+        host.removeAttribute(attrName);
+      }
     }
 
     return WithScope(

@@ -1,3 +1,12 @@
+## [0.41.3](https://github.com/maverick-js/maverick/compare/v0.41.2...v0.41.3) (2024-01-13)
+
+
+### Bug Fixes
+
+* **react:** create react component improvements ([4fedc67](https://github.com/maverick-js/maverick/commit/4fedc67e0fa5d86b9e21ddde2ed7b1a0ee463033))
+
+
+
 ## [0.41.2](https://github.com/maverick-js/maverick/compare/v0.41.1...v0.41.2) (2023-12-13)
 
 

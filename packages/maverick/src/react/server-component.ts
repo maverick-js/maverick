@@ -18,7 +18,10 @@ export function createServerComponent<T extends Component>(
 ): React.FC<ReactBridgeProps<T>> {
   function ServerComponent(props: ReactBridgeProps<T>) {
     let scope = React.useContext(ReactScopeContext),
-      component = createComponent<T>(Component, { props, scope }),
+      component = createComponent<T>(Component, {
+        props,
+        scope: scope.current,
+      }),
       host = new MaverickServerElement(component),
       attrs: Record<string, any> = {},
       { style = {}, children, forwardRef, ...__props } = props;
@@ -53,7 +56,7 @@ export function createServerComponent<T extends Component>(
     }
 
     return WithScope(
-      component.$$._scope!,
+      { current: component.$$._scope! },
       isFunction(children)
         ? children?.(
             {

@@ -83,9 +83,9 @@ function define({ type = 'dev' }) {
         platform: type === 'server' ? 'node' : 'browser',
         tsconfig: 'tsconfig.build.json',
         minify: false,
-        mangleProps: /^_/,
-        reserveProps: /^__/,
-        mangleCache: MANGLE_CACHE,
+        mangleProps: !isDev ? /^_/ : undefined,
+        reserveProps: !isDev ? /^__/ : undefined,
+        mangleCache: !isDev ? MANGLE_CACHE : undefined,
         banner: isRSC ? 'import { IS_SERVER } from "@virtual/env";\n' : '',
         define: {
           __DEV__: isDev ? 'true' : 'false',

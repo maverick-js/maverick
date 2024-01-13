@@ -6,6 +6,8 @@ import type { ReactComponentBridge, ReactEventCallbacks } from './types';
 export interface CreateReactComponentOptions<T extends Component> {
   events?: (keyof ReactEventCallbacks<InferComponentEvents<T>>)[];
   eventsRegex?: RegExp;
+  domEvents?: Set<string>;
+  domEventsRegex?: RegExp;
 }
 
 export function createReactComponent<T extends Component>(
@@ -21,6 +23,8 @@ export function createReactComponent<T extends Component>(
       props: new Set(Object.keys(Component.props || {})),
       events: new Set(options?.events as string[]),
       eventsRE: options?.eventsRegex,
+      domEvents: options?.domEvents,
+      domEventsRE: options?.domEventsRegex,
     }) as any;
   }
 }

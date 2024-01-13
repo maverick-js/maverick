@@ -13,16 +13,20 @@ export interface ReactContextProvider {
   new (props: React.PropsWithChildren): React.Component<React.PropsWithChildren>;
 }
 
-const ReactScopeContext = React.createContext<Scope | null>(null);
+export interface ReactScopeRef {
+  current: Scope | null;
+}
+
+const ReactScopeContext = React.createContext<ReactScopeRef>({ current: null });
 ReactScopeContext.displayName = 'Scope';
 export { ReactScopeContext };
 
-export function WithScope(scope: Scope, ...children: React.ReactNode[]) {
+export function WithScope(scope: ReactScopeRef, ...children: React.ReactNode[]) {
   return React.createElement(ReactScopeContext.Provider, { value: scope }, ...children);
 }
 
-export function useReactScope(): Scope | null {
-  return React.useContext(ReactScopeContext);
+export function useReactScope() {
+  return React.useContext(ReactScopeContext).current;
 }
 
 export function useReactContext<T>(context: Context<T>): T | undefined {
@@ -51,16 +55,19 @@ class ScopeProvider extends React.Component<React.PropsWithChildren> {
   static _context?: Context<unknown>;
   static _provide?: () => unknown;
 
-  private _scope: Scope;
+  private _scope: ReactScopeRef;
 
   constructor(props, context?: Scope) {
     super(props);
 
-    this._scope = createScope();
-    if (context) context.append(this._scope);
+    this._scope = {
+      current: createScope(),
+    };
+
+    if (context) context.append(this._scope.current!);
 
     const Ctor = this.constructor as typeof ScopeProvider;
-    if (Ctor._context) provideContext(Ctor._context, Ctor._provide?.(), this._scope);
+    if (Ctor._context) provideContext(Ctor._context, Ctor._provide?.(), this._scope.current!);
   }
 
   override render() {

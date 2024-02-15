@@ -1,3 +1,12 @@
+## [0.41.4](https://github.com/maverick-js/maverick/compare/v0.41.3...v0.41.4) (2024-02-15)
+
+
+### Bug Fixes
+
+* **react:** set prop to default value when given `undefined` ([38e07c1](https://github.com/maverick-js/maverick/commit/38e07c134cf8f7ec7d79e2fc5726bd80b13467be))
+
+
+
 ## [0.41.3](https://github.com/maverick-js/maverick/compare/v0.41.2...v0.41.3) (2024-01-13)
 
 

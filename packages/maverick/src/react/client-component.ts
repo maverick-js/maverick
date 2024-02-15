@@ -131,7 +131,7 @@ export function createClientComponent<T extends Component>(
       if (options.props.has(name)) {
         state._component!.$props[name].set(
           // If the prop was removed we'll use the default value provided on Component creation.
-          !newPropNames.includes(name) ? Component.props?.[name] : __props[name],
+          isUndefined(__props[name]) ? Component.props?.[name] : __props[name],
         );
       } else if (options.events?.has(name) || options.eventsRE?.test(name)) {
         state._callbacks[name] = __props[name];

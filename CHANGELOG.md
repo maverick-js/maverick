@@ -1,3 +1,12 @@
+## [0.41.5](https://github.com/maverick-js/maverick/compare/v0.41.4...v0.41.5) (2024-03-20)
+
+
+### Bug Fixes
+
+* **analyze:** add `internal` to state meta ([0d3375d](https://github.com/maverick-js/maverick/commit/0d3375df4b8fbe17cea1d501fd5d436b77f4897d))
+
+
+
 ## [0.41.4](https://github.com/maverick-js/maverick/compare/v0.41.3...v0.41.4) (2024-02-15)
 
 

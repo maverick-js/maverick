@@ -89,6 +89,7 @@ export interface StateMeta {
   docs?: string;
   doctags?: DocTagMeta[];
   readonly?: boolean;
+  internal?: boolean;
   deprecated?: boolean;
 }
 

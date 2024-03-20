@@ -39,6 +39,7 @@ export function buildStateMeta(
           (value && ts.isGetAccessorDeclaration(value)) ||
           !!signature?.modifiers?.some((mode) => mode.kind === ts.SyntaxKind.ReadonlyKeyword) ||
           (doctags && hasDocTag(doctags, 'readonly')),
+        internal = doctags && hasDocTag(doctags, 'internal'),
         deprecated = doctags && hasDocTag(doctags, 'deprecated'),
         defaultValue =
           value && ts.isPropertyAssignment(value) ? value.initializer.getText() : undefined;
@@ -51,6 +52,7 @@ export function buildStateMeta(
         doctags: filteredDoctags?.length ? filteredDoctags : undefined,
         default: defaultValue,
         readonly: readonly ? true : undefined,
+        internal: internal ? true : undefined,
         deprecated: deprecated ? true : undefined,
       });
     }

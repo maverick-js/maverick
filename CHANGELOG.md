@@ -1,3 +1,12 @@
+## [0.41.6](https://github.com/maverick-js/maverick/compare/v0.41.5...v0.41.6) (2024-04-09)
+
+
+### Bug Fixes
+
+* update signals to `5.11.5` ([8dc4f86](https://github.com/maverick-js/maverick/commit/8dc4f8630bd5cfcfe18fb0d64ab8da6d270dab6f))
+
+
+
 ## [0.41.5](https://github.com/maverick-js/maverick/compare/v0.41.4...v0.41.5) (2024-03-20)
 
 

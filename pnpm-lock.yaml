@@ -109,8 +109,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.2
       '@maverick-js/signals':
-        specifier: ^5.11.4
-        version: 5.11.4
+        specifier: ^5.11.5
+        version: 5.11.5
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.7.0)
@@ -554,8 +554,8 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@maverick-js/signals@5.11.4:
-    resolution: {integrity: sha512-fkUqNfnJK1kgfsKimaLp2jcfQr7NXwHZWBhqhQ3pifnYSZrBJv+4tU/klKyGf1mA33mVBYustCAgilJppzGjig==}
+  /@maverick-js/signals@5.11.5:
+    resolution: {integrity: sha512-/GO94awrwN9ROYZDMTeByordjvbhcm3CMvB/2aL/sEUy9Va8nM/2GmNgOOe+rrooTGnz8/DzO73xomuBRrnYWw==}
     dev: true
 
   /@nodelib/fs.scandir@2.1.5:

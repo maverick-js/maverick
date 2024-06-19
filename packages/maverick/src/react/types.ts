@@ -21,14 +21,19 @@ export interface ReactComponentBridge<T extends Component> {
 export type ReactProps<
   C extends Component,
   E = ReactEventCallbacks<InferComponentEvents<C>>,
-> = Partial<InferComponentProps<C>> &
+> = Optional<InferComponentProps<C>> &
   E & {
     style?:
       | ((React.CSSProperties & { [name: `--${string}`]: string | number | null | undefined }) &
-          Partial<InferComponentCSSVars<C>>)
+          Optional<InferComponentCSSVars<C>>)
       | undefined;
     part?: string | undefined;
   };
+
+// https://github.com/vidstack/player/issues/1297
+type Optional<T> = {
+  [P in keyof T]?: T[P] | undefined;
+};
 
 export type ReactBridgeProps<C extends Component> = ReactProps<C> & {
   className?: string;
@@ -50,9 +55,11 @@ export type ReactElementProps<
   Omit<T extends HTMLElement ? React.HTMLAttributes<T> : React.SVGAttributes<T>, 'style' | keyof E>;
 
 export type ReactEventCallbacks<E> = {
-  [Type in keyof E as `on${PascalCase<Type & string>}`]?: InferEventDetail<E[Type]> extends void
-    ? (nativeEvent: E[Type]) => void
-    : (detail: InferEventDetail<E[Type]>, nativeEvent: E[Type]) => void;
+  [Type in keyof E as `on${PascalCase<Type & string>}`]?:
+    | (InferEventDetail<E[Type]> extends void
+        ? (nativeEvent: E[Type]) => void
+        : (detail: InferEventDetail<E[Type]>, nativeEvent: E[Type]) => void)
+    | undefined;
 };
 
 export type InferReactElement<T> = T extends ReactElementProps<any, infer E, any> ? E : never;
@@ -60,5 +67,5 @@ export type InferReactElement<T> = T extends ReactElementProps<any, infer E, any
 export type InferReactComponent<T> = T extends ReactProps<infer C, any>
   ? C
   : T extends ReactElementProps<infer C, any>
-  ? C
-  : never;
+    ? C
+    : never;

@@ -2,7 +2,7 @@
   "name": "maverick.js",
   "description": "Build fast and type-safe UI component libraries.",
   "license": "MIT",
-  "version": "0.41.6",
+  "version": "0.41.7",
   "type": "module",
   "types": "index.d.ts",
   "module": "dist/prod/index.js",

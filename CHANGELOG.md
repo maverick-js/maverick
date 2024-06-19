@@ -1,3 +1,12 @@
+## [0.41.7](https://github.com/maverick-js/maverick/compare/v0.41.6...v0.41.7) (2024-06-19)
+
+
+### Bug Fixes
+
+* **react:** support `exactOptionalPropertyTypes` ([22a5399](https://github.com/maverick-js/maverick/commit/22a53999e42f02836da931e417a520391ace5c1b))
+
+
+
 ## [0.41.6](https://github.com/maverick-js/maverick/compare/v0.41.5...v0.41.6) (2024-04-09)
 
 

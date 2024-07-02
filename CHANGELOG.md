@@ -1,3 +1,13 @@
+# [0.42.0](https://github.com/maverick-js/maverick/compare/v0.41.7...v0.42.0) (2024-07-02)
+
+
+### Bug Fixes
+
+* do not minify internal exports ([01817d1](https://github.com/maverick-js/maverick/commit/01817d1508753d34bde2a8f33b69e11dd5ecbaf6))
+* update `@maverick-js/signals` to `^6.0.0` ([463985c](https://github.com/maverick-js/maverick/commit/463985c3af215caa6fcaa74f595ecdd1cf92b9b0))
+
+
+
 ## [0.41.7](https://github.com/maverick-js/maverick/compare/v0.41.6...v0.41.7) (2024-06-19)
 
 

@@ -27,7 +27,12 @@ function defineTypes() {
       react: 'types/react/index.d.ts',
       std: 'types/std/index.d.ts',
     },
-    output: { dir: '.', chunkFileNames: 'dist/types/maverick-[hash].d.ts' },
+    output: {
+      dir: '.',
+      chunkFileNames: 'dist/types/maverick-[hash].d.ts',
+      compact: false,
+      minifyInternalExports: false,
+    },
     external: ['react'],
     plugins: [
       dts({ respectExternal: true }),
@@ -71,6 +76,8 @@ function define({ type = 'dev' }) {
       format: 'esm',
       dir: isRSC ? `dist/rsc` : `dist/${type}`,
       chunkFileNames: `chunks/maverick-[hash].js`,
+      compact: false,
+      minifyInternalExports: false,
     },
     plugins: [
       nodeResolve({

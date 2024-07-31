@@ -264,7 +264,7 @@ export class EventsController<Target extends EventTarget, Events = InferEvents<T
   #target: Target;
   #controller: AbortController;
 
-  get #signal() {
+  get signal(): AbortSignal {
     return this.#controller.signal;
   }
 
@@ -279,11 +279,11 @@ export class EventsController<Target extends EventTarget, Events = InferEvents<T
     handler: TargetedEventHandler<Target, Events[Type] extends Event ? Events[Type] : Event>,
     options?: AddEventListenerOptions,
   ) {
-    if (this.#signal.aborted) throw Error('aborted');
+    if (this.signal.aborted) throw Error('aborted');
 
     this.#target.addEventListener(type as any, handler as any, {
       ...options,
-      signal: options?.signal ? anySignal(this.#signal, options.signal) : this.#signal,
+      signal: options?.signal ? anySignal(this.signal, options.signal) : this.signal,
     });
 
     return this;

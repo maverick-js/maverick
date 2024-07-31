@@ -45,180 +45,180 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
 
   readonly $el = signal<HTMLElement | null>(null);
 
-  _el: HTMLElement | null = null;
-  _scope: Scope | null = null;
-  _attachScope: Scope | null = null;
-  _connectScope: Scope | null = null;
-  _component: Component | null = null;
-  _destroyed = false;
+  el: HTMLElement | null = null;
+  scope: Scope | null = null;
+  attachScope: Scope | null = null;
+  connectScope: Scope | null = null;
+  component: Component | null = null;
+  destroyed = false;
 
-  _props: WriteSignalRecord<Props> = EMPTY_PROPS;
-  _attrs: ElementAttributesRecord | null = null;
-  _styles: ElementStylesRecord | null = null;
+  props: WriteSignalRecord<Props> = EMPTY_PROPS;
+  attrs: ElementAttributesRecord | null = null;
+  styles: ElementStylesRecord | null = null;
 
-  _state!: Readonly<State>;
-  _$state!: any;
+  state!: Readonly<State>;
+  $state!: any;
 
-  readonly _setupCallbacks: SetupCallback[] = [];
-  readonly _attachCallbacks: ElementCallback[] = [];
-  readonly _connectCallbacks: ElementCallback[] = [];
-  readonly _destroyCallbacks: ElementCallback[] = [];
+  #setupCallbacks: SetupCallback[] = [];
+  #attachCallbacks: ElementCallback[] = [];
+  #connectCallbacks: ElementCallback[] = [];
+  #destroyCallbacks: ElementCallback[] = [];
 
   constructor(
     Component: ComponentConstructor<Component<Props, State, any, any>>,
     scope: Scope,
     init?: InstanceInit<Props>,
   ) {
-    this._scope = scope;
+    this.scope = scope;
     if (init?.scope) init.scope.append(scope);
 
     let stateFactory = Component.state,
       props = Component.props;
 
     if (stateFactory) {
-      this._$state = stateFactory.create();
-      this._state = new Proxy(this._$state, {
-        get: (_, prop: string) => this._$state[prop](),
+      this.$state = stateFactory.create();
+      this.state = new Proxy(this.$state, {
+        get: (_, prop: string) => this.$state[prop](),
       }) as State;
-      provideContext(stateFactory, this._$state);
+      provideContext(stateFactory, this.$state);
     }
 
     if (props) {
-      this._props = createInstanceProps(props) as WriteSignalRecord<Props>;
+      this.props = createInstanceProps(props) as WriteSignalRecord<Props>;
       if (init?.props) {
         for (const prop of Object.keys(init.props)) {
-          this._props[prop]?.set(init.props[prop]);
+          this.props[prop]?.set(init.props[prop]);
         }
       }
     }
 
-    onDispose(this._destroy.bind(this));
+    onDispose(this.destroy.bind(this));
   }
 
-  _setup() {
+  setup() {
     scoped(() => {
-      for (const callback of this._setupCallbacks) callback();
-    }, this._scope);
+      for (const callback of this.#setupCallbacks) callback();
+    }, this.scope);
   }
 
-  _attach(el: HTMLElement | ServerElement) {
-    if (this._el) return;
+  attach(el: HTMLElement | ServerElement) {
+    if (this.el) return;
 
-    this._el = el as HTMLElement;
+    this.el = el as HTMLElement;
     this.$el.set(el as HTMLElement);
 
     if (__DEV__) {
-      (el as any).$$COMPONENT_NAME = this._component?.constructor.name;
+      (el as any).$$COMPONENT_NAME = this.component?.constructor.name;
     }
 
     scoped(() => {
-      this._attachScope = createScope();
+      this.attachScope = createScope();
       scoped(() => {
-        for (const callback of this._attachCallbacks) callback(this._el!);
-        this._attachAttrs();
-        this._attachStyles();
-      }, this._attachScope);
-    }, this._scope);
+        for (const callback of this.#attachCallbacks) callback(this.el!);
+        this.#attachAttrs();
+        this.#attachStyles();
+      }, this.attachScope);
+    }, this.scope);
 
     el.dispatchEvent(new Event('attached'));
   }
 
-  _detach() {
-    this._attachScope?.dispose();
-    this._attachScope = null;
-    this._connectScope = null;
+  detach() {
+    this.attachScope?.dispose();
+    this.attachScope = null;
+    this.connectScope = null;
 
-    if (__DEV__ && this._el) {
-      (this._el as any).$$COMPONENT_NAME = null;
+    if (__DEV__ && this.el) {
+      (this.el as any).$$COMPONENT_NAME = null;
     }
 
-    this._el = null;
+    this.el = null;
     this.$el.set(null);
   }
 
-  _connect() {
-    if (!this._el || !this._attachScope || !this._connectCallbacks.length) return;
+  connect() {
+    if (!this.el || !this.attachScope || !this.#connectCallbacks.length) return;
     scoped(() => {
-      this._connectScope = createScope();
+      this.connectScope = createScope();
       scoped(() => {
-        for (const callback of this._connectCallbacks) callback(this._el!);
-      }, this._connectScope);
-    }, this._attachScope);
+        for (const callback of this.#connectCallbacks) callback(this.el!);
+      }, this.connectScope);
+    }, this.attachScope);
   }
 
-  _disconnect() {
-    this._connectScope?.dispose();
-    this._connectScope = null;
+  disconnect() {
+    this.connectScope?.dispose();
+    this.connectScope = null;
   }
 
-  _destroy() {
-    if (this._destroyed) return;
-    this._destroyed = true;
+  destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
 
     scoped(() => {
-      for (const callback of this._destroyCallbacks) callback(this._el!);
-    }, this._scope);
+      for (const callback of this.#destroyCallbacks) callback(this.el!);
+    }, this.scope);
 
-    const el = this._el;
+    const el = this.el;
 
-    this._detach();
-    this._scope!.dispose();
+    this.detach();
+    this.scope!.dispose();
 
-    this._setupCallbacks.length = 0;
-    this._attachCallbacks.length = 0;
-    this._connectCallbacks.length = 0;
-    this._destroyCallbacks.length = 0;
+    this.#setupCallbacks.length = 0;
+    this.#attachCallbacks.length = 0;
+    this.#connectCallbacks.length = 0;
+    this.#destroyCallbacks.length = 0;
 
-    this._component = null;
-    this._attrs = null;
-    this._styles = null;
-    this._props = EMPTY_PROPS;
-    this._scope = null;
-    this._state = EMPTY_PROPS;
-    this._$state = null;
+    this.component = null;
+    this.attrs = null;
+    this.styles = null;
+    this.props = EMPTY_PROPS;
+    this.scope = null;
+    this.state = EMPTY_PROPS;
+    this.$state = null;
     // @ts-expect-error
     if (el) delete el.$;
   }
 
-  _addHooks(target: LifecycleHooks) {
-    if (target.onSetup) this._setupCallbacks.push(target.onSetup.bind(target));
-    if (target.onAttach) this._attachCallbacks.push(target.onAttach.bind(target));
-    if (target.onConnect) this._connectCallbacks.push(target.onConnect.bind(target));
-    if (target.onDestroy) this._destroyCallbacks.push(target.onDestroy.bind(target));
+  addHooks(target: LifecycleHooks) {
+    if (target.onSetup) this.#setupCallbacks.push(target.onSetup.bind(target));
+    if (target.onAttach) this.#attachCallbacks.push(target.onAttach.bind(target));
+    if (target.onConnect) this.#connectCallbacks.push(target.onConnect.bind(target));
+    if (target.onDestroy) this.#destroyCallbacks.push(target.onDestroy.bind(target));
   }
 
-  private _attachAttrs() {
-    if (!this._attrs) return;
-    for (const name of Object.keys(this._attrs)) {
+  #attachAttrs() {
+    if (!this.attrs) return;
+    for (const name of Object.keys(this.attrs)) {
       if (__SERVER__) {
-        setAttribute(this._el!, name, unwrapDeep.call(this._component, this._attrs[name]));
-      } else if (isFunction(this._attrs[name])) {
-        effect(this._setAttr.bind(this, name));
+        setAttribute(this.el!, name, unwrapDeep.call(this.component, this.attrs[name]));
+      } else if (isFunction(this.attrs[name])) {
+        effect(this.#setAttr.bind(this, name));
       } else {
-        setAttribute(this._el!, name, this._attrs[name]);
+        setAttribute(this.el!, name, this.attrs[name]);
       }
     }
   }
 
-  private _attachStyles() {
-    if (!this._styles) return;
-    for (const name of Object.keys(this._styles)) {
+  #attachStyles() {
+    if (!this.styles) return;
+    for (const name of Object.keys(this.styles)) {
       if (__SERVER__) {
-        setStyle(this._el!, name, unwrapDeep.call(this._component, this._styles[name]));
-      } else if (isFunction(this._styles[name])) {
-        effect(this._setStyle.bind(this, name));
+        setStyle(this.el!, name, unwrapDeep.call(this.component, this.styles[name]));
+      } else if (isFunction(this.styles[name])) {
+        effect(this.#setStyle.bind(this, name));
       } else {
-        setStyle(this._el!, name, this._styles[name]);
+        setStyle(this.el!, name, this.styles[name]);
       }
     }
   }
 
-  private _setAttr(name: string) {
-    setAttribute(this._el!, name, (this._attrs![name] as Function).call(this._component));
+  #setAttr(name: string) {
+    setAttribute(this.el!, name, (this.attrs![name] as Function).call(this.component));
   }
 
-  private _setStyle(name: string) {
-    setStyle(this._el!, name, (this._styles![name] as Function).call(this._component));
+  #setStyle(name: string) {
+    setStyle(this.el!, name, (this.styles![name] as Function).call(this.component));
   }
 }
 

@@ -175,11 +175,11 @@ it('should define component proto on element', () => {
 
     @prop
     get zoo() {
-      return this._zoo;
+      return this.#zoo;
     }
 
     set zoo(v) {
-      this._zoo = v;
+      this.#zoo = v;
     }
 
     @method
@@ -198,11 +198,11 @@ it('should define component proto on element', () => {
 
     @prop
     get boo() {
-      return this._boo;
+      return this.#boo;
     }
 
     set boo(v) {
-      this._boo = v;
+      this.#boo = v;
     }
 
     @method

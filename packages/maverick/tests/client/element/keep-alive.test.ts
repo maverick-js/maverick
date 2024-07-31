@@ -65,11 +65,11 @@ it('should keep elements alive', async () => {
   parent.remove();
   await waitAnimationFrame();
 
-  expect(parent.$.$$._destroyed).toBeFalsy();
-  expect(childA.$.$$._destroyed).toBeFalsy();
-  expect(childB.$.$$._destroyed).toBeFalsy();
-  expect(grandchildA.$.$$._destroyed).toBeFalsy();
-  expect(grandchildB.$.$$._destroyed).toBeFalsy();
+  expect(parent.$.$$.destroyed).toBeFalsy();
+  expect(childA.$.$$.destroyed).toBeFalsy();
+  expect(childB.$.$$.destroyed).toBeFalsy();
+  expect(grandchildA.$.$$.destroyed).toBeFalsy();
+  expect(grandchildB.$.$$.destroyed).toBeFalsy();
 
   (parent as any).destroy();
 

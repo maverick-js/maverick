@@ -1,13 +1,8 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import { build } from 'esbuild';
-import { globbySync } from 'globby';
 import fs from 'node:fs/promises';
 import { defineConfig } from 'rollup';
 import dts from 'rollup-plugin-dts';
 import esbuildPlugin from 'rollup-plugin-esbuild';
-
-/** @type {Record<string, string | false>} */
-const MANGLE_CACHE = await buildMangleCache();
 
 export default defineConfig([
   define({ type: 'dev' }),
@@ -90,9 +85,6 @@ function define({ type = 'dev' }) {
         platform: type === 'server' ? 'node' : 'browser',
         tsconfig: 'tsconfig.build.json',
         minify: false,
-        mangleProps: !isDev ? /^_/ : undefined,
-        reserveProps: !isDev ? /^__/ : undefined,
-        mangleCache: !isDev ? MANGLE_CACHE : undefined,
         banner: isRSC ? 'import { IS_SERVER } from "@virtual/env";\n' : '',
         define: {
           __DEV__: isDev ? 'true' : 'false',
@@ -113,29 +105,4 @@ function define({ type = 'dev' }) {
       },
     ],
   };
-}
-
-async function buildMangleCache() {
-  let cache = JSON.parse(await fs.readFile('mangle.json', 'utf-8'));
-
-  const result = await build({
-    entryPoints: globbySync('src/**'),
-    target: 'esnext',
-    bundle: true,
-    minify: false,
-    mangleProps: /^_/,
-    reserveProps: /^__/,
-    mangleCache: cache,
-    write: false,
-    outdir: 'dist-esbuild',
-  });
-
-  cache = {
-    ...cache,
-    ...result.mangleCache,
-  };
-
-  await fs.writeFile('mangle.json', JSON.stringify(cache, null, 2));
-
-  return cache;
 }

@@ -6,8 +6,8 @@ it('should create props', () => {
   }
 
   const instance = new Instance(TestComponent, createScope());
-  expect(instance._props.foo()).toBe(10);
-  expect(instance._props.bar()).toBe(20);
+  expect(instance.props.foo()).toBe(10);
+  expect(instance.props.bar()).toBe(20);
 });
 
 it('should forward props', () => {
@@ -19,8 +19,8 @@ it('should forward props', () => {
     props: { foo: 20, bar: 40 },
   });
 
-  expect(instance._props.foo()).toBe(20);
-  expect(instance._props.bar()).toBe(40);
+  expect(instance.props.foo()).toBe(20);
+  expect(instance.props.bar()).toBe(40);
 });
 
 it('should create state', () => {

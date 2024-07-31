@@ -29,7 +29,7 @@ export function createClientComponent<T extends Component>(
       const state = createInternalState<T>(),
         component = initComponent(Component, state, props, parentScopeRef.current);
 
-      state._component = component;
+      state.component = component;
 
       stateRef.current = state;
       scopeRef.current = component.scope;
@@ -39,24 +39,24 @@ export function createClientComponent<T extends Component>(
       let state = stateRef.current!,
         scope = parentScopeRef.current;
 
-      window.cancelAnimationFrame(state._destroyId);
-      state._destroyId = -1;
+      window.cancelAnimationFrame(state.destroyId);
+      state.destroyId = -1;
 
-      if (state._component!.$$._destroyed) {
+      if (state.component!.$$.destroyed) {
         const component = initComponent(Component, state, props, scope);
-        state._component = component;
-        state._attached = false;
-        state._forwardedRef = false;
+        state.component = component;
+        state.attached = false;
+        state.forwardRef = false;
         scopeRef.current = component.scope;
       }
 
-      if (state._el) {
-        attachToHost(state, state._el);
+      if (state.el) {
+        attachToHost(state, state.el);
       }
 
-      if (!state._forwardedRef) {
-        setRef(forwardRef, state._component);
-        state._forwardedRef = true;
+      if (!state.forwardRef) {
+        setRef(forwardRef, state.component);
+        state.forwardRef = true;
       }
 
       return () => detachFromHost(state);
@@ -65,52 +65,52 @@ export function createClientComponent<T extends Component>(
     function onRefChange(el: HTMLElement | null) {
       const state = stateRef.current!;
 
-      if (!state._forwardedRef) {
-        state._el = el;
+      if (!state.forwardRef) {
+        state.el = el;
         return;
       }
 
-      window.cancelAnimationFrame(state._refChangeId);
-      state._refChangeId = window.requestAnimationFrame(() => {
+      window.cancelAnimationFrame(state.refChangeId);
+      state.refChangeId = window.requestAnimationFrame(() => {
         const state = stateRef.current!;
-        state._refChangeId = -1;
+        state.refChangeId = -1;
 
-        if (state._el === el) return;
+        if (state.el === el) return;
 
         detachFromHost(state);
         if (el) attachToHost(state, el);
 
-        state._el = el;
+        state.el = el;
       });
     }
 
     React.useEffect(() => {
       const state = stateRef.current!;
 
-      window.cancelAnimationFrame(state._destroyId);
-      state._destroyId = -1;
+      window.cancelAnimationFrame(state.destroyId);
+      state.destroyId = -1;
 
       return function onDestroy() {
         // Headless components will be destroyed by parent scope.
         if (!isFunction(props.children)) return;
 
-        window.cancelAnimationFrame(state._refChangeId);
-        state._refChangeId = -1;
+        window.cancelAnimationFrame(state.refChangeId);
+        state.refChangeId = -1;
 
-        window.cancelAnimationFrame(state._connectId);
-        state._connectId = -1;
+        window.cancelAnimationFrame(state.connectId);
+        state.connectId = -1;
 
-        window.cancelAnimationFrame(state._destroyId);
-        state._destroyId = window.requestAnimationFrame(() => {
-          state._destroyId = -1;
+        window.cancelAnimationFrame(state.destroyId);
+        state.destroyId = window.requestAnimationFrame(() => {
+          state.destroyId = -1;
 
           detachFromHost(state);
 
-          state._component!.$$._destroy();
-          state._component!.$$[ON_DISPATCH] = null;
+          state.component!.$$.destroy();
+          state.component!.$$[ON_DISPATCH] = null;
 
-          state._callbacks = {};
-          state._domCallbacks = {};
+          state.callbacks = {};
+          state.domCallbacks = {};
 
           scopeRef.current = null;
         });
@@ -120,38 +120,38 @@ export function createClientComponent<T extends Component>(
     React.useEffect(tick);
 
     let state = stateRef.current,
-      { children, ...__props } = props,
+      { children, ...renderProps } = props,
       attrs = {},
-      prevPropNames = state._prevProps,
-      newPropNames = Object.keys(__props);
+      prevPropNames = state.prevProps,
+      newPropNames = Object.keys(renderProps);
 
-    state._callbacks = {};
+    state.callbacks = {};
 
     for (const name of [...prevPropNames, ...newPropNames]) {
       if (options.props.has(name)) {
-        state._component!.$props[name].set(
+        state.component!.$props[name].set(
           // If the prop was removed we'll use the default value provided on Component creation.
-          isUndefined(__props[name]) ? Component.props?.[name] : __props[name],
+          isUndefined(renderProps[name]) ? Component.props?.[name] : renderProps[name],
         );
       } else if (options.events?.has(name) || options.eventsRE?.test(name)) {
-        state._callbacks[name] = __props[name];
+        state.callbacks[name] = renderProps[name];
       } else if (options.domEvents?.has(name) || options.domEventsRE?.test(name)) {
         let type = camelToKebabCase(name.slice(2));
-        state._domCallbacks[type] = __props[name];
+        state.domCallbacks[type] = renderProps[name];
         if (!newPropNames.includes(name)) {
-          state._el?.removeEventListener(type, state._onDOMEvent);
-          state._listening?.delete(type);
-        } else if (state._el && !state._listening?.has(type)) {
-          if (!state._listening) state._listening = new Set();
-          state._listening.add(type);
-          state._el.addEventListener(type, state._onDOMEvent);
+          state.el?.removeEventListener(type, state.onDOMEvent);
+          state.listening?.delete(type);
+        } else if (state.el && !state.listening?.has(type)) {
+          if (!state.listening) state.listening = new Set();
+          state.listening.add(type);
+          state.el.addEventListener(type, state.onDOMEvent);
         }
       } else {
-        attrs[name] = __props[name];
+        attrs[name] = renderProps[name];
       }
     }
 
-    state._prevProps = newPropNames;
+    state.prevProps = newPropNames;
 
     return WithScope(
       scopeRef,
@@ -165,7 +165,7 @@ export function createClientComponent<T extends Component>(
               suppressHydrationWarning: true,
               ref: onRefChange,
             },
-            state._component,
+            state.component,
           )
         : children,
     );
@@ -182,40 +182,40 @@ function AttachEffect({ effect }) {
 }
 
 export interface InternalState<T> {
-  _prevProps: string[];
-  _el: HTMLElement | null;
-  _component: T;
-  _attached: boolean;
-  _connectId: number;
-  _refChangeId: number;
-  _destroyId: number;
-  _callbacks: Record<string, (...args: any[]) => void>;
-  _domCallbacks: Record<string, (...args: any[]) => void>;
-  _listening: Set<string> | null;
-  _forwardedRef: boolean;
-  _onDOMEvent(event: Event): void;
+  prevProps: string[];
+  el: HTMLElement | null;
+  component: T;
+  attached: boolean;
+  connectId: number;
+  refChangeId: number;
+  destroyId: number;
+  callbacks: Record<string, (...args: any[]) => void>;
+  domCallbacks: Record<string, (...args: any[]) => void>;
+  listening: Set<string> | null;
+  forwardRef: boolean;
+  onDOMEvent(event: Event): void;
 }
 
 const eventTypeToCallbackName = new Map<string, string>();
 
 function createInternalState<T extends Component>(): InternalState<T> {
-  const state: Omit<InternalState<T>, '_component'> = {
-    _el: null,
-    _prevProps: [],
-    _callbacks: {},
-    _domCallbacks: {},
-    _refChangeId: -1,
-    _connectId: -1,
-    _destroyId: -1,
-    _attached: false,
-    _forwardedRef: false,
-    _listening: null,
-    _onDOMEvent(event) {
+  const state: Omit<InternalState<T>, 'component'> = {
+    el: null,
+    prevProps: [],
+    callbacks: {},
+    domCallbacks: {},
+    refChangeId: -1,
+    connectId: -1,
+    destroyId: -1,
+    attached: false,
+    forwardRef: false,
+    listening: null,
+    onDOMEvent(event) {
       const args = !isUndefined((event as CustomEvent).detail)
         ? [(event as CustomEvent).detail, event]
         : [event];
 
-      state._domCallbacks[event.type]?.(...args);
+      state.domCallbacks[event.type]?.(...args);
     },
   };
 
@@ -223,43 +223,43 @@ function createInternalState<T extends Component>(): InternalState<T> {
 }
 
 function attachToHost<T extends Component>(state: InternalState<T>, el: HTMLElement) {
-  if (state._el === el && state._attached) return;
-  else if (state._attached) detachFromHost(state);
+  if (state.el === el && state.attached) return;
+  else if (state.attached) detachFromHost(state);
 
-  if (state._domCallbacks) {
-    if (!state._listening) state._listening = new Set();
-    for (const type of Object.keys(state._domCallbacks)) {
-      if (state._listening.has(type)) continue;
-      el.addEventListener(type, state._onDOMEvent);
-      state._listening.add(type);
+  if (state.domCallbacks) {
+    if (!state.listening) state.listening = new Set();
+    for (const type of Object.keys(state.domCallbacks)) {
+      if (state.listening.has(type)) continue;
+      el.addEventListener(type, state.onDOMEvent);
+      state.listening.add(type);
     }
   }
 
-  state._component.$$._attach(el);
+  state.component.$$.attach(el);
 
-  state._connectId = window.requestAnimationFrame(() => {
-    state._component.$$._connect();
-    state._connectId = -1;
+  state.connectId = window.requestAnimationFrame(() => {
+    state.component.$$.connect();
+    state.connectId = -1;
   });
 
-  state._attached = true;
+  state.attached = true;
 }
 
 function detachFromHost<T extends Component>(state: InternalState<T>) {
-  if (!state._attached) return;
+  if (!state.attached) return;
 
-  window.cancelAnimationFrame(state._connectId);
+  window.cancelAnimationFrame(state.connectId);
 
-  state._connectId = -1;
-  state._component.$$._detach();
-  state._attached = false;
+  state.connectId = -1;
+  state.component.$$.detach();
+  state.attached = false;
 
-  if (state._el && state._listening) {
-    for (const type of state._listening) {
-      state._el.removeEventListener(type, state._onDOMEvent);
+  if (state.el && state.listening) {
+    for (const type of state.listening) {
+      state.el.removeEventListener(type, state.onDOMEvent);
     }
 
-    state._listening.clear();
+    state.listening.clear();
   }
 }
 
@@ -273,7 +273,7 @@ function onDispatch<T extends Component>(this: InternalState<T>, event: Event) {
     eventTypeToCallbackName.set(event.type, (callbackProp = `on${kebabToPascalCase(event.type)}`));
   }
 
-  this._callbacks[callbackProp]?.(...args);
+  this.callbacks[callbackProp]?.(...args);
 }
 
 function initComponent<T extends Component>(
@@ -284,6 +284,6 @@ function initComponent<T extends Component>(
 ): T {
   const component = createComponent(Component, { props, scope });
   component.$$[ON_DISPATCH] = onDispatch.bind(state);
-  component.$$._setup();
+  component.$$.setup();
   return component;
 }

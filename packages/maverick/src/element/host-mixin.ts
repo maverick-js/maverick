@@ -37,7 +37,7 @@ export function Host<T extends HTMLElement, R extends Component>(
 
     private static [ATTRS]: Map<
       string,
-      { _prop: string; _converter: AttributeConverter<any> }
+      { prop: string; converter: AttributeConverter<any> }
     > | null = null;
 
     static get observedAttributes(): string[] {
@@ -52,8 +52,8 @@ export function Host<T extends HTMLElement, R extends Component>(
           if (!attrName) attrName = camelToKebabCase(propName);
 
           map.set(attrName, {
-            _prop: propName,
-            _converter:
+            prop: propName,
+            converter:
               (attr && !isString(attr) && attr?.converter) ||
               inferAttributeConverter(Component.props[propName]),
           });
@@ -73,23 +73,23 @@ export function Host<T extends HTMLElement, R extends Component>(
     forwardKeepAlive = true;
 
     get scope(): Scope {
-      return this.$.$$._scope!;
+      return this.$.$$.scope!;
     }
 
     get attachScope(): Scope | null {
-      return this.$.$$._attachScope;
+      return this.$.$$.attachScope;
     }
 
     get connectScope(): Scope | null {
-      return this.$.$$._connectScope;
+      return this.$.$$.connectScope;
     }
 
     get $props() {
-      return this.$.$$._props as any;
+      return this.$.$$.props as any;
     }
 
     get $state() {
-      return this.$.$$._$state as any;
+      return this.$.$$.$state as any;
     }
 
     get state() {
@@ -100,7 +100,7 @@ export function Host<T extends HTMLElement, R extends Component>(
       super(...args);
 
       this.$ = scoped(() => createComponent(Component), null)!;
-      this.$.$$._addHooks(this as any);
+      this.$.$$.addHooks(this as any);
 
       // Properties might be assigned before element is registered. We need to assign them
       // to the internal prop signals and delete from proto chain.
@@ -126,12 +126,12 @@ export function Host<T extends HTMLElement, R extends Component>(
       }
 
       const def = Ctor[ATTRS].get(name);
-      if (def) this[def._prop] = (def._converter as AttributeConverter)(newValue);
+      if (def) this[def.prop] = (def.converter as AttributeConverter)(newValue);
     }
 
     connectedCallback() {
       const instance = this.$?.$$;
-      if (!instance || instance._destroyed) return;
+      if (!instance || instance.destroyed) return;
 
       if (this[SETUP_STATE] !== SetupState.Ready) {
         setup.call(this);
@@ -145,7 +145,7 @@ export function Host<T extends HTMLElement, R extends Component>(
         this.keepAlive = true;
       }
 
-      instance._connect();
+      instance.connect();
 
       if (isArray(this[SETUP_CALLBACKS])) runAll(this[SETUP_CALLBACKS], this);
       this[SETUP_CALLBACKS] = null;
@@ -159,9 +159,9 @@ export function Host<T extends HTMLElement, R extends Component>(
 
     disconnectedCallback() {
       const instance = this.$?.$$;
-      if (!instance || instance._destroyed) return;
+      if (!instance || instance.destroyed) return;
 
-      instance._disconnect();
+      instance.disconnect();
 
       // @ts-expect-error
       const callback = super.disconnectedCallback;
@@ -170,7 +170,7 @@ export function Host<T extends HTMLElement, R extends Component>(
       if (!this.keepAlive && !this.hasAttribute('keep-alive')) {
         setTimeout(() => {
           requestAnimationFrame(() => {
-            if (!this.isConnected) instance._destroy();
+            if (!this.isConnected) instance.destroy();
           });
         }, 0);
       }
@@ -180,24 +180,24 @@ export function Host<T extends HTMLElement, R extends Component>(
       const instance = this.$.$$,
         Ctor = this.constructor as typeof MaverickElement;
 
-      if (__DEV__ && instance._destroyed) {
+      if (__DEV__ && instance.destroyed) {
         console.warn(`[maverick] attempted attaching to destroyed element \`${this.tagName}\``);
       }
 
-      if (instance._destroyed) return;
+      if (instance.destroyed) return;
 
       const attrs = Ctor[ATTRS];
       if (attrs) {
         for (const attr of this.attributes) {
           let def = attrs.get(attr.name);
-          if (def && def._converter) {
-            instance._props[def._prop].set(def._converter(this.getAttribute(attr.name)));
+          if (def && def.converter) {
+            instance.props[def.prop].set(def.converter(this.getAttribute(attr.name)));
           }
         }
       }
 
-      instance._setup();
-      instance._attach(this);
+      instance.setup();
+      instance.attach(this);
       this[SETUP_STATE] = SetupState.Ready;
 
       this.connectedCallback();
@@ -418,8 +418,8 @@ function attach(this: HostElement & HTMLElement, parent: HostElement | null) {
       this.setAttribute('keep-alive', '');
     }
 
-    const scope = this.$.$$._scope;
-    if (scope) parent.$.$$._attachScope!.append(scope);
+    const scope = this.$.$$.scope;
+    if (scope) parent.$.$$.attachScope!.append(scope);
   }
 
   this[SETUP]();

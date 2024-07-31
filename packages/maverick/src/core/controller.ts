@@ -21,7 +21,7 @@ export function createComponent<T extends Component>(
   return root(() => {
     currentInstance.$$ = new Instance(Component, getScope()!, init);
     const component = new Component();
-    currentInstance.$$._component = component;
+    currentInstance.$$.component = component;
     currentInstance.$$ = null;
     return component;
   });
@@ -32,7 +32,7 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
   $$!: Instance<Props, State, Events, CSSVars>;
 
   get el(): HTMLElement | null {
-    return this.$$._el;
+    return this.$$.el;
   }
 
   get $el(): HTMLElement | null {
@@ -40,29 +40,29 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
   }
 
   get scope(): Scope {
-    return this.$$._scope!;
+    return this.$$.scope!;
   }
 
   get attachScope(): Scope | null {
-    return this.$$._attachScope;
+    return this.$$.attachScope;
   }
 
   get connectScope(): Scope | null {
-    return this.$$._connectScope;
+    return this.$$.connectScope;
   }
 
   /** @internal */
   get $props(): ReadSignalRecord<Props> {
-    return this.$$._props;
+    return this.$$.props;
   }
 
   /** @internal */
   get $state(): WriteSignalRecord<State> {
-    return this.$$._$state;
+    return this.$$.$state;
   }
 
   get state(): Readonly<State> {
-    return this.$$._state;
+    return this.$$.state;
   }
 
   constructor() {
@@ -72,7 +72,7 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
 
   attach({ $$ }: { $$: Instance<Props, State, Events, CSSVars> }) {
     this.$$ = $$;
-    $$._addHooks(this as unknown as LifecycleHooks);
+    $$.addHooks(this as unknown as LifecycleHooks);
     return this;
   }
 
@@ -138,8 +138,8 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
    * attributes that are assigned to a function will be considered a signal and updated accordingly.
    */
   protected setAttributes(attributes: ElementAttributesRecord): void {
-    if (!this.$$._attrs) this.$$._attrs = {};
-    Object.assign(this.$$._attrs, attributes);
+    if (!this.$$.attrs) this.$$.attrs = {};
+    Object.assign(this.$$.attrs, attributes);
   }
 
   /**
@@ -147,8 +147,8 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
    * styles that are assigned to a function will be considered a signal and updated accordingly.
    */
   protected setStyles(styles: ElementStylesRecord): void {
-    if (!this.$$._styles) this.$$._styles = {};
-    Object.assign(this.$$._styles, styles);
+    if (!this.$$.styles) this.$$.styles = {};
+    Object.assign(this.$$.styles, styles);
   }
 
   /**
@@ -182,12 +182,12 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
     ...init: Type extends Event
       ? [init?: never]
       : Type extends keyof Events
-      ? Events[Type] extends DOMEvent
-        ? Events[Type]['detail'] extends void | undefined | never
-          ? [init?: Partial<DOMEventInit<Events[Type]['detail']>>]
-          : [init: DOMEventInit<Events[Type]['detail']>]
+        ? Events[Type] extends DOMEvent
+          ? Events[Type]['detail'] extends void | undefined | never
+            ? [init?: Partial<DOMEventInit<Events[Type]['detail']>>]
+            : [init: DOMEventInit<Events[Type]['detail']>]
+          : [init?: never]
         : [init?: never]
-      : [init?: never]
   ): boolean {
     if (__SERVER__ || !this.el) return false;
 
@@ -195,7 +195,7 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
       type instanceof Event ? type : new DOMEvent(type as string, init[0] as DOMEventInit);
 
     Object.defineProperty(event, 'target', {
-      get: () => this.$$._component,
+      get: () => this.$$.component,
     });
 
     return untrack(() => {

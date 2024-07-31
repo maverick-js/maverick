@@ -34,13 +34,13 @@ export class State<Record extends AnyRecord> {
   readonly id = Symbol(__DEV__ ? 'STATE' : 0);
   readonly record: Record;
 
-  private _descriptors: {
+  #descriptors: {
     [P in keyof Record]: TypedPropertyDescriptor<Record[P]>;
   };
 
   constructor(record: Record) {
     this.record = record;
-    this._descriptors = Object.getOwnPropertyDescriptors(record);
+    this.#descriptors = Object.getOwnPropertyDescriptors(record);
   }
 
   create(): Store<Record> {
@@ -48,7 +48,7 @@ export class State<Record extends AnyRecord> {
       state = new Proxy(store, { get: (_, prop: any) => store[prop]() });
 
     for (const name of Object.keys(this.record) as any[]) {
-      const getter = this._descriptors[name].get;
+      const getter = this.#descriptors[name].get;
       store[name] = getter ? computed(getter.bind(state)) : signal(this.record[name]);
     }
 
@@ -57,7 +57,7 @@ export class State<Record extends AnyRecord> {
 
   reset(record: Store<Record>, filter?: (key: keyof Record) => boolean): void {
     for (const name of Object.keys(record) as any[]) {
-      if (!this._descriptors[name].get && (!filter || filter(name))) {
+      if (!this.#descriptors[name].get && (!filter || filter(name))) {
         (record[name] as WriteSignal<any>).set(this.record[name]);
       }
     }
@@ -73,14 +73,14 @@ export type Store<T> = {
 export type InferStore<T> = T extends State<infer Record>
   ? Store<Record>
   : T extends Store<any>
-  ? T
-  : never;
+    ? T
+    : never;
 
 export type InferStoreRecord<T> = T extends State<infer Record>
   ? Record
   : T extends Store<infer Record>
-  ? Record
-  : never;
+    ? Record
+    : never;
 
 export type StateContext<T> = ReadSignalRecord<T extends State<infer Record> ? Record : T>;
 

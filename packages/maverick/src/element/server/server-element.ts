@@ -15,11 +15,11 @@ export class MaverickServerElement<T extends AnyComponent = AnyComponent> implem
   readonly classList = new ServerClassList();
 
   get $props() {
-    return this.$.$$._props;
+    return this.$.$$.props;
   }
 
   get $state() {
-    return this.$.$$._$state;
+    return this.$.$$.$state;
   }
 
   get state() {
@@ -41,8 +41,8 @@ export class MaverickServerElement<T extends AnyComponent = AnyComponent> implem
         parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
       }
 
-      instance._setup();
-      instance._attach(this);
+      instance.setup();
+      instance.attach(this);
 
       if (this.classList.length > 0) {
         this.setAttribute('class', this.classList.toString());
@@ -55,7 +55,7 @@ export class MaverickServerElement<T extends AnyComponent = AnyComponent> implem
       if (this.keepAlive) {
         this.setAttribute('keep-alive', '');
       }
-    }, instance._scope);
+    }, instance.scope);
   }
 
   getAttribute(name: string): string | null {
@@ -92,29 +92,29 @@ export class MaverickServerElement<T extends AnyComponent = AnyComponent> implem
 }
 
 export class ServerAttributes {
-  protected _tokens = new Map<string, string>();
+  #tokens = new Map<string, string>();
   get length() {
-    return this._tokens.size;
+    return this.#tokens.size;
   }
   get tokens() {
-    return this._tokens;
+    return this.#tokens;
   }
   getAttribute(name: string): string | null {
-    return this._tokens.get(name) ?? null;
+    return this.#tokens.get(name) ?? null;
   }
   hasAttribute(name: string) {
-    return this._tokens.has(name);
+    return this.#tokens.has(name);
   }
   setAttribute(name: string, value: string) {
-    this._tokens.set(name, value + '');
+    this.#tokens.set(name, value + '');
   }
   removeAttribute(name: string) {
-    this._tokens.delete(name);
+    this.#tokens.delete(name);
   }
   toString() {
-    if (this._tokens.size === 0) return '';
+    if (this.#tokens.size === 0) return '';
     let result = '';
-    for (const [name, value] of this._tokens) {
+    for (const [name, value] of this.#tokens) {
       result += ` ${name}="${escape(value, true)}"`;
     }
     return result;
@@ -122,28 +122,28 @@ export class ServerAttributes {
 }
 
 export class ServerStyle {
-  protected _tokens = new Map<string, string>();
+  #tokens = new Map<string, string>();
   get length() {
-    return this._tokens.size;
+    return this.#tokens.size;
   }
   get tokens() {
-    return this._tokens;
+    return this.#tokens;
   }
   getPropertyValue(prop: string): string {
-    return this._tokens.get(prop) ?? '';
+    return this.#tokens.get(prop) ?? '';
   }
   setProperty(prop: string, value: string | null) {
-    this._tokens.set(prop, value ?? '');
+    this.#tokens.set(prop, value ?? '');
   }
   removeProperty(prop: string): string {
-    const value = this._tokens.get(prop);
-    this._tokens.delete(prop);
+    const value = this.#tokens.get(prop);
+    this.#tokens.delete(prop);
     return value ?? '';
   }
   toString() {
-    if (this._tokens.size === 0) return '';
+    if (this.#tokens.size === 0) return '';
     let result = '';
-    for (const [name, value] of this._tokens) {
+    for (const [name, value] of this.#tokens) {
       result += `${name}: ${value};`;
     }
     return result;
@@ -172,40 +172,40 @@ export interface ServerElement
 }
 
 export class ServerClassList {
-  protected _tokens = new Set<string>();
+  #tokens = new Set<string>();
   get length() {
-    return this._tokens.size;
+    return this.#tokens.size;
   }
   get tokens() {
-    return this._tokens;
+    return this.#tokens;
   }
   add(...tokens: string[]): void {
     for (const token of tokens) {
-      this._tokens.add(token);
+      this.#tokens.add(token);
     }
   }
   contains(token: string): boolean {
-    return this._tokens.has(token);
+    return this.#tokens.has(token);
   }
   remove(token: string) {
-    this._tokens.delete(token);
+    this.#tokens.delete(token);
   }
   replace(token: string, newToken: string): boolean {
-    if (!this._tokens.has(token)) return false;
-    this._tokens.delete(token);
-    this._tokens.add(newToken);
+    if (!this.#tokens.has(token)) return false;
+    this.#tokens.delete(token);
+    this.#tokens.add(newToken);
     return true;
   }
   toggle(token: string, force?: boolean): boolean {
-    if (force !== true && (this._tokens.has(token) || force === false)) {
-      this._tokens.delete(token);
+    if (force !== true && (this.#tokens.has(token) || force === false)) {
+      this.#tokens.delete(token);
       return false;
     } else {
-      this._tokens.add(token);
+      this.#tokens.add(token);
       return true;
     }
   }
   toString() {
-    return Array.from(this._tokens).join(' ');
+    return Array.from(this.#tokens).join(' ');
   }
 }

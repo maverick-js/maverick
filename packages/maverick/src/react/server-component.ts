@@ -24,14 +24,14 @@ export function createServerComponent<T extends Component>(
       }),
       host = new MaverickServerElement(component),
       attrs: Record<string, any> = {},
-      { style = {}, children, forwardRef, ...__props } = props;
+      { style = {}, children, forwardRef, ...renderProps } = props;
 
     if (options.props.size) {
-      for (const prop of Object.keys(__props)) {
-        if (!options.props.has(prop)) attrs[prop] = __props[prop];
+      for (const prop of Object.keys(renderProps)) {
+        if (!options.props.has(prop)) attrs[prop] = renderProps[prop];
       }
     } else {
-      attrs = __props;
+      attrs = renderProps;
     }
 
     host.setup();
@@ -56,7 +56,7 @@ export function createServerComponent<T extends Component>(
     }
 
     return WithScope(
-      { current: component.$$._scope! },
+      { current: component.$$.scope! },
       isFunction(children)
         ? children?.(
             {

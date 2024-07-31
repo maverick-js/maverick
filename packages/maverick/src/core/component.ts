@@ -18,11 +18,11 @@ export class Component<Props = {}, State = {}, Events = {}, CSSVars = {}> extend
       );
     }
 
-    return scoped(() => effect(() => callback(this.state)), this.$$._scope)!;
+    return scoped(() => effect(() => callback(this.state)), this.$$.scope)!;
   }
 
   destroy(): void {
-    this.$$._destroy();
+    this.$$.destroy();
   }
 }
 

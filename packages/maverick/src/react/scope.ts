@@ -43,8 +43,8 @@ export function createReactContextProvider<T>(
   provide?: () => T,
 ): ReactContextProvider {
   return class ContextProvider extends ScopeProvider {
-    static override _context = context;
-    static override _provide = provide;
+    static override #context = context;
+    static override #provide = provide;
   };
 }
 
@@ -52,25 +52,25 @@ class ScopeProvider extends React.Component<React.PropsWithChildren> {
   static override contextType = ReactScopeContext;
   declare context: React.ContextType<typeof ReactScopeContext>;
 
-  static _context?: Context<unknown>;
-  static _provide?: () => unknown;
+  static #context?: Context<unknown>;
+  static #provide?: () => unknown;
 
-  private _scope: ReactScopeRef;
+  #scope: ReactScopeRef;
 
   constructor(props, context?: Scope) {
     super(props);
 
-    this._scope = {
+    this.#scope = {
       current: createScope(),
     };
 
-    if (context) context.append(this._scope.current!);
+    if (context) context.append(this.#scope.current!);
 
     const Ctor = this.constructor as typeof ScopeProvider;
-    if (Ctor._context) provideContext(Ctor._context, Ctor._provide?.(), this._scope.current!);
+    if (Ctor.#context) provideContext(Ctor.#context, Ctor.#provide?.(), this.#scope.current!);
   }
 
   override render() {
-    return WithScope(this._scope, this.props?.children);
+    return WithScope(this.#scope, this.props?.children);
   }
 }

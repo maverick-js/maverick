@@ -1,3 +1,12 @@
+## [0.43.1](https://github.com/maverick-js/maverick/compare/v0.43.0...v0.43.1) (2024-07-31)
+
+
+### Bug Fixes
+
+* expose abort signal on `EventsController` ([cfa1ed1](https://github.com/maverick-js/maverick/commit/cfa1ed1d1faa0f94a75d8b69556765d2455b4155))
+
+
+
 # [0.43.0](https://github.com/maverick-js/maverick/compare/v0.42.0...v0.43.0) (2024-07-31)
 
 

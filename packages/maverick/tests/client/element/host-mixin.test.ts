@@ -171,7 +171,7 @@ it('should render `setStyles`', () => {
 
 it('should define component proto on element', () => {
   class BaseComponent extends Component {
-    _zoo = 10;
+    #zoo = 10;
 
     @prop
     get zoo() {
@@ -194,7 +194,7 @@ it('should define component proto on element', () => {
   }
 
   class TestComponent extends BaseComponent {
-    _boo = 20;
+    #boo = 20;
 
     @prop
     get boo() {

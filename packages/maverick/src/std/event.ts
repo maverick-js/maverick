@@ -222,6 +222,22 @@ export class EventsTarget<Events> extends EventTarget {
   }
 }
 
+export type InferEvents<Target> = Target extends Component<any, any, infer Events>
+  ? Events
+  : Target extends ViewController<any, any, infer Events>
+    ? Events
+    : Target extends MaverickElement<infer Component>
+      ? InferComponentEvents<Component> & HTMLElementEventMap
+      : Target extends EventsTarget<infer Events>
+        ? Events extends {}
+          ? Events
+          : HTMLElementEventMap
+        : Target extends { $ts__events?: infer Events }
+          ? Events extends {}
+            ? Events
+            : HTMLElementEventMap
+          : HTMLElementEventMap;
+
 /**
  * Adds an event listener for the given `type` and returns a function which can be invoked to
  * remove the event listener.
@@ -231,21 +247,7 @@ export class EventsTarget<Events> extends EventTarget {
  */
 export function listenEvent<
   Target extends EventTarget,
-  Events = Target extends Component<any, any, infer Events>
-    ? Events
-    : Target extends ViewController<any, any, infer Events>
-      ? Events
-      : Target extends MaverickElement<infer Component>
-        ? InferComponentEvents<Component> & HTMLElementEventMap
-        : Target extends EventsTarget<infer Events>
-          ? Events extends {}
-            ? Events
-            : HTMLElementEventMap
-          : Target extends { $ts__events?: infer Events }
-            ? Events extends {}
-              ? Events
-              : HTMLElementEventMap
-            : HTMLElementEventMap,
+  Events = InferEvents<Target>,
   Type extends keyof Events = keyof Events,
 >(
   target: Target,
@@ -256,6 +258,71 @@ export function listenEvent<
   if (__SERVER__) return noop;
   target.addEventListener(type, handler as any, options);
   return onDispose(() => target.removeEventListener(type, handler as any, options));
+}
+
+export class EventsController<Target extends EventTarget, Events = InferEvents<Target>> {
+  #target: Target;
+  #controller: AbortController;
+
+  get #signal() {
+    return this.#controller.signal;
+  }
+
+  constructor(target: Target) {
+    this.#target = target;
+    this.#controller = new AbortController();
+    onDispose(this.abort.bind(this));
+  }
+
+  add<Type extends keyof Events>(
+    type: Type,
+    handler: TargetedEventHandler<Target, Events[Type] extends Event ? Events[Type] : Event>,
+    options?: AddEventListenerOptions,
+  ) {
+    if (this.#signal.aborted) throw Error('aborted');
+
+    this.#target.addEventListener(type as any, handler as any, {
+      ...options,
+      signal: options?.signal ? anySignal(this.#signal, options.signal) : this.#signal,
+    });
+
+    return this;
+  }
+
+  remove<Type extends keyof Events>(
+    type: Type,
+    handler: TargetedEventHandler<Target, Events[Type] extends Event ? Events[Type] : Event>,
+  ) {
+    this.#target.removeEventListener(type as any, handler as any);
+    return this;
+  }
+
+  abort(reason?: string) {
+    this.#controller.abort(reason);
+  }
+}
+
+/**
+ * Returns an `AbortSignal` that will abort when any of the given signals are aborted.
+ */
+export function anySignal(...signals: AbortSignal[]): AbortSignal {
+  const controller = new AbortController(),
+    options = { signal: controller.signal };
+
+  function onAbort(event: Event) {
+    controller.abort((event.target as AbortSignal).reason);
+  }
+
+  for (const signal of signals) {
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+      break;
+    }
+
+    signal.addEventListener('abort', onAbort, options);
+  }
+
+  return controller.signal;
 }
 
 export function isPointerEvent(event: Event | undefined): event is PointerEvent {

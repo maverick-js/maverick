@@ -1,3 +1,17 @@
+# [0.43.0](https://github.com/maverick-js/maverick/compare/v0.42.0...v0.43.0) (2024-07-31)
+
+
+### Bug Fixes
+
+* refactor to use private class fields ([18959bf](https://github.com/maverick-js/maverick/commit/18959bfaa147852003de22afde4428e2217e5cf9))
+
+
+### Features
+
+* new `EventsController` ([0cb9521](https://github.com/maverick-js/maverick/commit/0cb952164fd64dbbb190cba4f6b234c9f201464f))
+
+
+
 # [0.42.0](https://github.com/maverick-js/maverick/compare/v0.41.7...v0.42.0) (2024-07-02)
 
 

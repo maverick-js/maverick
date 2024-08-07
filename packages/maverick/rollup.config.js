@@ -1,8 +1,9 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
+import sucrase from '@rollup/plugin-sucrase';
 import fs from 'node:fs/promises';
 import { defineConfig } from 'rollup';
 import dts from 'rollup-plugin-dts';
-import esbuildPlugin from 'rollup-plugin-esbuild';
 
 export default defineConfig([
   define({ type: 'dev' }),
@@ -80,17 +81,16 @@ function define({ type = 'dev' }) {
           ? ['development', 'production', 'default']
           : ['production', 'default'],
       }),
-      esbuildPlugin({
-        target: type === 'server' ? 'node18' : 'esnext',
-        platform: type === 'server' ? 'node' : 'browser',
-        tsconfig: 'tsconfig.build.json',
-        minify: false,
-        banner: isRSC ? 'import { IS_SERVER } from "@virtual/env";\n' : '',
-        define: {
-          __DEV__: isDev ? 'true' : 'false',
-          __SERVER__: isRSC ? 'IS_SERVER' : type === 'server' ? 'true' : 'false',
-          __TEST__: 'false',
-        },
+      sucrase({
+        disableESTransforms: true,
+        exclude: ['node_modules/**'],
+        transforms: ['typescript'],
+      }),
+      replace({
+        preventAssignment: true,
+        __DEV__: isDev ? 'true' : 'false',
+        __SERVER__: isRSC ? 'IS_SERVER' : type === 'server' ? 'true' : 'false',
+        __TEST__: 'false',
       }),
       {
         name: 'env',
@@ -102,6 +102,12 @@ function define({ type = 'dev' }) {
             return `export const IS_SERVER = typeof document === 'undefined';`;
           }
         },
+        transform: isRSC
+          ? (code, id) => {
+              if (id === '@virtual/env') return;
+              return 'import { IS_SERVER } from "@virtual/env";\n' + code;
+            }
+          : undefined,
       },
     ],
   };

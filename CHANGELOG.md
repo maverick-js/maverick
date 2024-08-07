@@ -1,3 +1,12 @@
+## [0.43.2](https://github.com/maverick-js/maverick/compare/v0.43.1...v0.43.2) (2024-08-07)
+
+
+### Bug Fixes
+
+* replace esbuild with sucrase ([27067bb](https://github.com/maverick-js/maverick/commit/27067bb7e5df385f2733229d7c9cf36017eb95d7))
+
+
+
 ## [0.43.1](https://github.com/maverick-js/maverick/compare/v0.43.0...v0.43.1) (2024-07-31)
 
 

@@ -1,29 +1,31 @@
+/**
+ * Thanks: https://github.com/vuejs/vue-next/blob/master/scripts/release.js
+ */
 import prompt from 'enquirer';
 import { execa } from 'execa';
+import fs from 'fs-extra';
 import kleur from 'kleur';
 import minimist from 'minimist';
-import fs from 'node:fs';
-import { createRequire } from 'node:module';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from 'path';
 import semver from 'semver';
+import { fileURLToPath } from 'url';
 
-const require = createRequire(import.meta.url);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const args = minimist(process.argv.slice(2));
-const isDryRun = args.dry;
-const skippedPackages = [];
-const currentVersion = require('../package.json').version;
-const packagesDir = fs.readdirSync(path.resolve(__dirname, '../packages'));
-const packages = packagesDir.filter((p) => !p.startsWith('.'));
-const preId =
-  args.preid || (semver.prerelease(currentVersion) && semver.prerelease(currentVersion)?.[0]);
-const versionIncrements = [
-  'patch',
-  'minor',
-  'major',
-  ...(preId ? ['prepatch', 'preminor', 'premajor', 'prerelease'] : []),
-];
+const __dirname = path.dirname(fileURLToPath(import.meta.url)),
+  args = minimist(process.argv.slice(2)),
+  isDryRun = args.dry,
+  isNext = args.next,
+  skippedPackages = [],
+  currentVersion = require('../package.json').version,
+  packagesDir = fs.readdirSync(path.resolve(__dirname, '../packages')),
+  packages = packagesDir.filter((pkg) => !pkg.startsWith('.')),
+  preId =
+    args.preid || (semver.prerelease(currentVersion) && semver.prerelease(currentVersion)?.[0]),
+  versionIncrements = [
+    'patch',
+    'minor',
+    'major',
+    ...(preId ? ['prepatch', 'preminor', 'premajor', 'prerelease'] : []),
+  ];
 
 function inc(i) {
   return semver.inc(currentVersion, i, preId);
@@ -82,7 +84,7 @@ async function main() {
     await prompt.prompt({
       type: 'confirm',
       name: 'yes',
-      message: `Releasing v${targetVersion}. Confirm?`,
+      message: `Releasing v${targetVersion}${isNext ? '-next' : ''}. Confirm?`,
     })
   );
 
@@ -92,9 +94,6 @@ async function main() {
 
   step('Updating cross dependencies...');
   updateVersions(targetVersion);
-
-  step('Generating changelog...');
-  await run(`npm`, ['run', 'changelog']);
 
   for (const pkg of packages) {
     await publishPackage(pkg, targetVersion, runIfNotDry);
@@ -109,16 +108,25 @@ async function main() {
   const { stdout } = await run('git', ['diff'], { stdio: 'pipe' });
   if (stdout) {
     step('Committing changes...');
+
+    const commit = `chore(release): v${targetVersion}${isNext ? '-next' : ''}`;
     await runIfNotDry('git', ['add', '-A']);
-    await runIfNotDry('git', ['commit', '-m', `chore(release): v${targetVersion}`]);
+    await runIfNotDry('git', ['commit', '-m', commit]);
   } else {
     console.log('No changes to commit.');
   }
 
+  const tag = `v${targetVersion}${isNext ? '-next' : ''}`;
+  await runIfNotDry('git', ['tag', tag]);
+
+  step('Generating changelog...');
+  await run('pnpm', ['changelog']);
+  await runIfNotDry('git', ['add', '-A']);
+  await runIfNotDry('git', ['commit', '-m', 'chore(release): update changelog']);
+
   step('Pushing to GitHub...');
-  await runIfNotDry('git', ['tag', `v${targetVersion}`]);
-  await runIfNotDry('git', ['push', 'origin', `refs/tags/v${targetVersion}`]);
-  await runIfNotDry('git', ['push', 'origin', 'main']);
+  await runIfNotDry('git', ['push', 'upstream', `refs/tags/${tag}`]);
+  await runIfNotDry('git', ['push', 'upstream', 'main']);
 
   if (isDryRun) {
     console.log(`\nDry run finished - run git diff to see package changes.`);
@@ -155,14 +163,17 @@ function updatePackageVersion(pkgRoot, version) {
   fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 }
 
+const workspace = new Set();
+
 function updatePackageDeps(pkg, depType, version) {
   const deps = pkg[depType];
   if (!deps) return;
   Object.keys(deps).forEach((dep) => {
-    if (/^@?maverick/.test(dep) && packages.includes(dep.replace(/^@?maverick(\.js|-js)\//, ''))) {
+    if (workspace.has(dep) || deps[dep] === 'workspace:*') {
       const color = version === 'workspace:*' ? 'cyan' : 'yellow';
       console.log(kleur[color](`🦠 ${pkg.name} -> ${depType} -> ${dep}@${version}`));
       deps[dep] = version;
+      workspace.add(dep);
     }
   });
 }
@@ -172,23 +183,28 @@ async function publishPackage(pkgName, version, runIfNotDry) {
     return;
   }
 
-  const pkgRoot = getPkgRoot(pkgName);
-  const pkgPath = path.resolve(pkgRoot, 'package.json');
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+  const pkgRoot = getPkgRoot(pkgName),
+    distDir = path.resolve(pkgRoot, 'dist-npm'),
+    pkgPath = path.resolve(distDir, 'package.json'),
+    pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
 
   if (pkg.private) {
     console.log(kleur.red(`\n🚫 Skipping private package: ${pkg.name}`));
     return;
   }
 
+  // Write new version.
+  pkg.version = version;
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8');
+
   step(`Publishing ${pkgName}...`);
 
   try {
-    await runIfNotDry('yarn', ['publish', '--new-version', version, '--access', 'public'], {
-      cwd: pkgRoot,
-      stdio: 'pipe',
-    });
-
+    await runIfNotDry(
+      'yarn',
+      ['publish', '--new-version', version, '--tag', getReleaseTag(version), '--access', 'public'],
+      { cwd: distDir, stdio: 'pipe' },
+    );
     console.log(kleur.green(`\n✅ Successfully published ${pkgName}@${version}`));
   } catch (e) {
     if (/** @type {any} */ (e).stderr.match(/previously published/)) {
@@ -196,6 +212,20 @@ async function publishPackage(pkgName, version, runIfNotDry) {
     } else {
       throw e;
     }
+  }
+}
+
+function getReleaseTag(version) {
+  if (args.tag) {
+    return args.tag;
+  } else if (version.includes('alpha')) {
+    return 'alpha';
+  } else if (version.includes('beta')) {
+    return 'beta';
+  } else if (version.includes('rc')) {
+    return 'rc';
+  } else {
+    return isNext ? 'next' : 'latest';
   }
 }
 

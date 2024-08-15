@@ -1,19 +1,12 @@
 {
   "name": "maverick.js",
-  "description": "Build fast and type-safe UI component libraries.",
+  "description": "Build fast and type-safe component libraries.",
   "license": "MIT",
   "version": "0.43.2",
   "type": "module",
-  "types": "index.d.ts",
-  "module": "dist/prod/index.js",
+  "types": "src/index.ts",
+  "module": "src/index.ts",
   "sideEffects": false,
-  "files": [
-    "dist/",
-    "*.d.ts"
-  ],
-  "engines": {
-    "node": ">=16"
-  },
   "contributors": [
     "Rahim Alwer <rahim.alwer@gmail.com>"
   ],
@@ -28,7 +21,7 @@
   "scripts": {
     "dev": "rollup -c -w",
     "build": "pnpm clean && pnpm types && rollup -c",
-    "clean": "rimraf dist types *.d.ts",
+    "clean": "rimraf dist-npm",
     "types": "tsc -p tsconfig.build.json",
     "test": "pnpm test:client && pnpm test:server",
     "format": "prettier src --write --loglevel warn",
@@ -41,53 +34,24 @@
     "@edge-runtime/vm": "^2.1.0",
     "@maverick-js/signals": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-replace": "^5.0.7",
-    "@rollup/plugin-sucrase": "^5.0.2",
-    "@types/node": "^18.0.3",
-    "@types/react": "^18.0.24",
-    "@types/react-dom": "^18.0.8",
-    "globby": "^14.0.0",
     "jsdom": "^20.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "rimraf": "^5.0.5",
     "rollup": "^4.7.0",
     "rollup-plugin-dts": "^6.1.0",
-    "type-fest": "^4.8.3",
+    "rollup-plugin-esbuild": "^6.1.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.0",
     "vitest": "^1.0.0"
   },
-  "exports": {
+  "$types": "index.d.ts",
+  "$exports": {
     ".": {
       "types": "./index.d.ts",
-      "node": "./dist/server/index.js",
-      "development": "./dist/dev/index.js",
-      "default": "./dist/prod/index.js"
+      "node": "./server/index.js",
+      "development": "./dev/index.js",
+      "default": "./prod/index.js"
     },
-    "./element": {
-      "types": "./element.d.ts",
-      "node": "./dist/server/element.js",
-      "development": "./dist/dev/element.js",
-      "default": "./dist/prod/element.js"
-    },
-    "./react": {
-      "types": "./react.d.ts",
-      "node": "./dist/server/react.js",
-      "development": "./dist/dev/react.js",
-      "default": "./dist/prod/react.js"
-    },
-    "./rsc": {
-      "development": "./dist/rsc/dev.js",
-      "default": "./dist/rsc/prod.js"
-    },
-    "./std": {
-      "types": "./std.d.ts",
-      "node": "./dist/server/std.js",
-      "development": "./dist/dev/std.js",
-      "default": "./dist/prod/std.js"
-    },
-    "./dist/types/*": "./dist/types/*",
+    "./types/*": "./types/*",
     "./package.json": "./package.json"
   },
   "publishConfig": {

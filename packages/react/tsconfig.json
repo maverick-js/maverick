@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@maverick-js/react": ["./src/index.ts"]
+    },
+    "types": ["vitest/globals"]
+  },
+  "include": ["src", "tests"],
+  "exclude": ["dist", "node_modules", "*.d.ts"]
+}

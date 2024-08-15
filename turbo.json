@@ -1,0 +1,22 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "tasks": {
+    "bundle": {
+      "dependsOn": ["clean"],
+      "outputs": ["dist-npm"]
+    },
+    "types": {
+      "dependsOn": ["^types"],
+      "outputs": ["types/**", "dist-npm/**/*.d.ts", "tsconfig.build.tsbuildinfo"]
+    },
+    "clean": {
+      "cache": false
+    },
+    "format": {
+      "inputs": ["src/**"]
+    },
+    "test": {
+      "inputs": ["src/**"]
+    }
+  }
+}

@@ -1,5 +1,5 @@
-import type { PickReadonly } from '../std/types';
-import type { PickWritable } from '../std/types';
+import type { PickReadonly } from '../../../std/src/types';
+import type { PickWritable } from '../../../std/src/types';
 import { useContext } from './context';
 import { computed, type ReadSignal, signal, type WriteSignal } from './signals';
 import type { AnyRecord, ReadSignalRecord } from './types';

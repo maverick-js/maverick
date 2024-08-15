@@ -1,8 +1,8 @@
+import { setAttribute, setStyle } from '../../../std/src/dom';
+import { unwrapDeep } from '../../../std/src/signal';
+import { isFunction } from '../../../std/src/unit';
 import type { ServerElement } from '../element/server';
 import type { ElementAttributesRecord, ElementStylesRecord } from '../element/types';
-import { setAttribute, setStyle } from '../std/dom';
-import { unwrapDeep } from '../std/signal';
-import { isFunction } from '../std/unit';
 import type { Component, ComponentConstructor } from './component';
 import { provideContext } from './context';
 import { createScope, effect, onDispose } from './signals';

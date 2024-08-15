@@ -1,0 +1,56 @@
+{
+  "name": "@maverick-js/element",
+  "description": "Custom element bindings for Maverick.",
+  "license": "MIT",
+  "version": "0.43.2",
+  "type": "module",
+  "types": "index.d.ts",
+  "sideEffects": false,
+  "contributors": [
+    "Rahim Alwer <rahim.alwer@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maverick-js/maverick.git",
+    "directory": "packages/element"
+  },
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
+  },
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "pnpm clean && pnpm types && rollup -c",
+    "clean": "rimraf dist-npm",
+    "types": "tsc -p tsconfig.build.json",
+    "test": "pnpm test:client && pnpm test:server",
+    "format": "prettier src --write --loglevel warn",
+    "test:client": "vitest --run",
+    "test:client:watch": "vitest --watch",
+    "test:server": "SERVER=true vitest --run",
+    "test:server:watch": "SERVER=true vitest --watch"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.7.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-esbuild": "^6.1.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "node": "./server/index.js",
+      "development": "./dev/index.js",
+      "default": "./prod/index.js"
+    },
+    "./types/*": "./types/*",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

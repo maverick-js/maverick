@@ -3,7 +3,7 @@ import { Component, createContext, method, onDispose, prop, provideContext, useC
 import { defineCustomElement } from 'maverick.js/element';
 
 import { Host } from '../../../src/element/host-mixin';
-import { waitAnimationFrame } from '../../../src/std/timing';
+import { waitAnimationFrame } from '../../../../std/src/timing';
 import { isFunction } from 'maverick.js/std';
 
 afterEach(() => {

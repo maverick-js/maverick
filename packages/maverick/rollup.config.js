@@ -1,16 +1,14 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import replace from '@rollup/plugin-replace';
-import sucrase from '@rollup/plugin-sucrase';
-import fs from 'node:fs/promises';
 import { defineConfig } from 'rollup';
 import dts from 'rollup-plugin-dts';
+import esbuild from 'rollup-plugin-esbuild';
+
+import { copyPkgFiles } from '../../.build/copy-pkg-files.js';
 
 export default defineConfig([
   define({ type: 'dev' }),
   define({ type: 'prod' }),
   define({ type: 'server' }),
-  define({ type: 'rsc-dev' }),
-  define({ type: 'rsc-prod' }),
   defineTypes(),
 ]);
 
@@ -18,33 +16,21 @@ export default defineConfig([
 function defineTypes() {
   return {
     input: {
-      index: 'types/core/index.d.ts',
-      element: 'types/element/index.d.ts',
-      react: 'types/react/index.d.ts',
-      std: 'types/std/index.d.ts',
+      index: 'types/index.d.ts',
     },
     output: {
-      dir: '.',
-      chunkFileNames: 'dist/types/maverick-[hash].d.ts',
+      dir: 'dist-npm',
+      chunkFileNames: 'dist-npm/types/maverick-[hash].d.ts',
       compact: false,
       minifyInternalExports: false,
     },
-    external: ['react'],
-    plugins: [
-      dts({ respectExternal: true }),
-      {
-        name: 'cleanup',
-        async closeBundle() {
-          await fs.rm('types', { recursive: true });
-        },
-      },
-    ],
+    plugins: [dts({ respectExternal: true })],
   };
 }
 
 /**
  * @typedef {{
- *   type: 'dev' | 'prod' | 'server' | 'rsc-dev' | 'rsc-prod';
+ *   type: 'dev' | 'prod' | 'server'
  * }} BundleOptions
  */
 
@@ -53,24 +39,17 @@ function defineTypes() {
  * @returns {import('rollup').RollupOptions}
  */
 function define({ type = 'dev' }) {
-  const isDev = type === 'dev' || type === 'rsc-dev',
-    isRSC = type.startsWith('rsc');
+  const isDev = type === 'dev';
 
   return {
-    input: isRSC
-      ? { [type.replace('rsc-', '')]: 'src/react/rsc.ts' }
-      : {
-          index: 'src/core/index.ts',
-          element: 'src/element/index.ts',
-          react: 'src/react/index.ts',
-          std: 'src/std/index.ts',
-        },
+    input: {
+      index: 'src/index.ts',
+    },
     treeshake: true,
     preserveEntrySignatures: 'allow-extension',
-    external: ['react'],
     output: {
       format: 'esm',
-      dir: isRSC ? `dist/rsc` : `dist/${type}`,
+      dir: `dist-npm/${type}`,
       chunkFileNames: `chunks/maverick-[hash].js`,
       compact: false,
       minifyInternalExports: false,
@@ -81,33 +60,18 @@ function define({ type = 'dev' }) {
           ? ['development', 'production', 'default']
           : ['production', 'default'],
       }),
-      sucrase({
-        disableESTransforms: true,
-        exclude: ['node_modules/**'],
-        transforms: ['typescript'],
-      }),
-      replace({
-        preventAssignment: true,
-        __DEV__: isDev ? 'true' : 'false',
-        __SERVER__: isRSC ? 'IS_SERVER' : type === 'server' ? 'true' : 'false',
-        __TEST__: 'false',
-      }),
-      {
-        name: 'env',
-        resolveId(id) {
-          if (id === '@virtual/env') return id;
+      esbuild({
+        define: {
+          __DEV__: isDev ? 'true' : 'false',
+          __SERVER__: type === 'server' ? 'true' : 'false',
+          __TEST__: 'false',
         },
-        load(id) {
-          if (id === '@virtual/env') {
-            return `export const IS_SERVER = typeof document === 'undefined';`;
-          }
+      }),
+      isDev && {
+        name: 'copy-pkg-files',
+        async buildEnd() {
+          await copyPkgFiles();
         },
-        transform: isRSC
-          ? (code, id) => {
-              if (id === '@virtual/env') return;
-              return 'import { IS_SERVER } from "@virtual/env";\n' + code;
-            }
-          : undefined,
       },
     ],
   };

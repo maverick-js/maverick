@@ -12,30 +12,25 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "pnpm -F maverick.js build",
-    "build:cli": "pnpm -F cli build",
-    "test:client": "pnpm -F maverick.js test:client",
-    "test:client:watch": "pnpm -F maverick.js test:client:watch",
-    "test:cli": "pnpm -F cli test",
-    "test:cli:watch": "pnpm -F cli test:watch",
-    "test:server": "pnpm -F maverick.js test:server",
-    "test:server:watch": "pnpm -F maverick.js test:server:watch",
-    "test:runtime": "pnpm test:client && pnpm test:server",
-    "test:all": "pnpm test:runtime && pnpm test:cli",
+    "build": "turbo run bundle types --filter=./packages/*",
+    "watch": "turbo watch bundle types --filter=./packages/*",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "release": "pnpm build && pnpm build:cli && node ./.scripts/release.js"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^18.0.3",
     "conventional-changelog-cli": "^4.1.0",
     "enquirer": "^2.3.6",
     "execa": "^7.0.0",
+    "fs-extra": "^11.2.0",
     "kleur": "^4.1.5",
     "minimist": "^1.2.7",
     "prettier": "^3.1.0",
     "semver": "^7.3.8",
     "simple-git-hooks": "^2.8.0",
+    "turbo": "^2.0.12",
     "typescript": "^5.3.3"
   },
   "simple-git-hooks": {

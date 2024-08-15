@@ -5,11 +5,7 @@
     "jsx": "preserve",
     "jsxImportSource": "maverick.js",
     "paths": {
-      "maverick.js": ["./src/core"],
-      "maverick.js/element": ["./src/element"],
-      "maverick.js/element/server": ["./src/element/server"],
-      "maverick.js/react": ["./src/react"],
-      "maverick.js/std": ["./src/std"]
+      "maverick.js": ["./src/index"]
     },
     "types": ["@types/node", "vitest/globals"]
   },

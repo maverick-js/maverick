@@ -10,7 +10,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
-    "verbatimModuleSyntax": true,
+    "incremental": true,
     "lib": ["es2020"],
     "module": "esnext",
     "moduleResolution": "node",
@@ -23,8 +23,9 @@
     "skipLibCheck": true,
     "sourceMap": false,
     "strict": true,
-    "target": "es2020",
-    "useDefineForClassFields": false
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "verbatimModuleSyntax": true
   },
   "exclude": ["node_modules", "packages/*/dist", "packages/*/*.d.ts"]
 }

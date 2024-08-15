@@ -1,10 +1,10 @@
+import { DOMEvent, type DOMEventInit, listenEvent } from '../../../std/src/event';
+import { noop } from '../../../std/src/unit';
 import type {
   ElementAttributesRecord,
   ElementCSSVarsRecord,
   ElementStylesRecord,
 } from '../element/types';
-import { DOMEvent, type DOMEventInit, listenEvent } from '../std/event';
-import { noop } from '../std/unit';
 import type { Component, ComponentConstructor, InferComponentProps } from './component';
 import { type AnyInstance, Instance, type InstanceInit, type LifecycleHooks } from './instance';
 import { type Dispose, getScope, root, type Scope, untrack } from './signals';

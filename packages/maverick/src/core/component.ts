@@ -1,4 +1,4 @@
-import type { WritableKeys } from '../std/types';
+import type { WritableKeys } from '../../../std/src/types';
 import { ViewController } from './controller';
 import { Instance } from './instance';
 import { type Dispose, effect, type Maybe, scoped } from './signals';

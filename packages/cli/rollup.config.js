@@ -1,5 +1,4 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import fs from 'node:fs/promises';
 import { defineConfig } from 'rollup';
 import dts from 'rollup-plugin-dts';
 import esbuild from 'rollup-plugin-esbuild';
@@ -50,15 +49,9 @@ function defineTypes() {
     input: {
       analyze: 'types/analyze/index.d.ts',
     },
-    output: { dir: '.' },
-    plugins: [
-      dts(),
-      {
-        name: 'cleanup',
-        async closeBundle() {
-          if (!WATCH_MODE) await fs.rm('types', { recursive: true });
-        },
-      },
-    ],
+    output: {
+      dir: 'dist-npm',
+    },
+    plugins: [dts()],
   };
 }

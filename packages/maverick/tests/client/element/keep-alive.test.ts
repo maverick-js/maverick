@@ -1,7 +1,7 @@
+import { waitAnimationFrame } from '@maverick-js/std';
 import { Component } from 'maverick.js';
 
 import { defineCustomElement, Host, type MaverickElement } from 'maverick.js/element';
-import { waitAnimationFrame } from 'maverick.js/std';
 
 afterEach(() => {
   document.body.innerHTML = '';

@@ -1,6 +1,5 @@
 import { effect as $effect, type Effect, type StopEffect } from '@maverick-js/signals';
-
-import { noop } from '../../../std/src/unit';
+import { noop } from '@maverick-js/std';
 
 export {
   type Callable,

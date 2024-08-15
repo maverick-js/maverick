@@ -1,6 +1,5 @@
 import type { SignalOptions } from '@maverick-js/signals';
-
-import { isArray } from '../../../std/src/unit';
+import { isArray } from '@maverick-js/std';
 
 export type AttributeValue = string | null;
 

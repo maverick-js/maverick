@@ -11,7 +11,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      'maverick.js': '/src/index.ts',
+      'maverick.js/element': '/src/element/index.ts',
+      'maverick.js': '/src/core/index.ts',
     },
   },
   // https://vitest.dev/config

@@ -1,9 +1,8 @@
-import { escape } from '../../../../std/src/html';
-import { noop } from '../../../../std/src/unit';
-import { type AnyComponent } from '../../core/component';
-import { scoped } from '../../core/signals';
+import { noop } from '@maverick-js/std';
+
+import { type AnyComponent, scoped } from '../../core';
 import { SETUP } from '../symbols';
-import { parseClassAttr, parseStyleAttr } from './server-utils';
+import { escapeHTML, parseClassAttr, parseStyleAttr } from './server-utils';
 
 export class MaverickServerElement<T extends AnyComponent = AnyComponent> implements ServerElement {
   keepAlive = false;
@@ -42,7 +41,7 @@ export class MaverickServerElement<T extends AnyComponent = AnyComponent> implem
       }
 
       instance.setup();
-      instance.attach(this);
+      instance.attach(this as unknown as HTMLElement);
 
       if (this.classList.length > 0) {
         this.setAttribute('class', this.classList.toString());
@@ -115,7 +114,7 @@ export class ServerAttributes {
     if (this.#tokens.size === 0) return '';
     let result = '';
     for (const [name, value] of this.#tokens) {
-      result += ` ${name}="${escape(value, true)}"`;
+      result += ` ${name}="${escapeHTML(value, true)}"`;
     }
     return result;
   }

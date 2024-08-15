@@ -1,6 +1,6 @@
 import { getContext, setContext } from '@maverick-js/signals';
+import { isUndefined } from '@maverick-js/std';
 
-import { isUndefined } from '../../../std/src/unit';
 import { getScope, type Scope } from './signals';
 
 export interface Context<T> {

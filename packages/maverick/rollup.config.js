@@ -5,6 +5,8 @@ import esbuild from 'rollup-plugin-esbuild';
 
 import { copyPkgFiles } from '../../.build/copy-pkg-files.js';
 
+const EXTERNAL = ['@maverick-js/std'];
+
 export default defineConfig([
   define({ type: 'dev' }),
   define({ type: 'prod' }),
@@ -16,7 +18,8 @@ export default defineConfig([
 function defineTypes() {
   return {
     input: {
-      index: 'types/index.d.ts',
+      index: 'types/core/index.d.ts',
+      element: 'types/element/index.d.ts',
     },
     output: {
       dir: 'dist-npm',
@@ -24,6 +27,7 @@ function defineTypes() {
       compact: false,
       minifyInternalExports: false,
     },
+    external: EXTERNAL,
     plugins: [dts({ respectExternal: true })],
   };
 }
@@ -43,8 +47,10 @@ function define({ type = 'dev' }) {
 
   return {
     input: {
-      index: 'src/index.ts',
+      index: 'src/core/index.ts',
+      element: 'src/element/index.ts',
     },
+    external: EXTERNAL,
     treeshake: true,
     preserveEntrySignatures: 'allow-extension',
     output: {

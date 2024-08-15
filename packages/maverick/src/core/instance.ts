@@ -1,7 +1,5 @@
-import { setAttribute, setStyle } from '../../../std/src/dom';
-import { unwrapDeep } from '../../../std/src/signal';
-import { isFunction } from '../../../std/src/unit';
-import type { ServerElement } from '../element/server';
+import { isFunction, setAttribute, setStyle, unwrapDeep } from '@maverick-js/std';
+
 import type { ElementAttributesRecord, ElementStylesRecord } from '../element/types';
 import type { Component, ComponentConstructor } from './component';
 import { provideContext } from './context';
@@ -101,7 +99,7 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     }, this.scope);
   }
 
-  attach(el: HTMLElement | ServerElement) {
+  attach(el: HTMLElement) {
     if (this.el) return;
 
     this.el = el as HTMLElement;

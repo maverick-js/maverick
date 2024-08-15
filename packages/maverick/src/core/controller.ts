@@ -1,11 +1,12 @@
-import { DOMEvent, type DOMEventInit, listenEvent } from '../../../std/src/event';
-import { noop } from '../../../std/src/unit';
+import { DOMEvent, type DOMEventInit, noop } from '@maverick-js/std';
+
 import type {
   ElementAttributesRecord,
   ElementCSSVarsRecord,
   ElementStylesRecord,
 } from '../element/types';
 import type { Component, ComponentConstructor, InferComponentProps } from './component';
+import { listenEvent } from './events';
 import { type AnyInstance, Instance, type InstanceInit, type LifecycleHooks } from './instance';
 import { type Dispose, getScope, root, type Scope, untrack } from './signals';
 import { ON_DISPATCH } from './symbols';

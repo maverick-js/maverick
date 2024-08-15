@@ -5,10 +5,11 @@
     "jsx": "preserve",
     "jsxImportSource": "maverick.js",
     "paths": {
-      "maverick.js": ["./src/index"]
+      "maverick.js": ["./src/core/index.ts"],
+      "maverick.js/element": ["./src/element/index.ts"]
     },
     "types": ["@types/node", "vitest/globals"]
   },
   "include": ["src", "tests"],
-  "exclude": ["dist", "node_modules", "*.d.ts"]
+  "exclude": ["dist-*", "node_modules"]
 }

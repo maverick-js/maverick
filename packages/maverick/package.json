@@ -4,8 +4,8 @@
   "license": "MIT",
   "version": "0.43.2",
   "type": "module",
-  "types": "src/index.ts",
-  "module": "src/index.ts",
+  "types": "src/core/index.ts",
+  "module": "src/core/index.ts",
   "sideEffects": false,
   "contributors": [
     "Rahim Alwer <rahim.alwer@gmail.com>"
@@ -30,6 +30,9 @@
     "test:server": "SERVER=true vitest --run",
     "test:server:watch": "SERVER=true vitest --watch"
   },
+  "dependencies": {
+    "@maverick-js/std": "workspace:*"
+  },
   "devDependencies": {
     "@edge-runtime/vm": "^2.1.0",
     "@maverick-js/signals": "^6.0.0",
@@ -39,9 +42,14 @@
     "rollup": "^4.7.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-esbuild": "^6.1.0",
+    "type-fest": "^4.0.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.0",
     "vitest": "^1.0.0"
+  },
+  "exports": {
+    ".": "./src/core/index.ts",
+    "./element": "./src/element/index.ts"
   },
   "$types": "index.d.ts",
   "$exports": {
@@ -50,6 +58,12 @@
       "node": "./server/index.js",
       "development": "./dev/index.js",
       "default": "./prod/index.js"
+    },
+    "./element": {
+      "types": "./element.d.ts",
+      "node": "./server/element.js",
+      "development": "./dev/element.js",
+      "default": "./prod/element.js"
     },
     "./types/*": "./types/*",
     "./package.json": "./package.json"

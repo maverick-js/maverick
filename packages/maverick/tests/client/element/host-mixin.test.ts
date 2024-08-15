@@ -1,10 +1,10 @@
-import { Component, createContext, method, onDispose, prop, provideContext, useContext } from 'maverick.js';
+import { isFunction } from '@maverick-js/std';
+import { Component, createContext, onDispose, provideContext, useContext } from 'maverick.js';
 
 import { defineCustomElement } from 'maverick.js/element';
 
-import { Host } from '../../../src/element/host-mixin';
 import { waitAnimationFrame } from '../../../../std/src/timing';
-import { isFunction } from 'maverick.js/std';
+import { Host } from '../../../src/element/host-mixin';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -76,14 +76,14 @@ it('should call lifecycle hooks', async () => {
         provideContext(Context, 1);
       }
 
-       override onAttach(el) {
+      override onAttach(el) {
         expect(el).toBeDefined();
         expect(useContext(Context)).toBe(1);
         attach();
         onDispose(detach);
       }
 
-       override onConnect(el) {
+      override onConnect(el) {
         expect(el).toBeDefined();
         expect(useContext(Context)).toBe(1);
         connect();
@@ -116,7 +116,7 @@ it('should render `setAttributes`', () => {
   class TestElement extends Host(
     HTMLElement,
     class extends Component {
-       override onAttach() {
+      override onAttach() {
         this.setAttributes({
           foo: () => 10,
           bar: 'none',
@@ -145,7 +145,7 @@ it('should render `setStyles`', () => {
   class TestElement extends Host(
     HTMLElement,
     class extends Component {
-       override onAttach() {
+      override onAttach() {
         this.setStyles({
           flex: '1',
           'flex-basis': null,
@@ -167,78 +167,4 @@ it('should render `setStyles`', () => {
       style="flex: 1; z-index: 10;"
     />
   `);
-});
-
-it('should define component proto on element', () => {
-  class BaseComponent extends Component {
-    #zoo = 10;
-
-    @prop
-    get zoo() {
-      return this.#zoo;
-    }
-
-    set zoo(v) {
-      this.#zoo = v;
-    }
-
-    @method
-    foo() {
-      return 100;
-    }
-
-    @method
-    bar() {}
-
-    _baz() {}
-  }
-
-  class TestComponent extends BaseComponent {
-    #boo = 20;
-
-    @prop
-    get boo() {
-      return this.#boo;
-    }
-
-    set boo(v) {
-      this.#boo = v;
-    }
-
-    @method
-    bax() {
-      return 10;
-    }
-
-    _hux() {}
-  }
-
-  class TestElement extends Host(HTMLElement, TestComponent) {
-    static tagName = 'mk-test-6'
-  }
-
-  defineCustomElement(TestElement);
-  const el = document.createElement(TestElement.tagName) as TestElement;
-  document.body.append(el);
-
-  expect(el._zoo).toBeUndefined();
-  expect(el._boo).toBeUndefined();
-
-  expect(el.zoo).toBe(10);
-  expect(el.boo).toBe(20);
-
-  el.zoo = 30;
-  el.boo = 40;
-
-  expect(el.zoo).toBe(30);
-  expect(el.boo).toBe(40);
-
-  expect(isFunction(el.foo)).toBeTruthy();
-  expect(isFunction(el.bar)).toBeTruthy();
-  expect(isFunction(el.bax)).toBeTruthy();
-  // @ts-expect-error
-  expect(isFunction(el._bar)).toBeFalsy();
-  expect(isFunction(el._hux)).toBeFalsy();
-
-  expect(el.bax()).toBe(10);
 });

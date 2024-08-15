@@ -1,23 +1,23 @@
+import { camelToKebabCase, isArray, isString, runAll } from '@maverick-js/std';
 import type { Constructor } from 'type-fest';
 
-import { runAll } from '../../../std/src/fn';
-import { camelToKebabCase } from '../../../std/src/string';
-import { isArray, isString } from '../../../std/src/unit';
-import type {
-  AnyComponent,
-  Component,
-  ComponentConstructor,
-  InferComponentEvents,
-  InferComponentMembers,
-  InferComponentProps,
-  InferComponentState,
-} from '../core/component';
-import { createComponent } from '../core/controller';
-import type { ElementCallback } from '../core/instance';
-import { type Dispose, type Maybe, type Scope, scoped } from '../core/signals';
-import type { Store } from '../core/state';
-import { METHODS, PROPS } from '../core/symbols';
-import type { ReadSignalRecord } from '../core/types';
+import {
+  type AnyComponent,
+  type Component,
+  type ComponentConstructor,
+  createComponent,
+  type Dispose,
+  type ElementCallback,
+  type InferComponentEvents,
+  type InferComponentMembers,
+  type InferComponentProps,
+  type InferComponentState,
+  type Maybe,
+  type ReadSignalRecord,
+  type Scope,
+  scoped,
+  type Store,
+} from '../core';
 import { type AttributeConverter, type Attributes, inferAttributeConverter } from './attrs';
 import { ATTRS, SETUP, SETUP_CALLBACKS, SETUP_STATE } from './symbols';
 
@@ -335,9 +335,8 @@ export interface HostElement<T extends Component = AnyComponent> {
   destroy(): void;
 }
 
-export type InferElementComponent<T> = T extends MaverickElement<infer Component>
-  ? Component
-  : never;
+export type InferElementComponent<T> =
+  T extends MaverickElement<infer Component> ? Component : never;
 
 function extendProto(Element: Constructor<HTMLElement>, Component: ComponentConstructor) {
   const ElementProto = Element.prototype,
@@ -355,29 +354,6 @@ function extendProto(Element: Constructor<HTMLElement>, Component: ComponentCons
           this.$props[prop].set(value);
         },
       });
-    }
-  }
-
-  if (ComponentProto[PROPS]) {
-    for (const name of ComponentProto[PROPS]) {
-      Object.defineProperty(ElementProto, name, {
-        enumerable: true,
-        configurable: true,
-        get(this) {
-          return this.$[name];
-        },
-        set(this, value) {
-          this.$[name] = value;
-        },
-      });
-    }
-  }
-
-  if (ComponentProto[METHODS]) {
-    for (const name of ComponentProto[METHODS]) {
-      ElementProto[name] = function (this, ...args) {
-        return this.$[name](...args);
-      };
     }
   }
 }

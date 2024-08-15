@@ -1,5 +1,5 @@
-import type { PickReadonly } from '../../../std/src/types';
-import type { PickWritable } from '../../../std/src/types';
+import type { PickReadonly, PickWritable } from '@maverick-js/std';
+
 import { useContext } from './context';
 import { computed, type ReadSignal, signal, type WriteSignal } from './signals';
 import type { AnyRecord, ReadSignalRecord } from './types';
@@ -70,17 +70,11 @@ export type Store<T> = {
   readonly [P in keyof PickWritable<T>]: WriteSignal<T[P]>;
 };
 
-export type InferStore<T> = T extends State<infer Record>
-  ? Store<Record>
-  : T extends Store<any>
-    ? T
-    : never;
+export type InferStore<T> =
+  T extends State<infer Record> ? Store<Record> : T extends Store<any> ? T : never;
 
-export type InferStoreRecord<T> = T extends State<infer Record>
-  ? Record
-  : T extends Store<infer Record>
-    ? Record
-    : never;
+export type InferStoreRecord<T> =
+  T extends State<infer Record> ? Record : T extends Store<infer Record> ? Record : never;
 
 export type StateContext<T> = ReadSignalRecord<T extends State<infer Record> ? Record : T>;
 

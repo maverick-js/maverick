@@ -1,43 +1,26 @@
-import { DOMEvent, type DOMEventInit, noop } from '@maverick-js/std';
+import { DOMEvent, type DOMEventInit } from '@maverick-js/std';
 
-import type {
-  ElementAttributesRecord,
-  ElementCSSVarsRecord,
-  ElementStylesRecord,
-} from '../element/types';
-import type { Component, ComponentConstructor, InferComponentProps } from './component';
-import { listenEvent } from './events';
-import { type AnyInstance, Instance, type InstanceInit, type LifecycleHooks } from './instance';
-import { type Dispose, getScope, root, type Scope, untrack } from './signals';
+import { currentInstance, Instance } from './instance';
+import type { LifecycleHooks } from './lifecycle';
+import { type Scope, untrack } from './signals';
 import { ON_DISPATCH } from './symbols';
-import type { ReadSignalRecord, TargetedEventHandler, WriteSignalRecord } from './types';
-
-// Match component interface.
-let currentInstance: { $$: AnyInstance | null } = { $$: null };
-
-export function createComponent<T extends Component>(
-  Component: ComponentConstructor<T>,
-  init?: InstanceInit<InferComponentProps<T>>,
-) {
-  return root(() => {
-    currentInstance.$$ = new Instance(Component, getScope()!, init);
-    const component = new Component();
-    currentInstance.$$.component = component;
-    currentInstance.$$ = null;
-    return component;
-  });
-}
+import type { ReadSignalRecord, WriteSignalRecord } from './types';
 
 export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> extends EventTarget {
   /** @internal */
-  $$!: Instance<Props, State, Events, CSSVars>;
+  $$!: Instance<Props, State>;
 
-  get el(): HTMLElement | null {
-    return this.$$.el;
+  /** @internal type holder only */
+  $ts__events?: Events;
+  /** @internal type holder only */
+  $ts__vars?: CSSVars;
+
+  get host(): HTMLElement | null {
+    return this.$$.host;
   }
 
-  get $el(): HTMLElement | null {
-    return this.$$.$el();
+  get $host(): HTMLElement | null {
+    return this.$$.$host();
   }
 
   get scope(): Scope {
@@ -52,12 +35,10 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
     return this.$$.connectScope;
   }
 
-  /** @internal */
   get $props(): ReadSignalRecord<Props> {
     return this.$$.props;
   }
 
-  /** @internal */
   get $state(): WriteSignalRecord<State> {
     return this.$$.$state;
   }
@@ -68,41 +49,19 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
 
   constructor() {
     super();
-    if (currentInstance.$$) this.attach(currentInstance as { $$: AnyInstance });
+    if (currentInstance) this.#attach(currentInstance);
   }
 
-  attach({ $$ }: { $$: Instance<Props, State, Events, CSSVars> }) {
-    this.$$ = $$;
-    $$.addHooks(this as unknown as LifecycleHooks);
+  #attach(instance: Instance<Props, State>) {
+    this.$$ = instance;
+    instance.addHooks(this as unknown as LifecycleHooks);
     return this;
-  }
-
-  override addEventListener(
-    type: string,
-    callback: EventListenerOrEventListenerObject | null,
-    options?: boolean | AddEventListenerOptions | undefined,
-  ): void {
-    if (__DEV__ && !this.el) {
-      const name = this.constructor.name;
-      console.warn(`[maverick] adding event listener to \`${name}\` before element is attached`);
-    }
-
-    this.listen(type as any, callback as any, options);
-  }
-
-  override removeEventListener(
-    type: string,
-    callback: EventListenerOrEventListenerObject | null,
-    options?: boolean | EventListenerOptions | undefined,
-  ): void {
-    this.el?.removeEventListener(type, callback as any, options);
   }
 
   /**
    * The given callback is invoked when the component is ready to be set up.
    *
    * - This hook will run once.
-   * - This hook is called both client-side and server-side.
    * - It's safe to use context inside this hook.
    * - The host element has not attached yet - wait for `onAttach`.
    */
@@ -113,17 +72,15 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
    *
    * - This hook can run more than once as the component attaches/detaches from a host element.
    * - This hook may be called while the host element is not connected to the DOM yet.
-   * - This hook is called both client-side and server-side.
    */
-  protected onAttach?(el: HTMLElement): void;
+  protected onAttach?(host: HTMLElement): void;
 
   /**
    * The given callback is invoked when the host element has connected to the DOM.
    *
    * - This hook can run more than once as the host disconnects and re-connects to the DOM.
-   * - If a function is returned it will be invoked when the host disconnects from the DOM.
    */
-  protected onConnect?(el: HTMLElement): void;
+  protected onConnect?(host: HTMLElement): void;
 
   /**
    * The given callback is invoked when the component is destroyed.
@@ -133,32 +90,6 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
    * - This hook is called both client-side and server-side.
    */
   protected onDestroy?(): void;
-
-  /**
-   * This method can be used to specify attributes that should be set on the host element. Any
-   * attributes that are assigned to a function will be considered a signal and updated accordingly.
-   */
-  protected setAttributes(attributes: ElementAttributesRecord): void {
-    if (!this.$$.attrs) this.$$.attrs = {};
-    Object.assign(this.$$.attrs, attributes);
-  }
-
-  /**
-   * This method can be used to specify styles that should set be set on the host element. Any
-   * styles that are assigned to a function will be considered a signal and updated accordingly.
-   */
-  protected setStyles(styles: ElementStylesRecord): void {
-    if (!this.$$.styles) this.$$.styles = {};
-    Object.assign(this.$$.styles, styles);
-  }
-
-  /**
-   * This method is used to satisfy the CSS variables contract specified on the current
-   * component. Other CSS variables can be set via the `setStyles` method.
-   */
-  protected setCSSVars(vars: ElementCSSVarsRecord<CSSVars>): void {
-    this.setStyles(vars as ElementStylesRecord);
-  }
 
   /**
    * Type-safe utility for creating component DOM events.
@@ -175,8 +106,7 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
   }
 
   /**
-   * Creates a `DOMEvent` and dispatches it from the host element. This method is typed to
-   * match all component events.
+   * Creates a `DOMEvent` and dispatches it. This method is typed to match all component events.
    */
   dispatch<Type extends Event | keyof Events>(
     type: Type,
@@ -190,38 +120,16 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
           : [init?: never]
         : [init?: never]
   ): boolean {
-    if (__SERVER__ || !this.el) return false;
-
-    const event =
-      type instanceof Event ? type : new DOMEvent(type as string, init[0] as DOMEventInit);
-
-    Object.defineProperty(event, 'target', {
-      get: () => this.$$.component,
-    });
-
-    return untrack(() => {
-      this.$$[ON_DISPATCH]?.(event);
-      return this.el!.dispatchEvent(event);
-    });
+    if (__SERVER__) return false;
+    return this.dispatchEvent(
+      type instanceof Event ? type : new DOMEvent(type as string, init[0] as DOMEventInit),
+    );
   }
 
   override dispatchEvent(event: Event): boolean {
-    return this.dispatch(event);
-  }
-
-  /**
-   * Adds an event listener for the given `type` and returns a function which can be invoked to
-   * remove the event listener.
-   *
-   * - The listener is removed if the current scope is disposed.
-   * - This method is safe to use on the server (noop).
-   */
-  listen<E = Events & HTMLElementEventMap, Type extends keyof E = keyof E>(
-    type: Type & string,
-    handler: TargetedEventHandler<HTMLElement, E[Type] & Event>,
-    options?: AddEventListenerOptions | boolean,
-  ): Dispose {
-    if (__SERVER__ || !this.el) return noop;
-    return listenEvent(this.el, type as any, handler, options);
+    return untrack(() => {
+      this.$$[ON_DISPATCH]?.(event);
+      return super.dispatchEvent(event);
+    });
   }
 }

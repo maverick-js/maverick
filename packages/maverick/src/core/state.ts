@@ -30,7 +30,7 @@ import type { AnyRecord, ReadSignalRecord } from './types';
  * factory.reset($state);
  * ```
  */
-export class State<Record extends AnyRecord> {
+export class State<Record> {
   readonly id = Symbol(__DEV__ ? 'STATE' : 0);
   readonly record: Record;
 
@@ -47,7 +47,7 @@ export class State<Record extends AnyRecord> {
     const store = {} as Store<Record>,
       state = new Proxy(store, { get: (_, prop: any) => store[prop]() });
 
-    for (const name of Object.keys(this.record) as any[]) {
+    for (const name of Object.keys(this.record as AnyRecord) as any[]) {
       const getter = this.#descriptors[name].get;
       store[name] = getter ? computed(getter.bind(state)) : signal(this.record[name]);
     }
@@ -55,10 +55,10 @@ export class State<Record extends AnyRecord> {
     return store;
   }
 
-  reset(record: Store<Record>, filter?: (key: keyof Record) => boolean): void {
-    for (const name of Object.keys(record) as any[]) {
+  reset(store: Store<Record>, filter?: (key: keyof Record) => boolean): void {
+    for (const name of Object.keys(store) as any[]) {
       if (!this.#descriptors[name].get && (!filter || filter(name))) {
-        (record[name] as WriteSignal<any>).set(this.record[name]);
+        (store[name] as WriteSignal<any>).set(this.record[name]);
       }
     }
   }

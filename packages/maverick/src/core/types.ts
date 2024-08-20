@@ -1,11 +1,17 @@
 import type { InferSignalValue, ReadSignal, WriteSignal } from '@maverick-js/signals';
 import type { ConditionalExcept, ConditionalPick, KebabCase } from 'type-fest';
 
-export type Observable<T> = T | ReadSignal<T>;
+export type SignalOrValue<T> = T | ReadSignal<T>;
 
-export type ObservableRecord<T> = {
-  [P in keyof T]: Observable<T[P] | null>;
+export type SignalOrValueRecord<T> = {
+  [P in keyof T]: SignalOrValue<T[P]>;
 };
+
+export type NullableRecord<T> = {
+  [P in keyof T]: T[P] | null;
+};
+
+export type NullableSignalOrValueRecord<T> = SignalOrValueRecord<NullableRecord<T>>;
 
 export type Stringify<P> = P extends string ? P : never;
 

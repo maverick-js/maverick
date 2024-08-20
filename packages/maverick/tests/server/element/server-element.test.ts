@@ -7,12 +7,8 @@ it('should call `onSetup` lifecycle hook', () => {
     attach = vi.fn();
 
   class TestComponent extends Component {
-    override onSetup() {
-      setup();
-    }
-    override onAttach() {
-      attach();
-    }
+    override onSetup = setup;
+    override onAttach = setup;
   }
 
   const host = new MaverickServerElement(createComponent(TestComponent));

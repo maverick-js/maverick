@@ -184,13 +184,14 @@ export type InferEventDetail<T> = T extends { detail: infer Detail }
       ? Detail
       : unknown;
 
-export type InferEventInit<T> = T extends Constructor<DOMEvent>
-  ? DOMEventInit<InferEventDetail<InstanceType<T>>>
-  : T extends DOMEvent
-    ? DOMEventInit<InferEventDetail<T>>
-    : T extends DOMEventInit
-      ? T
-      : DOMEventInit<unknown>;
+export type InferEventInit<T> =
+  T extends Constructor<DOMEvent>
+    ? DOMEventInit<InferEventDetail<InstanceType<T>>>
+    : T extends DOMEvent
+      ? DOMEventInit<InferEventDetail<T>>
+      : T extends DOMEventInit
+        ? T
+        : DOMEventInit<unknown>;
 
 export type EventCallback<T extends Event> =
   | ((event: T) => void)

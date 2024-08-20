@@ -1,6 +1,11 @@
 import type { ConditionalPick } from 'type-fest';
 
-import type { KebabCaseRecord, LowercaseRecord, Observable, ObservableRecord } from '../core/types';
+import type {
+  KebabCaseRecord,
+  LowercaseRecord,
+  NullableSignalOrValueRecord,
+  SignalOrValue,
+} from '../core/types';
 
 export type AttrValue = string | number | boolean | null | undefined;
 
@@ -274,12 +279,12 @@ export type CSSProperties = AnyCSSProperty & {
 export interface CSSStyles extends KebabCaseRecord<CSSProperties> {}
 
 export interface ElementAttributesRecord
-  extends ObservableRecord<HTMLAttrs>,
-    ObservableRecord<ARIAAttributes>,
-    ObservableRecord<AttrsRecord> {}
+  extends NullableSignalOrValueRecord<HTMLAttrs>,
+    NullableSignalOrValueRecord<ARIAAttributes>,
+    NullableSignalOrValueRecord<AttrsRecord> {}
 
-export interface ElementStylesRecord extends ObservableRecord<CSSStyles> {}
+export interface ElementStylesRecord extends NullableSignalOrValueRecord<CSSStyles> {}
 
 export type ElementCSSVarsRecord<CSSVars> = {
-  [Var in keyof CSSVars as `--${Var & string}`]: Observable<CSSVars[Var]>;
+  [Var in keyof CSSVars as `--${Var & string}`]: SignalOrValue<CSSVars[Var]>;
 };

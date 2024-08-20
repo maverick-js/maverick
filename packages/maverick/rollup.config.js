@@ -20,10 +20,11 @@ function defineTypes() {
     input: {
       index: 'types/core/index.d.ts',
       element: 'types/element/index.d.ts',
+      'jsx-runtime': 'types/jsx/jsx.d.ts',
     },
     output: {
       dir: 'dist-npm',
-      chunkFileNames: 'dist-npm/types/maverick-[hash].d.ts',
+      chunkFileNames: 'types/maverick-[hash].d.ts',
       compact: false,
       minifyInternalExports: false,
     },

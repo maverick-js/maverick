@@ -6,6 +6,7 @@
     "jsxImportSource": "maverick.js",
     "paths": {
       "maverick.js": ["./src/core/index.ts"],
+      "maverick.js/jsx-runtime": ["./src/jsx/jsx-runtime.d.ts"],
       "maverick.js/element": ["./src/element/index.ts"]
     },
     "types": ["@types/node", "vitest/globals"]

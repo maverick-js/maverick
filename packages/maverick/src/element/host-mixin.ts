@@ -1,4 +1,4 @@
-import { camelToKebabCase, isArray, isString, runAll } from '@maverick-js/std';
+import { camelToKebabCase, DOMEvent, isArray, isString, runAll } from '@maverick-js/std';
 import type { Constructor } from 'type-fest';
 
 import {
@@ -7,12 +7,13 @@ import {
   type ComponentConstructor,
   createComponent,
   type Dispose,
-  type ElementCallback,
+  type HostElementCallback,
   type InferComponentEvents,
   type InferComponentMembers,
   type InferComponentProps,
   type InferComponentState,
   type Maybe,
+  ON_DISPATCH,
   type ReadSignalRecord,
   type Scope,
   scoped,
@@ -67,7 +68,7 @@ export function Host<T extends HTMLElement, R extends Component>(
 
     readonly $: R;
     [SETUP_STATE] = SetupState.Idle;
-    [SETUP_CALLBACKS]: ElementCallback[] | null = null;
+    [SETUP_CALLBACKS]: HostElementCallback[] | null = null;
 
     keepAlive = false;
     forwardKeepAlive = true;
@@ -101,6 +102,8 @@ export function Host<T extends HTMLElement, R extends Component>(
 
       this.$ = scoped(() => createComponent(Component), null)!;
       this.$.$$.addHooks(this as any);
+
+      this.$.$$[ON_DISPATCH] = this.#dispatch.bind(this);
 
       // Properties might be assigned before element is registered. We need to assign them
       // to the internal prop signals and delete from proto chain.
@@ -208,9 +211,19 @@ export function Host<T extends HTMLElement, R extends Component>(
       return this.$.subscribe(callback);
     }
 
+    #dispatch(event: Event) {
+      this.dispatchEvent(
+        new DOMEvent<any>(event.type, {
+          ...event,
+          trigger: event,
+        }),
+      );
+    }
+
     destroy() {
       this.disconnectedCallback();
       this.$.destroy();
+      this.$.$$[ON_DISPATCH] = null;
     }
   }
 
@@ -339,8 +352,7 @@ export type InferElementComponent<T> =
   T extends MaverickElement<infer Component> ? Component : never;
 
 function extendProto(Element: Constructor<HTMLElement>, Component: ComponentConstructor) {
-  const ElementProto = Element.prototype,
-    ComponentProto = Component.prototype;
+  const ElementProto = Element.prototype;
 
   if (Component.props) {
     for (const prop of Object.keys(Component.props)) {

@@ -4,7 +4,6 @@
   "license": "MIT",
   "version": "0.43.2",
   "type": "module",
-  "types": "src/index.ts",
   "module": "src/index.ts",
   "sideEffects": false,
   "contributors": [
@@ -45,7 +44,6 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "$types": "index.d.ts",
   "$exports": {
     ".": {
       "types": "./index.d.ts",

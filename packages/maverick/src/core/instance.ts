@@ -1,27 +1,14 @@
-import { isFunction, setAttribute, setStyle, unwrapDeep } from '@maverick-js/std';
+import { DOMEvent } from '@maverick-js/std';
 
-import type { ElementAttributesRecord, ElementStylesRecord } from '../element/types';
-import type { Component, ComponentConstructor } from './component';
+import type { Component, ComponentConstructor, InferComponentProps } from './component';
 import { provideContext } from './context';
-import { createScope, effect, onDispose } from './signals';
-import { type Scope, scoped, signal } from './signals';
+import type { HostElementCallback, LifecycleHooks, SetupCallback } from './lifecycle';
+import { createScope, getScope, onDispose, root, type Scope, scoped, signal } from './signals';
+import { State as StateFactory } from './state';
 import { ON_DISPATCH } from './symbols';
 import type { WriteSignalRecord } from './types';
 
-export interface SetupCallback {
-  (): void;
-}
-
-export interface ElementCallback {
-  (el: HTMLElement): any;
-}
-
-export interface LifecycleHooks {
-  onSetup?(): void;
-  onAttach?(el: HTMLElement): void;
-  onConnect?(el: HTMLElement): void;
-  onDestroy?(el: HTMLElement): void;
-}
+export let currentInstance: AnyInstance | null = null;
 
 export interface InstanceInit<Props = {}> {
   scope?: Scope | null;
@@ -30,20 +17,15 @@ export interface InstanceInit<Props = {}> {
 
 const EMPTY_PROPS = {} as any;
 
-export interface AnyInstance extends Instance<any, any, any, any> {}
+export interface AnyInstance extends Instance<any, any> {}
 
-export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
-  /** @internal type only */
-  $ts__events?: Events;
-  /** @internal type only */
-  $ts__vars?: CSSVars;
-
+export class Instance<Props = {}, State = {}> {
   /* @internal */
   [ON_DISPATCH]?: ((event: Event) => void) | null = null;
 
-  readonly $el = signal<HTMLElement | null>(null);
+  readonly $host = signal<HTMLElement | null>(null);
 
-  el: HTMLElement | null = null;
+  host: HTMLElement | null = null;
   scope: Scope | null = null;
   attachScope: Scope | null = null;
   connectScope: Scope | null = null;
@@ -51,38 +33,33 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   destroyed = false;
 
   props: WriteSignalRecord<Props> = EMPTY_PROPS;
-  attrs: ElementAttributesRecord | null = null;
-  styles: ElementStylesRecord | null = null;
 
   state!: Readonly<State>;
   $state!: any;
 
   #setupCallbacks: SetupCallback[] = [];
-  #attachCallbacks: ElementCallback[] = [];
-  #connectCallbacks: ElementCallback[] = [];
-  #destroyCallbacks: ElementCallback[] = [];
+  #attachCallbacks: HostElementCallback[] = [];
+  #connectCallbacks: HostElementCallback[] = [];
+  #destroyCallbacks: HostElementCallback[] = [];
 
-  constructor(
-    Component: ComponentConstructor<Component<Props, State, any, any>>,
-    scope: Scope,
-    init?: InstanceInit<Props>,
-  ) {
+  constructor(scope: Scope, props: Props, state?: StateFactory<State>, init?: InstanceInit<Props>) {
     this.scope = scope;
+
     if (init?.scope) init.scope.append(scope);
 
-    let stateFactory = Component.state,
-      props = Component.props;
+    if (state) {
+      this.$state = state.create();
 
-    if (stateFactory) {
-      this.$state = stateFactory.create();
       this.state = new Proxy(this.$state, {
         get: (_, prop: string) => this.$state[prop](),
       }) as State;
-      provideContext(stateFactory, this.$state);
+
+      provideContext(state, this.$state);
     }
 
     if (props) {
       this.props = createInstanceProps(props) as WriteSignalRecord<Props>;
+
       if (init?.props) {
         for (const prop of Object.keys(init.props)) {
           this.props[prop]?.set(init.props[prop]);
@@ -94,31 +71,37 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
   }
 
   setup() {
+    currentInstance = this;
+
     scoped(() => {
       for (const callback of this.#setupCallbacks) callback();
     }, this.scope);
+
+    currentInstance = null;
   }
 
-  attach(el: HTMLElement) {
-    if (this.el) return;
+  attach(host: HTMLElement) {
+    if (this.host) return;
 
-    this.el = el as HTMLElement;
-    this.$el.set(el as HTMLElement);
+    currentInstance = this;
+
+    this.host = host;
+    this.$host.set(host);
 
     if (__DEV__) {
-      (el as any).$$COMPONENT_NAME = this.component?.constructor.name;
+      (host as any).$$COMPONENT_NAME = this.component?.constructor.name;
     }
 
     scoped(() => {
       this.attachScope = createScope();
       scoped(() => {
-        for (const callback of this.#attachCallbacks) callback(this.el!);
-        this.#attachAttrs();
-        this.#attachStyles();
+        for (const callback of this.#attachCallbacks) callback(this.host!);
       }, this.attachScope);
     }, this.scope);
 
-    el.dispatchEvent(new Event('attached'));
+    this.component?.dispatchEvent(new Event('attach'));
+
+    currentInstance = null;
   }
 
   detach() {
@@ -126,27 +109,37 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this.attachScope = null;
     this.connectScope = null;
 
-    if (__DEV__ && this.el) {
-      (this.el as any).$$COMPONENT_NAME = null;
+    if (__DEV__ && this.host) {
+      (this.host as any).$$COMPONENT_NAME = null;
     }
 
-    this.el = null;
-    this.$el.set(null);
+    this.component?.dispatch(new DOMEvent<void>('detach'));
+
+    this.host = null;
+    this.$host.set(null);
   }
 
   connect() {
-    if (!this.el || !this.attachScope || !this.#connectCallbacks.length) return;
+    if (!this.host || !this.attachScope || !this.#connectCallbacks.length) return;
+
+    currentInstance = this;
+
     scoped(() => {
       this.connectScope = createScope();
       scoped(() => {
-        for (const callback of this.#connectCallbacks) callback(this.el!);
+        for (const callback of this.#connectCallbacks) callback(this.host!);
       }, this.connectScope);
     }, this.attachScope);
+
+    this.component?.dispatch(new DOMEvent<void>('connect'));
+
+    currentInstance = null;
   }
 
   disconnect() {
     this.connectScope?.dispose();
     this.connectScope = null;
+    this.component?.dispatch(new DOMEvent<void>('disconnect'));
   }
 
   destroy() {
@@ -154,10 +147,10 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this.destroyed = true;
 
     scoped(() => {
-      for (const callback of this.#destroyCallbacks) callback(this.el!);
+      for (const callback of this.#destroyCallbacks) callback(this.host!);
     }, this.scope);
 
-    const el = this.el;
+    const host = this.host;
 
     this.detach();
     this.scope!.dispose();
@@ -167,15 +160,16 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     this.#connectCallbacks.length = 0;
     this.#destroyCallbacks.length = 0;
 
-    this.component = null;
-    this.attrs = null;
-    this.styles = null;
     this.props = EMPTY_PROPS;
     this.scope = null;
     this.state = EMPTY_PROPS;
     this.$state = null;
+
     // @ts-expect-error
-    if (el) delete el.$;
+    if (host) delete host.$;
+
+    this.component?.dispatch(new DOMEvent<void>('destroy'));
+    this.component = null;
   }
 
   addHooks(target: LifecycleHooks) {
@@ -183,40 +177,6 @@ export class Instance<Props = {}, State = {}, Events = {}, CSSVars = {}> {
     if (target.onAttach) this.#attachCallbacks.push(target.onAttach.bind(target));
     if (target.onConnect) this.#connectCallbacks.push(target.onConnect.bind(target));
     if (target.onDestroy) this.#destroyCallbacks.push(target.onDestroy.bind(target));
-  }
-
-  #attachAttrs() {
-    if (!this.attrs) return;
-    for (const name of Object.keys(this.attrs)) {
-      if (__SERVER__) {
-        setAttribute(this.el!, name, unwrapDeep.call(this.component, this.attrs[name]));
-      } else if (isFunction(this.attrs[name])) {
-        effect(this.#setAttr.bind(this, name));
-      } else {
-        setAttribute(this.el!, name, this.attrs[name]);
-      }
-    }
-  }
-
-  #attachStyles() {
-    if (!this.styles) return;
-    for (const name of Object.keys(this.styles)) {
-      if (__SERVER__) {
-        setStyle(this.el!, name, unwrapDeep.call(this.component, this.styles[name]));
-      } else if (isFunction(this.styles[name])) {
-        effect(this.#setStyle.bind(this, name));
-      } else {
-        setStyle(this.el!, name, this.styles[name]);
-      }
-    }
-  }
-
-  #setAttr(name: string) {
-    setAttribute(this.el!, name, (this.attrs![name] as Function).call(this.component));
-  }
-
-  #setStyle(name: string) {
-    setStyle(this.el!, name, (this.styles![name] as Function).call(this.component));
   }
 }
 
@@ -229,4 +189,20 @@ function createInstanceProps<Props>(props: Props) {
   }
 
   return $props;
+}
+
+export function createComponent<T extends Component>(
+  Component: ComponentConstructor<T>,
+  init?: InstanceInit<InferComponentProps<T>>,
+) {
+  return root(() => {
+    currentInstance = new Instance(getScope()!, Component.props, Component.state, init);
+
+    const component = new Component();
+
+    currentInstance.component = component;
+    currentInstance = null;
+
+    return component;
+  });
 }

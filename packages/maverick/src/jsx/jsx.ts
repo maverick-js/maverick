@@ -9,7 +9,7 @@ type DOMEvent = Event;
 
 declare global {
   /**
-   * Store all global css variables in this interface so `var` types can be inferred.
+   * Store all global css variables in this interface so `var` and `$var` types can be inferred.
    *
    * @example
    * ```ts
@@ -23,7 +23,7 @@ declare global {
   interface MaverickCSSVarAttributes extends JSX.CSSRecord {}
 
   /**
-   * Store all global events in this interface so `on` types can be inferred.
+   * Store all global events in this interface so `on` and `on_capture` types can be inferred.
    *
    * @example
    * ```ts
@@ -158,6 +158,8 @@ export namespace JSX {
     innerText?: AttrValue;
     textContent?: AttrValue;
   }
+
+  export interface SignalInnerContentAttributes extends SignalAttributes<InnerContentAttributes> {}
 
   /**
    * -------------------------------------------------------------------------------------------
@@ -344,6 +346,7 @@ export namespace JSX {
       DataAttributes,
       SignalDataAttributes,
       InnerContentAttributes,
+      SignalInnerContentAttributes,
       GlobalCSSVarAttributes {}
 
   export type ComponentAttributes<

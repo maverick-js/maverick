@@ -1,0 +1,41 @@
+export const RuntimeVar = {
+  Template: '$$_templ',
+  Root: '$$_root',
+  Walker: '$$_walker',
+  Element: '$$_el',
+  Component: '$$_comp',
+  Expression: '$$_expr',
+} as const;
+
+export type RuntimeVars = (typeof RuntimeVar)[keyof typeof RuntimeVar];
+
+export const RuntimeId = {
+  createTemplate: '$$_create_template',
+  createFragment: '$$_create_fragment',
+  createComponent: '$$_create_component',
+  createWalker: '$$_create_walker',
+  nextTemplate: '$$_next_template',
+  nextElement: '$$_next_element',
+  createElement: '$$_create_element',
+  setupCustomElement: '$$_setup_custom_element',
+  children: '$$_children',
+  insert: '$$_insert',
+  insertLite: '$$_insert_lite',
+  insertAtMarker: '$$_insert_at_marker',
+  insertAtMarkerLite: '$$_insert_at_marker_lite',
+  listen: '$$_listen',
+  delegateEvents: '$$_delegate_events',
+  clone: '$$_clone',
+  directive: '$$_directive',
+  ref: '$$_ref',
+  attr: '$$_attr',
+  class: '$$_class',
+  style: '$$_style',
+  spread: '$$_spread',
+  mergeProps: '$$_merge_props',
+  computed: '$$_computed',
+  effect: '$$_effect',
+  peek: '$$_peek',
+  scoped: '$$_scoped',
+  hydrating: '$$_hydrating',
+} as const;

@@ -1,6 +1,5 @@
 {
   "name": "@maverick-js/std",
-  "description": "Maverick standard library.",
   "license": "MIT",
   "version": "0.43.2",
   "type": "module",

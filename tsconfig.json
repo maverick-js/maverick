@@ -13,7 +13,7 @@
     "incremental": true,
     "lib": ["es2020"],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noEmit": false,
     "noImplicitAny": false,
     "noImplicitOverride": true,

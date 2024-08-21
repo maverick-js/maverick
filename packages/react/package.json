@@ -1,6 +1,5 @@
 {
   "name": "@maverick-js/react",
-  "description": "React bindings for Maverick.",
   "license": "MIT",
   "version": "0.43.2",
   "type": "module",

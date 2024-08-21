@@ -9,3 +9,4 @@ export * from './signals';
 export * from './state';
 export * from './symbols';
 export * from './types';
+export type { JSX } from '../jsx/jsx';

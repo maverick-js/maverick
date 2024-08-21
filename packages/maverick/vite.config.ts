@@ -1,24 +1,21 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 
-const SERVER = !!process.env.SERVER;
-
 export default defineConfig({
   define: {
     __DEV__: 'true',
     __TEST__: 'true',
-    __SERVER__: SERVER ? 'true' : 'false',
+    __SERVER__: 'false',
   },
   resolve: {
     alias: {
-      'maverick.js/element': '/src/element/index.ts',
       'maverick.js': '/src/core/index.ts',
     },
   },
   // https://vitest.dev/config
   test: {
-    include: [`tests/${SERVER ? 'server' : 'client'}/**/*.test.{ts,tsx}`],
+    include: [`tests/**/*.test.{ts,tsx}`],
     globals: true,
-    environment: SERVER ? 'edge-runtime' : 'jsdom',
+    environment: 'node',
   },
 });

@@ -19,7 +19,6 @@ function defineTypes() {
   return {
     input: {
       index: 'types/core/index.d.ts',
-      element: 'types/element/index.d.ts',
       'jsx-runtime': 'types/jsx/jsx.d.ts',
     },
     output: {
@@ -49,7 +48,6 @@ function define({ type = 'dev' }) {
   return {
     input: {
       index: 'src/core/index.ts',
-      element: 'src/element/index.ts',
     },
     external: EXTERNAL,
     treeshake: true,

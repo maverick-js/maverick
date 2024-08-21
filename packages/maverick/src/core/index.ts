@@ -2,7 +2,7 @@ export * from './component';
 export * from './context';
 export * from './controller';
 export * from './events';
-export * from './fragment';
+export * from './jsx';
 export * from './instance';
 export * from './lifecycle';
 export * from './signals';

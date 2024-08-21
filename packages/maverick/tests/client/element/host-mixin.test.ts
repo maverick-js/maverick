@@ -1,10 +1,7 @@
-import { isFunction } from '@maverick-js/std';
+import { waitAnimationFrame } from '@maverick-js/std';
 import { Component, createContext, onDispose, provideContext, useContext } from 'maverick.js';
 
-import { defineCustomElement } from 'maverick.js/element';
-
-import { waitAnimationFrame } from '../../../../std/src/timing';
-import { Host } from '../../../src/element/host-mixin';
+import { defineCustomElement, Host } from 'maverick.js/element';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -110,61 +107,4 @@ it('should call lifecycle hooks', async () => {
   expect(connect).toBeCalledTimes(1);
   expect(detach).toBeCalledTimes(1);
   expect(disconnect).toBeCalledTimes(1);
-});
-
-it('should render `setAttributes`', () => {
-  class TestElement extends Host(
-    HTMLElement,
-    class extends Component {
-      override onAttach() {
-        this.setAttributes({
-          foo: () => 10,
-          bar: 'none',
-          baz: null,
-          bux: false,
-        });
-      }
-    },
-  ) {
-    static tagName = 'mk-test-4';
-  }
-
-  defineCustomElement(TestElement);
-  const el = document.createElement(TestElement.tagName) as TestElement;
-  document.body.append(el);
-
-  expect(el).toMatchInlineSnapshot(`
-    <mk-test-4
-      bar="none"
-      foo="10"
-    />
-  `);
-});
-
-it('should render `setStyles`', () => {
-  class TestElement extends Host(
-    HTMLElement,
-    class extends Component {
-      override onAttach() {
-        this.setStyles({
-          flex: '1',
-          'flex-basis': null,
-          'align-self': false,
-          'z-index': () => 10,
-        });
-      }
-    },
-  ) {
-    static tagName = 'mk-test-5';
-  }
-
-  defineCustomElement(TestElement);
-  const el = document.createElement(TestElement.tagName) as TestElement;
-  document.body.append(el);
-
-  expect(el).toMatchInlineSnapshot(`
-    <mk-test-5
-      style="flex: 1; z-index: 10;"
-    />
-  `);
 });

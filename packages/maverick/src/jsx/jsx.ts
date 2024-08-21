@@ -113,11 +113,6 @@ export namespace JSX {
     render(slots?: any): Node;
   }
 
-  export interface FragmentProps {
-    slot?: string;
-    children: JSX.Element;
-  }
-
   /**
    * -------------------------------------------------------------------------------------------
    * Props (prop)

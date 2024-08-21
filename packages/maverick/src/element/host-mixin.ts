@@ -222,8 +222,8 @@ export function Host<T extends HTMLElement, R extends Component>(
 
     destroy() {
       this.disconnectedCallback();
-      this.$.destroy();
       this.$.$$[ON_DISPATCH] = null;
+      this.$.destroy();
     }
   }
 

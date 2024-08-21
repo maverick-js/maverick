@@ -5,7 +5,8 @@ it('should create props', () => {
     static props = { foo: 10, bar: 20 };
   }
 
-  const instance = new Instance(TestComponent, createScope());
+  const instance = new Instance(createScope(), TestComponent.props);
+
   expect(instance.props.foo()).toBe(10);
   expect(instance.props.bar()).toBe(20);
 });
@@ -15,7 +16,7 @@ it('should forward props', () => {
     static props = { foo: 10, bar: 20 };
   }
 
-  const instance = new Instance(TestComponent, createScope(), {
+  const instance = new Instance(createScope(), TestComponent.props, undefined, {
     props: { foo: 20, bar: 40 },
   });
 

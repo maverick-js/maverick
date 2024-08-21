@@ -2,7 +2,6 @@ import { getContext, setContext } from '@maverick-js/signals';
 import { waitAnimationFrame } from '@maverick-js/std';
 import { Component, createContext, onError, provideContext, useContext } from 'maverick.js';
 
-import 'maverick.js/element';
 import { defineCustomElement, Host, type MaverickElement } from 'maverick.js/element';
 
 import { SETUP_STATE } from '../../../src/element/symbols';

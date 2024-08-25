@@ -2,9 +2,6 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "lib": ["DOM"],
-    "paths": {
-      "@maverick-js/std": ["./src/index.ts"]
-    },
     "types": ["vitest/globals"]
   },
   "include": ["src", "tests"],

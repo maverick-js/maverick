@@ -5,6 +5,6 @@ import type { Transformer } from '../transformer';
 export function reactTransformer(): Transformer {
   return {
     name: '@maverick-js/react',
-    transform({ code, sourceFile, jsx, ctx }) {},
+    transform({ code, sourceFile, nodes, ctx }) {},
   };
 }

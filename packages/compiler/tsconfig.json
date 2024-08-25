@@ -1,11 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "jsx": "preserve",
-    "jsxImportSource": "maverick.js",
-    "paths": {
-      "@maverick-js/compiler": ["./src/index.ts"]
-    },
     "types": ["@types/node", "vitest/globals"]
   },
   "include": ["src", "tests"],

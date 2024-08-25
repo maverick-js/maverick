@@ -1,9 +1,13 @@
 import { isUndefined } from '@maverick-js/std';
-import ts from 'typescript';
+import ts, { type JsxChild } from 'typescript';
 
+import { $, createJsxFragment } from '../transform/transformers/ts-factory';
+import { LogLevel, reportDiagnosticByNode } from '../utils/logger';
+import { trimQuotes } from '../utils/print';
 import {
-  type ASTNode,
+  type AstNode,
   type AttributeNode,
+  type ComponentAttributes,
   type ComponentNode,
   createComponentNode,
   createElementNode,
@@ -20,37 +24,40 @@ import {
 import {
   DELEGATED_EVENT_TYPE,
   DYNAMIC_NAMESPACE,
+  INNER_CONTENT_PROP,
   SVG_ELEMENT_TAGNAME,
   VOID_ELEMENT_TAGNAME,
 } from './constants';
-import { type JsxElementNode, type JsxNamespace, type JsxRootNode } from './jsx/types';
+import {
+  type JsxAttrNamespace,
+  type JsxElementNode,
+  type JsxNamespace,
+  type JsxRootNode,
+} from './jsx/types';
 import {
   filterEmptyJsxChildNodes,
+  getExpressionChildren,
+  getJsxAttribute,
+  getJsxAttributes,
+  getJsxChildren,
   getTagName,
   isComponentTagName,
   isEmptyNode,
   isJsxElementNode,
   isStaticNode,
   isValidNamespace,
-  resolveExpressionChildren,
-  resolveJsxAttrs,
-  resolveJsxChildren,
 } from './utils';
 
-export function createASTNode(root: JsxRootNode): ASTNode {
-  if (ts.isBinaryExpression(root) || ts.isConditionalExpression(root)) {
-    return parseExpression(root, true);
-  } else {
-    return parseNode(root);
-  }
+export function createAstNode(root: JsxRootNode): AstNode {
+  return parseNode(root);
 }
 
-function parseNode(node: ts.Node): ASTNode {
+function parseNode(node: ts.Node): AstNode {
   if (isJsxElementNode(node)) {
     const tagName = getTagName(node);
     return isComponentTagName(tagName)
-      ? parseElement(node, tagName)
-      : parseComponent(node, tagName);
+      ? parseComponent(node, tagName)
+      : parseElement(node, tagName);
   } else if (ts.isJsxFragment(node)) {
     return parseFragment(node);
   } else if (ts.isJsxText(node) && !isEmptyNode(node)) {
@@ -58,47 +65,132 @@ function parseNode(node: ts.Node): ASTNode {
   } else if (ts.isJsxExpression(node) && node.expression && !isEmptyNode(node)) {
     return parseExpression(node);
   } else {
-    return createNoopNode();
+    return createNoopNode(node);
   }
 }
 
 function parseElement(node: JsxElementNode, tagName: string): ElementNode {
-  const isCustomElement = tagName.includes('-'),
+  let isCustomElement = tagName.includes('-'),
     isVoid = VOID_ELEMENT_TAGNAME.has(tagName),
-    isSVG = tagName === 'svg' || SVG_ELEMENT_TAGNAME.has(tagName);
+    isSVG = tagName === 'svg' || SVG_ELEMENT_TAGNAME.has(tagName),
+    isDynamic = isCustomElement,
+    isHost = tagName === 'host',
+    attrs = parseAttrs(getJsxAttributes(node), isCustomElement, () => (isDynamic = true)),
+    asAttr = isHost ? attrs.attrs?.find((attr) => attr.name === 'as')?.initializer : undefined,
+    as = asAttr ? trimQuotes(asAttr.getText()) : undefined;
+
+  if (asAttr && !ts.isStringLiteral(asAttr)) {
+    reportAttributeNotStaticStringLiteral('as', node);
+  }
+
+  if (asAttr) {
+    attrs.attrs = attrs.attrs!.filter((attr) => attr.name !== 'as');
+  }
 
   return createElementNode({
     node: node,
-    tagName,
+    name: tagName,
+    as,
     isVoid,
     isSVG,
     isCustomElement,
-    children: !isVoid ? resolveJsxChildren(node)?.map(parseNode) : undefined,
-    ...parseAttrs(resolveJsxAttrs(node), false),
+    children: !isVoid ? getJsxChildren(node)?.map(parseNode) : undefined,
+    isDynamic: () => isDynamic,
+    ...attrs,
   });
 }
 
 function parseComponent(node: JsxElementNode, tagName: string): ComponentNode {
   return createComponentNode({
     node,
-    tagName,
-    children: resolveJsxChildren(node)?.map(parseNode),
-    ...parseAttrs(resolveJsxAttrs(node), true),
+    name: tagName,
+    ...parseAttrs(getJsxAttributes(node), true),
+    slots: getComponentSlots(getJsxChildren(node)),
   });
 }
 
-function parseAttrs(root: ts.JsxAttributes, isComponent: boolean): ElementAttributes {
+function getComponentSlots(jsxChildren?: ts.JsxChild[]) {
+  if (!jsxChildren) return;
+
+  const slots: Record<string, AstNode> = {},
+    defaultSlots: ts.JsxChild[] = [];
+
+  function addSlot(name: string, nodes: ts.NodeArray<JsxChild>) {
+    const children = filterEmptyJsxChildNodes(Array.from(nodes));
+    if (children.length === 1) {
+      slots[name] = parseNode(children[0]);
+    } else {
+      slots[name] = parseNode(createJsxFragment($.createNodeArray(children)));
+    }
+  }
+
+  for (const jsxChild of jsxChildren) {
+    if (ts.isJsxElement(jsxChild) || ts.isJsxSelfClosingElement(jsxChild)) {
+      const slotAttrInit = getJsxAttribute(jsxChild, 'slot')?.initializer;
+
+      if (slotAttrInit) {
+        if (!ts.isStringLiteral(slotAttrInit)) {
+          reportAttributeNotStaticStringLiteral('slot', slotAttrInit);
+        } else {
+          const slotName = slotAttrInit.text;
+          addSlot(slotName, $.createNodeArray([jsxChild]));
+        }
+
+        continue;
+      }
+
+      if (getTagName(jsxChild).includes('.Slot')) {
+        const nameAttrInit = getJsxAttribute(jsxChild, 'name')?.initializer,
+          slotName = nameAttrInit && ts.isStringLiteral(nameAttrInit) ? nameAttrInit.text : null;
+
+        if (nameAttrInit && !ts.isStringLiteral(nameAttrInit)) {
+          reportAttributeNotStaticStringLiteral('name', nameAttrInit);
+        }
+
+        const children = (jsxChild as ts.JsxElement).children ?? [];
+        if (children.length) {
+          if (!slotName) {
+            defaultSlots.push(...children);
+          } else {
+            addSlot(slotName, children);
+          }
+        }
+
+        continue;
+      }
+    }
+
+    defaultSlots.push(jsxChild);
+  }
+
+  if (defaultSlots.length > 0) {
+    addSlot('default', $.createNodeArray(defaultSlots));
+  }
+
+  return Object.keys(slots).length ? slots : undefined;
+}
+
+function parseAttrs(
+  root: ts.JsxAttributes,
+  isComponent: boolean,
+  onDynamic?: () => void,
+): ElementAttributes {
   let attrs: ElementAttributes = {},
-    jsxAttrs = Array.from(root.properties) as ts.JsxAttribute[];
+    jsxAttrs = Array.from(root.properties) as (ts.JsxAttribute | ts.JsxSpreadAttribute)[];
 
   for (const jsxAttr of jsxAttrs) {
     if (ts.isJsxSpreadAttribute(jsxAttr)) {
-      (attrs.spreads ??= []).push(createSpreadNode({ node: jsxAttr }));
+      (attrs.spreads ??= []).push(
+        createSpreadNode({
+          node: jsxAttr,
+          initializer: jsxAttr.expression,
+        }),
+      );
+      onDynamic?.();
       continue;
     }
 
     const initializer = jsxAttr.initializer,
-      node = initializer || jsxAttr,
       stringLiteral = initializer && ts.isStringLiteral(initializer) ? initializer : undefined,
       expression =
         initializer && ts.isJsxExpression(initializer) ? initializer.expression : undefined;
@@ -108,47 +200,43 @@ function parseAttrs(root: ts.JsxAttributes, isComponent: boolean): ElementAttrib
     let attrText = jsxAttr.name.getText() || '',
       nameParts = attrText.includes(':') ? attrText.split(':') : [],
       hasValidNamespace = isValidNamespace(nameParts[0]),
-      namespace = hasValidNamespace ? (nameParts[0] as JsxNamespace) : null,
-      name = (hasValidNamespace ? nameParts[1] : attrText).replace(/^$/, ''),
+      namespace = hasValidNamespace ? (nameParts[0] as JsxNamespace) : undefined,
+      name = (hasValidNamespace ? nameParts[1] : attrText).replace(/^\$/, ''),
       isStaticExpression = !!expression && isStaticNode(expression),
       isStaticValue = !initializer || isStaticNode(initializer) || isStaticExpression;
 
-    const value = !initializer
-      ? namespace === 'prop' || namespace === '$prop'
-        ? 'true'
-        : '""'
-      : (stringLiteral || expression)!.getText();
-
-    const { signal: hasDynamicExpression, children } =
-      !isStaticValue && expression
-        ? resolveExpressionChildren(expression)
-        : { signal: false, children: undefined };
-
-    const signal = attrText.startsWith('$') || hasDynamicExpression;
+    const signal = attrText.startsWith('$');
 
     const dynamic =
       signal ||
       !isStaticValue ||
       (namespace && DYNAMIC_NAMESPACE.has(namespace)) ||
-      name === 'innerHTML';
+      INNER_CONTENT_PROP.has(name) ||
+      name === 'ref';
+
+    const init = expression ?? stringLiteral ?? ts.factory.createTrue();
+
+    if (dynamic) onDynamic?.();
 
     const attr: AttributeNode = {
-      node: expression ?? node,
+      node: jsxAttr,
+      initializer: init,
       name,
-      value,
+      namespace: namespace as JsxAttrNamespace,
       dynamic,
       signal,
-      children,
     };
 
-    if (namespace) {
+    if (INNER_CONTENT_PROP.has(name)) {
+      attrs.content = attr;
+    } else if (namespace) {
       if (namespace === 'on' || namespace === 'on_capture') {
         const isForwardedEvent = isUndefined(expression);
         (attrs.events ??= []).push({
-          node: expression ?? node,
+          node: jsxAttr,
+          initializer: init,
           namespace,
           type: name,
-          value: !isForwardedEvent ? value : '',
           capture: namespace === 'on_capture',
           forward: isForwardedEvent,
           delegate: namespace !== 'on_capture' && DELEGATED_EVENT_TYPE.has(name),
@@ -162,14 +250,21 @@ function parseAttrs(root: ts.JsxAttributes, isComponent: boolean): ElementAttrib
       } else if (namespace === 'var' || namespace === '$var') {
         (attrs.vars ??= []).push(attr);
       }
+    } else if (name === 'slot') {
+      attrs.slot = attr;
     } else if (name === 'ref') {
-      if (expression) attrs.ref = { node: expression, value };
-    } else if (name === 'class') {
-      attrs.class = attr;
-    } else if (name === 'style') {
-      attrs.style = attr;
+      if (expression) {
+        attrs.ref = {
+          node: jsxAttr,
+          initializer: expression,
+        };
+      }
     } else if (isComponent) {
-      (attrs.props ??= []).push(attr);
+      if (name === 'class') {
+        (attrs as ComponentAttributes).class = attr;
+      } else {
+        (attrs.props ??= []).push(attr);
+      }
     } else {
       (attrs.attrs ??= []).push(attr);
     }
@@ -179,16 +274,16 @@ function parseAttrs(root: ts.JsxAttributes, isComponent: boolean): ElementAttrib
 }
 
 function parseFragment(node: ts.JsxFragment): FragmentNode {
-  const children: ASTNode[] = [],
+  const children: AstNode[] = [],
     jsxChildren = filterEmptyJsxChildNodes(Array.from(node.children));
 
   for (const child of jsxChildren) {
     if (ts.isJsxText(child)) {
       children.push(createTextNode({ node: child }));
     } else if (ts.isJsxExpression(child)) {
-      children.push(buildExpressionNode(child));
+      children.push(parseExpression(child));
     } else {
-      const node = createASTNode(child);
+      const node = createAstNode(child);
       if (node) children.push(node);
     }
   }
@@ -196,27 +291,24 @@ function parseFragment(node: ts.JsxFragment): FragmentNode {
   return createFragmentNode({ node, children });
 }
 
-function parseExpression(node: ts.Expression | ts.JsxExpression, isRoot?: boolean) {
-  return buildExpressionNode(node, isRoot);
-}
-
-function buildExpressionNode(
-  node: ts.JsxExpression | ts.Expression,
-  isRoot?: boolean,
-): ExpressionNode {
+function parseExpression(node: ts.JsxExpression): ExpressionNode {
   const expression = ts.isJsxExpression(node) ? node.expression! : node,
-    isRootCallExpression = ts.isCallExpression(expression),
-    isCallable = isRootCallExpression && expression.arguments.length === 0,
-    { signal, children } = resolveExpressionChildren(expression),
-    isStatic = !signal && !children && isStaticNode(expression);
-
+    children = getExpressionChildren(expression),
+    isStatic = !children && isStaticNode(expression);
   return createExpressionNode({
     node,
+    expression,
     children,
-    signal,
-    root: isRoot,
     dynamic: !isStatic,
-    value: expression.getText(),
-    callId: isCallable ? expression.expression.getText() : undefined,
   });
+}
+
+function reportAttributeNotStaticStringLiteral(name: string, node: ts.Node) {
+  reportDiagnosticByNode(
+    {
+      message: `The \`${name}\` attribute must be a static string literal.`,
+      node,
+    },
+    LogLevel.Error,
+  );
 }

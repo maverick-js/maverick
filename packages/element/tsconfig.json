@@ -2,12 +2,6 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "es2020"],
-    "jsx": "preserve",
-    "jsxImportSource": "maverick.js",
-    "paths": {
-      "@maverick-js/element": ["./src/index.ts"],
-      "@maverick-js/element/server": ["./src/server/index.ts"]
-    },
     "types": ["@types/node", "vitest/globals"]
   },
   "include": ["src", "tests"],

@@ -1,19 +1,43 @@
+import { isNull } from '@maverick-js/std';
 import { encode } from 'html-entities';
 import type ts from 'typescript';
 
 import { trimWhitespace } from '../utils/print';
 import type { JsxAttrNamespace, JsxElementNode, JsxEventNamespace } from './jsx/types';
 
-export const enum ASTNodeKind {
+export class Scope {
+  get isRoot() {
+    return isNull(this.parent);
+  }
+
+  constructor(readonly parent: Scope | null = null) {}
+
+  createChild() {
+    return new Scope(this);
+  }
+
+  isChildOf(parent: Scope) {
+    let pointer: Scope | null = this;
+
+    while (pointer) {
+      if (pointer === parent) return true;
+      pointer = pointer.parent;
+    }
+
+    return false;
+  }
+}
+
+export const enum AstNodeKind {
   Element = 1,
   Fragment = 2,
-  Text = 3,
-  Expression = 4,
-  Component = 5,
+  Expression = 3,
+  Component = 4,
+  Text = 5,
   Noop = 6,
 }
 
-export type ASTNode =
+export type AstNode =
   | ElementNode
   | ComponentNode
   | FragmentNode
@@ -25,28 +49,31 @@ export interface ElementAttributes {
   attrs?: AttributeNode[];
   props?: AttributeNode[];
   vars?: AttributeNode[];
-  class?: AttributeNode;
   classes?: AttributeNode[];
-  style?: AttributeNode;
   styles?: AttributeNode[];
   spreads?: SpreadNode[];
   events?: EventNode[];
   ref?: RefNode;
+  content?: AttributeNode;
+  slot?: AttributeNode;
 }
 
 export interface ElementNode extends ElementAttributes {
-  kind: ASTNodeKind.Element;
+  kind: AstNodeKind.Element;
   node: JsxElementNode;
-  tagName: string;
+  name: string;
+  as?: string;
   isVoid: boolean;
   isSVG: boolean;
   isCustomElement: boolean;
-  children?: ASTNode[];
+  isDynamic: () => boolean;
+  children?: AstNode[];
 }
 
 export interface ComponentAttributes {
   props?: AttributeNode[];
   vars?: AttributeNode[];
+  slot?: AttributeNode;
   class?: AttributeNode;
   classes?: AttributeNode[];
   spreads?: SpreadNode[];
@@ -54,124 +81,116 @@ export interface ComponentAttributes {
 }
 
 export interface ComponentNode extends ComponentAttributes {
-  kind: ASTNodeKind.Component;
+  kind: AstNodeKind.Component;
   node: JsxElementNode;
-  tagName: string;
-  children?: ASTNode[];
+  name: string;
+  slots?: Record<string, AstNode>;
 }
 
 export interface FragmentNode {
-  kind: ASTNodeKind.Fragment;
+  kind: AstNodeKind.Fragment;
   node: ts.JsxFragment;
-  children?: ASTNode[];
+  children?: AstNode[];
 }
 
 export interface TextNode {
-  kind: ASTNodeKind.Text;
+  kind: AstNodeKind.Text;
   node: ts.JsxText;
   value: string;
 }
 
 export interface ExpressionNode {
-  kind: ASTNodeKind.Expression;
-  node: ts.Expression | ts.JsxExpression;
-  root?: boolean;
-  signal?: boolean;
-  children?: ASTNode[];
+  kind: AstNodeKind.Expression;
+  node: ts.JsxExpression;
+  expression: ts.Expression;
+  children?: AstNode[];
   dynamic: boolean;
-  value: string;
-  callId?: string;
 }
 
 export interface SpreadNode {
   node: ts.JsxSpreadAttribute;
-  value: string;
+  initializer: ts.Expression;
 }
 
 export interface AttributeNode {
-  /* Points at attribute when shorthand property (no initializer). */
-  node: ts.JsxAttribute | ts.StringLiteral | ts.Expression;
+  node: ts.JsxAttribute;
+  initializer: ts.Expression;
   namespace?: JsxAttrNamespace;
   name: string;
-  value: string;
   dynamic?: boolean;
   signal?: boolean;
-  children?: ASTNode[];
 }
 
 export interface RefNode {
-  node: ts.Expression;
-  value: string;
+  node: ts.JsxAttribute;
+  initializer: ts.Expression;
 }
 
 export interface EventNode {
-  /* Points at attribute when forwarded event (no initializer). */
-  node: ts.JsxAttribute | ts.Expression;
+  node: ts.JsxAttribute;
+  initializer: ts.Expression;
   namespace: JsxEventNamespace | null;
   type: string;
-  value: string;
   capture: boolean;
   forward: boolean;
   delegate: boolean;
 }
 
 export interface NoopNode {
-  kind: ASTNodeKind.Noop;
+  kind: AstNodeKind.Noop;
+  node: ts.Node;
 }
 
+export type InferTsNode<T extends AstNode> = T extends ExpressionNode ? T['expression'] : T['node'];
+
 export function createElementNode(info: Omit<ElementNode, 'kind'>): ElementNode {
-  return { kind: ASTNodeKind.Element, ...info };
+  return { kind: AstNodeKind.Element, ...info };
 }
 
 export function createComponentNode(info: Omit<ComponentNode, 'kind'>): ComponentNode {
-  return { kind: ASTNodeKind.Component, ...info };
+  return { kind: AstNodeKind.Component, ...info };
 }
 
 export function createFragmentNode(info: Omit<FragmentNode, 'kind'>): FragmentNode {
-  return { kind: ASTNodeKind.Fragment, ...info };
+  return { kind: AstNodeKind.Fragment, ...info };
 }
 
 export function createTextNode(info: Omit<TextNode, 'kind' | 'value'>): TextNode {
-  return { kind: ASTNodeKind.Text, ...info, value: encode(trimWhitespace(info.node.getText())) };
+  return { kind: AstNodeKind.Text, ...info, value: encode(trimWhitespace(info.node.getText())) };
 }
 
 export function createExpressionNode(info: Omit<ExpressionNode, 'kind'>): ExpressionNode {
-  return { kind: ASTNodeKind.Expression, ...info };
+  return { kind: AstNodeKind.Expression, ...info };
 }
 
-const spreadTrimRE = /(?:^\{\.{3})(.*)(?:\}$)/;
-export function createSpreadNode(info: Omit<SpreadNode, 'kind' | 'value'>): SpreadNode {
-  return {
-    ...info,
-    value: info.node.getText().replace(spreadTrimRE, '$1'),
-  };
+export function createSpreadNode(info: Omit<SpreadNode, 'kind'>): SpreadNode {
+  return info;
 }
 
-const noop: NoopNode = { kind: ASTNodeKind.Noop };
-export function createNoopNode(): NoopNode {
-  return noop;
+export function createNoopNode(node: ts.Node): NoopNode {
+  return { kind: AstNodeKind.Noop, node: node };
 }
 
-export function isElementNode(node: ASTNode): node is ElementNode {
-  return node.kind === ASTNodeKind.Element;
+export function isElementNode(node: AstNode): node is ElementNode {
+  return node.kind === AstNodeKind.Element;
 }
 
-export function isComponentNode(node: ASTNode): node is ComponentNode {
-  return node.kind === ASTNodeKind.Component;
+export function isComponentNode(node: AstNode): node is ComponentNode {
+  return node.kind === AstNodeKind.Component;
 }
 
-export function isFragmentNode(node: ASTNode): node is FragmentNode {
-  return node.kind === ASTNodeKind.Fragment;
+export function isFragmentNode(node: AstNode): node is FragmentNode {
+  return node.kind === AstNodeKind.Fragment;
 }
 
-export function isTextNode(node: ASTNode): node is TextNode {
-  return node.kind === ASTNodeKind.Text;
+export function isTextNode(node: AstNode): node is TextNode {
+  return node.kind === AstNodeKind.Text;
 }
 
-export function isExpressionNode(node: ASTNode): node is ExpressionNode {
-  return node.kind === ASTNodeKind.Expression;
+export function isExpressionNode(node: AstNode): node is ExpressionNode {
+  return node.kind === AstNodeKind.Expression;
 }
 
-export function isNoopNode(node: ASTNode): node is NoopNode {
-  return node === noop;
+export function isNoopNode(node: AstNode): node is NoopNode {
+  return node.kind === AstNodeKind.Noop;
 }

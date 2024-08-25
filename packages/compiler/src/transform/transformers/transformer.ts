@@ -1,17 +1,20 @@
 import type MagicString from 'magic-string';
 import type ts from 'typescript';
 
-import type { ASTNode } from '../../parse/ast';
+import type { AstNode } from '../../parse/ast';
 import type { TransformContext } from '../transform';
 
 export interface Transformer {
   name: string;
-  transform(data: TransformData): void;
+  transform(data: TransformData): ts.SourceFile;
 }
 
 export interface TransformData {
-  code: MagicString;
   sourceFile: ts.SourceFile;
-  jsx: ASTNode[];
+  nodes: AstNode[];
   ctx: TransformContext;
+}
+
+export interface Transform<State> {
+  (node: AstNode, state: State): ts.Expression | undefined;
 }

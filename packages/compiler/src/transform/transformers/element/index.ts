@@ -5,7 +5,7 @@ import type { Transformer } from '../transformer';
 export function elementTransformer(): Transformer {
   return {
     name: '@maverick-js/element',
-    transform({ code, sourceFile, jsx, ctx }) {},
+    transform({ code, sourceFile, nodes, ctx }) {},
   };
 }
 

@@ -3,12 +3,6 @@
   "compilerOptions": {
     "rootDir": ".",
     "lib": ["dom", "dom.iterable", "es2020"],
-    "jsx": "preserve",
-    "jsxImportSource": "maverick.js",
-    "paths": {
-      "maverick.js": ["./src/core/index.ts"],
-      "maverick.js/jsx-runtime": ["./src/jsx/jsx-runtime.d.ts"]
-    },
     "types": ["@types/node", "vitest/globals"]
   },
   "include": ["src", "tests"],

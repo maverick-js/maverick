@@ -6,6 +6,7 @@ export * from './jsx';
 export * from './instance';
 export * from './lifecycle';
 export * from './signals';
+export * from './slots';
 export * from './state';
 export * from './symbols';
 export * from './types';

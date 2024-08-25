@@ -1,9 +1,15 @@
 import ts from 'typescript';
 
 import { trimQuotes } from '../utils/print';
-import type { ASTNode } from './ast';
+import {
+  type AstNode,
+  type AttributeNode,
+  type ElementNode,
+  type EventNode,
+  isElementNode,
+} from './ast';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
-import { createASTNode } from './create-ast';
+import { createAstNode } from './create-ast';
 import type {
   JsxAttrNamespace,
   JsxElementNode,
@@ -33,9 +39,8 @@ export function isComponentTagName(tagName: string) {
 }
 
 export function getTagName(node: ts.JsxElement | ts.JsxSelfClosingElement) {
-  return ts.isJsxElement(node)
-    ? ((node.openingElement.tagName as ts.Identifier).escapedText as string)
-    : ((node.tagName as ts.Identifier).escapedText as string);
+  const tagName = ts.isJsxElement(node) ? node.openingElement.tagName : node.tagName;
+  return ts.isIdentifier(tagName) ? (tagName.escapedText as string) : trimQuotes(tagName.getText());
 }
 
 export function isValidAttrNamespace(namespace: any): namespace is JsxAttrNamespace {
@@ -113,37 +118,47 @@ export function filterJsxDOMElements(children: ts.JsxChild[]) {
   ) as JsxElementNode[];
 }
 
-export function resolveExpressionChildren(expression: ts.Expression) {
-  let signal = ts.isCallExpression(expression),
-    children: ASTNode[] | undefined,
-    isJsxExpression = !signal && (isJsxElementNode(expression) || ts.isJsxFragment(expression));
+export function filterElementNodes(children: AstNode[]) {
+  return children.filter((node) => isElementNode(node));
+}
+
+export function getExpressionChildren(expression: ts.Expression) {
+  let children: AstNode[] | undefined;
 
   const parse = (node: ts.Node) => {
-    if (!signal && ts.isCallExpression(node)) {
-      signal = true;
-    } else if (isJsxElementNode(node) || ts.isJsxFragment(node)) {
+    if (isJsxElementNode(node) || ts.isJsxFragment(node)) {
       if (!children) children = [];
-      children!.push(createASTNode(node));
+      children!.push(createAstNode(node));
       return;
     }
 
     ts.forEachChild(node, parse);
   };
 
-  if (isJsxExpression) {
-    children = [createASTNode(expression as ts.JsxElement | ts.JsxFragment)];
+  if (isJsxElementNode(expression) || ts.isJsxFragment(expression)) {
+    children = [createAstNode(expression)];
   } else {
     ts.forEachChild(expression, parse);
   }
 
-  return { signal, children };
+  return children;
 }
 
-export function resolveJsxAttrs(node: JsxElementNode) {
+export function getJsxAttribute(node: ts.JsxElement | ts.JsxSelfClosingElement, name: string) {
+  return getJsxAttributes(node).properties.find(
+    (attr) =>
+      ts.isJsxAttribute(attr) &&
+      attr.name &&
+      ts.isIdentifier(attr.name) &&
+      attr.name.escapedText === name,
+  ) as ts.JsxAttribute | undefined;
+}
+
+export function getJsxAttributes(node: JsxElementNode) {
   return ts.isJsxSelfClosingElement(node) ? node.attributes : node.openingElement.attributes;
 }
 
-export function resolveJsxChildren(node: JsxElementNode): ts.JsxChild[] | undefined {
+export function getJsxChildren(node: JsxElementNode): ts.JsxChild[] | undefined {
   if (ts.isJsxSelfClosingElement(node)) return undefined;
 
   const children = filterEmptyJsxChildNodes(Array.from(node.children)),
@@ -155,4 +170,60 @@ export function resolveJsxChildren(node: JsxElementNode): ts.JsxChild[] | undefi
   }
 
   return children;
+}
+
+export function findElementIndex(parent: ElementNode, node: ElementNode) {
+  return filterElementNodes(parent.children!).indexOf(node);
+}
+
+export function getAttributeNodeFullName(attr: AttributeNode) {
+  return `${attr.namespace ? `${attr.namespace}:` : ''}${attr.name}`;
+}
+
+export function getEventNodeFullName(event: EventNode) {
+  return `${event.namespace ? `${event.namespace}:` : ''}${event.type}`;
+}
+
+export function getAttributeText(attr: AttributeNode) {
+  return attr.initializer.kind !== ts.SyntaxKind.TrueKeyword
+    ? trimQuotes(attr.initializer.getText())
+    : '';
+}
+
+export function isImportFrom(node: ts.ImportDeclaration, moduleSpecifier: string) {
+  return ts.isStringLiteral(node.moduleSpecifier) && node.moduleSpecifier.text === moduleSpecifier;
+}
+
+export function getNamedImportBindings(node: ts.ImportDeclaration, moduleSpecifier: string) {
+  if (!isImportFrom(node, moduleSpecifier)) return null;
+
+  const bindings = node.importClause?.namedBindings;
+  if (bindings && ts.isNamedImports(bindings)) {
+    return bindings.elements;
+  }
+
+  return null;
+}
+
+export function getImportSpecifierFromDeclaration(
+  node: ts.ImportDeclaration,
+  moduleSpecifier: string,
+  importSpecifier: string,
+) {
+  const elements = getNamedImportBindings(node, moduleSpecifier);
+  if (!elements) return null;
+  return getImportSpecifierFromElements(elements, importSpecifier);
+}
+
+export function getImportSpecifierFromElements(
+  elements: ts.NodeArray<ts.ImportSpecifier>,
+  id: string,
+) {
+  for (const element of elements) {
+    if (element.name.text === id) {
+      return element;
+    }
+  }
+
+  return null;
 }

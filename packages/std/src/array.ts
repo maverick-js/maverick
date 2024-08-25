@@ -1,5 +1,13 @@
 import { isArray } from './unit';
 
+export function uniqueItemsOnly<T>(items: T[]): T[] {
+  return [...new Set(items)];
+}
+
+export function filterNullish<T>(array: (T | null | undefined)[]): T[] {
+  return array.filter(Boolean) as T[];
+}
+
 // This only exists because array.flat(Infinity) is slow.
 export function flattenArray<T>(array: (T | T[])[]): T[] {
   const flat: T[] = [];

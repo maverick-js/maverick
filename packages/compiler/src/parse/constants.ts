@@ -17,7 +17,14 @@ export const RESERVED_NAMESPACE = new Set<JsxNamespace>([
   'on_capture',
 ]);
 
-export const DYNAMIC_NAMESPACE = new Set(['prop', '$prop']);
+export const DYNAMIC_NAMESPACE = new Set<JsxNamespace>([
+  '$class',
+  '$prop',
+  '$style',
+  '$var',
+  'on',
+  'on_capture',
+]);
 
 const BOOLEAN_NAMES = [
   'allowfullscreen',

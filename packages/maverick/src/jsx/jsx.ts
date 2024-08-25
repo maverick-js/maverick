@@ -1,7 +1,13 @@
 /// <reference lib="dom" />
-import type { ConditionalPick, IfEmptyObject } from 'type-fest';
+import type { ConditionalPick, HasRequiredKeys, IsAny, IsEmptyObject, IsNever } from 'type-fest';
 
-import type { AnyComponent, LifecycleEvents, NullableRecord, ReadSignal } from '../core';
+import type {
+  AnyComponent,
+  ComponentRenderProps,
+  LifecycleEvents,
+  NullableRecord,
+  ReadSignal,
+} from '../core';
 
 type DOMNode = Node;
 type DOMElement = Element;
@@ -110,7 +116,7 @@ export namespace JSX {
   }
 
   export interface ElementClass extends AnyComponent {
-    render(slots?: any): Node;
+    render(props: ComponentRenderProps<any>): Node;
   }
 
   /**
@@ -142,6 +148,22 @@ export namespace JSX {
    *
    * @example
    * ```ts
+   * // { $foo: string | ReadSignal<string>; $bar: number | ReadSignal<number>; }
+   * SignalAttributes<{
+   *   foo: string; // $foo
+   *   bar: number; // $bar
+   * }>
+   * ```
+   */
+  export type SignalOrValueAttributes<Props> = {
+    [Prop in keyof Props as `$${Stringify<Prop>}`]?: SignalOrValue<Props[Prop]>;
+  };
+
+  /**
+   * Creates `${name}` type definitions given a prop record.
+   *
+   * @example
+   * ```ts
    * // { $foo: ReadSignal<string>; $bar: ReadSignal<number>; }
    * SignalAttributes<{
    *   foo: string; // $foo
@@ -159,7 +181,8 @@ export namespace JSX {
     textContent?: AttrValue;
   }
 
-  export interface SignalInnerContentAttributes extends SignalAttributes<InnerContentAttributes> {}
+  export interface SignalInnerContentAttributes
+    extends SignalOrValueAttributes<InnerContentAttributes> {}
 
   /**
    * -------------------------------------------------------------------------------------------
@@ -226,7 +249,7 @@ export namespace JSX {
     [EventType in keyof Events as `on:${Stringify<EventType>}`]?:
       | TargetedEventHandler<Target, Events[EventType]>
       | true;
-  } & OnCaptureAttributes<Target, Events>;
+  };
 
   export type OnCaptureAttributes<
     Target extends EventTarget = EventTarget,
@@ -245,10 +268,10 @@ export namespace JSX {
 
   export type ClassValue = any;
 
-  export type ClassAttributes = Record<`class:${string}`, ClassValue>;
+  export type ClassAttributes = Record<`class:${string}`, boolean>;
 
   export interface SignalClassAttributes
-    extends Record<`$class:${string}`, ReadSignal<ClassValue>> {}
+    extends Record<`$class:${string}`, boolean | ReadSignal<boolean>> {}
 
   /**
    * -------------------------------------------------------------------------------------------
@@ -268,7 +291,7 @@ export namespace JSX {
     [Prop in keyof CSSProperties as `style:${Stringify<Prop>}`]: CSSProperties[Prop];
   };
 
-  export interface SignalStyleAttributes extends SignalAttributes<StyleAttributes> {}
+  export interface SignalStyleAttributes extends SignalOrValueAttributes<StyleAttributes> {}
 
   export type AnyCSSProperty = {
     [key: string]: CSSValue;
@@ -295,7 +318,9 @@ export namespace JSX {
     [Var in keyof Variables as `var:${Stringify<Var>}`]?: Variables[Var] | null;
   } & AnyCSSVarAttribute;
 
-  export type SignalCSSVarAttributes<Variables> = SignalAttributes<CSSVarAttributes<Variables>>;
+  export type SignalCSSVarAttributes<Variables> = SignalOrValueAttributes<
+    CSSVarAttributes<Variables>
+  >;
 
   export interface GlobalCSSVarAttributes
     extends CSSVarAttributes<MaverickCSSVarAttributes>,
@@ -308,9 +333,9 @@ export namespace JSX {
    */
 
   export type HTMLPropAttributes<Props extends PropRecord> = PropAttributes<NullableRecord<Props>> &
-    SignalAttributes<PropAttributes<NullableRecord<Props>>> &
+    SignalOrValueAttributes<PropAttributes<NullableRecord<Props>>> &
     HTMLAttrsRecord<Props> &
-    SignalAttributes<HTMLAttrsRecord<Props>>;
+    SignalOrValueAttributes<HTMLAttrsRecord<Props>>;
 
   export type HTMLAttrsRecord<Props> = LowercaseRecord<ConditionalPick<Props, AttrValue>>;
 
@@ -332,7 +357,7 @@ export namespace JSX {
   };
 
   export type SignalDataAttributes = {
-    [attr: `$data-${string}`]: ReadSignal<AttrValue>;
+    [attr: `$data-${string}`]: AttrValue | ReadSignal<AttrValue>;
   };
 
   export interface HTMLElementAttributes
@@ -351,12 +376,10 @@ export namespace JSX {
 
   export type ComponentAttributes<
     Props = {},
-    State = {},
     Events = {},
     CSSVars = {},
     Slots = {},
   > = Partial<Props> &
-    SignalAttributes<Props> &
     ClassAttributes &
     SignalClassAttributes &
     CSSVarAttributes<CSSVars> &
@@ -364,15 +387,18 @@ export namespace JSX {
     GlobalCSSVarAttributes &
     OnAttributes<EventTarget, Events> & {
       class?: string;
-    } & IfEmptyObject<
-      Slots,
-      {},
-      'default' extends keyof Slots
-        ? Slots['default'] extends Function
-          ? { children: Slots['default'] }
-          : { children?: Element }
-        : { children?: Element }
-    >;
+    } & ComponentChildrenProp<Slots>;
+
+  export type ComponentChildrenProp<Slots> =
+    IsEmptyObject<Slots> extends true
+      ? {}
+      : IsNever<Slots> extends true
+        ? {}
+        : IsAny<Slots> extends true
+          ? { children?: JSX.Element }
+          : HasRequiredKeys<Slots & {}> extends true
+            ? { children: JSX.Element }
+            : { children?: JSX.Element };
 
   export interface HostAttributes
     extends IntrinsicElementAttributes<HTMLElement>,
@@ -1000,7 +1026,8 @@ export namespace JSX {
   export interface IntrinsicElementAttributes<Element extends DOMElement>
     extends HTMLElementAttributes,
       RefAttributes<Element>,
-      OnAttributes<Element, MaverickOnAttributes> {}
+      OnAttributes<Element, MaverickOnAttributes>,
+      OnCaptureAttributes<Element, MaverickOnAttributes> {}
 
   export interface IntrinsicElements {
     // Maverick
@@ -1233,5 +1260,5 @@ export namespace JSX {
     'aria-roledescription'?: string;
   }
 
-  export interface SignalARIAAttributes extends SignalAttributes<ARIAAttributes> {}
+  export interface SignalARIAAttributes extends SignalOrValueAttributes<ARIAAttributes> {}
 }

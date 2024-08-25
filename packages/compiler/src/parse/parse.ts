@@ -1,9 +1,11 @@
 import ts from 'typescript';
 
 import { logTime } from '../utils/logger';
-import type { ASTNode } from './ast';
-import { createASTNode } from './create-ast';
-import { isJsxElementNode, walkTsNode } from './utils';
+import type { ParseAnalysis } from './analysis';
+import { type AstNode, isNoopNode } from './ast';
+import { createAstNode } from './create-ast';
+import type { JsxRootNode } from './jsx/types';
+import { getImportSpecifierFromDeclaration, isJsxElementNode } from './utils';
 
 export interface ParseOptions {
   filename: string;
@@ -13,9 +15,11 @@ const tsxRE = /\.tsx/;
 
 export function parse(code: string, options: ParseOptions) {
   const { filename } = options,
+    analysis: ParseAnalysis = { components: {} },
     parseStartTime = process.hrtime(),
     sourceFile = ts.createSourceFile(filename, code, 99, true, tsxRE.test(filename) ? 4 : 2),
-    jsx: ASTNode[] = [];
+    astNodes: AstNode[] = [],
+    jsxNodes: JsxRootNode[] = [];
 
   logTime({
     message: `Parsed Source File (TS): ${filename}`,
@@ -23,19 +27,18 @@ export function parse(code: string, options: ParseOptions) {
   });
 
   const parse = (node: ts.Node) => {
-    if (ts.isBinaryExpression(node) || ts.isConditionalExpression(node)) {
-      const containsJsx = walkTsNode(
-        node,
-        (node) => isJsxElementNode(node) || ts.isJsxFragment(node),
-      );
+    if (ts.isImportDeclaration(node)) {
+      const Fragment = getImportSpecifierFromDeclaration(node, 'maverick.js', 'Fragment'),
+        Portal = getImportSpecifierFromDeclaration(node, 'maverick.js', 'Portal'),
+        For = getImportSpecifierFromDeclaration(node, 'maverick.js', 'For');
 
-      if (containsJsx) {
-        jsx.push(createASTNode(node));
-      }
+      if (Fragment) analysis.components.fragment = Fragment;
+      if (Portal) analysis.components.portal = Portal;
+      if (For) analysis.components.for = For;
+    }
 
-      return;
-    } else if (isJsxElementNode(node) || ts.isJsxFragment(node)) {
-      jsx.push(createASTNode(node));
+    if (isJsxElementNode(node) || ts.isJsxFragment(node)) {
+      jsxNodes.push(node);
       return;
     }
 
@@ -44,8 +47,13 @@ export function parse(code: string, options: ParseOptions) {
 
   ts.forEachChild(sourceFile, parse);
 
+  for (const jsxNode of jsxNodes) {
+    astNodes.push(createAstNode(jsxNode));
+  }
+
   return {
+    analysis,
     sourceFile,
-    jsx,
+    nodes: astNodes.filter((node) => !isNoopNode(node)),
   };
 }

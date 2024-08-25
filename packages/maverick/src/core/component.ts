@@ -1,4 +1,5 @@
 import type { WritableKeys } from '@maverick-js/std';
+import type { IsNever } from 'type-fest';
 
 import type { JSX } from '../jsx/jsx';
 import { ViewController } from './controller';
@@ -6,6 +7,7 @@ import { Instance } from './instance';
 import type { LifecycleEvents } from './lifecycle';
 import { type Dispose, effect, type Maybe, scoped } from './signals';
 import type { State } from './state';
+import type { SignalOrValueRecord } from './types';
 
 export class Component<
   Props = {},
@@ -15,9 +17,9 @@ export class Component<
   Slots = {},
 > extends ViewController<Props, State, Events & LifecycleEvents, CSSVars> {
   /** @internal - DO NOT USE (for jsx types only) */
-  jsxProps!: JSX.ComponentAttributes<Props, State, Events, CSSVars, Slots>;
+  jsxProps!: JSX.ComponentAttributes<SignalOrValueRecord<Props>, Events, CSSVars, Slots>;
 
-  render?(slots: Slots): JSX.Element;
+  render?(props: ComponentRenderProps<Slots>): JSX.Element;
 
   subscribe(callback: (state: Readonly<State>) => Maybe<Dispose>) {
     if (__DEV__ && !this.state) {
@@ -53,9 +55,6 @@ export type InferComponentEvents<T> =
 export type InferComponentCSSProps<T> =
   T extends Component<any, any, any, infer CSSVars> ? CSSVars : {};
 
-export type InferComponentSlots<T> =
-  T extends Component<any, any, any, any, infer Slots> ? Slots : {};
-
 export type InferComponentMembers<T> =
   T extends Component<infer Props> ? Omit<Props, keyof T> & Omit<T, keyof Component> : {};
 
@@ -64,5 +63,15 @@ export type InferComponentCSSVars<
   CSSProps = InferComponentCSSProps<Component>,
 > = { [Var in WritableKeys<CSSProps> as `--${Var & string}`]: CSSProps[Var] };
 
+export type InferComponentSlots<T> =
+  T extends Component<any, any, any, any, infer Slots> ? Slots : {};
+
 export type InferComponentInstance<T> =
   T extends Component<infer Props, infer State> ? Instance<Props, State> : {};
+
+export interface ComponentRenderProps<Slots> {
+  $slots: Slots;
+}
+
+export type ComponentSlot<Props = never> =
+  IsNever<Props> extends true ? { (): JSX.Element } : { (props: Props): JSX.Element };

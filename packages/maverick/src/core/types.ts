@@ -1,6 +1,30 @@
 import type { InferSignalValue, ReadSignal, WriteSignal } from '@maverick-js/signals';
 import type { ConditionalExcept, ConditionalPick, KebabCase } from 'type-fest';
 
+import type { JSX } from '../jsx/jsx';
+
+export interface HostFC<Props = {}, CSSVars = {}, Slots = never> {
+  (props: HostFCProps<Props, CSSVars, Slots>): JSX.Element;
+}
+
+export type HostFCProps<Props = {}, CSSVars = {}, Slots = never> = JSX.ComponentAttributes<
+  Props,
+  HTMLElementEventMap,
+  CSSVars,
+  Slots
+> & {
+  $slots?: Slots;
+};
+
+export interface FC<Props = {}, Slots = never> {
+  (props: FCProps<Props, Slots>): JSX.Element;
+}
+
+export type FCProps<Props = {}, Slots = never> = Props &
+  JSX.ComponentChildrenProp<Slots> & {
+    $slots?: Slots;
+  };
+
 export type SignalOrValue<T> = T | ReadSignal<T>;
 
 export type SignalOrValueRecord<T> = {

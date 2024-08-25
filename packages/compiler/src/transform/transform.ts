@@ -1,4 +1,3 @@
-import { isString } from '@maverick-js/std';
 import MagicString, { type SourceMapOptions } from 'magic-string';
 import { relative } from 'pathe';
 
@@ -11,10 +10,10 @@ import {
   mapLogLevelStringToNumber,
   setGlobalLogLevel,
 } from '../utils/logger';
-import { getTransformer, type Transformer, type TransformTarget } from './transformers/transformer';
+import type { Transformer } from './transformers/transformer';
 
 export interface TransformOptions extends TransformFeatures {
-  target: TransformTarget | Transformer;
+  transformer: Transformer;
   logLevel?: LogLevelName;
   filename: string;
   hydratable?: boolean;
@@ -35,7 +34,7 @@ export interface TransformContext {
 }
 
 export function transform(source: string, options: TransformOptions) {
-  const { target, logLevel = 'warn', filename, sourcemap = true } = options;
+  const { transformer, logLevel = 'warn', filename, sourcemap = true } = options;
 
   setGlobalLogLevel(mapLogLevelStringToNumber(logLevel));
 
@@ -54,7 +53,6 @@ export function transform(source: string, options: TransformOptions) {
 
   // Transform JSX
   const code = new MagicString(source),
-    transformer = isString(target) ? getTransformer(target) : target,
     transformStartTime = process.hrtime();
 
   transformer.transform({

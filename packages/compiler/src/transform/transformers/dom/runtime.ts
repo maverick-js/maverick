@@ -1,198 +1,139 @@
 import ts from 'typescript';
 
-import { RuntimeId, type RuntimeVars } from './constants';
+import { createId } from '../../print';
 
-export function createRuntimeVariable(id: RuntimeVars, expression?: ts.Expression) {
-  return ts.factory.createVariableDeclaration(id, undefined, undefined, expression);
-}
+export class Runtime {
+  readonly identifiers: Record<string, ts.Identifier> = {};
 
-export function createTemplate(html: string) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.createTemplate),
-    undefined,
-    [ts.factory.createStringLiteral(html)],
-  );
-}
+  createTemplate(html: string) {
+    return this.#createCallExpression('$$_create_template', [ts.factory.createStringLiteral(html)]);
+  }
 
-export function createFragment() {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.createFragment),
-    undefined,
-    [],
-  );
-}
+  createFragment() {
+    return this.#createCallExpression('$$_create_fragment', []);
+  }
 
-export function createComponent(id: ts.Identifier) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.createComponent),
-    undefined,
-    [id],
-  );
-}
+  createComponent(id: ts.Identifier) {
+    return this.#createCallExpression('$$_create_component', [id]);
+  }
 
-export function createWalker(fragment: ts.Identifier, walker: ts.Identifier) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.createWalker),
-    undefined,
-    [fragment, walker],
-  );
-}
+  createWalker(fragment: ts.Identifier, walker: ts.Identifier) {
+    return this.#createCallExpression('$$_create_walker', [fragment, walker]);
+  }
 
-export function nextTemplate(fragment: ts.Identifier) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.nextTemplate),
-    undefined,
-    [fragment],
-  );
-}
+  nextTemplate(fragment: ts.Identifier) {
+    return this.#createCallExpression('$$_next_template', [fragment]);
+  }
 
-export function nextElement(walker: ts.Identifier) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.nextElement),
-    undefined,
-    [walker],
-  );
-}
+  nextElement(walker: ts.Identifier) {
+    return this.#createCallExpression('$$_next_element', [walker]);
+  }
 
-export function createElement(tagName: string) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.createElement),
-    undefined,
-    [ts.factory.createStringLiteral(tagName)],
-  );
-}
+  createElement(tagName: string) {
+    return this.#createCallExpression('$$_create_element', [
+      ts.factory.createStringLiteral(tagName),
+    ]);
+  }
 
-export function setupCustomElement(
-  host: ts.Identifier,
-  props: ts.Identifier | ts.ObjectLiteralExpression,
-) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.setupCustomElement),
-    undefined,
-    [host, props],
-  );
-}
+  setupCustomElement(host: ts.Identifier, props: ts.Identifier | ts.ObjectLiteralExpression) {
+    return this.#createCallExpression('$$_setup_custom_element', [host, props]);
+  }
 
-export function children(id: ts.Identifier) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.children),
-    undefined,
-    [id],
-  );
-}
+  children(id: ts.Identifier) {
+    return this.#createCallExpression('$$_children', [id]);
+  }
 
-export function insert(parent: ts.Identifier, value: ts.Identifier, marker?: ts.Identifier) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.insert),
-    undefined,
-    marker ? [parent, value, marker] : [parent, value],
-  );
-}
+  insert(parent: ts.Identifier, value: ts.Identifier, marker?: ts.Identifier) {
+    return this.#createCallExpression(
+      '$$_insert',
+      marker ? [parent, value, marker] : [parent, value],
+    );
+  }
 
-export function insertAtMarker(marker: ts.Identifier, value: ts.Identifier) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.insertAtMarker),
-    undefined,
-    [marker, value],
-  );
-}
+  insertAtMarker(marker: ts.Identifier, value: ts.Identifier) {
+    return this.#createCallExpression('$$_insert_at_marker', [marker, value]);
+  }
 
-export function listen(
-  target: ts.Identifier,
-  type: string,
-  handler: ts.Expression,
-  capture: boolean,
-) {
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(RuntimeId.listen), undefined, [
-    target,
-    ts.factory.createStringLiteral(type),
-    handler,
-    capture ? ts.factory.createTrue() : ts.factory.createFalse(),
-  ]);
-}
+  listen(target: ts.Identifier, type: string, handler: ts.Expression, capture: boolean) {
+    return this.#createCallExpression('$$_listen', [
+      target,
+      ts.factory.createStringLiteral(type),
+      handler,
+      capture ? ts.factory.createTrue() : ts.factory.createFalse(),
+    ]);
+  }
 
-export function delegateEvents(types: ts.ArrayLiteralExpression) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.delegateEvents),
-    undefined,
-    [types],
-  );
-}
+  delegateEvents(types: ts.ArrayLiteralExpression) {
+    return this.#createCallExpression('$$_delegate_events', [types]);
+  }
 
-export function clone(fragment: ts.Identifier) {
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(RuntimeId.clone), undefined, [
-    fragment,
-  ]);
-}
+  clone(fragment: ts.Identifier) {
+    return this.#createCallExpression('$$_clone', [fragment]);
+  }
 
-export function ref(element: ts.Identifier, ref: ts.Expression) {
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(RuntimeId.ref), undefined, [
-    element,
-    ref,
-  ]);
-}
+  ref(element: ts.Identifier, ref: ts.Expression) {
+    return this.#createCallExpression('$$_ref', [element, ref]);
+  }
 
-export function attr(el: ts.Identifier, name: string, value: ts.Expression) {
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(RuntimeId.attr), undefined, [
-    el,
-    ts.factory.createStringLiteral(name),
-    value,
-  ]);
-}
+  attr(el: ts.Identifier, name: string, value: ts.Expression) {
+    return this.#createCallExpression('$$_attr', [el, ts.factory.createStringLiteral(name), value]);
+  }
 
-export function _class(el: ts.Identifier, name: string, value: ts.Expression) {
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(RuntimeId.class), undefined, [
-    el,
-    ts.factory.createStringLiteral(name),
-    value,
-  ]);
-}
+  class(el: ts.Identifier, name: string, value: ts.Expression) {
+    return this.#createCallExpression('$$_class', [
+      el,
+      ts.factory.createStringLiteral(name),
+      value,
+    ]);
+  }
 
-export function style(el: ts.Identifier, prop: string, value: ts.Expression) {
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(RuntimeId.style), undefined, [
-    el,
-    ts.factory.createStringLiteral(prop),
-    value,
-  ]);
-}
+  style(el: ts.Identifier, prop: string, value: ts.Expression) {
+    return this.#createCallExpression('$$_style', [
+      el,
+      ts.factory.createStringLiteral(prop),
+      value,
+    ]);
+  }
 
-export function spread(el: ts.Identifier, props: ts.Identifier | ts.ObjectLiteralExpression) {
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(RuntimeId.spread), undefined, [
-    el,
-    props,
-  ]);
-}
+  spread(el: ts.Identifier, props: ts.Identifier | ts.ObjectLiteralExpression) {
+    return this.#createCallExpression('$$_spread', [el, props]);
+  }
 
-export function mergeProps(sources: ts.Expression[]) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.mergeProps),
-    undefined,
-    sources,
-  );
-}
+  mergeProps(sources: ts.Expression[]) {
+    return this.#createCallExpression('$$_merge_props', sources);
+  }
 
-export function computed(compute: ts.Identifier) {
-  return ts.factory.createCallExpression(
-    ts.factory.createIdentifier(RuntimeId.computed),
-    undefined,
-    [compute],
-  );
-}
+  computed(compute: ts.Identifier) {
+    return this.#createCallExpression('$$_computed', [compute]);
+  }
 
-export function effect(compute: ts.Identifier) {
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(RuntimeId.effect), undefined, [
-    compute,
-  ]);
-}
+  effect(compute: ts.Identifier) {
+    return this.#createCallExpression('$$_effect', [compute]);
+  }
 
-export function peek(compute: ts.Identifier) {
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(RuntimeId.peek), undefined, [
-    compute,
-  ]);
-}
+  peek(compute: ts.Identifier) {
+    return this.#createCallExpression('$$_peek', [compute]);
+  }
 
-export function scoped(compute: ts.Identifier) {
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(RuntimeId.scoped), undefined, [
-    compute,
-  ]);
+  scoped(compute: ts.Identifier) {
+    return this.#createCallExpression('$$_scoped', [compute]);
+  }
+
+  hydrating() {
+    return this.#getId('$$_hydrating');
+  }
+
+  #getId(name: string) {
+    let id = this.identifiers[name];
+
+    if (!id) {
+      this.identifiers[name] = id = createId(name);
+    }
+
+    return id;
+  }
+
+  #createCallExpression(name: string, args: readonly ts.Expression[] | undefined) {
+    return ts.factory.createCallExpression(this.#getId(name), undefined, args);
+  }
 }

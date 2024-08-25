@@ -1,17 +1,17 @@
 import ts from 'typescript';
 
 import { trimQuotes } from '../utils/print';
-import type { AST } from './ast';
-import { buildAST } from './build-ast';
+import type { ASTNode } from './ast';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
+import { createASTNode } from './create-ast';
 import type {
-  JSXAttrNamespace,
-  JSXElementNode,
-  JSXEventNamespace,
-  JSXNamespace,
+  JsxAttrNamespace,
+  JsxElementNode,
+  JsxEventNamespace,
+  JsxNamespace,
 } from './jsx/types';
 
-export function walk(node: ts.Node, check: (child: ts.Node) => any) {
+export function walkTsNode(node: ts.Node, check: (child: ts.Node) => any) {
   let result;
 
   const parse = (child: ts.Node) => {
@@ -38,16 +38,16 @@ export function getTagName(node: ts.JsxElement | ts.JsxSelfClosingElement) {
     : ((node.tagName as ts.Identifier).escapedText as string);
 }
 
-export function isValidAttrNamespace(namespace: any): namespace is JSXAttrNamespace {
+export function isValidAttrNamespace(namespace: any): namespace is JsxAttrNamespace {
   return RESERVED_ATTR_NAMESPACE.has(namespace);
 }
 
-export function isValidNamespace(namespace: any): namespace is JSXNamespace {
+export function isValidNamespace(namespace: any): namespace is JsxNamespace {
   return RESERVED_NAMESPACE.has(namespace);
 }
 
 const eventNamespaceRE = /^\$on/;
-export function isValidEventNamespace(namespace: string): namespace is JSXEventNamespace {
+export function isValidEventNamespace(namespace: string): namespace is JsxEventNamespace {
   return eventNamespaceRE.test(namespace);
 }
 
@@ -59,28 +59,28 @@ export function toPropertyName(name: string) {
   return name.toLowerCase().replace(/-([a-z])/g, (_, w) => w.toUpperCase());
 }
 
-export function isTrueBoolExpression(node: ts.Expression) {
+export function isTrueKeyword(node: ts.Node) {
   return node.kind === ts.SyntaxKind.TrueKeyword;
 }
 
-export function isFalseBoolExpression(node: ts.Expression) {
+export function isFalseKeyword(node: ts.Node) {
   return node.kind === ts.SyntaxKind.FalseKeyword;
 }
 
-export function isBoolExpression(node: ts.Expression) {
-  return isTrueBoolExpression(node) || isFalseBoolExpression(node);
+export function isBoolLiteral(node: ts.Node) {
+  return isTrueKeyword(node) || isFalseKeyword(node);
 }
 
-export function isStringExpression(node: ts.Expression) {
+export function isStringLiteral(node: ts.Node) {
   return ts.isNoSubstitutionTemplateLiteral(node) || ts.isStringLiteral(node);
 }
 
-export function isStaticExpression(node: ts.Expression) {
+export function isStaticNode(node: ts.Node) {
   return (
     ts.isLiteralExpression(node) ||
     ts.isNumericLiteral(node) ||
-    isStringExpression(node) ||
-    isBoolExpression(node)
+    isStringLiteral(node) ||
+    isBoolLiteral(node)
   );
 }
 
@@ -97,44 +97,62 @@ export function isEmptyTextNode(node: ts.Node) {
   return ts.isJsxText(node) && (isEmptyNode(node) || /^[\r\n]\s*$/.test(node.getText()));
 }
 
-export function isJSXElementNode(node: ts.Node): node is JSXElementNode {
+export function isJsxElementNode(node: ts.Node): node is JsxElementNode {
   return ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node);
 }
 
-export function filterEmptyJSXChildNodes(children: ts.JsxChild[]) {
+export function filterEmptyJsxChildNodes(children: ts.JsxChild[]) {
   return children.filter((child) => !isEmptyExpressionNode(child) && !isEmptyTextNode(child));
 }
 
-export function filterDOMElements(children: ts.JsxChild[]) {
+export function filterJsxDOMElements(children: ts.JsxChild[]) {
   return children.filter(
     (node) =>
       (ts.isJsxText(node) && !isEmptyNode(node)) ||
-      (isJSXElementNode(node) && !isComponentTagName(getTagName(node))),
-  ) as JSXElementNode[];
+      (isJsxElementNode(node) && !isComponentTagName(getTagName(node))),
+  ) as JsxElementNode[];
 }
 
 export function resolveExpressionChildren(expression: ts.Expression) {
   let signal = ts.isCallExpression(expression),
-    children: AST[] | undefined,
-    isJSXExpression = !signal && (isJSXElementNode(expression) || ts.isJsxFragment(expression));
+    children: ASTNode[] | undefined,
+    isJsxExpression = !signal && (isJsxElementNode(expression) || ts.isJsxFragment(expression));
 
   const parse = (node: ts.Node) => {
     if (!signal && ts.isCallExpression(node)) {
       signal = true;
-    } else if (isJSXElementNode(node) || ts.isJsxFragment(node)) {
+    } else if (isJsxElementNode(node) || ts.isJsxFragment(node)) {
       if (!children) children = [];
-      children!.push(buildAST(node));
+      children!.push(createASTNode(node));
       return;
     }
 
     ts.forEachChild(node, parse);
   };
 
-  if (isJSXExpression) {
-    children = [buildAST(expression as ts.JsxElement | ts.JsxFragment)];
+  if (isJsxExpression) {
+    children = [createASTNode(expression as ts.JsxElement | ts.JsxFragment)];
   } else {
     ts.forEachChild(expression, parse);
   }
 
   return { signal, children };
+}
+
+export function resolveJsxAttrs(node: JsxElementNode) {
+  return ts.isJsxSelfClosingElement(node) ? node.attributes : node.openingElement.attributes;
+}
+
+export function resolveJsxChildren(node: JsxElementNode): ts.JsxChild[] | undefined {
+  if (ts.isJsxSelfClosingElement(node)) return undefined;
+
+  const children = filterEmptyJsxChildNodes(Array.from(node.children)),
+    firstChild = children[0];
+
+  // First child might be a fragment, skip over to children.
+  if (firstChild && ts.isJsxFragment(firstChild)) {
+    return filterEmptyJsxChildNodes(Array.from(firstChild.children));
+  }
+
+  return children;
 }

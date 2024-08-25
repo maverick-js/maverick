@@ -2,10 +2,12 @@ import ts from 'typescript';
 
 import type { Transformer } from '../transformer';
 
-export const ElementTransformer: Transformer = {
-  name: '@maverick-js/element',
-  transform({ code, sourceFile, jsx, ctx }) {},
-};
+export function elementTransformer(): Transformer {
+  return {
+    name: '@maverick-js/element',
+    transform({ code, sourceFile, jsx, ctx }) {},
+  };
+}
 
 // Example
 // class Foo extends Component {

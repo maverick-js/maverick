@@ -1,21 +1,21 @@
 import ts from 'typescript';
 
 import { logTime } from '../utils/logger';
-import type { AST } from './ast';
-import { buildAST } from './build-ast';
-import { isJSXElementNode, walk } from './utils';
+import type { ASTNode } from './ast';
+import { createASTNode } from './create-ast';
+import { isJsxElementNode, walkTsNode } from './utils';
 
-export interface ParseJSXOptions {
+export interface ParseOptions {
   filename: string;
 }
 
 const tsxRE = /\.tsx/;
 
-export function parse(code: string, options: ParseJSXOptions) {
+export function parse(code: string, options: ParseOptions) {
   const { filename } = options,
     parseStartTime = process.hrtime(),
     sourceFile = ts.createSourceFile(filename, code, 99, true, tsxRE.test(filename) ? 4 : 2),
-    jsx: AST[] = [];
+    jsx: ASTNode[] = [];
 
   logTime({
     message: `Parsed Source File (TS): ${filename}`,
@@ -24,15 +24,18 @@ export function parse(code: string, options: ParseJSXOptions) {
 
   const parse = (node: ts.Node) => {
     if (ts.isBinaryExpression(node) || ts.isConditionalExpression(node)) {
-      const hasJSXChild = walk(node, (node) => isJSXElementNode(node) || ts.isJsxFragment(node));
+      const containsJsx = walkTsNode(
+        node,
+        (node) => isJsxElementNode(node) || ts.isJsxFragment(node),
+      );
 
-      if (hasJSXChild) {
-        jsx.push(buildAST(node, {}));
+      if (containsJsx) {
+        jsx.push(createASTNode(node));
       }
 
       return;
-    } else if (isJSXElementNode(node) || ts.isJsxFragment(node)) {
-      jsx.push(buildAST(node, {}));
+    } else if (isJsxElementNode(node) || ts.isJsxFragment(node)) {
+      jsx.push(createASTNode(node));
       return;
     }
 

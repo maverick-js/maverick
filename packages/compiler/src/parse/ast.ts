@@ -2,143 +2,129 @@ import { encode } from 'html-entities';
 import type ts from 'typescript';
 
 import { trimWhitespace } from '../utils/print';
-import type { JSXAttrNamespace, JSXElementNode, JSXEventNamespace, JSXRootNode } from './jsx/types';
-
-const AST = Symbol('AST');
-
-export type AST = {
-  /** @internal */
-  [AST]: true;
-  root: JSXRootNode;
-  tree: ASTTree;
-};
-
-export type ASTTree = ASTNode[];
+import type { JsxAttrNamespace, JsxElementNode, JsxEventNamespace } from './jsx/types';
 
 export const enum ASTNodeKind {
   Element = 1,
   Fragment = 2,
-  Spread = 3,
-  Attribute = 4,
-  Text = 5,
-  Expression = 6,
-  Ref = 7,
-  Event = 8,
-  Structural = 20,
+  Text = 3,
+  Expression = 4,
+  Component = 5,
+  Noop = 6,
 }
 
 export type ASTNode =
   | ElementNode
+  | ComponentNode
   | FragmentNode
   | TextNode
   | ExpressionNode
-  | AttributeNode
-  | SpreadNode
-  | RefNode
-  | EventNode
-  | StructuralNode;
+  | NoopNode;
 
-export type ASTUnknownNode = {
-  kind: ASTNodeKind;
-};
-
-export const enum StructuralNodeType {
-  ElementEnd = 1,
-  ChildrenStart = 4,
-  ChildrenEnd = 5,
-  AttributesEnd = 6,
+export interface ElementAttributes {
+  attrs?: AttributeNode[];
+  props?: AttributeNode[];
+  vars?: AttributeNode[];
+  class?: AttributeNode;
+  classes?: AttributeNode[];
+  style?: AttributeNode;
+  styles?: AttributeNode[];
+  spreads?: SpreadNode[];
+  events?: EventNode[];
+  ref?: RefNode;
 }
 
-export type StructuralNode = {
-  type: StructuralNodeType;
-  kind: ASTNodeKind.Structural;
-};
-
-export type ElementNode = {
+export interface ElementNode extends ElementAttributes {
   kind: ASTNodeKind.Element;
-  node: JSXElementNode;
+  node: JsxElementNode;
   tagName: string;
   isVoid: boolean;
   isSVG: boolean;
-  isCE: boolean;
-  children?: ComponentChildren[];
-  isComponent: boolean;
-  hasChildren: boolean;
-  childCount: number;
-  childElementCount: number;
-  spread(): boolean;
-  dynamic(): boolean;
-};
+  isCustomElement: boolean;
+  children?: ASTNode[];
+}
 
-export type ComponentChildren = AST | TextNode | ExpressionNode;
+export interface ComponentAttributes {
+  props?: AttributeNode[];
+  vars?: AttributeNode[];
+  class?: AttributeNode;
+  classes?: AttributeNode[];
+  spreads?: SpreadNode[];
+  events?: EventNode[];
+}
 
-export type FragmentNode = {
+export interface ComponentNode extends ComponentAttributes {
+  kind: ASTNodeKind.Component;
+  node: JsxElementNode;
+  tagName: string;
+  children?: ASTNode[];
+}
+
+export interface FragmentNode {
   kind: ASTNodeKind.Fragment;
   node: ts.JsxFragment;
-  childCount: number;
-  childElementCount: number;
-  children?: ComponentChildren[];
-};
+  children?: ASTNode[];
+}
 
-export type TextNode = {
+export interface TextNode {
   kind: ASTNodeKind.Text;
   node: ts.JsxText;
   value: string;
-};
+}
 
-export type ExpressionNode = {
+export interface ExpressionNode {
   kind: ASTNodeKind.Expression;
   node: ts.Expression | ts.JsxExpression;
   root?: boolean;
   signal?: boolean;
-  children?: AST[];
+  children?: ASTNode[];
   dynamic: boolean;
   value: string;
   callId?: string;
-};
+}
 
-export type SpreadNode = {
-  kind: ASTNodeKind.Spread;
+export interface SpreadNode {
   node: ts.JsxSpreadAttribute;
   value: string;
-};
+}
 
-export type AttributeNode = {
-  kind: ASTNodeKind.Attribute;
+export interface AttributeNode {
   /* Points at attribute when shorthand property (no initializer). */
   node: ts.JsxAttribute | ts.StringLiteral | ts.Expression;
-  namespace: JSXAttrNamespace | null;
+  namespace?: JsxAttrNamespace;
   name: string;
   value: string;
   dynamic?: boolean;
   signal?: boolean;
-  callId?: string;
-  children?: AST[];
-};
+  children?: ASTNode[];
+}
 
-export type RefNode = {
-  kind: ASTNodeKind.Ref;
+export interface RefNode {
   node: ts.Expression;
   value: string;
-};
+}
 
-export type EventNode = {
-  kind: ASTNodeKind.Event;
-  node: ts.Expression | undefined;
-  namespace: JSXEventNamespace | null;
+export interface EventNode {
+  /* Points at attribute when forwarded event (no initializer). */
+  node: ts.JsxAttribute | ts.Expression;
+  namespace: JsxEventNamespace | null;
   type: string;
   value: string;
   capture: boolean;
   forward: boolean;
   delegate: boolean;
-};
+}
 
-export function createAST(root: JSXRootNode): AST {
-  return { [AST]: true, root, tree: [] };
+export interface NoopNode {
+  kind: ASTNodeKind.Noop;
 }
 
 export function createElementNode(info: Omit<ElementNode, 'kind'>): ElementNode {
   return { kind: ASTNodeKind.Element, ...info };
+}
+
+export function createComponentNode(info: Omit<ComponentNode, 'kind'>): ComponentNode {
+  return { kind: ASTNodeKind.Component, ...info };
 }
 
 export function createFragmentNode(info: Omit<FragmentNode, 'kind'>): FragmentNode {
@@ -149,18 +135,6 @@ export function createTextNode(info: Omit<TextNode, 'kind' | 'value'>): TextNode
   return { kind: ASTNodeKind.Text, ...info, value: encode(trimWhitespace(info.node.getText())) };
 }
 
-export function createAttributeNode(info: Omit<AttributeNode, 'kind'>): AttributeNode {
-  return { kind: ASTNodeKind.Attribute, ...info };
-}
-
-export function createRefNode(info: Omit<RefNode, 'kind'>): RefNode {
-  return { kind: ASTNodeKind.Ref, ...info };
-}
-
-export function createEventNode(info: Omit<EventNode, 'kind'>): EventNode {
-  return { kind: ASTNodeKind.Event, ...info };
-}
-
 export function createExpressionNode(info: Omit<ExpressionNode, 'kind'>): ExpressionNode {
   return { kind: ASTNodeKind.Expression, ...info };
 }
@@ -168,68 +142,36 @@ export function createExpressionNode(info: Omit<ExpressionNode, 'kind'>): Expres
 const spreadTrimRE = /(?:^\{\.{3})(.*)(?:\}$)/;
 export function createSpreadNode(info: Omit<SpreadNode, 'kind' | 'value'>): SpreadNode {
   return {
-    kind: ASTNodeKind.Spread,
     ...info,
     value: info.node.getText().replace(spreadTrimRE, '$1'),
   };
 }
 
-export function createStructuralNode(type: StructuralNodeType): StructuralNode {
-  return { kind: ASTNodeKind.Structural, type };
+const noop: NoopNode = { kind: ASTNodeKind.Noop };
+export function createNoopNode(): NoopNode {
+  return noop;
 }
 
-export function isAST(value: any): value is AST {
-  return !!value[AST];
-}
-
-export function isElementNode(node: ASTUnknownNode): node is ElementNode {
+export function isElementNode(node: ASTNode): node is ElementNode {
   return node.kind === ASTNodeKind.Element;
 }
 
-export function isFragmentNode(node: ASTUnknownNode): node is FragmentNode {
+export function isComponentNode(node: ASTNode): node is ComponentNode {
+  return node.kind === ASTNodeKind.Component;
+}
+
+export function isFragmentNode(node: ASTNode): node is FragmentNode {
   return node.kind === ASTNodeKind.Fragment;
 }
 
-export function isTextNode(node: ASTUnknownNode): node is TextNode {
+export function isTextNode(node: ASTNode): node is TextNode {
   return node.kind === ASTNodeKind.Text;
 }
 
-export function isAttributeNode(node: ASTUnknownNode): node is AttributeNode {
-  return node.kind === ASTNodeKind.Attribute;
-}
-
-export function isSpreadNode(node: ASTUnknownNode): node is SpreadNode {
-  return node.kind === ASTNodeKind.Spread;
-}
-
-export function isExpressionNode(node: ASTUnknownNode): node is ExpressionNode {
+export function isExpressionNode(node: ASTNode): node is ExpressionNode {
   return node.kind === ASTNodeKind.Expression;
 }
 
-export function isRefNode(node: ASTUnknownNode): node is RefNode {
-  return node.kind === ASTNodeKind.Ref;
-}
-
-export function isEventNode(node: ASTUnknownNode): node is EventNode {
-  return node.kind === ASTNodeKind.Event;
-}
-
-export function isStructuralNode(node: ASTUnknownNode): node is StructuralNode {
-  return node.kind === ASTNodeKind.Structural;
-}
-
-export function isElementEnd(node: StructuralNode) {
-  return node.type === StructuralNodeType.ElementEnd;
-}
-
-export function isAttributesEnd(node: StructuralNode) {
-  return node.type === StructuralNodeType.AttributesEnd;
-}
-
-export function isChildrenStart(node: StructuralNode) {
-  return node.type === StructuralNodeType.ChildrenStart;
-}
-
-export function isChildrenEnd(node: StructuralNode) {
-  return node.type === StructuralNodeType.ChildrenEnd;
+export function isNoopNode(node: ASTNode): node is NoopNode {
+  return node === noop;
 }

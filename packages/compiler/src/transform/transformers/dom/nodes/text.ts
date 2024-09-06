@@ -1,6 +1,6 @@
 import type { TextNode } from '../../../../parse/ast';
-import type { DomVisitorContext } from '../context';
+import type { DomVisitorContext } from '../state';
 
 export function Text(node: TextNode, { state }: DomVisitorContext) {
-  state.html.text += node.value;
+  state.html += node.value;
 }

@@ -12,7 +12,7 @@ export class Scope {
 
   constructor(readonly parent: Scope | null = null) {}
 
-  createChild() {
+  child() {
     return new Scope(this);
   }
 

@@ -1,5 +1,6 @@
 import ts from 'typescript';
 
+import type { SpreadNode } from '../../../parse/ast';
 import { Variables } from '../shared/variables';
 import { $, createArrayBindingPattern } from '../ts-factory';
 import type { DomRuntime } from './runtime';
@@ -23,8 +24,8 @@ export class DomTemplateVariables extends Variables {
     this.#runtime = runtime;
   }
 
-  create(html: ts.StringLiteral) {
-    return this.addVariable(ID.template, this.#runtime.createTemplate(html));
+  template(id: ts.Identifier, html: string) {
+    return this.create(id, this.#runtime.createTemplate($.string(html)));
   }
 }
 
@@ -37,11 +38,11 @@ export class DomBlockVariables extends Variables {
   }
 
   root(template: ts.Identifier) {
-    return this.addVariable(ID.root, this.#runtime.clone(template)).name;
+    return this.create(ID.root, this.#runtime.clone(template)).name;
   }
 
   element(init: ts.Expression) {
-    return this.addVariable(ID.element, init).name;
+    return this.create(ID.element, init).name;
   }
 
   walker(template: ts.Identifier, walker?: ts.Identifier) {
@@ -49,7 +50,7 @@ export class DomBlockVariables extends Variables {
       walkerId = $.id(ID.walker),
       bindings = createArrayBindingPattern(rootId, walkerId);
 
-    this.addVariable(bindings, this.#runtime.createWalker(template, walker));
+    this.create(bindings, this.#runtime.createWalker(template, walker));
 
     return {
       root: rootId,
@@ -63,25 +64,23 @@ export class DomBlockVariables extends Variables {
     slots?: ts.Expression,
     onAttach?: ts.ArrowFunction,
   ) {
-    return this.addVariable(
-      ID.component,
-      this.#runtime.createComponent(name, props, slots, onAttach),
-    ).name;
+    return this.create(ID.component, this.#runtime.createComponent(name, props, slots, onAttach))
+      .name;
   }
 
   host(component: ts.Identifier) {
-    return this.addVariable(ID.host, $.prop(component, 'host')).name;
+    return this.create(ID.host, $.prop(component, 'host')).name;
   }
 
   expression(init: ts.Expression) {
-    return this.addVariable(ID.expression, init).name;
+    return this.create(ID.expression, init).name;
   }
 
   nextElement(walker: ts.Identifier) {
-    return this.addVariable(ID.element, this.#runtime.nextElement(walker)).name;
+    return this.create(ID.element, this.#runtime.nextElement(walker)).name;
   }
 
   nextNode(walker: ts.Identifier) {
-    return this.addVariable(ID.marker, this.#runtime.nextNode(walker)).name;
+    return this.create(ID.marker, this.#runtime.nextNode(walker)).name;
   }
 }

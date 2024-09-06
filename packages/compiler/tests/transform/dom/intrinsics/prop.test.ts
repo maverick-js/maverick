@@ -1,8 +1,8 @@
-import { t } from '../../transform';
+import { dom } from '../../transform';
 
 test('static', () => {
-  expect(t(`<svg prop:width={1920}/>`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone } from "@maverick-js/dom";
+  expect(dom(`<svg prop:width={1920}/>`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1() {
         let $_r_1 = $$_clone($_t_1);
@@ -15,8 +15,8 @@ test('static', () => {
 });
 
 test('multiple static', () => {
-  expect(t(`<svg prop:width={1920} prop:height={1080} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone } from "@maverick-js/dom";
+  expect(dom(`<svg prop:width={1920} prop:height={1080} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1() {
         let $_r_1 = $$_clone($_t_1);
@@ -30,8 +30,8 @@ test('multiple static', () => {
 });
 
 test('dynamic', () => {
-  expect(t(`<svg prop:width={calcWidth} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone } from "@maverick-js/dom";
+  expect(dom(`<svg prop:width={calcWidth} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1({ $1 }) {
         let $_r_1 = $$_clone($_t_1);
@@ -44,8 +44,8 @@ test('dynamic', () => {
 });
 
 test('multiple dynamic', () => {
-  expect(t(`<svg prop:width={calcWidth} prop:height={calcHeight} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone } from "@maverick-js/dom";
+  expect(dom(`<svg prop:width={calcWidth} prop:height={calcHeight} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1({ $1, $2 }) {
         let $_r_1 = $$_clone($_t_1);
@@ -59,8 +59,8 @@ test('multiple dynamic', () => {
 });
 
 test('signal', () => {
-  expect(t(`<svg $prop:width={calcWidth} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_prop } from "@maverick-js/dom";
+  expect(dom(`<svg $prop:width={calcWidth} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_prop, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1({ $1 }) {
         let $_r_1 = $$_clone($_t_1);
@@ -73,8 +73,8 @@ test('signal', () => {
 });
 
 test('multiple signals', () => {
-  expect(t(`<svg $prop:width={calcWidth} $prop:height={calcHeight} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_prop } from "@maverick-js/dom";
+  expect(dom(`<svg $prop:width={calcWidth} $prop:height={calcHeight} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_prop, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1({ $1, $2 }) {
         let $_r_1 = $$_clone($_t_1);

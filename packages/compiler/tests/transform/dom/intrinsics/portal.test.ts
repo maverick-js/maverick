@@ -1,8 +1,8 @@
-import { t } from '../../transform';
+import { dom } from '../../transform';
 
 test('import', () => {
   expect(
-    t(`
+    dom(`
 import { Portal } from "maverick.js";
 
 <Portal to="body">
@@ -10,10 +10,14 @@ import { Portal } from "maverick.js";
 </Portal>
 `),
   ).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_create_component, Portal } from "@maverick-js/dom";
+    "import { $$_clone, $$_create_component, Portal, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<div></div>");
     function $$_render_1() {
-        let $_c_1 = $$_create_component(Portal, { "to": "body" }, { "default": () => $$_clone($_t_1) });
+        let $_c_1 = $$_create_component(Portal, {
+            "to": "body"
+        }, {
+            "default": () => $$_clone($_t_1)
+        });
         return $_c_1;
     }
     "

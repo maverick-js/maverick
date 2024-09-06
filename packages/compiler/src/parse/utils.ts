@@ -76,6 +76,34 @@ export function isBoolLiteral(node: ts.Node) {
   return isTrueKeyword(node) || isFalseKeyword(node);
 }
 
+export function isNullNode(node: ts.Node): node is ts.NullLiteral {
+  return node.kind === ts.SyntaxKind.NullKeyword;
+}
+
+export function isUndefinedNode(node: ts.Node): node is ts.Identifier {
+  return ts.isIdentifier(node) && node.escapedText === 'undefined';
+}
+
+export function isNullishNode(node: ts.Node) {
+  return isNullNode(node) || isUndefinedNode(node);
+}
+
+export function isLogicalAndExpression(node: ts.Node): node is ts.BinaryExpression {
+  return (
+    ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+  );
+}
+
+export function isNullishCoalescing(node: ts.Node): node is ts.BinaryExpression {
+  return (
+    ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken
+  );
+}
+
+export function isLogicalOrExpression(node: ts.Node): node is ts.BinaryExpression {
+  return ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.BarBarToken;
+}
+
 export function isStringLiteral(node: ts.Node) {
   return ts.isNoSubstitutionTemplateLiteral(node) || ts.isStringLiteral(node);
 }
@@ -104,6 +132,10 @@ export function isEmptyTextNode(node: ts.Node) {
 
 export function isJsxElementNode(node: ts.Node): node is JsxElementNode {
   return ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node);
+}
+
+export function isJsxRootNode(node: ts.Node) {
+  return isJsxElementNode(node) || ts.isJsxFragment(node);
 }
 
 export function filterEmptyJsxChildNodes(children: ts.JsxChild[]) {

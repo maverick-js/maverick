@@ -1,107 +1,73 @@
 import ts from 'typescript';
 
-import { type ComponentNode, isElementNode, isExpressionNode } from '../../../../parse/ast';
-import type { NextState } from '../../../../parse/walk';
-import type { Transform } from '../../transformer';
+import { type ComponentNode, isElementNode } from '../../../../parse/ast';
 import {
   $,
-  createComponentAttrs,
+  createComponentHostProps,
   createComponentProps,
-  getArrowFunctionBody,
-  isArrowFunctionWithParams,
+  createComponentSlotsObject,
 } from '../../ts-factory';
-import type { DomTransformState, DomVisitorContext } from '../context';
 import { insert } from '../position';
+import type { DomTransformState, DomVisitorContext } from '../state';
 import { transform } from '../transform';
 
 export function Component(node: ComponentNode, { state, walk }: DomVisitorContext) {
-  let component = state.vars.block.component(
+  const { vars, block, runtime } = state;
+
+  const props = createComponentProps(node),
+    component = vars.block.component(
       node.name,
-      !node.spreads ? createComponentProps(node) : undefined,
-      createSlotsObjectLiteralExpression(node, transform, state.createChild),
-      !node.spreads ? createAttachHostCallback(node, state) : undefined,
-    ),
-    rootElement = walk.path.find(isElementNode);
-
-  if (rootElement) {
-    insert(rootElement, component, node, state, walk);
-  }
-
-  if (node.spreads) {
-    state.block.push(
-      state.runtime.componentSpread(
-        component,
-        state.runtime.mergeProps(
-          node.spreads
-            ? [
-                ...node.spreads.map((s) => s.initializer),
-                createComponentProps(node),
-                createComponentAttrs(node),
-              ]
-            : [createComponentProps(node), createComponentAttrs(node)],
-        ),
-      ),
+      !node.spreads
+        ? props
+        : runtime.mergeProps([...node.spreads.map((s) => s.initializer), props]),
+      createComponentSlotsObject(node, transform, state.child.bind(state)),
+      createAttachHostCallback(node, state),
     );
-  } else {
+
+  if (!node.spreads) {
     if (node.events) {
       for (const event of node.events) {
         if (event.forward) {
-          state.block.push(state.runtime.forwardEvent(component, event.type, event.capture));
+          block.push(runtime.forwardEvent(component, event.type, event.capture));
         } else {
-          state.block.push(
-            state.runtime.listen(component, event.type, event.initializer, event.capture),
-          );
+          block.push(runtime.listen(component, event.type, event.initializer, event.capture));
         }
       }
     }
   }
+
+  const rootElement = walk.path.find(isElementNode);
+  if (rootElement) {
+    insert(rootElement, component, node, state, walk);
+  }
 }
 
-function createSlotsObjectLiteralExpression<State>(
-  component: ComponentNode,
-  transform: Transform<State>,
-  nextState: NextState<State>,
-) {
-  if (!component.slots) return;
-
-  const { slots } = component;
-
-  return $.createObjectLiteralExpression(
-    Object.keys(slots).map((slotName) => {
-      const slot = slots[slotName],
-        name = $.string(slotName);
-
-      // Render function.
-      if (isExpressionNode(slot) && isArrowFunctionWithParams(slot.expression)) {
-        return $.createPropertyAssignment(name, transform(slot, nextState(slot))!);
-      }
-
-      const result = transform(slot, nextState(slot)) ?? $.createNull();
-      return $.createPropertyAssignment(
-        name,
-        $.arrowFn([], getArrowFunctionBody(result) ?? result),
-      );
-    }),
-  );
-}
-
-function createAttachHostCallback(node: ComponentNode, state: DomTransformState) {
+function createAttachHostCallback(node: ComponentNode, { runtime }: DomTransformState) {
   const host = $.id('host'),
     block: ts.Expression[] = [];
 
-  if (node.class) {
-    block.push(state.runtime.appendClass(host, node.class.initializer));
-  }
+  if (node.spreads) {
+    const props = runtime.mergeProps([
+      ...node.spreads.map((s) => s.initializer),
+      createComponentHostProps(node),
+    ]);
 
-  if (node.classes) {
-    for (const c of node.classes) {
-      block.push(state.runtime.class(host, c.name, c.initializer));
+    block.push(runtime.spread(host, props));
+  } else {
+    if (node.class) {
+      block.push(runtime.appendClass(host, node.class.initializer));
     }
-  }
 
-  if (node.vars) {
-    for (const cssvar of node.vars) {
-      block.push(state.runtime.style(host, `--${cssvar.name}`, cssvar.initializer));
+    if (node.classes) {
+      for (const c of node.classes) {
+        block.push(runtime.class(host, c.name, c.initializer));
+      }
+    }
+
+    if (node.vars) {
+      for (const cssvar of node.vars) {
+        block.push(runtime.style(host, `--${cssvar.name}`, cssvar.initializer));
+      }
     }
   }
 

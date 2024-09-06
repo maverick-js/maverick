@@ -15,17 +15,27 @@ export class Variables {
     }
   }
 
-  toStatement() {
-    return createVariableStatement(this.declarations);
+  create<T extends string | ts.BindingName>(name: T, init?: ts.Expression) {
+    const variable = $.var(isString(name) ? name : name, init);
+    this.declarations.push(variable);
+    return variable;
   }
 
   clear() {
     this.declarations.length = 0;
   }
 
-  protected addVariable<T extends string | ts.BindingName>(name: T, init?: ts.Expression) {
-    const variable = $.var(isString(name) ? name : name, init);
-    this.declarations.push(variable);
-    return variable;
+  get(name: ts.Identifier) {
+    return this.declarations.find((declaration) => declaration.name === name);
+  }
+
+  update(name: ts.Identifier, value: ts.Expression) {
+    const declaration = this.get(name);
+    // @ts-expect-error - override readonly
+    if (declaration) declaration.initializer = value;
+  }
+
+  toStatement() {
+    return createVariableStatement(this.declarations);
   }
 }

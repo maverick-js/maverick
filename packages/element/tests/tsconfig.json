@@ -4,8 +4,8 @@
     "jsx": "preserve",
     "jsxImportSource": "maverick.js",
     "paths": {
-      "@maverick-js/element": ["./src/index.ts"],
-      "@maverick-js/element/server": ["./src/server/index.ts"]
+      "@maverick-js/element": ["../src/index.ts"],
+      "@maverick-js/element/server": ["../src/server/index.ts"]
     }
   }
 }

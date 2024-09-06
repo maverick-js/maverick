@@ -1,117 +1,117 @@
-import ts from 'typescript';
-
 import { type ElementNode, isFragmentNode } from '../../../../parse/ast';
 import { getAttributeText } from '../../../../parse/utils';
-import { createElementProps } from '../../ts-factory';
-import type { DomVisitorContext } from '../context';
+import { $, createElementProps } from '../../ts-factory';
 import { getElementId } from '../position';
+import type { DomVisitorContext } from '../state';
 
 export function Element(node: ElementNode, { state, walk }: DomVisitorContext) {
-  let isRoot = walk.path.length === 0 || isFragmentNode(walk.path.at(-1)!),
-    el: ts.Identifier | undefined;
+  const { hydratable, vars, runtime, block } = state,
+    isRoot = walk.path.length === 0 || isFragmentNode(walk.path.at(-1)!);
 
   if (!state.template) {
-    state.template = state.vars.template.create(state.html);
+    state.template = $.createUniqueName('$_t');
   }
 
   if (state.hydratable && (isRoot || node.isDynamic())) {
-    state.html.text += '<!$>';
+    state.html += '<!$>';
   }
 
   if (isRoot) {
-    if (state.hydratable) {
-      const bindings = state.vars.block.walker(state.template.name);
-      el = bindings.root;
+    if (hydratable) {
+      const bindings = vars.block.walker(state.template);
+      state.element = bindings.root;
       state.walker = bindings.walker;
     } else {
-      el = state.vars.block.root(state.template.name);
+      state.element = vars.block.root(state.template);
     }
   } else if (node.isDynamic()) {
     if (state.hydratable) {
       assert(state.walker);
-      el = state.vars.block.nextElement(state.walker);
+      state.element = vars.block.nextElement(state.walker);
     } else {
-      el = getElementId(node, state, walk);
+      state.element = getElementId(node, state, walk);
     }
   }
 
-  state.html.text += `<${node.as ?? node.name}`;
+  state.html += `<${node.as ?? node.name}`;
 
-  if (el) {
-    state.elements.set(node, el);
+  if (state.element) {
+    state.elements.set(node, state.element);
 
     if (node.spreads) {
-      state.block.push(
-        state.runtime.spread(
-          el,
-          state.runtime.mergeProps([
-            ...node.spreads.map((s) => s.initializer),
-            createElementProps(node),
-          ]),
-        ),
-      );
+      const props = runtime.mergeProps([
+        ...node.spreads.map((s) => s.initializer),
+        createElementProps(node),
+      ]);
+
+      block.push(runtime.spread(state.element, props));
     } else {
       if (node.attrs) {
         for (const attr of node.attrs) {
           if (!attr.dynamic) {
-            state.html.text += ` ${attr.name}="${getAttributeText(attr)}"`;
+            state.html += ` ${attr.name}="${getAttributeText(attr)}"`;
           } else {
-            state.block.push(state.runtime.attr(el, attr.name, attr.initializer));
+            block.push(runtime.attr(state.element, attr.name, attr.initializer));
           }
         }
       }
 
       if (node.props) {
         for (const prop of node.props) {
-          state.block.push(state.runtime.prop(el, prop.name, prop.initializer, prop.signal));
+          block.push(runtime.prop(state.element, prop.name, prop.initializer, prop.signal));
         }
       }
 
       if (node.classes) {
         for (const c of node.classes) {
-          state.block.push(state.runtime.class(el, c.name, c.initializer));
+          block.push(runtime.class(state.element, c.name, c.initializer));
         }
       }
 
       if (node.styles) {
         for (const style of node.styles) {
-          state.block.push(state.runtime.style(el, style.name, style.initializer));
+          block.push(runtime.style(state.element, style.name, style.initializer));
         }
       }
 
       if (node.vars) {
         for (const cssvar of node.vars) {
-          state.block.push(state.runtime.style(el, `--${cssvar.name}`, cssvar.initializer));
+          block.push(runtime.style(state.element, `--${cssvar.name}`, cssvar.initializer));
         }
       }
 
       if (node.events) {
         for (const event of node.events) {
-          state.block.push(state.runtime.listen(el, event.type, event.initializer, event.capture));
+          block.push(runtime.listen(state.element, event.type, event.initializer, event.capture));
           if (event.delegate) state.delegatedEvents.add(event.type);
         }
       }
 
       if (node.ref) {
-        state.block.push(state.runtime.ref(el, node.ref.initializer));
+        block.push(runtime.ref(state.element, node.ref.initializer));
       }
     }
   }
 
   if (node.isVoid) {
-    state.html.text += '/>';
+    state.html += '/>';
   } else {
-    state.html.text += '>';
+    state.html += '>';
     if (node.content) {
-      if (el) {
-        state.block.push(
-          state.runtime.prop(el, node.content.name, node.content.initializer, node.content.signal),
+      if (state.element) {
+        block.push(
+          runtime.prop(
+            state.element,
+            node.content.name,
+            node.content.initializer,
+            node.content.signal,
+          ),
         );
       }
     } else {
       walk.children();
     }
 
-    state.html.text += `</${node.as ?? node.name}>`;
+    state.html += `</${node.as ?? node.name}>`;
   }
 }

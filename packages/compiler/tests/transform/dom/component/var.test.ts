@@ -1,7 +1,7 @@
-import { t } from '../../transform';
+import { dom } from '../../transform';
 
 test('static', () => {
-  expect(t(`<Foo var:foo={1}/>`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo var:foo={1}/>`)).toMatchInlineSnapshot(`
     "import { $$_style, $$_create_component } from "@maverick-js/dom";
     function $$_render_1() {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -15,7 +15,7 @@ test('static', () => {
 });
 
 test('multiple static', () => {
-  expect(t(`<Foo var:foo={1} var:bar={2}/>`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo var:foo={1} var:bar={2}/>`)).toMatchInlineSnapshot(`
     "import { $$_style, $$_create_component } from "@maverick-js/dom";
     function $$_render_1() {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -30,7 +30,7 @@ test('multiple static', () => {
 });
 
 test('dynamic', () => {
-  expect(t(`<Foo var:foo={getFoo()} />`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo var:foo={getFoo()} />`)).toMatchInlineSnapshot(`
     "import { $$_style, $$_create_component } from "@maverick-js/dom";
     function $$_render_1({ $1 }) {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -44,7 +44,7 @@ test('dynamic', () => {
 });
 
 test('multiple dynamic', () => {
-  expect(t(`<Foo var:foo={getFoo()} var:bar={getBar()}/>`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo var:foo={getFoo()} var:bar={getBar()}/>`)).toMatchInlineSnapshot(`
     "import { $$_style, $$_create_component } from "@maverick-js/dom";
     function $$_render_1({ $1, $2 }) {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -59,7 +59,7 @@ test('multiple dynamic', () => {
 });
 
 test('signal', () => {
-  expect(t(`<Foo $var:foo={foo} />`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo $var:foo={foo} />`)).toMatchInlineSnapshot(`
     "import { $$_style, $$_create_component } from "@maverick-js/dom";
     function $$_render_1({ $1 }) {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -73,7 +73,7 @@ test('signal', () => {
 });
 
 test('multiple signals', () => {
-  expect(t(`<Foo $var:foo={foo} $var:bar={bar}/>`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo $var:foo={foo} $var:bar={bar}/>`)).toMatchInlineSnapshot(`
     "import { $$_style, $$_create_component } from "@maverick-js/dom";
     function $$_render_1({ $1, $2 }) {
         let $_c_1 = $$_create_component(Foo, null, null, host => {

@@ -1,7 +1,7 @@
-import { t } from '../../transform';
+import { dom } from '../../transform';
 
 test('append', () => {
-  expect(t(`<Foo class="foo" />`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo class="foo" />`)).toMatchInlineSnapshot(`
     "import { $$_append_class, $$_create_component } from "@maverick-js/dom";
     function $$_render_1() {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -15,7 +15,7 @@ test('append', () => {
 });
 
 test('static', () => {
-  expect(t(`<Foo class:foo />`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo class:foo />`)).toMatchInlineSnapshot(`
     "import { $$_class, $$_create_component } from "@maverick-js/dom";
     function $$_render_1() {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -29,7 +29,7 @@ test('static', () => {
 });
 
 test('multiple static', () => {
-  expect(t(`<Foo class:foo={true} class:bar={false} />`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo class:foo={true} class:bar={false} />`)).toMatchInlineSnapshot(`
     "import { $$_class, $$_create_component } from "@maverick-js/dom";
     function $$_render_1() {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -44,7 +44,7 @@ test('multiple static', () => {
 });
 
 test('dynamic', () => {
-  expect(t(`<Foo class:foo={isFoo()} />`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo class:foo={isFoo()} />`)).toMatchInlineSnapshot(`
     "import { $$_class, $$_create_component } from "@maverick-js/dom";
     function $$_render_1({ $1 }) {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -58,7 +58,7 @@ test('dynamic', () => {
 });
 
 test('multiple dynamic', () => {
-  expect(t(`<Foo class:foo={isFoo()} class:bar={isBar()} />`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo class:foo={isFoo()} class:bar={isBar()} />`)).toMatchInlineSnapshot(`
     "import { $$_class, $$_create_component } from "@maverick-js/dom";
     function $$_render_1({ $1, $2 }) {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -73,7 +73,7 @@ test('multiple dynamic', () => {
 });
 
 test('signal', () => {
-  expect(t(`<Foo $class:foo={isFoo} />`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo $class:foo={isFoo} />`)).toMatchInlineSnapshot(`
     "import { $$_class, $$_create_component } from "@maverick-js/dom";
     function $$_render_1({ $1 }) {
         let $_c_1 = $$_create_component(Foo, null, null, host => {
@@ -87,7 +87,7 @@ test('signal', () => {
 });
 
 test('multiple signals', () => {
-  expect(t(`<Foo $class:foo={isFoo} $class:bar={isBar} />`)).toMatchInlineSnapshot(`
+  expect(dom(`<Foo $class:foo={isFoo} $class:bar={isBar} />`)).toMatchInlineSnapshot(`
     "import { $$_class, $$_create_component } from "@maverick-js/dom";
     function $$_render_1({ $1, $2 }) {
         let $_c_1 = $$_create_component(Foo, null, null, host => {

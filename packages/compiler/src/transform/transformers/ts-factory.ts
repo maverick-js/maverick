@@ -14,7 +14,6 @@ import {
 import {
   getAttributeNodeFullName,
   getEventNodeFullName,
-  getImportSpecifierFromElements,
   getNamedImportBindings,
 } from '../../parse/utils';
 import type { NextState } from '../../parse/walk';
@@ -126,40 +125,78 @@ export function createObjectBindingPattern(...names: ts.Identifier[]) {
 
 export function createComponentProps(node: ComponentNode) {
   if (!node.props?.length) return;
-  return $.createObjectLiteralExpression(createAttributePropertyAssignmentList(node.props));
+  return $.createObjectLiteralExpression(createAttributePropertyAssignmentList(node.props), true);
 }
 
-export function createComponentAttrs(node: ComponentNode) {
+export function createComponentHostProps(node: ComponentNode, { ssr = false } = {}) {
   const props: ts.PropertyAssignment[] = [];
+
+  if (node.class) {
+    props.push($.createPropertyAssignment('class', node.class.initializer));
+  }
 
   props.push(
     ...createAttributePropertyAssignmentList(node.classes),
     ...createAttributePropertyAssignmentList(node.vars),
-    ...createEventPropertyAssignmentList(node.events),
   );
+
+  if (!ssr) {
+    props.push(...createEventPropertyAssignmentList(node.events));
+  }
 
   if (!props.length) return;
 
-  return $.createObjectLiteralExpression(props);
+  return $.createObjectLiteralExpression(props, true);
 }
 
-export function createElementProps(node: ElementNode) {
+export function createComponentSlotsObject<State>(
+  component: ComponentNode,
+  transform: Transform<State>,
+  nextState: NextState<State>,
+) {
+  if (!component.slots) return;
+
+  const { slots } = component;
+
+  return $.createObjectLiteralExpression(
+    Object.keys(slots).map((slotName) => {
+      const slot = slots[slotName],
+        name = $.string(slotName);
+
+      // Render function.
+      if (isExpressionNode(slot) && isArrowFunctionWithParams(slot.expression)) {
+        return $.createPropertyAssignment(name, transform(slot, nextState(slot))!);
+      }
+
+      const result = transform(slot, nextState(slot)) ?? $.createNull();
+      return $.createPropertyAssignment(
+        name,
+        $.arrowFn([], getArrowFunctionBody(result) ?? result),
+      );
+    }),
+    true,
+  );
+}
+
+export function createElementProps(node: ElementNode, { ssr = false } = {}) {
   const props: ts.PropertyAssignment[] = [];
 
   props.push(
     ...createAttributePropertyAssignmentList(node.attrs),
-    ...createAttributePropertyAssignmentList(node.props),
     ...createAttributePropertyAssignmentList(node.classes),
     ...createAttributePropertyAssignmentList(node.styles),
     ...createAttributePropertyAssignmentList(node.vars),
-    ...createEventPropertyAssignmentList(node.events),
   );
 
-  if (node.ref) {
-    props.push(createRefPropertyAssignment(node.ref));
+  if (!ssr) {
+    props.push(...createAttributePropertyAssignmentList(node.props));
+    props.push(...createEventPropertyAssignmentList(node.events));
+    if (node.ref) {
+      props.push(createRefPropertyAssignment(node.ref));
+    }
   }
 
-  return props.length > 0 ? $.createObjectLiteralExpression(props) : undefined;
+  return props.length > 0 ? $.createObjectLiteralExpression(props, true) : undefined;
 }
 
 export function createAttributePropertyAssignmentList(attrs?: AttributeNode[]) {
@@ -341,13 +378,15 @@ export function createJsxFragment(children: ts.NodeArray<ts.JsxChild>) {
 }
 
 export function createNullFilledArgs(args: (ts.Expression | undefined | null)[]) {
-  const newArgs: ts.Expression[] = [];
+  let pointer = 0,
+    newArgs: ts.Expression[] = [];
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg) {
-      for (let j = 0; j < i; j++) {
+      for (let j = pointer; j < i; j++) {
         if (!args[j]) newArgs.push($.createNull());
+        pointer = j + 1;
       }
 
       newArgs.push(arg);

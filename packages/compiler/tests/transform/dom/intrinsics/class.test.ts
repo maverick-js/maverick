@@ -1,8 +1,8 @@
-import { t } from '../../transform';
+import { dom } from '../../transform';
 
 test('static', () => {
-  expect(t(`<svg class:foo={true} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_class } from "@maverick-js/dom";
+  expect(dom(`<svg class:foo={true} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_class, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1() {
         let $_r_1 = $$_clone($_t_1);
@@ -15,8 +15,8 @@ test('static', () => {
 });
 
 test('multiple static', () => {
-  expect(t(`<svg class:foo={true} class:bar={false} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_class } from "@maverick-js/dom";
+  expect(dom(`<svg class:foo={true} class:bar={false} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_class, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1() {
         let $_r_1 = $$_clone($_t_1);
@@ -30,8 +30,8 @@ test('multiple static', () => {
 });
 
 test('dynamic', () => {
-  expect(t(`<svg class:foo={isFoo()} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_class } from "@maverick-js/dom";
+  expect(dom(`<svg class:foo={isFoo()} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_class, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1({ $1 }) {
         let $_r_1 = $$_clone($_t_1);
@@ -44,8 +44,8 @@ test('dynamic', () => {
 });
 
 test('multiple dynamic', () => {
-  expect(t(`<svg class:foo={isFoo()} class:bar={isBar()} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_class } from "@maverick-js/dom";
+  expect(dom(`<svg class:foo={isFoo()} class:bar={isBar()} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_class, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1({ $1, $2 }) {
         let $_r_1 = $$_clone($_t_1);
@@ -59,8 +59,8 @@ test('multiple dynamic', () => {
 });
 
 test('signal', () => {
-  expect(t(`<svg $class:foo={isFoo} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_class } from "@maverick-js/dom";
+  expect(dom(`<svg $class:foo={isFoo} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_class, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1({ $1 }) {
         let $_r_1 = $$_clone($_t_1);
@@ -73,8 +73,8 @@ test('signal', () => {
 });
 
 test('multiple signals', () => {
-  expect(t(`<svg $class:foo={isFoo} $class:bar={isBar} />`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_class } from "@maverick-js/dom";
+  expect(dom(`<svg $class:foo={isFoo} $class:bar={isBar} />`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_class, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<svg></svg>");
     function $$_render_1({ $1, $2 }) {
         let $_r_1 = $$_clone($_t_1);

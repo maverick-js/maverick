@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["DOM"],
+    "types": ["vitest/globals"]
+  },
+  "include": ["src", "tests"],
+  "exclude": ["dist-*", "node_modules", "*.d.ts"]
+}

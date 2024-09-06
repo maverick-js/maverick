@@ -1,6 +1,11 @@
-import { domTransformer, transform, type TransformOptions } from '@maverick-js/compiler';
+import {
+  domTransformer,
+  ssrTransformer,
+  transform,
+  type TransformOptions,
+} from '@maverick-js/compiler';
 
-export function t(code: string, options?: Partial<TransformOptions>) {
+export function dom(code: string, options?: Partial<TransformOptions>) {
   return transform(code, {
     filename: 'test.tsx',
     transformer: domTransformer(),
@@ -8,9 +13,18 @@ export function t(code: string, options?: Partial<TransformOptions>) {
   }).code;
 }
 
-export function h(code: string, options?: Partial<TransformOptions>) {
-  return t(code, {
+export function domH(code: string, options?: Partial<TransformOptions>) {
+  return dom(code, { ...options, hydratable: true });
+}
+
+export function ssr(code: string, options?: Partial<TransformOptions>) {
+  return transform(code, {
+    filename: 'test.tsx',
+    transformer: ssrTransformer(),
     ...options,
-    hydratable: true,
-  });
+  }).code;
+}
+
+export function ssrH(code: string, options?: Partial<TransformOptions>) {
+  return ssr(code, { hydratable: true, ...options });
 }

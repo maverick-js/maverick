@@ -9,7 +9,7 @@ import {
 import { findElementIndex } from '../../../parse/utils';
 import type { Walker } from '../../../parse/walk';
 import { $ } from '../ts-factory';
-import type { DomTransformState } from './context';
+import type { DomTransformState } from './state';
 
 /**
  * Create (if needed) a variable that points to the current element node in the template. It will
@@ -105,7 +105,7 @@ export function insert(
   walk: Walker<any>,
 ) {
   if (state.hydratable) {
-    state.html.text += '<!$>';
+    state.html += '<!$>';
     assert(state.walker);
     const markerId = state.vars.block.nextNode(state.walker);
     state.block.push(state.runtime.insertAtMarker(markerId, value));

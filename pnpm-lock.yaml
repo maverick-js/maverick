@@ -48,8 +48,8 @@ importers:
         specifier: ^2.0.12
         version: 2.0.14
       typescript:
-        specifier: ^5.3.3
-        version: 5.5.4
+        specifier: ^5.6.0
+        version: 5.6.2
 
   packages/cli:
     dependencies:
@@ -86,13 +86,13 @@ importers:
         version: 4.21.1
       rollup-plugin-dts:
         specifier: ^6.1.0
-        version: 6.1.1(rollup@4.21.1)(typescript@5.5.4)
+        version: 6.1.1(rollup@4.21.1)(typescript@5.6.2)
       rollup-plugin-esbuild:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
       typescript:
-        specifier: ^5.3.3
-        version: 5.5.4
+        specifier: ^5.6.0
+        version: 5.6.2
       vite:
         specifier: ^5.0.0
         version: 5.4.2(@types/node@18.19.46)
@@ -132,13 +132,13 @@ importers:
         version: 4.21.1
       rollup-plugin-dts:
         specifier: ^6.1.0
-        version: 6.1.1(rollup@4.21.1)(typescript@5.5.4)
+        version: 6.1.1(rollup@4.21.1)(typescript@5.6.2)
       rollup-plugin-esbuild:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
       typescript:
-        specifier: ^5.3.3
-        version: 5.5.4
+        specifier: ^5.6.0
+        version: 5.6.2
       vite:
         specifier: ^5.0.0
         version: 5.4.2(@types/node@18.19.46)
@@ -161,6 +161,9 @@ importers:
       '@maverick-js/signals':
         specifier: ^6.0.0
         version: 6.0.0
+      '@maverick-js/ssr':
+        specifier: workspace:*
+        version: link:../ssr
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.21.1)
@@ -175,7 +178,7 @@ importers:
         version: 4.21.1
       rollup-plugin-dts:
         specifier: ^6.1.0
-        version: 6.1.1(rollup@4.21.1)(typescript@5.5.4)
+        version: 6.1.1(rollup@4.21.1)(typescript@5.6.2)
       rollup-plugin-esbuild:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
@@ -183,8 +186,8 @@ importers:
         specifier: ^4.0.0
         version: 4.25.0
       typescript:
-        specifier: ^5.3.3
-        version: 5.5.4
+        specifier: ^5.6.0
+        version: 5.6.2
       vite:
         specifier: ^5.0.0
         version: 5.4.2(@types/node@18.19.46)
@@ -212,7 +215,7 @@ importers:
         version: 4.21.1
       rollup-plugin-dts:
         specifier: ^6.1.0
-        version: 6.1.1(rollup@4.21.1)(typescript@5.5.4)
+        version: 6.1.1(rollup@4.21.1)(typescript@5.6.2)
       rollup-plugin-esbuild:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
@@ -220,8 +223,8 @@ importers:
         specifier: ^4.0.0
         version: 4.25.0
       typescript:
-        specifier: ^5.3.3
-        version: 5.5.4
+        specifier: ^5.6.0
+        version: 5.6.2
       vite:
         specifier: ^5.0.0
         version: 5.4.2(@types/node@18.19.46)
@@ -254,13 +257,47 @@ importers:
         version: 4.21.1
       rollup-plugin-dts:
         specifier: ^6.1.0
-        version: 6.1.1(rollup@4.21.1)(typescript@5.5.4)
+        version: 6.1.1(rollup@4.21.1)(typescript@5.6.2)
       rollup-plugin-esbuild:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
       typescript:
-        specifier: ^5.3.3
-        version: 5.5.4
+        specifier: ^5.6.0
+        version: 5.6.2
+      vite:
+        specifier: ^5.0.0
+        version: 5.4.2(@types/node@18.19.46)
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.0(@edge-runtime/vm@2.1.2)(@types/node@18.19.46)(jsdom@20.0.3)
+
+  packages/ssr:
+    dependencies:
+      '@maverick-js/std':
+        specifier: workspace:*
+        version: link:../std
+    devDependencies:
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.2.3
+        version: 15.2.3(rollup@4.21.1)
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.10
+      rollup:
+        specifier: ^4.7.0
+        version: 4.21.1
+      rollup-plugin-dts:
+        specifier: ^6.1.0
+        version: 6.1.1(rollup@4.21.1)(typescript@5.6.2)
+      rollup-plugin-esbuild:
+        specifier: ^6.1.0
+        version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
+      type-fest:
+        specifier: ^4.8.3
+        version: 4.25.0
+      typescript:
+        specifier: ^5.6.0
+        version: 5.6.2
       vite:
         specifier: ^5.0.0
         version: 5.4.2(@types/node@18.19.46)
@@ -281,7 +318,7 @@ importers:
         version: 4.21.1
       rollup-plugin-dts:
         specifier: ^6.1.0
-        version: 6.1.1(rollup@4.21.1)(typescript@5.5.4)
+        version: 6.1.1(rollup@4.21.1)(typescript@5.6.2)
       rollup-plugin-esbuild:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
@@ -289,8 +326,8 @@ importers:
         specifier: ^4.8.3
         version: 4.25.0
       typescript:
-        specifier: ^5.3.3
-        version: 5.5.4
+        specifier: ^5.6.0
+        version: 5.6.2
       vite:
         specifier: ^5.0.0
         version: 5.4.2(@types/node@18.19.46)
@@ -1392,6 +1429,7 @@ packages:
 
   /color-convert@1.9.3:
     resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
+    requiresBuild: true
     dependencies:
       color-name: 1.1.3
     dev: true
@@ -1404,6 +1442,7 @@ packages:
 
   /color-name@1.1.3:
     resolution: {integrity: sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==}
+    requiresBuild: true
     dev: true
 
   /color-name@1.1.4:
@@ -1995,6 +2034,7 @@ packages:
   /has-flag@3.0.0:
     resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
     engines: {node: '>=4'}
+    requiresBuild: true
     dev: true
 
   /hasown@2.0.2:
@@ -2591,7 +2631,7 @@ packages:
       glob: 10.4.5
     dev: true
 
-  /rollup-plugin-dts@6.1.1(rollup@4.21.1)(typescript@5.5.4):
+  /rollup-plugin-dts@6.1.1(rollup@4.21.1)(typescript@5.6.2):
     resolution: {integrity: sha512-aSHRcJ6KG2IHIioYlvAOcEq6U99sVtqDDKVhnwt70rW6tsz3tv5OSjEiWcgzfsHdLyGXZ/3b/7b/+Za3Y6r1XA==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -2600,7 +2640,7 @@ packages:
     dependencies:
       magic-string: 0.30.11
       rollup: 4.21.1
-      typescript: 5.5.4
+      typescript: 5.6.2
     optionalDependencies:
       '@babel/code-frame': 7.24.7
     dev: true
@@ -2959,8 +2999,8 @@ packages:
     engines: {node: '>=16'}
     dev: true
 
-  /typescript@5.5.4:
-    resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
+  /typescript@5.6.2:
+    resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true

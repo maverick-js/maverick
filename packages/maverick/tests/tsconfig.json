@@ -4,8 +4,8 @@
     "jsx": "preserve",
     "jsxImportSource": "maverick.js",
     "paths": {
-      "maverick.js": ["./src/core/index.ts"],
-      "maverick.js/jsx-runtime": ["./src/jsx/jsx-runtime.d.ts"]
+      "maverick.js": ["../src/core/index.ts"],
+      "maverick.js/jsx-runtime": ["../src/jsx/jsx-runtime.d.ts"]
     }
   }
 }

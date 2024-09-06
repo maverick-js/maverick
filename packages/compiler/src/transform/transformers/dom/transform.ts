@@ -6,19 +6,16 @@ import {
   isExpressionNode,
   isFragmentNode,
   isTextNode,
-  Scope,
 } from '../../../parse/ast';
 import { type Visitors, walk } from '../../../parse/walk';
 import { transformProps } from '../transform-props';
 import { $, createFunction, createObjectBindingPattern, getUniqueNameForNode } from '../ts-factory';
-import type { DomTransformState } from './context';
 import { Component } from './nodes/component';
 import { Element } from './nodes/element';
 import { Expression } from './nodes/expression';
 import { Fragment } from './nodes/fragment';
 import { Text } from './nodes/text';
-import { DomRuntime } from './runtime';
-import { DomBlockVariables, DomTemplateVariables } from './vars';
+import { DomTransformState } from './state';
 
 let visitors: Visitors<DomTransformState> = {
   Element,
@@ -29,6 +26,10 @@ let visitors: Visitors<DomTransformState> = {
 };
 
 export function transform(node: AstNode, state: DomTransformState): ts.Expression {
+  if (isTextNode(node)) {
+    return $.string(node.value);
+  }
+
   transformProps(node, (_, value) => {
     state.args.push(value);
     return getUniqueNameForNode(value);
@@ -36,14 +37,9 @@ export function transform(node: AstNode, state: DomTransformState): ts.Expressio
 
   walk({ node, visitors, state });
 
-  // Text nodes do not need a render function.
-  if (isTextNode(node)) {
-    return $.string(node.value);
-  }
-
   // Expressions are passed as arguments so they don't need to create a render function.
   if (isExpressionNode(node)) {
-    return $.createNull();
+    return $.createNull(); // no-op
   }
 
   if (isFragmentNode(node) && state.children) {
@@ -149,45 +145,4 @@ function getRenderArgs(state: DomTransformState, scope = state.scope) {
   }
 
   return args;
-}
-
-/**
- * We can inherit an existing state to ensure globally tracked state such as templates, runtime
- * calls, and delegated events are not lost.
- */
-export function createTransformState(
-  root: AstNode | null,
-  init?: Partial<DomTransformState>,
-): DomTransformState {
-  const runtime = init?.runtime ?? new DomRuntime(),
-    children: DomTransformState[] = [],
-    state: DomTransformState = {
-      root,
-      scope: init?.scope ?? new Scope(),
-      elements: new Map(),
-      args: [],
-      block: [],
-      renders: init?.renders ?? [],
-      html: $.emptyString(),
-      runtime,
-      children,
-      vars: {
-        template: init?.vars?.template ?? new DomTemplateVariables(runtime),
-        block: new DomBlockVariables(runtime),
-      },
-      hydratable: init?.hydratable ?? false,
-      delegatedEvents: init?.delegatedEvents ?? new Set(),
-      createChild(root, scope) {
-        const childState = createTransformState(root, {
-          ...state,
-          scope: scope ?? state.scope.createChild(),
-        });
-
-        children.push(childState);
-
-        return childState;
-      },
-    };
-
-  return state;
 }

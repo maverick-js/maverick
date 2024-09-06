@@ -1,8 +1,8 @@
-import { t } from '../../transform';
+import { dom } from '../../transform';
 
 test('on', () => {
-  expect(t('<div on:click={onClick} />')).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_listen, $$_delegate_events } from "@maverick-js/dom";
+  expect(dom('<div on:click={onClick} />')).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<div></div>");
     function $$_render_1({ $1 }) {
         let $_r_1 = $$_clone($_t_1);
@@ -16,8 +16,8 @@ test('on', () => {
 });
 
 test('capture', () => {
-  expect(t('<div on_capture:click={onClick} />')).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_listen } from "@maverick-js/dom";
+  expect(dom('<div on_capture:click={onClick} />')).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_listen, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<div></div>");
     function $$_render_1({ $1 }) {
         let $_r_1 = $$_clone($_t_1);
@@ -30,8 +30,8 @@ test('capture', () => {
 });
 
 test('multiple', () => {
-  expect(t('<div on:pointerdown={onDown} on:pointerup={onUp}  />')).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_clone, $$_listen, $$_delegate_events } from "@maverick-js/dom";
+  expect(dom('<div on:pointerdown={onDown} on:pointerup={onUp}  />')).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<div></div>");
     function $$_render_1({ $1, $2 }) {
         let $_r_1 = $$_clone($_t_1);

@@ -2,6 +2,7 @@ export * from './aria';
 export * from './array';
 export * from './disposal';
 export * from './dom';
+export * from './escape';
 export * from './event';
 export * from './run';
 export * from './object';

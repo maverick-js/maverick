@@ -1,8 +1,8 @@
-import { h } from '../../../transform';
+import { domH } from '../../../transform';
 
 test('no children', () => {
-  expect(h(`<div></div>`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_create_walker } from "@maverick-js/dom";
+  expect(domH(`<div></div>`)).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<!$><div></div>");
     function $$_render_1() {
         let [$_r, $_w] = $$_create_walker($_t_1);
@@ -14,8 +14,8 @@ test('no children', () => {
 });
 
 test('text child', () => {
-  expect(h(`<div>Foo</div>`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_create_walker } from "@maverick-js/dom";
+  expect(domH(`<div>Foo</div>`)).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<!$><div>Foo</div>");
     function $$_render_1() {
         let [$_r, $_w] = $$_create_walker($_t_1);
@@ -27,8 +27,8 @@ test('text child', () => {
 });
 
 test('one static child element', () => {
-  expect(h(`<div><span /></div>`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_create_walker } from "@maverick-js/dom";
+  expect(domH(`<div><span /></div>`)).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<!$><div><span></span></div>");
     function $$_render_1() {
         let [$_r, $_w] = $$_create_walker($_t_1);
@@ -40,8 +40,8 @@ test('one static child element', () => {
 });
 
 test('multiple static child elements', () => {
-  expect(h(`<div><span></span><span></span></div>`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_create_walker } from "@maverick-js/dom";
+  expect(domH(`<div><span></span><span></span></div>`)).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<!$><div><span></span><span></span></div>");
     function $$_render_1() {
         let [$_r, $_w] = $$_create_walker($_t_1);
@@ -53,8 +53,8 @@ test('multiple static child elements', () => {
 });
 
 test('one dynamic child element', () => {
-  expect(h(`<div><span on:click={onClick} /></div>`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_create_walker, $$_next_element, $$_listen, $$_delegate_events } from "@maverick-js/dom";
+  expect(domH(`<div><span on:click={onClick} /></div>`)).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_next_element, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<!$><div><!$><span></span></div>");
     function $$_render_1({ $1 }) {
         let [$_r, $_w] = $$_create_walker($_t_1), $_e_1 = $$_next_element($_w);
@@ -69,9 +69,9 @@ test('one dynamic child element', () => {
 
 test('multiple dynamic child elements', () => {
   expect(
-    h(`<div><span on:click={onA}><div on:click={onB} /></span><span on:click={onC} /></div>`),
+    domH(`<div><span on:click={onA}><div on:click={onB} /></span><span on:click={onC} /></div>`),
   ).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_create_walker, $$_next_element, $$_listen, $$_delegate_events } from "@maverick-js/dom";
+    "import { $$_create_walker, $$_next_element, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<!$><div><!$><span><!$><div></div></span><!$><span></span></div>");
     function $$_render_1({ $1, $2, $3 }) {
         let [$_r, $_w] = $$_create_walker($_t_1), $_e_1 = $$_next_element($_w), $_e_2 = $$_next_element($_w), $_e_3 = $$_next_element($_w);
@@ -87,8 +87,8 @@ test('multiple dynamic child elements', () => {
 });
 
 test('one static child expression', () => {
-  expect(h(`<div>{"foo"}</div>`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_create_walker } from "@maverick-js/dom";
+  expect(domH(`<div>{"foo"}</div>`)).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<!$><div>foo</div>");
     function $$_render_1() {
         let [$_r, $_w] = $$_create_walker($_t_1);
@@ -100,8 +100,8 @@ test('one static child expression', () => {
 });
 
 test('one dynamic child expression', () => {
-  expect(h(`<div>{a()}</div>`)).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_create_walker, $$_insert_at_marker } from "@maverick-js/dom";
+  expect(domH(`<div>{a()}</div>`)).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_insert_at_marker, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<!$><div><!$></div>");
     function $$_render_1({ $1 }) {
         let [$_r, $_w] = $$_create_walker($_t_1), $_m_1 = $_w.nextNode();
@@ -115,9 +115,9 @@ test('one dynamic child expression', () => {
 
 test('multiple dynamic child expressions', () => {
   expect(
-    h(`<div>{a() ? <div on:click={onA} /> : null}{b() ? <span on:click={onB} /> : null}</div>`),
+    domH(`<div>{a() ? <div on:click={onA} /> : null}{b() ? <span on:click={onB} /> : null}</div>`),
   ).toMatchInlineSnapshot(`
-    "import { $$_create_template, $$_create_walker, $$_listen, $$_insert_at_marker, $$_delegate_events } from "@maverick-js/dom";
+    "import { $$_create_walker, $$_listen, $$_insert_at_marker, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
     let $_t_1 = $$_create_template("<!$><div><!$><!$></div>"), $_t_2 = $$_create_template("<!$><div></div>"), $_t_3 = $$_create_template("<!$><span></span>");
     function $$_render_1({ $1 }) {
         let [$_r, $_w] = $$_create_walker($_t_2);

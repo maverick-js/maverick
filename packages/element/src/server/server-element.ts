@@ -1,8 +1,14 @@
+import {
+  parseClassAttr,
+  parseStyleAttr,
+  ServerAttributes,
+  ServerClassList,
+  ServerStyle,
+} from '@maverick-js/ssr';
 import { noop } from '@maverick-js/std';
 import { type AnyComponent, scoped } from 'maverick.js';
 
 import { SETUP } from '../symbols';
-import { escapeHTML, parseClassAttr, parseStyleAttr } from './server-utils';
 
 export class MaverickServerElement<T extends AnyComponent = AnyComponent> implements ServerElement {
   keepAlive = false;
@@ -90,65 +96,6 @@ export class MaverickServerElement<T extends AnyComponent = AnyComponent> implem
   }
 }
 
-export class ServerAttributes {
-  #tokens = new Map<string, string>();
-  get length() {
-    return this.#tokens.size;
-  }
-  get tokens() {
-    return this.#tokens;
-  }
-  getAttribute(name: string): string | null {
-    return this.#tokens.get(name) ?? null;
-  }
-  hasAttribute(name: string) {
-    return this.#tokens.has(name);
-  }
-  setAttribute(name: string, value: string) {
-    this.#tokens.set(name, value + '');
-  }
-  removeAttribute(name: string) {
-    this.#tokens.delete(name);
-  }
-  toString() {
-    if (this.#tokens.size === 0) return '';
-    let result = '';
-    for (const [name, value] of this.#tokens) {
-      result += ` ${name}="${escapeHTML(value, true)}"`;
-    }
-    return result;
-  }
-}
-
-export class ServerStyle {
-  #tokens = new Map<string, string>();
-  get length() {
-    return this.#tokens.size;
-  }
-  get tokens() {
-    return this.#tokens;
-  }
-  getPropertyValue(prop: string): string {
-    return this.#tokens.get(prop) ?? '';
-  }
-  setProperty(prop: string, value: string | null) {
-    this.#tokens.set(prop, value ?? '');
-  }
-  removeProperty(prop: string): string {
-    const value = this.#tokens.get(prop);
-    this.#tokens.delete(prop);
-    return value ?? '';
-  }
-  toString() {
-    if (this.#tokens.size === 0) return '';
-    let result = '';
-    for (const [name, value] of this.#tokens) {
-      result += `${name}: ${value};`;
-    }
-    return result;
-  }
-}
-
 export interface ServerElement
   extends Pick<
     HTMLElement,
@@ -168,43 +115,4 @@ export interface ServerElement
     HTMLElement['style'],
     'length' | 'getPropertyValue' | 'removeProperty' | 'setProperty'
   > & { toString(): string };
-}
-
-export class ServerClassList {
-  #tokens = new Set<string>();
-  get length() {
-    return this.#tokens.size;
-  }
-  get tokens() {
-    return this.#tokens;
-  }
-  add(...tokens: string[]): void {
-    for (const token of tokens) {
-      this.#tokens.add(token);
-    }
-  }
-  contains(token: string): boolean {
-    return this.#tokens.has(token);
-  }
-  remove(token: string) {
-    this.#tokens.delete(token);
-  }
-  replace(token: string, newToken: string): boolean {
-    if (!this.#tokens.has(token)) return false;
-    this.#tokens.delete(token);
-    this.#tokens.add(newToken);
-    return true;
-  }
-  toggle(token: string, force?: boolean): boolean {
-    if (force !== true && (this.#tokens.has(token) || force === false)) {
-      this.#tokens.delete(token);
-      return false;
-    } else {
-      this.#tokens.add(token);
-      return true;
-    }
-  }
-  toString() {
-    return Array.from(this.#tokens).join(' ');
-  }
 }

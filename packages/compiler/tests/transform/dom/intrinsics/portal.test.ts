@@ -20,6 +20,7 @@ import { Portal } from "maverick.js";
         });
         return $_c_1;
     }
+    $$_render_1();
     "
   `);
 });

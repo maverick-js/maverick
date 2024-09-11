@@ -1,7 +1,6 @@
 import { isString } from '@maverick-js/std';
+import { $, createVariableStatement } from '@maverick-js/ts';
 import ts from 'typescript';
-
-import { $, createVariableStatement } from '../ts-factory';
 
 export class Variables {
   readonly declarations: ts.VariableDeclaration[] = [];

@@ -1,4 +1,4 @@
-import type { JsxAttrNamespace, JsxNamespace } from './jsx/types';
+import type { JsxAttrNamespace, JsxNamespace } from './jsx';
 
 export const RESERVED_ATTR_NAMESPACE = new Set<JsxAttrNamespace>([
   'class',

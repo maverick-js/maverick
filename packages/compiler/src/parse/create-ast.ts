@@ -1,9 +1,22 @@
-import { isUndefined } from '@maverick-js/std';
+import { LogLevel, reportDiagnosticByNode } from '@maverick-js/logger';
+import { isUndefined, trimQuotes } from '@maverick-js/std';
+import {
+  $,
+  createJsxFragment,
+  filterEmptyJsxChildNodes,
+  getJsxAttribute,
+  getJsxAttributes,
+  getJsxChildren,
+  getTagName,
+  isComponentTagName,
+  isEmptyNode,
+  isJsxElementNode,
+  isStaticLiteralNode,
+  type JsxElementNode,
+  type JsxRootNode,
+} from '@maverick-js/ts';
 import ts, { type JsxChild } from 'typescript';
 
-import { $, createJsxFragment } from '../transform/transformers/ts-factory';
-import { LogLevel, reportDiagnosticByNode } from '../utils/logger';
-import { trimQuotes } from '../utils/print';
 import {
   type AstNode,
   type AttributeNode,
@@ -28,25 +41,8 @@ import {
   SVG_ELEMENT_TAGNAME,
   VOID_ELEMENT_TAGNAME,
 } from './constants';
-import {
-  type JsxAttrNamespace,
-  type JsxElementNode,
-  type JsxNamespace,
-  type JsxRootNode,
-} from './jsx/types';
-import {
-  filterEmptyJsxChildNodes,
-  getExpressionChildren,
-  getJsxAttribute,
-  getJsxAttributes,
-  getJsxChildren,
-  getTagName,
-  isComponentTagName,
-  isEmptyNode,
-  isJsxElementNode,
-  isStaticNode,
-  isValidNamespace,
-} from './utils';
+import { type JsxAttrNamespace, type JsxNamespace } from './jsx';
+import { getExpressionChildren, isValidNamespace } from './utils';
 
 export function createAstNode(root: JsxRootNode): AstNode {
   return parseNode(root);
@@ -202,8 +198,8 @@ function parseAttrs(
       hasValidNamespace = isValidNamespace(nameParts[0]),
       namespace = hasValidNamespace ? (nameParts[0] as JsxNamespace) : undefined,
       name = (hasValidNamespace ? nameParts[1] : attrText).replace(/^\$/, ''),
-      isStaticExpression = !!expression && isStaticNode(expression),
-      isStaticValue = !initializer || isStaticNode(initializer) || isStaticExpression;
+      isStaticExpression = !!expression && isStaticLiteralNode(expression),
+      isStaticValue = !initializer || isStaticLiteralNode(initializer) || isStaticExpression;
 
     const signal = attrText.startsWith('$');
 
@@ -294,7 +290,7 @@ function parseFragment(node: ts.JsxFragment): FragmentNode {
 function parseExpression(node: ts.JsxExpression): ExpressionNode {
   const expression = ts.isJsxExpression(node) ? node.expression! : node,
     children = getExpressionChildren(expression),
-    isStatic = !children && isStaticNode(expression);
+    isStatic = !children && isStaticLiteralNode(expression);
   return createExpressionNode({
     node,
     expression,

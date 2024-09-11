@@ -1,12 +1,12 @@
+import { $ } from '@maverick-js/ts';
 import type ts from 'typescript';
 
 import { type ComponentNode } from '../../../../parse/ast';
 import {
-  $,
   createComponentHostProps,
   createComponentProps,
   createComponentSlotsObject,
-} from '../../ts-factory';
+} from '../../factory';
 import type { SsrTransformState, SsrVisitorContext } from '../state';
 import { transform } from '../transform';
 

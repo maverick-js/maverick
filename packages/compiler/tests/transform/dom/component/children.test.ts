@@ -112,13 +112,13 @@ test('multiple dynamic child elements', () => {
 test('one static child expression', () => {
   expect(dom(`<Foo>{"foo"}</Foo>`)).toMatchInlineSnapshot(`
     "import { $$_create_component } from "@maverick-js/dom";
-    function $$_render_1({ $1 }) {
+    function $$_render_1() {
         let $_c_1 = $$_create_component(Foo, null, {
-            "default": () => null
+            "default": () => "foo"
         });
         return $_c_1;
     }
-    $$_render_1({ $1: "foo" });
+    $$_render_1();
     "
   `);
 });
@@ -128,7 +128,7 @@ test('one dynamic child expression', () => {
     "import { $$_create_component } from "@maverick-js/dom";
     function $$_render_1({ $1 }) {
         let $_c_1 = $$_create_component(Foo, null, {
-            "default": () => null
+            "default": () => $1
         });
         return $_c_1;
     }
@@ -148,21 +148,21 @@ test('multiple dynamic child expressions', () => {
         $$_listen($_c_1, "click", $1);
         return $_c_1;
     }
-    function $$_render_2({ $2 }) {
+    function $$_render_2({ $3 }) {
         let $_r_1 = $$_clone($_t_1);
-        $$_listen($_r_1, "click", $2);
+        $$_listen($_r_1, "click", $3);
         return $_r_1;
     }
-    function $$_fragment_1({ $3, $4 }) {
-        return [$3, $4];
+    function $$_fragment_1({ $2, $4 }) {
+        return [$2, $4];
     }
-    function $$_render_3({ $3, $4 }) {
+    function $$_render_3({ $2, $4 }) {
         let $_c_2 = $$_create_component(Foo, null, {
-            "default": () => $$_fragment_1({ $3, $4 })
+            "default": () => $$_fragment_1({ $2, $4 })
         });
         return $_c_2;
     }
-    $$_render_3({ $3: a() ? $$_render_1({ $1: onA }) : null, $4: b() ? $$_render_2({ $2: onB }) : null });
+    $$_render_3({ $2: a() ? $$_render_1({ $1: onA }) : null, $4: b() ? $$_render_2({ $3: onB }) : null });
     $$_delegate_events(["click"]);
     "
   `);

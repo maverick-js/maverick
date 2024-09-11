@@ -1,7 +1,7 @@
+import { $, createNullFilledArgs } from '@maverick-js/ts';
 import ts from 'typescript';
 
 import { Runtime } from '../runtime';
-import { $, createNullFilledArgs } from '../ts-factory';
 
 export class DomRuntime extends Runtime {
   protected override pkg = '@maverick-js/dom';

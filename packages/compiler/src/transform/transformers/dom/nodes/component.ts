@@ -1,12 +1,12 @@
+import { $ } from '@maverick-js/ts';
 import ts from 'typescript';
 
 import { type ComponentNode, isElementNode } from '../../../../parse/ast';
 import {
-  $,
   createComponentHostProps,
   createComponentProps,
   createComponentSlotsObject,
-} from '../../ts-factory';
+} from '../../factory';
 import { insert } from '../position';
 import type { DomTransformState, DomVisitorContext } from '../state';
 import { transform } from '../transform';

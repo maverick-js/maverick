@@ -1,8 +1,10 @@
+import { trimQuotes } from '@maverick-js/std';
+import { $ } from '@maverick-js/ts';
+import { encode } from 'html-entities';
 import ts from 'typescript';
 
-import { type AstNode, isTextNode } from '../../../parse/ast';
+import { type AstNode, isExpressionNode, isTextNode } from '../../../parse/ast';
 import { type Visitors, walk } from '../../../parse/walk';
-import { $ } from '../ts-factory';
 import { Component } from './nodes/component';
 import { Element } from './nodes/element';
 import { Expression } from './nodes/expression';
@@ -10,7 +12,7 @@ import { Fragment } from './nodes/fragment';
 import { Text } from './nodes/text';
 import type { SsrTransformState } from './state';
 
-let visitors: Visitors<SsrTransformState> = {
+export const ssrVisitors: Visitors<SsrTransformState> = {
   Element,
   Component,
   Fragment,
@@ -23,7 +25,17 @@ export function transform(node: AstNode, state: SsrTransformState): ts.Expressio
     return $.string(node.value);
   }
 
-  walk({ node, visitors, state });
+  walk({ node, visitors: ssrVisitors, state });
+
+  if (isExpressionNode(node)) {
+    if (!node.dynamic) {
+      return $.string(encode(trimQuotes(node.expression.getText())));
+    } else if (!node.children) {
+      return state.runtime.escape(node.expression);
+    } else {
+      return node.expression;
+    }
+  }
 
   // Commit any remaining HTML to the template.
   state.commit();

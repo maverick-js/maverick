@@ -1,30 +1,38 @@
+import {
+  $,
+  replaceTsNodes,
+  resetArgsCount,
+  splitImportsAndBody,
+  type TsNodeMap,
+} from '@maverick-js/ts';
 import ts from 'typescript';
 
 import { Scope } from '../../../parse/ast';
 import type { Transformer } from '../transformer';
-import {
-  $,
-  replaceTsNodes,
-  resetNameCount,
-  splitImportsAndBody,
-  type TsNodeMap,
-} from '../ts-factory';
 import { DomTransformState } from './state';
 import { transform } from './transform';
 import { DomTemplateVariables } from './vars';
 
-export function domTransformer(): Transformer {
+export interface DomTransformerOptions {
+  /**
+   * If this is `true`, when a `<host>` tag is encountered, the transformer will try to find a
+   * corresponding root `tagName` on a class component and if found create a custom element.
+   */
+  customElements?: boolean;
+}
+
+export function domTransformer({ customElements }: DomTransformerOptions = {}): Transformer {
   return {
     name: '@maverick-js/dom',
     transform({ sourceFile, nodes, ctx }) {
       const hydratable = Boolean(ctx.options.hydratable),
-        state = new DomTransformState(null, { hydratable }),
+        state = new DomTransformState(null, { hydratable, customElements }),
         replace: TsNodeMap = new Map();
 
       for (const node of nodes) {
         const result = transform(node, state.child(node, new Scope()));
         if (result) replace.set(node.node, result);
-        resetNameCount();
+        resetArgsCount();
       }
 
       const { imports, body } = splitImportsAndBody(sourceFile);

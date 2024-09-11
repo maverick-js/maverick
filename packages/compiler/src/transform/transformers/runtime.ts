@@ -1,6 +1,5 @@
+import { $, createImports } from '@maverick-js/ts';
 import ts from 'typescript';
-
-import { $, createImports } from './ts-factory';
 
 export abstract class Runtime {
   protected abstract pkg: string;

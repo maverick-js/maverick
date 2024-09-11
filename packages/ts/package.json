@@ -1,0 +1,56 @@
+{
+  "name": "@maverick-js/ts",
+  "license": "MIT",
+  "version": "0.43.2",
+  "type": "module",
+  "types": "src/index.ts",
+  "module": "src/index.ts",
+  "sideEffects": false,
+  "contributors": [
+    "Rahim Alwer <rahim.alwer@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maverick-js/maverick.git",
+    "directory": "packages/ts"
+  },
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
+  },
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "pnpm clean && pnpm types && pnpm bundle",
+    "bundle": "rollup -c",
+    "clean": "rimraf dist-npm",
+    "types": "tsc -p tsconfig.build.json",
+    "test": "pnpm test:client",
+    "test:watch": "vitest --watch",
+    "format": "prettier src --write --loglevel warn"
+  },
+  "dependencies": {
+    "@maverick-js/std": "workspace:*"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.7.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-esbuild": "^6.1.0",
+    "typescript": "^5.6.0"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "$types": "index.d.ts",
+  "$exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./types/*": "./types/*",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

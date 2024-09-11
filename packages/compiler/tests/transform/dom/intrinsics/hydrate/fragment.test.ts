@@ -89,20 +89,20 @@ test('multiple dynamic child elements', () => {
 
 test('one static child expression', () => {
   expect(domH(`<>{"foo"}</>`)).toMatchInlineSnapshot(`
-    "function $$_fragment_1({ $1 }) {
-        return [$1];
+    "function $$_fragment_1() {
+        return ["foo"];
     }
-    $$_fragment_1({ $1: "foo" });
+    $$_fragment_1();
     "
   `);
 });
 
 test('one dynamic child expression', () => {
   expect(domH(`<>{a()}</>`)).toMatchInlineSnapshot(`
-    "function $$_fragment_1({ $2 }) {
-        return [$1];
+    "function $$_fragment_1({ $1 }) {
+        return [$1()];
     }
-    $$_fragment_1({ $2: () => a() });
+    $$_fragment_1({ $1: a() });
     "
   `);
 });
@@ -110,25 +110,25 @@ test('one dynamic child expression', () => {
 test('multiple dynamic child expressions', () => {
   expect(domH(`<>{a() ? <div on:click={onA} /> : null}{b() ? <span on:click={onB} /> : null}</>`))
     .toMatchInlineSnapshot(`
-      "import { $$_create_walker, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
-      let $_t_1 = $$_create_template("<!$><div></div>"), $_t_2 = $$_create_template("<!$><span></span>");
-      function $$_render_1({ $1 }) {
-          let [$_r, $_w] = $$_create_walker($_t_1);
-          $$_listen($_r, "click", $1);
-          return $_r;
-      }
-      function $$_render_2({ $2 }) {
-          let [$_r, $_w] = $$_create_walker($_t_2);
-          $$_listen($_r, "click", $2);
-          return $_r;
-      }
-      function $$_fragment_1({ $5, $6 }) {
-          return [$3, $4];
-      }
-      $$_fragment_1({ $5: () => a() ? $$_render_1({ $1: onA }) : null, $6: () => b() ? $$_render_2({ $2: onB }) : null });
-      $$_delegate_events(["click"]);
-      "
-    `);
+    "import { $$_create_walker, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
+    let $_t_1 = $$_create_template("<!$><div></div>"), $_t_2 = $$_create_template("<!$><span></span>");
+    function $$_render_1({ $1 }) {
+        let [$_r, $_w] = $$_create_walker($_t_1);
+        $$_listen($_r, "click", $1);
+        return $_r;
+    }
+    function $$_render_2({ $3 }) {
+        let [$_r, $_w] = $$_create_walker($_t_2);
+        $$_listen($_r, "click", $3);
+        return $_r;
+    }
+    function $$_fragment_1({ $2, $4 }) {
+        return [$2(), $4()];
+    }
+    $$_fragment_1({ $2: () => a() ? $$_render_1({ $1: onA }) : null, $4: () => b() ? $$_render_2({ $3: onB }) : null });
+    $$_delegate_events(["click"]);
+    "
+  `);
 });
 
 test('import', () => {
@@ -161,6 +161,7 @@ import { Fragment } from "maverick.js";
         });
         return $_c_1;
     }
+    $$_render_3();
     "
   `);
 });

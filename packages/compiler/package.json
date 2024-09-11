@@ -27,15 +27,17 @@
     "format": "prettier src --write --loglevel warn"
   },
   "dependencies": {
-    "@maverick-js/element": "workspace:*",
+    "@maverick-js/logger": "workspace:*",
     "@maverick-js/std": "workspace:*",
-    "magic-string": "^0.30.11",
-    "maverick.js": "workspace:*"
+    "magic-string": "^0.30.11"
   },
   "devDependencies": {
+    "@maverick-js/element": "workspace:*",
+    "@maverick-js/ts": "workspace:*",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "html-entities": "^2.5.2",
     "pathe": "^1.1.0",
+    "maverick.js": "workspace:*",
     "rimraf": "^5.0.5",
     "rollup": "^4.7.0",
     "rollup-plugin-dts": "^6.1.0",

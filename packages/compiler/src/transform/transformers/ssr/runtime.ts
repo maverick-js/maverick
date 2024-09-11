@@ -1,8 +1,8 @@
 import { filterNullish } from '@maverick-js/std';
+import { $, createNullFilledArgs } from '@maverick-js/ts';
 import ts from 'typescript';
 
 import { Runtime } from '../runtime';
-import { $, createNullFilledArgs } from '../ts-factory';
 
 export class SsrRuntime extends Runtime {
   protected override pkg = '@maverick-js/ssr';

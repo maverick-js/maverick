@@ -1,10 +1,9 @@
-import { isFunction, isObject } from '@maverick-js/std';
+import { isFunction, isObject, splitLineBreaks } from '@maverick-js/std';
 import kleur from 'kleur';
 import { normalize } from 'pathe';
 import type { Node, SourceFile } from 'typescript';
 
 import { ms } from './ms';
-import { splitLineBreaks } from './print';
 
 export const enum LogLevel {
   Silent = 0,

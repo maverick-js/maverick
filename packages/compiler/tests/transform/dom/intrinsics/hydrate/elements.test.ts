@@ -105,10 +105,10 @@ test('one dynamic child expression', () => {
     let $_t_1 = $$_create_template("<!$><div><!$></div>");
     function $$_render_1({ $1 }) {
         let [$_r, $_w] = $$_create_walker($_t_1), $_m_1 = $_w.nextNode();
-        $$_insert_at_marker($_m_1, $1());
+        $$_insert_at_marker($_m_1, $1);
         return $_r;
     }
-    $$_render_1({ $1: () => a() });
+    $$_render_1({ $1: a() });
     "
   `);
 });

@@ -1,8 +1,7 @@
+import { $, createArrayBindingPattern } from '@maverick-js/ts';
 import ts from 'typescript';
 
-import type { SpreadNode } from '../../../parse/ast';
 import { Variables } from '../shared/variables';
-import { $, createArrayBindingPattern } from '../ts-factory';
 import type { DomRuntime } from './runtime';
 
 const ID = {

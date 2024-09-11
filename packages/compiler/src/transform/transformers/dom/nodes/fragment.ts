@@ -1,5 +1,7 @@
-import { type FragmentNode, isElementNode, Scope } from '../../../../parse/ast';
-import { $, transformAstNodeChildren } from '../../ts-factory';
+import { $ } from '@maverick-js/ts';
+
+import { type FragmentNode, isElementNode } from '../../../../parse/ast';
+import { transformAstNodeChildren } from '../../factory';
 import type { DomVisitorContext } from '../state';
 import { transform } from '../transform';
 

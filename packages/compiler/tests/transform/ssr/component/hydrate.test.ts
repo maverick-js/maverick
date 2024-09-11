@@ -91,3 +91,14 @@ test('multiple dynamic child expressions', () => {
     "
   `);
 });
+
+test('render function', () => {
+  expect(ssrH(`<Foo>{(props) => <div>{props.foo}</div>}</Foo>`)).toMatchInlineSnapshot(`
+    "import { $$_escape, $$_ssr, $$_create_component } from "@maverick-js/ssr";
+    let $$_t_1 = ["<div>", "</div>"];
+    $$_create_component(Foo, null, {
+        "default": (props) => $$_ssr($$_t_1, [$$_escape(props.foo)])
+    });
+    "
+  `);
+});

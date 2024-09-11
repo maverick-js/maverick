@@ -1,23 +1,8 @@
-import { isArray, isString } from '@maverick-js/std';
+import { isArray, isString, isUndefined } from '@maverick-js/std';
 import ts from 'typescript';
 
-import {
-  type AstNode,
-  type AttributeNode,
-  type ComponentNode,
-  type ElementNode,
-  type EventNode,
-  type InferTsNode,
-  isExpressionNode,
-  type RefNode,
-} from '../../parse/ast';
-import {
-  getAttributeNodeFullName,
-  getEventNodeFullName,
-  getNamedImportBindings,
-} from '../../parse/utils';
-import type { NextState } from '../../parse/walk';
-import type { Transform } from './transformer';
+import { isValueImportDeclarationFrom } from './is';
+import { getNamedImportBindings } from './module';
 
 export const $ = ts.factory as typeof ts.factory & {
   emptyString: () => ts.StringLiteral;
@@ -123,102 +108,6 @@ export function createObjectBindingPattern(...names: ts.Identifier[]) {
   );
 }
 
-export function createComponentProps(node: ComponentNode) {
-  if (!node.props?.length) return;
-  return $.createObjectLiteralExpression(createAttributePropertyAssignmentList(node.props), true);
-}
-
-export function createComponentHostProps(node: ComponentNode, { ssr = false } = {}) {
-  const props: ts.PropertyAssignment[] = [];
-
-  if (node.class) {
-    props.push($.createPropertyAssignment('class', node.class.initializer));
-  }
-
-  props.push(
-    ...createAttributePropertyAssignmentList(node.classes),
-    ...createAttributePropertyAssignmentList(node.vars),
-  );
-
-  if (!ssr) {
-    props.push(...createEventPropertyAssignmentList(node.events));
-  }
-
-  if (!props.length) return;
-
-  return $.createObjectLiteralExpression(props, true);
-}
-
-export function createComponentSlotsObject<State>(
-  component: ComponentNode,
-  transform: Transform<State>,
-  nextState: NextState<State>,
-) {
-  if (!component.slots) return;
-
-  const { slots } = component;
-
-  return $.createObjectLiteralExpression(
-    Object.keys(slots).map((slotName) => {
-      const slot = slots[slotName],
-        name = $.string(slotName);
-
-      // Render function.
-      if (isExpressionNode(slot) && isArrowFunctionWithParams(slot.expression)) {
-        return $.createPropertyAssignment(name, transform(slot, nextState(slot))!);
-      }
-
-      const result = transform(slot, nextState(slot)) ?? $.createNull();
-      return $.createPropertyAssignment(
-        name,
-        $.arrowFn([], getArrowFunctionBody(result) ?? result),
-      );
-    }),
-    true,
-  );
-}
-
-export function createElementProps(node: ElementNode, { ssr = false } = {}) {
-  const props: ts.PropertyAssignment[] = [];
-
-  props.push(
-    ...createAttributePropertyAssignmentList(node.attrs),
-    ...createAttributePropertyAssignmentList(node.classes),
-    ...createAttributePropertyAssignmentList(node.styles),
-    ...createAttributePropertyAssignmentList(node.vars),
-  );
-
-  if (!ssr) {
-    props.push(...createAttributePropertyAssignmentList(node.props));
-    props.push(...createEventPropertyAssignmentList(node.events));
-    if (node.ref) {
-      props.push(createRefPropertyAssignment(node.ref));
-    }
-  }
-
-  return props.length > 0 ? $.createObjectLiteralExpression(props, true) : undefined;
-}
-
-export function createAttributePropertyAssignmentList(attrs?: AttributeNode[]) {
-  return (attrs ?? []).map((attr) => createAttributePropertyAssignment(attr));
-}
-
-export function createAttributePropertyAssignment(attr: AttributeNode) {
-  const name = getAttributeNodeFullName(attr);
-  return $.createPropertyAssignment($.string(name), attr.initializer);
-}
-
-export function createEventPropertyAssignmentList(events?: EventNode[]) {
-  return (events ?? []).map(createEventPropertyAssignment);
-}
-export function createEventPropertyAssignment(event: EventNode) {
-  return $.createPropertyAssignment($.string(getEventNodeFullName(event)), event.initializer);
-}
-
-export function createRefPropertyAssignment(node: RefNode) {
-  return $.createPropertyAssignment($.id('ref'), node.initializer);
-}
-
 export function createCallExpression(expression: ts.Expression, args?: ts.Expression[]) {
   return $.createCallExpression(expression, undefined, args ?? []);
 }
@@ -244,7 +133,11 @@ export function createSelfInvokedFunction(block: ts.Block) {
   );
 }
 
-export function removeImports(root: ts.SourceFile, imports: ts.ImportSpecifier[]) {
+export function removeImports(
+  root: ts.SourceFile,
+  moduleSpecifier: string,
+  imports: ts.ImportSpecifier[],
+) {
   return ts.transform(root, [
     (context) => () => {
       function visitNamedImports(node: ts.Node) {
@@ -256,8 +149,8 @@ export function removeImports(root: ts.SourceFile, imports: ts.ImportSpecifier[]
       }
 
       function visit(node: ts.Node) {
-        if (ts.isImportDeclaration(node)) {
-          const bindings = getNamedImportBindings(node, 'maverick.js');
+        if (isValueImportDeclarationFrom(node, moduleSpecifier)) {
+          const bindings = getNamedImportBindings(node);
 
           // If there are no imports then we remove the declaration completely.
           if (bindings && !bindings.some((specifier) => !imports.includes(specifier))) {
@@ -265,9 +158,9 @@ export function removeImports(root: ts.SourceFile, imports: ts.ImportSpecifier[]
           }
 
           visitNamedImports(node);
-
-          return node;
         }
+
+        return node;
       }
 
       return ts.visitEachChild(root, visit, context);
@@ -288,25 +181,6 @@ export function replaceTsNodes<T extends ts.Node>(root: T, replace: TsNodeMap) {
       return ts.visitEachChild(root, visit, context);
     },
   ]).transformed[0];
-}
-
-export function transformAstNodeChildren<Node extends AstNode, State>(
-  node: Node,
-  transform: Transform<State>,
-  nextState: NextState<State>,
-): InferTsNode<Node> {
-  const map: TsNodeMap = new WeakMap();
-
-  if ('children' in node && node.children) {
-    for (const child of node.children) {
-      map.set(child.node, transform(child, nextState(child)));
-    }
-  }
-
-  return replaceTsNodes(
-    isExpressionNode(node) ? node.expression : node.node,
-    map,
-  ) as InferTsNode<Node>;
 }
 
 export function createPropertyGetExpression(obj: ts.Expression, prop: string | ts.Identifier) {
@@ -415,15 +289,19 @@ export function splitImportsAndBody({ statements }: ts.SourceFile) {
   };
 }
 
-let nameCount = 0,
-  names = new WeakMap<ts.Node, ts.Identifier>();
+let argsCount = 0,
+  args = new WeakMap<ts.Node, ts.Identifier>();
 
-export function getUniqueNameForNode(node: ts.Node) {
-  let name = names.get(node);
-  if (!name) names.set(node, (name = $.id(`$${++nameCount}`)));
+export function getArgId(node: ts.Node) {
+  let name = args.get(node);
+  if (!name) args.set(node, (name = $.id(`$${++argsCount}`)));
   return name;
 }
 
-export function resetNameCount() {
-  nameCount = 0;
+export function hasArgId(node: ts.Node) {
+  return !isUndefined(args.get(node));
+}
+
+export function resetArgsCount() {
+  argsCount = 0;
 }

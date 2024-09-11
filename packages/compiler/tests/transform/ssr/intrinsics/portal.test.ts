@@ -11,6 +11,11 @@ import { Portal } from "maverick.js";
 `),
   ).toMatchInlineSnapshot(`
     "import { $$_create_component, Portal } from "@maverick-js/ssr";
+    $$_create_component(Portal, {
+        "to": "body"
+    }, {
+        "default": () => "<div></div>"
+    });
     "
   `);
 });

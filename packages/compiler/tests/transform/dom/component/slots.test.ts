@@ -217,3 +217,23 @@ test('fragment named slot', () => {
     "
   `);
 });
+
+test('render function ', () => {
+  expect(dom(`<Foo>{(props) => <div>{props.foo}</div>}</Foo>`)).toMatchInlineSnapshot(`
+    "import { $$_clone, $$_insert, $$_create_component, $$_create_template } from "@maverick-js/dom";
+    let $_t_1 = $$_create_template("<div></div>");
+    function $$_render_1({ $1 }) {
+        let $_r_1 = $$_clone($_t_1);
+        $$_insert($_r_1, $1);
+        return $_r_1;
+    }
+    function $$_render_2({ $2 }) {
+        let $_c_1 = $$_create_component(Foo, null, {
+            "default": $2
+        });
+        return $_c_1;
+    }
+    $$_render_2({ $2: (props) => $$_render_1({ $1: props.foo }) });
+    "
+  `);
+});

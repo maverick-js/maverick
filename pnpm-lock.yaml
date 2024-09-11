@@ -102,25 +102,31 @@ importers:
 
   packages/compiler:
     dependencies:
-      '@maverick-js/element':
+      '@maverick-js/logger':
         specifier: workspace:*
-        version: link:../element
+        version: link:../logger
       '@maverick-js/std':
         specifier: workspace:*
         version: link:../std
       magic-string:
         specifier: ^0.30.11
         version: 0.30.11
-      maverick.js:
-        specifier: workspace:*
-        version: link:../maverick
     devDependencies:
+      '@maverick-js/element':
+        specifier: workspace:*
+        version: link:../element
+      '@maverick-js/ts':
+        specifier: workspace:*
+        version: link:../ts
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.21.1)
       html-entities:
         specifier: ^2.5.2
         version: 2.5.2
+      maverick.js:
+        specifier: workspace:*
+        version: link:../maverick
       pathe:
         specifier: ^1.1.0
         version: 1.1.2
@@ -194,6 +200,37 @@ importers:
       vitest:
         specifier: ^1.0.0
         version: 1.6.0(@edge-runtime/vm@2.1.2)(@types/node@18.19.46)(jsdom@20.0.3)
+
+  packages/logger:
+    dependencies:
+      '@maverick-js/std':
+        specifier: workspace:*
+        version: link:../std
+    devDependencies:
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.2.3
+        version: 15.2.3(rollup@4.21.1)
+      kleur:
+        specifier: ^4.1.5
+        version: 4.1.5
+      pathe:
+        specifier: ^1.1.0
+        version: 1.1.2
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.10
+      rollup:
+        specifier: ^4.7.0
+        version: 4.21.1
+      rollup-plugin-dts:
+        specifier: ^6.1.0
+        version: 6.1.1(rollup@4.21.1)(typescript@5.6.2)
+      rollup-plugin-esbuild:
+        specifier: ^6.1.0
+        version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
+      typescript:
+        specifier: ^5.6.0
+        version: 5.6.2
 
   packages/maverick:
     dependencies:
@@ -334,6 +371,31 @@ importers:
       vitest:
         specifier: ^1.0.0
         version: 1.6.0(@edge-runtime/vm@2.1.2)(@types/node@18.19.46)(jsdom@20.0.3)
+
+  packages/ts:
+    dependencies:
+      '@maverick-js/std':
+        specifier: workspace:*
+        version: link:../std
+    devDependencies:
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.2.3
+        version: 15.2.3(rollup@4.21.1)
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.10
+      rollup:
+        specifier: ^4.7.0
+        version: 4.21.1
+      rollup-plugin-dts:
+        specifier: ^6.1.0
+        version: 6.1.1(rollup@4.21.1)(typescript@5.6.2)
+      rollup-plugin-esbuild:
+        specifier: ^6.1.0
+        version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
+      typescript:
+        specifier: ^5.6.0
+        version: 5.6.2
 
 packages:
 

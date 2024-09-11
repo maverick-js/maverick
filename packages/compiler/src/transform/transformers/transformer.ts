@@ -1,4 +1,3 @@
-import type MagicString from 'magic-string';
 import type ts from 'typescript';
 
 import type { AstNode } from '../../parse/ast';

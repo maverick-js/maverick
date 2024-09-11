@@ -1,15 +1,17 @@
-import { encode } from 'html-entities';
-import ts from 'typescript';
-
-import { type ExpressionNode, isElementNode } from '../../../../parse/ast';
+import { trimQuotes } from '@maverick-js/std';
 import {
   isJsxRootNode,
   isLogicalAndExpression,
   isNullishCoalescing,
   isNullishNode,
-} from '../../../../parse/utils';
-import { trimQuotes } from '../../../../utils/print';
-import { replaceTsNodes, transformAstNodeChildren, type TsNodeMap } from '../../ts-factory';
+  replaceTsNodes,
+  type TsNodeMap,
+} from '@maverick-js/ts';
+import { encode } from 'html-entities';
+import ts from 'typescript';
+
+import { type ExpressionNode, isElementNode } from '../../../../parse/ast';
+import { transformAstNodeChildren } from '../../factory';
 import type { SsrTransformState, SsrVisitorContext } from '../state';
 import { transform } from '../transform';
 
@@ -28,7 +30,6 @@ export function Expression(node: ExpressionNode, { state, walk }: SsrVisitorCont
   node.expression = transformAstNodeChildren(node, transform, state.child.bind(state));
 
   const rootElement = walk.path.find(isElementNode);
-
   if (rootElement) {
     state.marker();
   }
@@ -50,6 +51,8 @@ function escapeExpressions<T extends ts.Node>(root: T, { runtime }: SsrTransform
     } else if (ts.isConditionalExpression(node)) {
       visit(node.whenTrue);
       visit(node.whenFalse);
+    } else if (ts.isArrowFunction(node) || ts.isFunctionDeclaration(node)) {
+      if (node.body) visit(node.body);
     } else {
       if (!isNullishNode(node)) {
         map.set(node, runtime.escape(node as ts.Expression));

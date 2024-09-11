@@ -13,6 +13,7 @@ export class DomTransformState {
   readonly block: ts.Expression[] = [];
   readonly renders: ts.FunctionDeclaration[];
   readonly hydratable: boolean;
+  readonly customElements: boolean;
   readonly runtime: DomRuntime;
   readonly delegatedEvents: Set<string>;
   readonly children: DomTransformState[] = [];
@@ -33,6 +34,7 @@ export class DomTransformState {
     this.runtime = init?.runtime ?? new DomRuntime();
     this.vars = { block: new DomBlockVariables(this.runtime) };
     this.hydratable = init?.hydratable ?? false;
+    this.customElements = init?.customElements ?? false;
     this.delegatedEvents = init?.delegatedEvents ?? new Set();
   }
 

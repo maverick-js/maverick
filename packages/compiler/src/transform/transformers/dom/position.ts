@@ -1,3 +1,4 @@
+import { $ } from '@maverick-js/ts';
 import type ts from 'typescript';
 
 import {
@@ -8,7 +9,6 @@ import {
 } from '../../../parse/ast';
 import { findElementIndex } from '../../../parse/utils';
 import type { Walker } from '../../../parse/walk';
-import { $ } from '../ts-factory';
 import type { DomTransformState } from './state';
 
 /**

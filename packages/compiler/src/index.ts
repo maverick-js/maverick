@@ -2,7 +2,7 @@ export { createAstNode } from './parse/create-ast';
 export { parse } from './parse/parse';
 export * from './parse/ast';
 export * from './parse/walk';
-export * from './parse/jsx/types';
+export * from './parse/jsx';
 export * from './transform/transform';
 export * from './transform/transformers/dom';
 export * from './transform/transformers/element';

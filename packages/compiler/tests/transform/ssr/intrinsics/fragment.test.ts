@@ -71,6 +71,9 @@ import { Fragment } from "maverick.js";
 `),
   ).toMatchInlineSnapshot(`
     "import { $$_create_component, Fragment } from "@maverick-js/ssr";
+    $$_create_component(Fragment, null, {
+        "default": () => "<div></div><span></span>"
+    });
     "
   `);
 });

@@ -1,25 +1,12 @@
-import ts from 'typescript';
-
+import { domTransformer } from '../dom';
 import type { Transformer } from '../transformer';
 
 export function elementTransformer(): Transformer {
+  const dom = domTransformer({ customElements: true });
   return {
     name: '@maverick-js/element',
-    transform({ code, sourceFile, nodes, ctx }) {},
+    transform(data) {
+      return dom.transform(data);
+    },
   };
 }
-
-// Example
-// class Foo extends Component {
-//   static tagName = 'mk-foo';
-//   override render(): JSX.Element {
-//     return <host as="div"></host>;
-//   }
-// }
-
-// class FooElement extends Host(HTMLElement, Foo) {
-//   static tagName = 'mk-foo';
-//   override onConnect(el: HTMLElement) {
-//     // rendering here??
-//   }
-// }

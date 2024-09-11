@@ -1,9 +1,9 @@
-import { escapeHTML } from '@maverick-js/std';
+import { escapeHTML, trimQuotes } from '@maverick-js/std';
+import { $ } from '@maverick-js/ts';
 import type ts from 'typescript';
 
 import { type AttributeNode, type ElementNode, isFragmentNode } from '../../../../parse/ast';
-import { trimQuotes } from '../../../../utils/print';
-import { $, createElementProps } from '../../ts-factory';
+import { createElementProps } from '../../factory';
 import type { SsrVisitorContext } from '../state';
 
 export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {

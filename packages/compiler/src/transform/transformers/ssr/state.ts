@@ -1,9 +1,9 @@
+import { $ } from '@maverick-js/ts';
 import type ts from 'typescript';
 
 import type { AstNode } from '../../../parse/ast';
 import type { VisitorContext } from '../../../parse/walk';
 import { Variables } from '../shared/variables';
-import { $ } from '../ts-factory';
 import { SsrRuntime } from './runtime';
 
 export class SsrTransformState {

@@ -1,5 +1,6 @@
 import {
   domTransformer,
+  elementTransformer,
   ssrTransformer,
   transform,
   type TransformOptions,
@@ -27,4 +28,12 @@ export function ssr(code: string, options?: Partial<TransformOptions>) {
 
 export function ssrH(code: string, options?: Partial<TransformOptions>) {
   return ssr(code, { hydratable: true, ...options });
+}
+
+export function element(code: string, options?: Partial<TransformOptions>) {
+  return transform(code, {
+    filename: 'test.tsx',
+    transformer: elementTransformer(),
+    ...options,
+  }).code;
 }

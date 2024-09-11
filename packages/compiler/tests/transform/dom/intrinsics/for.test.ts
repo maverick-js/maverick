@@ -22,10 +22,11 @@ import { For } from 'maverick.js';
         let $_c_1 = $$_create_component(For, {
             "each": $1
         }, {
-            "default": null
+            "default": $4
         });
         return $_c_1;
     }
+    $$_render_2({ $1: [0, 1, 2], $4: (item, index) => $$_render_1({ $2: item, $3: index }) });
     "
   `);
 });

@@ -127,13 +127,13 @@ test('multiple dynamic child elements', () => {
 test('one static child expression', () => {
   expect(domH(`<Foo>{"foo"}</Foo>`)).toMatchInlineSnapshot(`
     "import { $$_create_component } from "@maverick-js/dom";
-    function $$_render_1({ $1 }) {
+    function $$_render_1() {
         let $_c_1 = $$_create_component(Foo, null, {
-            "default": () => null
+            "default": () => "foo"
         });
         return $_c_1;
     }
-    $$_render_1({ $1: "foo" });
+    $$_render_1();
     "
   `);
 });
@@ -143,11 +143,11 @@ test('one dynamic child expression', () => {
     "import { $$_create_component } from "@maverick-js/dom";
     function $$_render_1({ $1 }) {
         let $_c_1 = $$_create_component(Foo, null, {
-            "default": () => null
+            "default": () => $1
         });
         return $_c_1;
     }
-    $$_render_1({ $1: () => a() });
+    $$_render_1({ $1: a() });
     "
   `);
 });
@@ -163,22 +163,42 @@ test('multiple dynamic child expressions', () => {
         $$_listen($_c_1, "click", $1);
         return $_c_1;
     }
-    function $$_render_2({ $2 }) {
+    function $$_render_2({ $3 }) {
         let [$_r, $_w] = $$_create_walker($_t_1);
-        $$_listen($_r, "click", $2);
+        $$_listen($_r, "click", $3);
         return $_r;
     }
-    function $$_fragment_1({ $5, $6 }) {
-        return [$3, $4];
+    function $$_fragment_1({ $2, $4 }) {
+        return [$2(), $4()];
     }
-    function $$_render_3({ $5, $6 }) {
+    function $$_render_3({ $2, $4 }) {
         let $_c_2 = $$_create_component(Foo, null, {
-            "default": () => $$_fragment_1({ $5, $6 })
+            "default": () => $$_fragment_1({ $2, $4 })
         });
         return $_c_2;
     }
-    $$_render_3({ $5: () => a() ? $$_render_1({ $1: onA }) : null, $6: () => b() ? $$_render_2({ $2: onB }) : null });
+    $$_render_3({ $2: () => a() ? $$_render_1({ $1: onA }) : null, $4: () => b() ? $$_render_2({ $3: onB }) : null });
     $$_delegate_events(["click"]);
+    "
+  `);
+});
+
+test('render function', () => {
+  expect(domH(`<Foo>{(props) => <div>{props.foo}</div>}</Foo>`)).toMatchInlineSnapshot(`
+    "import { $$_create_walker, $$_insert_at_marker, $$_create_component, $$_create_template } from "@maverick-js/dom";
+    let $_t_1 = $$_create_template("<!$><div><!$></div>");
+    function $$_render_1({ $1 }) {
+        let [$_r, $_w] = $$_create_walker($_t_1), $_m_1 = $_w.nextNode();
+        $$_insert_at_marker($_m_1, $1);
+        return $_r;
+    }
+    function $$_render_2({ $2 }) {
+        let $_c_1 = $$_create_component(Foo, null, {
+            "default": $2
+        });
+        return $_c_1;
+    }
+    $$_render_2({ $2: (props) => $$_render_1({ $1: props.foo }) });
     "
   `);
 });

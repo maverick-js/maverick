@@ -1,13 +1,13 @@
-import ts from 'typescript';
-
-import type { Transformer } from '../transformer';
 import {
   $,
   replaceTsNodes,
-  resetNameCount,
+  resetArgsCount,
   splitImportsAndBody,
   type TsNodeMap,
-} from '../ts-factory';
+} from '@maverick-js/ts';
+import ts from 'typescript';
+
+import type { Transformer } from '../transformer';
 import { SsrTransformState } from './state';
 import { transform } from './transform';
 
@@ -22,7 +22,7 @@ export function ssrTransformer(): Transformer {
       for (const node of nodes) {
         const result = transform(node, state.child(node));
         if (result) replace.set(node.node, result);
-        resetNameCount();
+        resetArgsCount();
       }
 
       const { imports, body } = splitImportsAndBody(sourceFile);

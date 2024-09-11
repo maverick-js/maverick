@@ -1,10 +1,3 @@
-import { isUndefined } from '@maverick-js/std';
-import MagicString, { type SourceMapOptions } from 'magic-string';
-import { relative } from 'pathe';
-import type ts from 'typescript';
-
-import type { ParseAnalysis } from '../parse/analysis';
-import { parse } from '../parse/parse';
 import {
   log,
   LogLevel,
@@ -12,10 +5,17 @@ import {
   logTime,
   mapLogLevelStringToNumber,
   setGlobalLogLevel,
-} from '../utils/logger';
+} from '@maverick-js/logger';
+import { isUndefined } from '@maverick-js/std';
+import { removeImports } from '@maverick-js/ts';
+import MagicString, { type SourceMapOptions } from 'magic-string';
+import { relative } from 'pathe';
+import type ts from 'typescript';
+
+import type { ParseAnalysis } from '../parse/analysis';
+import { parse } from '../parse/parse';
 import { printFile } from './print';
 import type { Transformer } from './transformers/transformer';
-import { removeImports, type TsNodeMap } from './transformers/ts-factory';
 
 export interface TransformOptions {
   transformer: Transformer;
@@ -51,9 +51,13 @@ export function transform(source: string, options: TransformOptions) {
     options.delegateEvents = true;
   }
 
-  const virtualImports = Object.values(analysis.components).filter(Boolean) as ts.ImportSpecifier[];
+  const virtualComponents = ['for', 'portal', 'fragment'],
+    virtualImports = virtualComponents
+      .map((name) => analysis.components[name])
+      .filter(Boolean) as ts.ImportSpecifier[];
+
   if (virtualImports.length) {
-    sourceFile = removeImports(sourceFile, virtualImports);
+    sourceFile = removeImports(sourceFile, 'maverick.js', virtualImports);
   }
 
   const ctx: TransformContext = {

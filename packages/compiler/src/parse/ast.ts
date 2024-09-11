@@ -1,9 +1,9 @@
-import { isNull } from '@maverick-js/std';
+import { isNull, trimWhitespace } from '@maverick-js/std';
+import type { JsxElementNode } from '@maverick-js/ts';
 import { encode } from 'html-entities';
 import type ts from 'typescript';
 
-import { trimWhitespace } from '../utils/print';
-import type { JsxAttrNamespace, JsxElementNode, JsxEventNamespace } from './jsx/types';
+import type { JsxAttrNamespace, JsxEventNamespace } from './jsx';
 
 export class Scope {
   get isRoot() {

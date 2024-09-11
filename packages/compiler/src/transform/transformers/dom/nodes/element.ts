@@ -1,6 +1,8 @@
+import { $ } from '@maverick-js/ts';
+
 import { type ElementNode, isFragmentNode } from '../../../../parse/ast';
 import { getAttributeText } from '../../../../parse/utils';
-import { $, createElementProps } from '../../ts-factory';
+import { createElementProps } from '../../factory';
 import { getElementId } from '../position';
 import type { DomVisitorContext } from '../state';
 

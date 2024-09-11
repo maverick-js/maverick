@@ -5,7 +5,7 @@ import esbuild from 'rollup-plugin-esbuild';
 
 import { copyPkgFiles } from '../../.build/copy-pkg-files.js';
 
-const EXTERNAL = ['@maverick-js/std', 'typescript'];
+const EXTERNAL = ['@maverick-js/std', '@maverick-js/logger', 'typescript'];
 
 export default defineConfig([define(), defineTypes()]);
 

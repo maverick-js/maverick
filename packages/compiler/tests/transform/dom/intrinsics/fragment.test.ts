@@ -78,10 +78,10 @@ test('multiple dynamic child elements', () => {
 
 test('one static child expression', () => {
   expect(dom(`<>{"foo"}</>`)).toMatchInlineSnapshot(`
-    "function $$_fragment_1({ $1 }) {
-        return [$1];
+    "function $$_fragment_1() {
+        return ["foo"];
     }
-    $$_fragment_1({ $1: "foo" });
+    $$_fragment_1();
     "
   `);
 });
@@ -106,15 +106,15 @@ test('multiple dynamic child expressions', () => {
           $$_listen($_r_1, "click", $1);
           return $_r_1;
       }
-      function $$_render_2({ $2 }) {
+      function $$_render_2({ $3 }) {
           let $_r_2 = $$_clone($_t_2);
-          $$_listen($_r_2, "click", $2);
+          $$_listen($_r_2, "click", $3);
           return $_r_2;
       }
-      function $$_fragment_1({ $3, $4 }) {
-          return [$3, $4];
+      function $$_fragment_1({ $2, $4 }) {
+          return [$2, $4];
       }
-      $$_fragment_1({ $3: a() ? $$_render_1({ $1: onA }) : null, $4: b() ? $$_render_2({ $2: onB }) : null });
+      $$_fragment_1({ $2: a() ? $$_render_1({ $1: onA }) : null, $4: b() ? $$_render_2({ $3: onB }) : null });
       $$_delegate_events(["click"]);
       "
     `);
@@ -142,6 +142,7 @@ import { Fragment } from "maverick.js";
         });
         return $_c_1;
     }
+    $$_render_1();
     "
   `);
 });

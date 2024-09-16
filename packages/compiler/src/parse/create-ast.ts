@@ -1,5 +1,5 @@
 import { LogLevel, reportDiagnosticByNode } from '@maverick-js/logger';
-import { isUndefined, trimQuotes } from '@maverick-js/std';
+import { isUndefined } from '@maverick-js/std';
 import {
   $,
   createJsxFragment,
@@ -70,23 +70,11 @@ function parseElement(node: JsxElementNode, tagName: string): ElementNode {
     isVoid = VOID_ELEMENT_TAGNAME.has(tagName),
     isSVG = tagName === 'svg' || SVG_ELEMENT_TAGNAME.has(tagName),
     isDynamic = isCustomElement,
-    isHost = tagName === 'host',
-    attrs = parseAttrs(getJsxAttributes(node), isCustomElement, () => (isDynamic = true)),
-    asAttr = isHost ? attrs.attrs?.find((attr) => attr.name === 'as')?.initializer : undefined,
-    as = asAttr ? trimQuotes(asAttr.getText()) : undefined;
-
-  if (asAttr && !ts.isStringLiteral(asAttr)) {
-    reportAttributeNotStaticStringLiteral('as', node);
-  }
-
-  if (asAttr) {
-    attrs.attrs = attrs.attrs!.filter((attr) => attr.name !== 'as');
-  }
+    attrs = parseAttrs(getJsxAttributes(node), isCustomElement, () => (isDynamic = true));
 
   return createElementNode({
     node: node,
     name: tagName,
-    as,
     isVoid,
     isSVG,
     isCustomElement,

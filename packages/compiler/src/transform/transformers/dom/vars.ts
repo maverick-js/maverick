@@ -57,12 +57,7 @@ export class DomBlockVariables extends Variables {
     };
   }
 
-  component(
-    name: string,
-    props?: ts.Expression,
-    slots?: ts.Expression,
-    onAttach?: ts.ArrowFunction,
-  ) {
+  component(name: string, props?: ts.Expression, slots?: ts.Expression, onAttach?: ts.Expression) {
     return this.create(ID.component, this.#runtime.createComponent(name, props, slots, onAttach))
       .name;
   }

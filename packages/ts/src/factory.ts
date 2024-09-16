@@ -12,6 +12,7 @@ export const $ = ts.factory as typeof ts.factory & {
   number: typeof ts.factory.createNumericLiteral;
   undefined: ts.Identifier;
   var: typeof createVariableDeclaration;
+  fn: typeof createFunction;
   arrowFn: typeof createArrowFunction;
   call: typeof createCallExpression;
   selfInvoke: typeof createSelfInvokedCallExpression;
@@ -20,6 +21,7 @@ export const $ = ts.factory as typeof ts.factory & {
   setProp: typeof createPropertySetExpression;
 };
 
+$.fn = createFunction;
 $.arrowFn = createArrowFunction;
 $.emptyString = () => $.string('');
 $.emptyObject = () => $.createObjectLiteralExpression();
@@ -142,7 +144,7 @@ export function removeImports(
     (context) => () => {
       function visitNamedImports(node: ts.Node) {
         if (ts.isImportSpecifier(node) && imports.includes(node)) {
-          return undefined;
+          return;
         }
 
         return ts.visitEachChild(node, visitNamedImports, context);
@@ -154,10 +156,10 @@ export function removeImports(
 
           // If there are no imports then we remove the declaration completely.
           if (bindings && !bindings.some((specifier) => !imports.includes(specifier))) {
-            return undefined;
+            return;
           }
 
-          visitNamedImports(node);
+          return visitNamedImports(node);
         }
 
         return node;
@@ -304,4 +306,33 @@ export function hasArgId(node: ts.Node) {
 
 export function resetArgsCount() {
   argsCount = 0;
+}
+
+export function createSymbolFor(key: string) {
+  return $.createCallExpression(
+    $.createPropertyAccessExpression($.createIdentifier('Symbol'), $.createIdentifier('for')),
+    undefined,
+    [$.createStringLiteral(key)],
+  );
+}
+
+export function createStaticComputedProperty(name: ts.Expression, init: ts.Expression) {
+  return $.createPropertyDeclaration(
+    [$.createToken(ts.SyntaxKind.StaticKeyword)],
+    $.createComputedPropertyName(name),
+    undefined,
+    undefined,
+    init,
+  );
+}
+
+export function addClassMembers(node: ts.ClassDeclaration, newMembers: ts.ClassElement[]) {
+  return $.updateClassDeclaration(
+    node,
+    node.modifiers,
+    node.name,
+    node.typeParameters,
+    node.heritageClauses,
+    [...newMembers, ...node.members],
+  );
 }

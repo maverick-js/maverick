@@ -10,7 +10,6 @@ import { isUndefined } from '@maverick-js/std';
 import { removeImports } from '@maverick-js/ts';
 import MagicString, { type SourceMapOptions } from 'magic-string';
 import { relative } from 'pathe';
-import type ts from 'typescript';
 
 import type { ParseAnalysis } from '../parse/analysis';
 import { parse } from '../parse/parse';
@@ -51,12 +50,8 @@ export function transform(source: string, options: TransformOptions) {
     options.delegateEvents = true;
   }
 
-  const virtualComponents = ['for', 'portal', 'fragment'],
-    virtualImports = virtualComponents
-      .map((name) => analysis.components[name])
-      .filter(Boolean) as ts.ImportSpecifier[];
-
-  if (virtualImports.length) {
+  const virtualImports = Object.values(analysis.components);
+  if (virtualImports.length > 0) {
     sourceFile = removeImports(sourceFile, 'maverick.js', virtualImports);
   }
 

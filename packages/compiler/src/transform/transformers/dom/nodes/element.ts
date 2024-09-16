@@ -35,7 +35,7 @@ export function Element(node: ElementNode, { state, walk }: DomVisitorContext) {
     }
   }
 
-  state.html += `<${node.as ?? node.name}`;
+  state.html += `<${node.name}`;
 
   if (state.element) {
     state.elements.set(node, state.element);
@@ -114,6 +114,6 @@ export function Element(node: ElementNode, { state, walk }: DomVisitorContext) {
       walk.children();
     }
 
-    state.html += `</${node.as ?? node.name}>`;
+    state.html += `</${node.name}>`;
   }
 }

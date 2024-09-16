@@ -8,25 +8,26 @@ import {
 import ts from 'typescript';
 
 import { Scope } from '../../../parse/ast';
+import { markCustomElements } from '../element';
 import type { Transformer } from '../transformer';
 import { DomTransformState } from './state';
 import { transform } from './transform';
 import { DomTemplateVariables } from './vars';
 
-export interface DomTransformerOptions {
+export interface DomTransformOptions {
   /**
-   * If this is `true`, when a `<host>` tag is encountered, the transformer will try to find a
-   * corresponding root `tagName` on a class component and if found create a custom element.
+   * Whether to mark components with a static `tagName` property declaration to be built as
+   * a custom element. The custom element itself needs to be registered separately.
    */
   customElements?: boolean;
 }
 
-export function domTransformer({ customElements }: DomTransformerOptions = {}): Transformer {
+export function domTransformer({ customElements = false }: DomTransformOptions = {}): Transformer {
   return {
     name: '@maverick-js/dom',
     transform({ sourceFile, nodes, ctx }) {
       const hydratable = Boolean(ctx.options.hydratable),
-        state = new DomTransformState(null, { hydratable, customElements }),
+        state = new DomTransformState(null, { hydratable }),
         replace: TsNodeMap = new Map();
 
       for (const node of nodes) {
@@ -44,9 +45,9 @@ export function domTransformer({ customElements }: DomTransformerOptions = {}): 
       const statements: ts.Statement[] = [];
 
       const components = ctx.analysis.components;
-      if (components.portal) state.runtime.add('Portal');
-      if (components.fragment) state.runtime.add('Fragment');
-      if (components.for) state.runtime.add('For');
+      for (const component of Object.keys(components)) {
+        if (components[component]) state.runtime.add(component);
+      }
 
       const templates = createTemplateVariables(state);
 
@@ -56,10 +57,12 @@ export function domTransformer({ customElements }: DomTransformerOptions = {}): 
 
       if (templates) statements.push(templates.toStatement());
 
-      return replaceTsNodes(
+      const transformedSourceFile = replaceTsNodes(
         $.updateSourceFile(sourceFile, [...imports, ...statements, ...state.renders, ...body]),
         replace,
       );
+
+      return customElements ? markCustomElements(transformedSourceFile) : transformedSourceFile;
     },
   };
 }

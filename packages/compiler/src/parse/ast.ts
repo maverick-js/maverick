@@ -62,7 +62,6 @@ export interface ElementNode extends ElementAttributes {
   kind: AstNodeKind.Element;
   node: JsxElementNode;
   name: string;
-  as?: string;
   isVoid: boolean;
   isSVG: boolean;
   isCustomElement: boolean;

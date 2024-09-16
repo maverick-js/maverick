@@ -1,14 +1,9 @@
 import { logTime } from '@maverick-js/logger';
 import {
-  findClassThatExtendsModuleExport,
   findImportSpecifierFromDeclaration,
-  findStaticProp,
-  getTagName,
-  isClassThatExtendsModuleExport,
   isJsxElementNode,
   isValueImportDeclarationFrom,
   isValueImportSpecifier,
-  type JsxRootNode,
 } from '@maverick-js/ts';
 import ts from 'typescript';
 
@@ -23,15 +18,11 @@ export interface ParseOptions {
 const tsxRE = /\.tsx/;
 
 export function parse(code: string, options: ParseOptions) {
-  const { filename } = options,
-    analysis: ParseAnalysis = {
-      components: {},
-      tagNames: new WeakMap(),
-    },
+  let { filename } = options,
+    analysis: ParseAnalysis = { components: {} },
     parseStartTime = process.hrtime(),
     sourceFile = ts.createSourceFile(filename, code, 99, true, tsxRE.test(filename) ? 4 : 2),
-    astNodes: AstNode[] = [],
-    jsxNodes: JsxRootNode[] = [];
+    astNodes: AstNode[] = [];
 
   logTime({
     message: `Parsed Source File (TS): ${filename}`,
@@ -43,30 +34,21 @@ export function parse(code: string, options: ParseOptions) {
       const Fragment = findImportSpecifierFromDeclaration(node, 'Fragment'),
         Portal = findImportSpecifierFromDeclaration(node, 'Portal'),
         For = findImportSpecifierFromDeclaration(node, 'For'),
-        Component = findImportSpecifierFromDeclaration(node, 'Component');
+        Host = findImportSpecifierFromDeclaration(node, 'Host');
 
-      if (isValueImportSpecifier(Fragment)) analysis.components.fragment = Fragment;
-      if (isValueImportSpecifier(Portal)) analysis.components.portal = Portal;
-      if (isValueImportSpecifier(For)) analysis.components.for = For;
-      if (isValueImportSpecifier(Component)) analysis.components.component = Component;
+      if (isValueImportSpecifier(Fragment)) analysis.components.Fragment = Fragment;
+      if (isValueImportSpecifier(Portal)) analysis.components.Portal = Portal;
+      if (isValueImportSpecifier(For)) analysis.components.For = For;
+      if (isValueImportSpecifier(Host)) analysis.components.Host = Host;
     }
 
     if (isJsxElementNode(node)) {
-      if (getTagName(node) === 'host') {
-        const componentImportId = analysis.components.component?.name;
-        if (componentImportId) {
-          const parentClass = findClassThatExtendsModuleExport(node, componentImportId),
-            tagName = findStaticProp(parentClass, 'tagName');
-          if (tagName?.initializer) {
-            analysis.tagNames.set(node, tagName.initializer);
-          }
-        }
-      }
+      const astNode = createAstNode(node);
 
-      jsxNodes.push(node);
+      astNodes.push(astNode);
       return;
     } else if (ts.isJsxFragment(node)) {
-      jsxNodes.push(node);
+      astNodes.push(createAstNode(node));
       return;
     }
 
@@ -74,10 +56,6 @@ export function parse(code: string, options: ParseOptions) {
   };
 
   ts.forEachChild(sourceFile, parse);
-
-  for (const jsxNode of jsxNodes) {
-    astNodes.push(createAstNode(jsxNode));
-  }
 
   return {
     analysis,

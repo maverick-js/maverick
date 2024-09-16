@@ -18,7 +18,7 @@ export class DomRuntime extends Runtime {
     name: string,
     props?: ts.Expression,
     slots?: ts.Expression,
-    onAttach?: ts.ArrowFunction,
+    onAttach?: ts.Expression,
   ) {
     const id = $.id(name);
     return this.call('$$_create_component', createNullFilledArgs([id, props, slots, onAttach]));
@@ -42,10 +42,6 @@ export class DomRuntime extends Runtime {
 
   createElement(tagName: string) {
     return this.call('$$_create_element', [$.createStringLiteral(tagName)]);
-  }
-
-  setupCustomElement(host: ts.Identifier, props: ts.Identifier | ts.ObjectLiteralExpression) {
-    return this.call('$$_setup_custom_element', [host, props]);
   }
 
   child(parent: ts.Identifier, index: number) {

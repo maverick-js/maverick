@@ -1,13 +1,7 @@
 /// <reference lib="dom" />
 import type { ConditionalPick, HasRequiredKeys, IsAny, IsEmptyObject, IsNever } from 'type-fest';
 
-import type {
-  AnyComponent,
-  ComponentRenderProps,
-  LifecycleEvents,
-  NullableRecord,
-  ReadSignal,
-} from '../core';
+import type { AnyComponent, ComponentRenderProps, NullableRecord, ReadSignal } from '../core';
 
 type DOMNode = Node;
 type DOMElement = Element;
@@ -400,13 +394,6 @@ export namespace JSX {
             ? { children: JSX.Element }
             : { children?: JSX.Element };
 
-  export interface HostAttributes
-    extends IntrinsicElementAttributes<HTMLElement>,
-      OnAttributes<HTMLElement, LifecycleEvents> {
-    as: keyof HTMLElementTagNameMap;
-    children?: Element;
-  }
-
   export interface HTMLMarqueeElement extends HTMLElement, HTMLMarqueeElementProperties {}
 
   export interface HTMLMarqueeElementProperties {
@@ -439,7 +426,7 @@ export namespace JSX {
     allow?: string;
     allowFullScreen?: boolean;
     allowTransparency?: boolean;
-    alt?: string;
+    as?: string;
     as?: string;
     async?: boolean;
     autocomplete?: string;
@@ -1030,8 +1017,6 @@ export namespace JSX {
       OnCaptureAttributes<Element, MaverickOnAttributes> {}
 
   export interface IntrinsicElements {
-    // Maverick
-    host: HostAttributes;
     // HTML
     a: IntrinsicElementAttributes<HTMLAnchorElement>;
     abbr: IntrinsicElementAttributes<HTMLElement>;

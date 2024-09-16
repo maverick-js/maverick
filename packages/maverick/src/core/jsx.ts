@@ -1,6 +1,22 @@
 import type { Maybe, ReadSignal } from '@maverick-js/signals';
 
 import type { JSX } from '../jsx/jsx';
+import type { LifecycleEvents } from './lifecycle';
+
+export interface HostProps
+  extends JSX.IntrinsicElementAttributes<HTMLElement>,
+    JSX.OnAttributes<HTMLElement, LifecycleEvents> {
+  as: keyof HTMLElementTagNameMap;
+  children?: JSX.Element;
+}
+
+/**
+ * This component can be used at the root of the render function to set attributes and event
+ * listeners on the host element (the root custom element that content will be rendered inside).
+ */
+export function Host(props: HostProps) {
+  return null; // virtual component, replaced by compiler.
+}
 
 export interface FragmentProps {
   slot?: string;

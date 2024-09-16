@@ -1,39 +1,36 @@
 import {
   domTransformer,
-  elementTransformer,
+  type DomTransformOptions,
   ssrTransformer,
+  type SsrTransformOptions,
   transform,
   type TransformOptions,
 } from '@maverick-js/compiler';
 
-export function dom(code: string, options?: Partial<TransformOptions>) {
+type DomOptions = TransformOptions & DomTransformOptions;
+
+export function dom(code: string, { customElements, ...options }: Partial<DomOptions> = {}) {
   return transform(code, {
     filename: 'test.tsx',
-    transformer: domTransformer(),
+    transformer: domTransformer({ customElements }),
     ...options,
   }).code;
 }
 
-export function domH(code: string, options?: Partial<TransformOptions>) {
+export function domH(code: string, options?: Partial<DomOptions>) {
   return dom(code, { ...options, hydratable: true });
 }
 
-export function ssr(code: string, options?: Partial<TransformOptions>) {
+type SsrOptions = TransformOptions & SsrTransformOptions;
+
+export function ssr(code: string, { customElements, ...options }: Partial<SsrOptions> = {}) {
   return transform(code, {
     filename: 'test.tsx',
-    transformer: ssrTransformer(),
+    transformer: ssrTransformer({ customElements }),
     ...options,
   }).code;
 }
 
-export function ssrH(code: string, options?: Partial<TransformOptions>) {
+export function ssrH(code: string, options?: Partial<SsrTransformOptions>) {
   return ssr(code, { hydratable: true, ...options });
-}
-
-export function element(code: string, options?: Partial<TransformOptions>) {
-  return transform(code, {
-    filename: 'test.tsx',
-    transformer: elementTransformer(),
-    ...options,
-  }).code;
 }

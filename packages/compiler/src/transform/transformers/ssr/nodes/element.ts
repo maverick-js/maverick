@@ -14,7 +14,7 @@ export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
     state.marker();
   }
 
-  state.html += `<${node.as ?? node.name}`;
+  state.html += `<${node.name}`;
 
   if (node.spreads) {
     const props = runtime.mergeProps([
@@ -96,6 +96,6 @@ export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
       walk.children();
     }
 
-    state.html += `</${node.as ?? node.name}>`;
+    state.html += `</${node.name}>`;
   }
 }

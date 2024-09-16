@@ -7,11 +7,20 @@ import {
 } from '@maverick-js/ts';
 import ts from 'typescript';
 
+import { markCustomElements } from '../element';
 import type { Transformer } from '../transformer';
 import { SsrTransformState } from './state';
 import { transform } from './transform';
 
-export function ssrTransformer(): Transformer {
+export interface SsrTransformOptions {
+  /**
+   * Whether to mark components with a static `tagName` property declaration to be rendered as
+   * a custom element.
+   */
+  customElements?: boolean;
+}
+
+export function ssrTransformer({ customElements }: SsrTransformOptions = {}): Transformer {
   return {
     name: '@maverick-js/ssr',
     transform({ sourceFile, nodes, ctx }) {
@@ -28,9 +37,9 @@ export function ssrTransformer(): Transformer {
       const { imports, body } = splitImportsAndBody(sourceFile);
 
       const components = ctx.analysis.components;
-      if (components.portal) state.runtime.add('Portal');
-      if (components.fragment) state.runtime.add('Fragment');
-      if (components.for) state.runtime.add('For');
+      for (const component of Object.keys(components)) {
+        if (components[component]) state.runtime.add(component);
+      }
 
       const statements: ts.Statement[] = [];
 
@@ -43,10 +52,12 @@ export function ssrTransformer(): Transformer {
         statements.push(state.vars.toStatement());
       }
 
-      return replaceTsNodes(
+      const transformedSourceFile = replaceTsNodes(
         $.updateSourceFile(sourceFile, [...imports, ...statements, ...body]),
         replace,
       );
+
+      return customElements ? markCustomElements(transformedSourceFile) : transformedSourceFile;
     },
   };
 }

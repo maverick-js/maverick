@@ -9,7 +9,7 @@ test('static', () => {
 
 test('dynamic', () => {
   expect(ssr(`<svg prop:width={calcWidth} />`)).toMatchInlineSnapshot(`
-    ""<svg></svg>";
+    ""<!$><svg></svg>";
     "
   `);
 });

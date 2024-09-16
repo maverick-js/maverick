@@ -24,14 +24,14 @@ test('multiple static child elements', () => {
 
 test('one dynamic child element', () => {
   expect(ssr(`<><div on:click={onClick} /></>`)).toMatchInlineSnapshot(`
-    ""<div></div>";
+    ""<!$><div></div>";
     "
   `);
 });
 
 test('multiple dynamic child elements', () => {
   expect(ssr(`<><div on:click={onA} /><span on:click={onB} /></>`)).toMatchInlineSnapshot(`
-    ""<div></div><span></span>";
+    ""<!$><div></div><!$><span></span>";
     "
   `);
 });
@@ -54,7 +54,7 @@ test('one dynamic child expression', () => {
 test('multiple dynamic child expressions', () => {
   expect(ssr(`<>{a() ? <div on:click={onA} /> : null}{b() ? <span on:click={onB} /> : null}</>`))
     .toMatchInlineSnapshot(`
-      "[a() ? "<div></div>" : null, b() ? "<span></span>" : null];
+      "[a() ? "<!$><div></div>" : null, b() ? "<!$><span></span>" : null];
       "
     `);
 });

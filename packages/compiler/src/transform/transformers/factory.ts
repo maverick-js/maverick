@@ -68,16 +68,8 @@ export function createComponentSlotsObject<State>(
   );
 }
 
-/**
- * Wrap expressions with child elements in a function to ensure hydration is in the correct order.
- */
-export function isHigherOrderExpression(node: AstNode, state: any) {
-  return (
-    isExpressionNode(node) &&
-    state.hydratable &&
-    node.children &&
-    !ts.isArrowFunction(node.expression)
-  );
+export function isHigherOrderExpression(node: AstNode) {
+  return isExpressionNode(node) && node.children && !ts.isArrowFunction(node.expression);
 }
 
 export function createElementProps(node: ElementNode, { ssr = false } = {}) {

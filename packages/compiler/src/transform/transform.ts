@@ -20,7 +20,6 @@ export interface TransformOptions {
   transformer: Transformer;
   logLevel?: LogLevelName;
   filename: string;
-  hydratable?: boolean;
   sourcemap?: boolean | SourceMapOptions;
   /** @default true */
   delegateEvents?: boolean;

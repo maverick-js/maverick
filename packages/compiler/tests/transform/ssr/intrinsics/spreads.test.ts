@@ -3,7 +3,7 @@ import { ssr } from '../../transform';
 test('spread', () => {
   expect(ssr('<div {...a}  />')).toMatchInlineSnapshot(`
     "import { $$_attrs, $$_ssr } from "@maverick-js/ssr";
-    let $$_t_1 = ["<div", "></div>"];
+    let $$_t_1 = ["<!$><div", "></div>"];
     $$_ssr($$_t_1, [$$_attrs(a)]);
     "
   `);
@@ -12,7 +12,7 @@ test('spread', () => {
 test('multiple', () => {
   expect(ssr('<div {...a} {...b} {...{a: 1, b: 2}} />')).toMatchInlineSnapshot(`
     "import { $$_merge_props, $$_attrs, $$_ssr } from "@maverick-js/ssr";
-    let $$_t_1 = ["<div", "></div>"];
+    let $$_t_1 = ["<!$><div", "></div>"];
     $$_ssr($$_t_1, [$$_attrs($$_merge_props(a, b, { a: 1, b: 2 }))]);
     "
   `);
@@ -25,7 +25,7 @@ test('with attributes', () => {
     ),
   ).toMatchInlineSnapshot(`
     "import { $$_merge_props, $$_attrs, $$_ssr } from "@maverick-js/ssr";
-    let $$_t_1 = ["<div", "></div>"];
+    let $$_t_1 = ["<!$><div", "></div>"];
     $$_ssr($$_t_1, [$$_attrs($$_merge_props(a, b, {
             "$class:foo": isFoo,
             "$style:color": color,

@@ -20,14 +20,24 @@ export interface DomTransformOptions {
    * a custom element. The custom element itself needs to be registered separately.
    */
   customElements?: boolean;
+  /**
+   * When set to `true`, the DOM runtime will connect the server-rendered HTML with the JS on
+   * the client, making it interactive.
+   *
+   * The runtime does not require the component to be rendered on the server first but it's
+   * recommended for the best performance.
+   */
+  hydratable?: boolean;
 }
 
-export function domTransformer({ customElements = false }: DomTransformOptions = {}): Transformer {
+export function domTransformer({
+  customElements = false,
+  hydratable = false,
+}: DomTransformOptions = {}): Transformer {
   return {
     name: '@maverick-js/dom',
     transform({ sourceFile, nodes, ctx }) {
-      const hydratable = Boolean(ctx.options.hydratable),
-        state = new DomTransformState(null, { hydratable }),
+      const state = new DomTransformState(null, { hydratable }),
         replace: TsNodeMap = new Map();
 
       for (const node of nodes) {

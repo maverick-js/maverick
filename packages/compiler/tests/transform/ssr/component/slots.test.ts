@@ -34,7 +34,7 @@ test('single dynamic element in default slot', () => {
   expect(ssr('<Foo><div on:click /></Foo>')).toMatchInlineSnapshot(`
     "import { $$_create_component } from "@maverick-js/ssr";
     $$_create_component(Foo, null, {
-        "default": () => "<div></div>"
+        "default": () => "<!$><div></div>"
     });
     "
   `);
@@ -44,7 +44,7 @@ test('single dynamic element in named slot', () => {
   expect(ssr('<Foo><div on:click slot="foo" /></Foo>')).toMatchInlineSnapshot(`
     "import { $$_create_component } from "@maverick-js/ssr";
     $$_create_component(Foo, null, {
-        "foo": () => "<div></div>"
+        "foo": () => "<!$><div></div>"
     });
     "
   `);

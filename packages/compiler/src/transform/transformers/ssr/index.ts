@@ -24,8 +24,7 @@ export function ssrTransformer({ customElements }: SsrTransformOptions = {}): Tr
   return {
     name: '@maverick-js/ssr',
     transform({ sourceFile, nodes, ctx }) {
-      const hydratable = Boolean(ctx.options.hydratable),
-        state = new SsrTransformState(null, { hydratable }),
+      const state = new SsrTransformState(null),
         replace: TsNodeMap = new Map();
 
       for (const node of nodes) {

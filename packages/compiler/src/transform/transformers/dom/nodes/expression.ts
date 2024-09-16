@@ -9,8 +9,6 @@ import type { DomVisitorContext } from '../state';
 import { transform } from '../transform';
 
 export function Expression(node: ExpressionNode, { state, walk }: DomVisitorContext) {
-  const { hydratable } = state;
-
   // Transform all child JSX elements before inserting.
   if (node.children) {
     node.expression = transformAstNodeChildren(node, transform, (childNode) => {
@@ -21,7 +19,7 @@ export function Expression(node: ExpressionNode, { state, walk }: DomVisitorCont
   if (state.element && !node.dynamic) {
     state.html += encode(trimQuotes(node.expression.getText()));
   } else if (node.dynamic) {
-    const shouldWrap = isHigherOrderExpression(node, state);
+    const shouldWrap = state.hydratable && isHigherOrderExpression(node);
     node.expression = shouldWrap ? $.arrowFn([], node.expression) : node.expression;
 
     state.args.push(node.expression);

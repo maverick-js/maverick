@@ -45,7 +45,7 @@ export function transform(node: AstNode, state: DomTransformState): ts.Expressio
       return $.string(encode(trimQuotes(node.expression.getText())));
     } else if (hasArgId(node.expression)) {
       const id = getArgId(node.expression);
-      return isHigherOrderExpression(node, state) ? $.call(id) : id;
+      return state.hydratable && isHigherOrderExpression(node) ? $.call(id) : id;
     } else {
       return node.expression;
     }

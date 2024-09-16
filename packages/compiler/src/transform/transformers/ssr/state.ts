@@ -11,7 +11,6 @@ export class SsrTransformState {
   readonly runtime: SsrRuntime;
   readonly statics: ts.StringLiteral[] = [];
   readonly values: ts.Expression[] = [];
-  readonly hydratable: boolean;
   readonly children: SsrTransformState[] = [];
   readonly vars: Variables;
 
@@ -21,12 +20,10 @@ export class SsrTransformState {
   constructor(root: AstNode | null, init?: Partial<SsrTransformState>) {
     this.root = root;
     this.runtime = init?.runtime ?? new SsrRuntime();
-    this.hydratable = init?.hydratable ?? false;
     this.vars = init?.vars ?? new Variables();
   }
 
   marker() {
-    if (!this.hydratable) return;
     this.html += '<!$>';
   }
 

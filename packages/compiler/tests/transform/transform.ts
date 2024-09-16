@@ -9,10 +9,13 @@ import {
 
 type DomOptions = TransformOptions & DomTransformOptions;
 
-export function dom(code: string, { customElements, ...options }: Partial<DomOptions> = {}) {
+export function dom(
+  code: string,
+  { customElements, hydratable, ...options }: Partial<DomOptions> = {},
+) {
   return transform(code, {
     filename: 'test.tsx',
-    transformer: domTransformer({ customElements }),
+    transformer: domTransformer({ customElements, hydratable }),
     ...options,
   }).code;
 }
@@ -29,8 +32,4 @@ export function ssr(code: string, { customElements, ...options }: Partial<SsrOpt
     transformer: ssrTransformer({ customElements }),
     ...options,
   }).code;
-}
-
-export function ssrH(code: string, options?: Partial<SsrTransformOptions>) {
-  return ssr(code, { hydratable: true, ...options });
 }

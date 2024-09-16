@@ -30,7 +30,7 @@ test('multiple static', () => {
 test('dynamic', () => {
   expect(ssr(`<svg class:foo={isFoo()} />`)).toMatchInlineSnapshot(`
     "import { $$_class, $$_attrs, $$_ssr } from "@maverick-js/ssr";
-    let $$_t_1 = ["<svg", "></svg>"];
+    let $$_t_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_t_1, [$$_attrs({
             class: $$_class("", {
                 "foo": isFoo()
@@ -43,7 +43,7 @@ test('dynamic', () => {
 test('multiple dynamic', () => {
   expect(ssr(`<svg class:foo={isFoo()} class:bar={isBar()} />`)).toMatchInlineSnapshot(`
     "import { $$_class, $$_attrs, $$_ssr } from "@maverick-js/ssr";
-    let $$_t_1 = ["<svg", "></svg>"];
+    let $$_t_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_t_1, [$$_attrs({
             class: $$_class("", {
                 "foo": isFoo(),
@@ -57,7 +57,7 @@ test('multiple dynamic', () => {
 test('signal', () => {
   expect(ssr(`<svg $class:foo={isFoo} />`)).toMatchInlineSnapshot(`
     "import { $$_class, $$_attrs, $$_ssr } from "@maverick-js/ssr";
-    let $$_t_1 = ["<svg", "></svg>"];
+    let $$_t_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_t_1, [$$_attrs({
             class: $$_class("", {
                 "foo": isFoo
@@ -70,7 +70,7 @@ test('signal', () => {
 test('multiple signals', () => {
   expect(ssr(`<svg $class:foo={isFoo} $class:bar={isBar} />`)).toMatchInlineSnapshot(`
     "import { $$_class, $$_attrs, $$_ssr } from "@maverick-js/ssr";
-    let $$_t_1 = ["<svg", "></svg>"];
+    let $$_t_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_t_1, [$$_attrs({
             class: $$_class("", {
                 "foo": isFoo,

@@ -42,7 +42,7 @@ test('one dynamic child element', () => {
   expect(ssr(`<Foo><span on:click={onClick} /></Foo>`)).toMatchInlineSnapshot(`
     "import { $$_create_component } from "@maverick-js/ssr";
     $$_create_component(Foo, null, {
-        "default": () => "<span></span>"
+        "default": () => "<!$><span></span>"
     });
     "
   `);
@@ -52,7 +52,7 @@ test('multiple dynamic child elements', () => {
   expect(ssr(`<Foo><span on:click={onA} /><span on:click={onB} /></Foo>`)).toMatchInlineSnapshot(`
     "import { $$_create_component } from "@maverick-js/ssr";
     $$_create_component(Foo, null, {
-        "default": () => "<span></span><span></span>"
+        "default": () => "<!$><span></span><!$><span></span>"
     });
     "
   `);
@@ -84,7 +84,7 @@ test('multiple dynamic child expressions', () => {
   ).toMatchInlineSnapshot(`
     "import { $$_create_component } from "@maverick-js/ssr";
     $$_create_component(Foo, null, {
-        "default": () => [a() ? $$_create_component(Foo) : null, b() ? "<span></span>" : null]
+        "default": () => [a() ? $$_create_component(Foo) : null, b() ? "<!$><span></span>" : null]
     });
     "
   `);

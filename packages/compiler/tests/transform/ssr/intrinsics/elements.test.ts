@@ -31,14 +31,14 @@ test('multiple static child elements', () => {
 
 test('one dynamic child element', () => {
   expect(ssr(`<div><span on:click={onClick} /></div>`)).toMatchInlineSnapshot(`
-    ""<div><span></span></div>";
+    ""<div><!$><span></span></div>";
     "
   `);
 });
 
 test('multiple dynamic child elements', () => {
   expect(ssr(`<div><span on:click={onA} /><span on:click={onB} /></div>`)).toMatchInlineSnapshot(`
-    ""<div><span></span><span></span></div>";
+    ""<div><!$><span></span><!$><span></span></div>";
     "
   `);
 });
@@ -64,8 +64,8 @@ test('multiple dynamic child expressions', () => {
     ssr(`<div>{a() ? <div on:click={onA} /> : null}{b() ? <span on:click={onB} /> : null}</div>`),
   ).toMatchInlineSnapshot(`
     "import { $$_ssr } from "@maverick-js/ssr";
-    let $$_t_1 = ["<div>", "</div>"];
-    $$_ssr($$_t_1, [a() ? "<div></div>" : null, b() ? "<span></span>" : null]);
+    let $$_t_1 = ["<div><!$>", "<!$>", "</div>"];
+    $$_ssr($$_t_1, [a() ? "<!$><div></div>" : null, b() ? "<!$><span></span>" : null]);
     "
   `);
 });

@@ -3,7 +3,7 @@ import type ts from 'typescript';
 import { type AstNode, type ElementNode, Scope } from '../../../parse/ast';
 import type { VisitorContext } from '../../../parse/walk';
 import { DomRuntime } from './runtime';
-import { DomBlockVariables } from './vars';
+import { DomSetupVariables } from './vars';
 
 export class DomTransformState {
   readonly root: AstNode | null;
@@ -16,9 +16,7 @@ export class DomTransformState {
   readonly runtime: DomRuntime;
   readonly delegatedEvents: Set<string>;
   readonly children: DomTransformState[] = [];
-  readonly vars: Readonly<{
-    block: DomBlockVariables;
-  }>;
+  readonly vars: Readonly<{ setup: DomSetupVariables }>;
 
   html = '';
 
@@ -31,7 +29,7 @@ export class DomTransformState {
     this.scope = init?.scope ?? new Scope();
     this.renders = init?.renders ?? [];
     this.runtime = init?.runtime ?? new DomRuntime();
-    this.vars = { block: new DomBlockVariables(this.runtime) };
+    this.vars = { setup: new DomSetupVariables(this.runtime) };
     this.hydratable = init?.hydratable ?? false;
     this.delegatedEvents = init?.delegatedEvents ?? new Set();
   }

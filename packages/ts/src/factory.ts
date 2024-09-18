@@ -1,7 +1,7 @@
 import { isArray, isString, isUndefined } from '@maverick-js/std';
-import ts from 'typescript';
+import ts, { type NodeArray } from 'typescript';
 
-import { isValueImportDeclarationFrom } from './is';
+import { isTrueKeyword, isValueImportDeclarationFrom } from './is';
 import { getNamedImportBindings } from './module';
 
 export const $ = ts.factory as typeof ts.factory & {
@@ -10,31 +10,69 @@ export const $ = ts.factory as typeof ts.factory & {
   id: typeof ts.factory.createIdentifier;
   string: typeof ts.factory.createStringLiteral;
   number: typeof ts.factory.createNumericLiteral;
+  bool: typeof createBool;
+  array: typeof ts.factory.createArrayLiteralExpression;
+  object: typeof ts.factory.createObjectLiteralExpression;
   undefined: ts.Identifier;
   var: typeof createVariableDeclaration;
   fn: typeof createFunction;
+  bind: typeof bind;
   arrowFn: typeof createArrowFunction;
   call: typeof createCallExpression;
   selfInvoke: typeof createSelfInvokedCallExpression;
   selfInvokedFn: typeof createSelfInvokedFunction;
   prop: typeof createPropertyGetExpression;
   setProp: typeof createPropertySetExpression;
+  jsxElement: typeof createJsxElement;
+  jsxVoidElement: typeof createJsxSelfClosingElement;
+  jsxAttrs: typeof createJsxAttributes;
+  jsxAttr: typeof createJsxAttribute;
+  jsxExpression: typeof createJsxExpression;
+  jsxFragment: typeof createJsxFragment;
+  pure: typeof pure;
+  block: typeof createBlock;
+  ternary: typeof createTernaryExpression;
+  if: typeof createIfStatement;
+  not: typeof createNotExpression;
 };
 
-$.fn = createFunction;
-$.arrowFn = createArrowFunction;
+$.id = $.createIdentifier;
+$.var = createVariableDeclaration;
+
+$.string = $.createStringLiteral;
+$.bool = createBool;
 $.emptyString = () => $.string('');
 $.emptyObject = () => $.createObjectLiteralExpression();
-$.id = $.createIdentifier;
+$.array = $.createArrayLiteralExpression;
+$.object = $.createObjectLiteralExpression;
+$.number = $.createNumericLiteral;
+$.undefined = $.id('undefined');
+$.prop = createPropertyGetExpression;
+$.setProp = createPropertySetExpression;
+
+$.bind = bind;
+$.fn = createFunction;
+$.arrowFn = createArrowFunction;
 $.call = createCallExpression;
 $.selfInvoke = createSelfInvokedCallExpression;
 $.selfInvokedFn = createSelfInvokedFunction;
-$.prop = createPropertyGetExpression;
-$.setProp = createPropertySetExpression;
-$.string = $.createStringLiteral;
-$.number = $.createNumericLiteral;
-$.undefined = $.id('undefined');
-$.var = createVariableDeclaration;
+
+$.jsxElement = createJsxElement;
+$.jsxVoidElement = createJsxSelfClosingElement;
+$.jsxFragment = createJsxFragment;
+$.jsxExpression = createJsxExpression;
+$.jsxAttrs = createJsxAttributes;
+$.jsxAttr = createJsxAttribute;
+
+$.pure = pure;
+$.block = createBlock;
+$.ternary = createTernaryExpression;
+$.if = createIfStatement;
+$.not = createNotExpression;
+
+export function createBlock(statements: Array<ts.Expression | ts.Statement>, multiLine = true) {
+  return $.createBlock(createStatements(statements), multiLine);
+}
 
 export function createImports(specifiers: ts.Identifier[], module: string, isTypeOnly = false) {
   return $.createImportDeclaration(
@@ -170,7 +208,7 @@ export function removeImports(
   ]).transformed[0];
 }
 
-export interface TsNodeMap extends WeakMap<ts.Node, ts.Node | undefined> {}
+export interface TsNodeMap extends WeakMap<ts.Node, ts.Node | ts.Node[] | undefined> {}
 
 export function replaceTsNodes<T extends ts.Node>(root: T, replace: TsNodeMap) {
   return ts.transform(root, [
@@ -201,9 +239,18 @@ export function createPropertySetExpression(
   );
 }
 
+export function createBool<T extends boolean>(
+  isTrue: T,
+): T extends true ? ts.TrueLiteral : ts.FalseLiteral {
+  return (isTrue ? $.createTrue() : $.createFalse()) as any;
+}
+
 export function createFunction(
   id: ts.Identifier,
-  params: ts.BindingName[],
+  params:
+    | Array<ts.BindingName | ts.ParameterDeclaration>
+    | NodeArray<ts.BindingName | ts.ParameterDeclaration>
+    | undefined,
   body: (ts.Expression | ts.Statement)[] | ts.Block,
 ) {
   return $.createFunctionDeclaration(
@@ -211,45 +258,51 @@ export function createFunction(
     undefined,
     id,
     undefined,
-    params.map((param) =>
-      $.createParameterDeclaration(undefined, undefined, param, undefined, undefined, undefined),
-    ),
+    params?.map(mapBindingNameToParam) ?? [],
     undefined,
-    isArray(body)
-      ? $.createBlock(
-          body.map((node) => (ts.isStatement(node) ? node : $.createExpressionStatement(node))),
-          true,
-        )
-      : body,
+    isArray(body) ? $.block(body) : body,
+  );
+}
+
+function mapBindingNameToParam(p: ts.BindingName | ts.ParameterDeclaration) {
+  return ts.isBindingName(p) ? $.createParameterDeclaration(undefined, undefined, p) : p;
+}
+
+export function createStatements(nodes: Array<ts.Expression | ts.Statement>) {
+  return nodes.map((node) =>
+    ts.isStatement(node) ? node : ts.isExpression(node) ? $.createExpressionStatement(node) : node,
   );
 }
 
 export function createArrowFunction(
-  params: ts.Identifier[],
-  body: ts.Expression | ts.Block | (ts.Expression | ts.Statement)[],
+  params:
+    | Array<ts.BindingName | ts.ParameterDeclaration>
+    | NodeArray<ts.BindingName | ts.ParameterDeclaration>
+    | undefined,
+  body: ts.Expression | ts.Block | Array<ts.Expression | ts.Statement>,
 ) {
+  // Avoid creating arrow function wrappers around a single function call
+  // () => a() is simplified to a
+  if (
+    !isArray(body) &&
+    ts.isCallExpression(body) &&
+    body.arguments.length === 0 &&
+    ts.isIdentifier(body.expression)
+  ) {
+    return body.expression;
+  }
+
+  if (isArray(body) && body[0] && ts.isReturnStatement(body[0])) {
+    body = body[0].expression!;
+  }
+
   return $.createArrowFunction(
     undefined,
     undefined,
-    params.map((p) =>
-      $.createParameterDeclaration(undefined, undefined, p, undefined, undefined, undefined),
-    ),
+    params?.map(mapBindingNameToParam) ?? [],
     undefined,
     $.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
-    isArray(body)
-      ? $.createBlock(
-          body.map((node) => (ts.isStatement(node) ? node : $.createExpressionStatement(node))),
-          true,
-        )
-      : body,
-  );
-}
-
-export function createJsxFragment(children: ts.NodeArray<ts.JsxChild>) {
-  return $.createJsxFragment(
-    $.createJsxOpeningFragment(),
-    children,
-    $.createJsxJsxClosingFragment(),
+    isArray(body) ? $.block(body) : body,
   );
 }
 
@@ -286,26 +339,26 @@ export function splitImportsAndBody({ statements }: ts.SourceFile) {
   }
 
   return {
-    imports: importsEnd >= 0 ? statements.slice(0, importsEnd + 1) : [],
+    imports: (importsEnd >= 0 ? statements.slice(0, importsEnd + 1) : []) as ts.ImportDeclaration[],
     body: statements.slice(importsEnd >= 0 ? importsEnd + 1 : 0),
   };
 }
 
-let argsCount = 0,
-  args = new WeakMap<ts.Node, ts.Identifier>();
+let idCount = 0,
+  identifiers = new WeakMap<ts.Node, ts.Identifier>();
 
-export function getArgId(node: ts.Node) {
-  let name = args.get(node);
-  if (!name) args.set(node, (name = $.id(`$${++argsCount}`)));
+export function getUniqueId(node: ts.Node) {
+  let name = identifiers.get(node);
+  if (!name) identifiers.set(node, (name = $.id(`$${++idCount}`)));
   return name;
 }
 
-export function hasArgId(node: ts.Node) {
-  return !isUndefined(args.get(node));
+export function hasUniqueId(node: ts.Node) {
+  return !isUndefined(identifiers.get(node));
 }
 
-export function resetArgsCount() {
-  argsCount = 0;
+export function resetUniqueIdCount() {
+  idCount = 0;
 }
 
 export function createSymbolFor(key: string) {
@@ -335,4 +388,100 @@ export function addClassMembers(node: ts.ClassDeclaration, newMembers: ts.ClassE
     node.heritageClauses,
     [...newMembers, ...node.members],
   );
+}
+
+export function createJsxElement(
+  tagName: string,
+  attrs: ts.JsxAttribute[] = [],
+  children: ts.JsxChild[] | ts.NodeArray<ts.JsxChild> = [],
+) {
+  return $.createJsxElement(
+    $.createJsxOpeningElement($.createIdentifier(tagName), undefined, createJsxAttributes(attrs)),
+    children,
+    $.createJsxClosingElement($.createIdentifier('div')),
+  );
+}
+
+export function createJsxSelfClosingElement(tagName: string, attrs: ts.JsxAttribute[]) {
+  return $.createJsxSelfClosingElement(
+    $.createIdentifier(tagName),
+    undefined,
+    createJsxAttributes(attrs),
+  );
+}
+
+export function createJsxAttributes(attrs: ts.JsxAttribute[] = []) {
+  return $.createJsxAttributes(
+    Object.keys(attrs).map((name) => createJsxAttribute(name, attrs[name])),
+  );
+}
+
+export function createJsxAttribute(name: string, init?: ts.JsxAttributeValue) {
+  return $.createJsxAttribute(
+    $.createIdentifier(name),
+    init && !isTrueKeyword(init) ? $.createJsxExpression(undefined, init) : undefined,
+  );
+}
+
+export function createJsxFragment(children: ts.JsxChild[] | ts.NodeArray<ts.JsxChild> = []) {
+  return $.createJsxFragment(
+    $.createJsxOpeningFragment(),
+    children,
+    $.createJsxJsxClosingFragment(),
+  );
+}
+
+export function createJsxExpression(
+  expression: ts.Expression | undefined,
+  dotDotDotToken?: ts.DotDotDotToken,
+) {
+  return $.createJsxExpression(dotDotDotToken, expression);
+}
+
+/** Binding arguments to a function. */
+export function bind(fnId: ts.Identifier, args: ts.Expression[]) {
+  return $.call($.prop(fnId, 'bind'), args);
+}
+
+/** Mark a node as pure so bundlers can safely remove the code if it's not used. */
+export function pure<T extends ts.Node>(node: T): T {
+  return ts.addSyntheticLeadingComment(node, ts.SyntaxKind.MultiLineCommentTrivia, ' @__PURE__ ');
+}
+
+export function createNullishCoalescingAssignment(left: ts.Expression, right: ts.Expression) {
+  return $.createBinaryExpression(
+    left,
+    $.createToken(ts.SyntaxKind.QuestionQuestionEqualsToken),
+    right,
+  );
+}
+
+export function createTernaryExpression(
+  condition: ts.Expression,
+  truthy: ts.Expression,
+  falsy: ts.Expression,
+) {
+  return $.createConditionalExpression(
+    condition,
+    $.createToken(ts.SyntaxKind.QuestionToken),
+    truthy,
+    $.createToken(ts.SyntaxKind.ColonToken),
+    falsy,
+  );
+}
+
+export function createIfStatement(
+  condition: ts.Expression,
+  block: Array<ts.Expression | ts.Statement>,
+  elseBlock?: ts.IfStatement | Array<ts.Expression | ts.Statement>,
+) {
+  $.createIfStatement(
+    condition,
+    $.block(block),
+    !isArray(elseBlock) ? elseBlock : $.block(elseBlock),
+  );
+}
+
+export function createNotExpression(operand: ts.Expression) {
+  return $.createPrefixUnaryExpression(ts.SyntaxKind.ExclamationToken, operand);
 }

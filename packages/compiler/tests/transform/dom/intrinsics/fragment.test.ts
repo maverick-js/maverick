@@ -14,9 +14,9 @@ test('no children', () => {
 test('one static child element', () => {
   expect(dom(`<><div /></>`)).toMatchInlineSnapshot(`
     "import { $$_clone, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<div></div>");
+    let $_template_1 = /* @__PURE__ */ $$_create_template("<div></div>");
     function $$_fragment_1() {
-        return [$$_clone($_t_1)];
+        return [$$_clone($_template_1)];
     }
     $$_fragment_1();
     "
@@ -26,9 +26,9 @@ test('one static child element', () => {
 test('multiple static child elements', () => {
   expect(dom(`<><div /><span /></>`)).toMatchInlineSnapshot(`
     "import { $$_clone, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<div></div>"), $_t_2 = $$_create_template("<span></span>");
+    let $_template_1 = /* @__PURE__ */ $$_create_template("<div></div>"), $_template_2 = /* @__PURE__ */ $$_create_template("<span></span>");
     function $$_fragment_1() {
-        return [$$_clone($_t_1), $$_clone($_t_2)];
+        return [$$_clone($_template_1), $$_clone($_template_2)];
     }
     $$_fragment_1();
     "
@@ -38,11 +38,11 @@ test('multiple static child elements', () => {
 test('one dynamic child element', () => {
   expect(dom(`<><div on:click={onClick} /></>`)).toMatchInlineSnapshot(`
     "import { $$_clone, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<div></div>");
+    let $_template_1 = /* @__PURE__ */ $$_create_template("<div></div>");
     function $$_render_1({ $1 }) {
-        let $_r_1 = $$_clone($_t_1);
-        $$_listen($_r_1, "click", $1);
-        return $_r_1;
+        let $_root_1 = $$_clone($_template_1);
+        $$_listen($_root_1, "click", $1);
+        return $_root_1;
     }
     function $$_fragment_1({ $1 }) {
         return [$$_render_1({ $1 })];
@@ -56,16 +56,16 @@ test('one dynamic child element', () => {
 test('multiple dynamic child elements', () => {
   expect(dom(`<><div on:click={onA} /><span on:click={onB} /></>`)).toMatchInlineSnapshot(`
     "import { $$_clone, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<div></div>"), $_t_2 = $$_create_template("<span></span>");
+    let $_template_1 = /* @__PURE__ */ $$_create_template("<div></div>"), $_template_2 = /* @__PURE__ */ $$_create_template("<span></span>");
     function $$_render_1({ $1 }) {
-        let $_r_1 = $$_clone($_t_1);
-        $$_listen($_r_1, "click", $1);
-        return $_r_1;
+        let $_root_1 = $$_clone($_template_1);
+        $$_listen($_root_1, "click", $1);
+        return $_root_1;
     }
     function $$_render_2({ $2 }) {
-        let $_r_2 = $$_clone($_t_2);
-        $$_listen($_r_2, "click", $2);
-        return $_r_2;
+        let $_root_2 = $$_clone($_template_2);
+        $$_listen($_root_2, "click", $2);
+        return $_root_2;
     }
     function $$_fragment_1({ $1, $2 }) {
         return [$$_render_1({ $1 }), $$_render_2({ $2 })];
@@ -100,16 +100,16 @@ test('multiple dynamic child expressions', () => {
   expect(dom(`<>{a() ? <div on:click={onA} /> : null}{b() ? <span on:click={onB} /> : null}</>`))
     .toMatchInlineSnapshot(`
       "import { $$_clone, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
-      let $_t_1 = $$_create_template("<div></div>"), $_t_2 = $$_create_template("<span></span>");
+      let $_template_1 = /* @__PURE__ */ $$_create_template("<div></div>"), $_template_2 = /* @__PURE__ */ $$_create_template("<span></span>");
       function $$_render_1({ $1 }) {
-          let $_r_1 = $$_clone($_t_1);
-          $$_listen($_r_1, "click", $1);
-          return $_r_1;
+          let $_root_1 = $$_clone($_template_1);
+          $$_listen($_root_1, "click", $1);
+          return $_root_1;
       }
       function $$_render_2({ $3 }) {
-          let $_r_2 = $$_clone($_t_2);
-          $$_listen($_r_2, "click", $3);
-          return $_r_2;
+          let $_root_2 = $$_clone($_template_2);
+          $$_listen($_root_2, "click", $3);
+          return $_root_2;
       }
       function $$_fragment_1({ $2, $4 }) {
           return [$2, $4];
@@ -132,15 +132,15 @@ import { Fragment } from "maverick.js";
 `),
   ).toMatchInlineSnapshot(`
     "import { $$_clone, $$_create_component, Fragment, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<div></div>"), $_t_2 = $$_create_template("<span></span>");
+    let $_template_1 = /* @__PURE__ */ $$_create_template("<div></div>"), $_template_2 = /* @__PURE__ */ $$_create_template("<span></span>");
     function $$_fragment_1() {
-        return [$$_clone($_t_1), $$_clone($_t_2)];
+        return [$$_clone($_template_1), $$_clone($_template_2)];
     }
     function $$_render_1() {
-        let $_c_1 = $$_create_component(Fragment, null, {
-            "default": () => $$_fragment_1()
+        let $_component_1 = $$_create_component(Fragment, null, {
+            "default": $$_fragment_1
         });
-        return $_c_1;
+        return $_component_1;
     }
     $$_render_1();
     "

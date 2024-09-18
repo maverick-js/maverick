@@ -15,5 +15,7 @@ export interface TransformData {
 }
 
 export interface Transform<State> {
-  (node: AstNode, state: State): ts.Expression | undefined;
+  (node: AstNode, state: State): TransformResult;
 }
+
+export type TransformResult = ts.Expression | Array<ts.Expression | ts.Statement> | undefined;

@@ -5,6 +5,10 @@ import ts from 'typescript';
 export class Variables {
   readonly declarations: ts.VariableDeclaration[] = [];
 
+  get length() {
+    return this.declarations.length;
+  }
+
   getFirstName() {
     const name = this.declarations[0]?.name;
     if (name && ts.isArrayBindingPattern(name)) {
@@ -15,9 +19,11 @@ export class Variables {
   }
 
   create<T extends string | ts.BindingName>(name: T, init?: ts.Expression) {
-    const variable = $.var(isString(name) ? name : name, init);
+    const variable = $.var(isString(name) ? $.createUniqueName(name) : name, init);
     this.declarations.push(variable);
-    return variable;
+    return variable as ts.VariableDeclaration & {
+      readonly name: T extends string ? ts.Identifier : ts.BindingName;
+    };
   }
 
   clear() {

@@ -1,14 +1,14 @@
-import { filterNullish } from '@maverick-js/std';
+import { filterFalsy } from '@maverick-js/std';
 import { $, createNullFilledArgs } from '@maverick-js/ts';
 import ts from 'typescript';
 
-import { Runtime } from '../runtime';
+import { Runtime } from '../shared/runtime';
 
 export class SsrRuntime extends Runtime {
   protected override pkg = '@maverick-js/ssr';
 
   ssr(template: ts.Identifier, values: ts.Expression[]) {
-    return this.call('$$_ssr', [template, $.createArrayLiteralExpression(values)]);
+    return this.call('$$_ssr', [template, $.array(values)]);
   }
 
   attrs(attrs: ts.Expression) {
@@ -16,14 +16,11 @@ export class SsrRuntime extends Runtime {
   }
 
   class(base: ts.Expression, props?: ts.ObjectLiteralElementLike[]) {
-    return this.call(
-      '$$_class',
-      props?.length ? [base, $.createObjectLiteralExpression(props, true)] : [base],
-    );
+    return this.call('$$_class', props?.length ? [base, $.object(props, true)] : [base]);
   }
 
   style(base: ts.Expression, props: ts.ObjectLiteralElementLike[]) {
-    return this.call('$$_style', [base, $.createObjectLiteralExpression(props, true)]);
+    return this.call('$$_style', [base, $.object(props, true)]);
   }
 
   createComponent(
@@ -37,7 +34,7 @@ export class SsrRuntime extends Runtime {
   }
 
   mergeProps(sources: (ts.Expression | null | undefined)[]) {
-    const props = filterNullish(sources);
+    const props = filterFalsy(sources);
     return props.length <= 1 ? (props[0] ?? $.emptyObject()) : this.call('$$_merge_props', props);
   }
 
@@ -49,7 +46,7 @@ export class SsrRuntime extends Runtime {
     return this.call('$$_escape', [value]);
   }
 
-  scoped(compute: ts.Identifier | ts.Expression) {
+  scoped(compute: ts.Expression) {
     return this.call('$$_scoped', [ts.isIdentifier(compute) ? compute : $.arrowFn([], compute)]);
   }
 }

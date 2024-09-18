@@ -1,17 +1,18 @@
-import { $, createNullFilledArgs } from '@maverick-js/ts';
+import { filterFalsy } from '@maverick-js/std';
+import { $, createNullFilledArgs, isAccessExpression } from '@maverick-js/ts';
 import ts from 'typescript';
 
-import { Runtime } from '../runtime';
+import { Runtime } from '../shared/runtime';
 
 export class DomRuntime extends Runtime {
   protected override pkg = '@maverick-js/dom';
 
   createTemplate(html: ts.StringLiteral) {
-    return this.call('$$_create_template', [html]);
+    return $.pure(this.call('$$_create_template', [html]));
   }
 
   createFragment() {
-    return this.call('$$_create_fragment', []);
+    return this.call('$$_create_fragment');
   }
 
   createComponent(
@@ -64,6 +65,10 @@ export class DomRuntime extends Runtime {
     const args = [target, $.string(type), handler];
     if (capture) args.push($.createTrue());
     return this.call('$$_listen', args);
+  }
+
+  listenCallback(...events: Array<ts.Expression | undefined>) {
+    return this.call('$$_listen_callback', filterFalsy(events));
   }
 
   forwardEvent(target: ts.Identifier, type: string, capture: boolean) {
@@ -119,23 +124,31 @@ export class DomRuntime extends Runtime {
       : this.call('$$_merge_props', filteredSources);
   }
 
-  computed(compute: ts.Identifier | ts.Expression) {
-    return this.call('$$_computed', [ts.isIdentifier(compute) ? compute : $.arrowFn([], compute)]);
+  computed(compute: ts.Expression) {
+    return this.call('$$_computed', [this.#createComputeCallback(compute)]);
   }
 
-  effect(compute: ts.Identifier | ts.Expression) {
-    return this.call('$$_effect', [ts.isIdentifier(compute) ? compute : $.arrowFn([], compute)]);
+  effect(compute: ts.Expression) {
+    return this.call('$$_effect', [this.#createComputeCallback(compute)]);
   }
 
-  peek(compute: ts.Identifier | ts.Expression) {
-    return this.call('$$_peek', [ts.isIdentifier(compute) ? compute : $.arrowFn([], compute)]);
+  peek(compute: ts.Expression) {
+    return this.call('$$_peek', [this.#createComputeCallback(compute)]);
   }
 
-  scoped(compute: ts.Identifier | ts.Expression) {
-    return this.call('$$_scoped', [ts.isIdentifier(compute) ? compute : $.arrowFn([], compute)]);
+  scoped(compute: ts.Expression) {
+    return this.call('$$_scoped', [this.#createComputeCallback(compute)]);
   }
 
   hydrating() {
     return this.id('$$_hydrating');
+  }
+
+  #createComputeCallback(compute: ts.Expression) {
+    if (isAccessExpression(compute)) {
+      return compute;
+    } else {
+      return $.arrowFn([], compute);
+    }
   }
 }

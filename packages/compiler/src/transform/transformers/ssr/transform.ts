@@ -48,9 +48,7 @@ export function transform(node: AstNode, state: SsrTransformState): ts.Expressio
   }
 
   if (state.values.length > 0) {
-    return state.values.length === 1
-      ? state.values[0]
-      : $.createArrayLiteralExpression(state.values);
+    return state.values.length === 1 ? state.values[0] : $.array(state.values);
   }
 
   return $.createNull();

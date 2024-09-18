@@ -3,7 +3,7 @@ import { $ } from '@maverick-js/ts';
 import type ts from 'typescript';
 
 import { type AttributeNode, type ElementNode, isFragmentNode } from '../../../../parse/ast';
-import { createElementProps } from '../../factory';
+import { createElementProps } from '../../shared/factory';
 import type { SsrVisitorContext } from '../state';
 
 export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
@@ -81,7 +81,7 @@ export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
     }
 
     if (props.length > 0) {
-      state.value(runtime.attrs($.createObjectLiteralExpression(props, true)));
+      state.value(runtime.attrs($.object(props, true)));
     }
   }
 
@@ -91,7 +91,11 @@ export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
     state.html += '>';
 
     if (node.content) {
-      state.value(node.content.initializer);
+      if (node.content.dynamic) {
+        state.value(node.content.initializer);
+      } else {
+        state.html += trimQuotes(node.content.initializer.getText());
+      }
     } else {
       walk.children();
     }

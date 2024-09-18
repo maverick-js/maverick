@@ -1,7 +1,7 @@
 import ts from 'typescript';
 
-export function walkTsNode(node: ts.Node, check: (child: ts.Node) => any) {
-  let result;
+export function walkTsNode<T>(node: ts.Node, check: (child: ts.Node) => T): T | void {
+  let result: T | void;
 
   const parse = (child: ts.Node) => {
     result = check(child);

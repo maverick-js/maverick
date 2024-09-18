@@ -11,7 +11,7 @@ export abstract class Runtime {
   }
 
   add(name: string) {
-    this.id(name);
+    return this.id(name);
   }
 
   toImportDeclaration() {
@@ -28,7 +28,7 @@ export abstract class Runtime {
     return id;
   }
 
-  protected call(name: string, args: readonly ts.Expression[] | undefined) {
+  protected call(name: string, args?: readonly ts.Expression[]) {
     return $.createCallExpression(this.id(name), undefined, args);
   }
 }

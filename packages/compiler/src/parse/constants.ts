@@ -66,13 +66,13 @@ export const PROP_NAME = new Set([
   ...BOOLEAN_NAMES,
 ]);
 
+export const DYNAMIC_CONTENT_PROP = new Set<string>(['$innerHTML', '$innerText', '$textContent']);
+
 export const INNER_CONTENT_PROP = new Set<string>([
   'innerHTML',
   'innerText',
   'textContent',
-  '$innerHTML',
-  '$innerText',
-  '$textContent',
+  ...DYNAMIC_CONTENT_PROP,
 ]);
 
 export const PROP_ALIAS = {

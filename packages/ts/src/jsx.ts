@@ -12,7 +12,7 @@ import type { JsxElementNode } from './types';
 
 export function getTagName(node: JsxElementNode) {
   const tagName = ts.isJsxElement(node) ? node.openingElement.tagName : node.tagName;
-  return ts.isIdentifier(tagName) ? (tagName.escapedText as string) : trimQuotes(tagName.getText());
+  return ts.isIdentifier(tagName) ? tagName.text : trimQuotes(tagName.getText());
 }
 
 export function toAttributeName(name: string) {
@@ -26,10 +26,7 @@ export function toPropertyName(name: string) {
 export function getJsxAttribute(node: ts.JsxElement | ts.JsxSelfClosingElement, name: string) {
   return getJsxAttributes(node).properties.find(
     (attr) =>
-      ts.isJsxAttribute(attr) &&
-      attr.name &&
-      ts.isIdentifier(attr.name) &&
-      attr.name.escapedText === name,
+      ts.isJsxAttribute(attr) && attr.name && ts.isIdentifier(attr.name) && attr.name.text === name,
   ) as ts.JsxAttribute | undefined;
 }
 

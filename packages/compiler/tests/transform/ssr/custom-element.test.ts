@@ -13,7 +13,7 @@ class Foo extends Component {
   ).toMatchInlineSnapshot(`
     "import { Component } from 'maverick.js';
     class Foo extends Component {
-        static [Symbol.for("element")] = true;
+        static [Symbol.for("maverick.element")] = true;
         static tagName = 'foo-element';
     }
     "

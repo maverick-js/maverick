@@ -1,13 +1,13 @@
 import {
   $,
   replaceTsNodes,
-  resetArgsCount,
+  resetUniqueIdCount,
   splitImportsAndBody,
   type TsNodeMap,
 } from '@maverick-js/ts';
 import ts from 'typescript';
 
-import { markCustomElements } from '../element';
+import { markCustomElements } from '../shared/element';
 import type { Transformer } from '../transformer';
 import { SsrTransformState } from './state';
 import { transform } from './transform';
@@ -30,7 +30,7 @@ export function ssrTransformer({ customElements }: SsrTransformOptions = {}): Tr
       for (const node of nodes) {
         const result = transform(node, state.child(node));
         if (result) replace.set(node.node, result);
-        resetArgsCount();
+        resetUniqueIdCount();
       }
 
       const { imports, body } = splitImportsAndBody(sourceFile);
@@ -47,7 +47,7 @@ export function ssrTransformer({ customElements }: SsrTransformOptions = {}): Tr
       }
 
       addTemplateVariables(state);
-      if (state.vars.declarations.length > 0) {
+      if (state.vars.length > 0) {
         statements.push(state.vars.toStatement());
       }
 
@@ -64,7 +64,7 @@ export function ssrTransformer({ customElements }: SsrTransformOptions = {}): Tr
 function addTemplateVariables(state: SsrTransformState) {
   state.walk(({ template, statics }) => {
     if (template && statics.length > 0) {
-      state.vars.create(template, $.createArrayLiteralExpression(statics));
+      state.vars.create(template, $.array(statics));
     }
   });
 }

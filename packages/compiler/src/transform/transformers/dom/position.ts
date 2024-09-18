@@ -43,7 +43,7 @@ export function getElementId(node: ElementNode, state: DomTransformState, walk: 
         ? $.prop(parentId, $.id('firstChild'))
         : state.runtime.child(parentId, childIndex);
 
-    state.elements.set(child, state.vars.block.element(expression));
+    state.elements.set(child, state.vars.setup.element(expression));
   }
 
   return state.elements.get(node);
@@ -107,7 +107,7 @@ export function insert(
   if (state.hydratable) {
     state.html += '<!$>';
     assert(state.walker);
-    const markerId = state.vars.block.nextNode(state.walker);
+    const markerId = state.vars.setup.nextNode(state.walker);
     state.block.push(state.runtime.insertAtMarker(markerId, value));
   } else {
     const rootId = state.elements.get(rootElement);

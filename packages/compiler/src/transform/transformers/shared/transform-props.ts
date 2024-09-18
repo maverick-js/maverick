@@ -1,7 +1,7 @@
 import type ts from 'typescript';
 
-import { type AstNode, type AttributeNode, isElementNode } from '../../parse/ast';
-import { type Visitors, walk } from '../../parse/walk';
+import { type AstNode, type AttributeNode, isElementNode } from '../../../parse/ast';
+import { type Visitors, walk } from '../../../parse/walk';
 
 const visitors: Visitors<TransformState> = {
   Element(el, { state, walk }) {
@@ -38,7 +38,7 @@ const visitors: Visitors<TransformState> = {
 /**
  * Walk through the AST and transform dynamic JSX attribute initializers (i.e., values).
  * For example, this can be used to map the values to identifiers which can then be hoisted up
- * the root call expression.
+ * to the root call expression.
  */
 export function transformProps(node: AstNode, transform: PropTransform) {
   walk({

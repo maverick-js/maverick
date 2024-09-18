@@ -6,7 +6,7 @@ import {
   createComponentHostProps,
   createComponentProps,
   createComponentSlotsObject,
-} from '../../factory';
+} from '../../shared/factory';
 import type { SsrTransformState, SsrVisitorContext } from '../state';
 import { transform } from '../transform';
 
@@ -20,7 +20,7 @@ export function Component(node: ComponentNode, { state }: SsrVisitorContext) {
     component = runtime.createComponent(
       node.name,
       spreads ? runtime.mergeProps([spreads.name, props]) : props,
-      createComponentSlotsObject(node, transform, state.child.bind(state)),
+      createComponentSlotsObject(node, transform, (node) => state.child(node)),
       createAttrs(node, spreads?.name, state),
     );
 
@@ -46,9 +46,7 @@ function createAttrs(
         $.createPropertyAssignment($.string(c.name), c.initializer),
       );
 
-      props.push(
-        $.createPropertyAssignment('$class', $.createObjectLiteralExpression(classes, true)),
-      );
+      props.push($.createPropertyAssignment('$class', $.object(classes, true)));
     }
 
     if (node.vars) {
@@ -56,11 +54,11 @@ function createAttrs(
         $.createPropertyAssignment($.string(`--${c.name}`), c.initializer),
       );
 
-      props.push($.createPropertyAssignment('$var', $.createObjectLiteralExpression(vars, true)));
+      props.push($.createPropertyAssignment('$var', $.object(vars, true)));
     }
 
     if (props.length > 0) {
-      return $.createObjectLiteralExpression(props, true);
+      return $.object(props, true);
     }
   }
 }

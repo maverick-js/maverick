@@ -1,6 +1,7 @@
 import {
   domTransformer,
   type DomTransformOptions,
+  reactTransformer,
   ssrTransformer,
   type SsrTransformOptions,
   transform,
@@ -30,6 +31,16 @@ export function ssr(code: string, { customElements, ...options }: Partial<SsrOpt
   return transform(code, {
     filename: 'test.tsx',
     transformer: ssrTransformer({ customElements }),
+    ...options,
+  }).code;
+}
+
+type ReactOptions = TransformOptions;
+
+export function react(code: string, options: Partial<ReactOptions> = {}) {
+  return transform(code, {
+    filename: 'test.tsx',
+    transformer: reactTransformer(),
     ...options,
   }).code;
 }

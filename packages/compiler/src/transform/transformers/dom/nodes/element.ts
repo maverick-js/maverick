@@ -1,8 +1,9 @@
+import { trimQuotes } from '@maverick-js/std';
 import { $ } from '@maverick-js/ts';
 
 import { type ElementNode, isFragmentNode } from '../../../../parse/ast';
 import { getAttributeText } from '../../../../parse/utils';
-import { createElementProps } from '../../factory';
+import { createElementProps } from '../../shared/factory';
 import { getElementId } from '../position';
 import type { DomVisitorContext } from '../state';
 
@@ -11,7 +12,7 @@ export function Element(node: ElementNode, { state, walk }: DomVisitorContext) {
     isRoot = walk.path.length === 0 || isFragmentNode(walk.path.at(-1)!);
 
   if (!state.template) {
-    state.template = $.createUniqueName('$_t');
+    state.template = $.createUniqueName('$_template');
   }
 
   if (state.hydratable && (isRoot || node.isDynamic())) {
@@ -20,16 +21,16 @@ export function Element(node: ElementNode, { state, walk }: DomVisitorContext) {
 
   if (isRoot) {
     if (hydratable) {
-      const bindings = vars.block.walker(state.template);
+      const bindings = vars.setup.walker(state.template);
       state.element = bindings.root;
       state.walker = bindings.walker;
     } else {
-      state.element = vars.block.root(state.template);
+      state.element = vars.setup.root(state.template);
     }
   } else if (node.isDynamic()) {
     if (state.hydratable) {
       assert(state.walker);
-      state.element = vars.block.nextElement(state.walker);
+      state.element = vars.setup.nextElement(state.walker);
     } else {
       state.element = getElementId(node, state, walk);
     }
@@ -100,15 +101,19 @@ export function Element(node: ElementNode, { state, walk }: DomVisitorContext) {
   } else {
     state.html += '>';
     if (node.content) {
-      if (state.element) {
-        block.push(
-          runtime.prop(
-            state.element,
-            node.content.name,
-            node.content.initializer,
-            node.content.signal,
-          ),
-        );
+      if (node.content.dynamic) {
+        if (state.element) {
+          block.push(
+            runtime.prop(
+              state.element,
+              node.content.name,
+              node.content.initializer,
+              node.content.signal,
+            ),
+          );
+        }
+      } else {
+        state.html += trimQuotes(node.content.initializer.getText());
       }
     } else {
       walk.children();

@@ -1,5 +1,11 @@
 import { trimQuotes } from '@maverick-js/std';
-import { $, createFunction, createObjectBindingPattern, getArgId, hasArgId } from '@maverick-js/ts';
+import {
+  $,
+  createFunction,
+  createObjectBindingPattern,
+  getUniqueId,
+  hasUniqueId,
+} from '@maverick-js/ts';
 import { encode } from 'html-entities';
 import ts from 'typescript';
 
@@ -11,8 +17,8 @@ import {
   isTextNode,
 } from '../../../parse/ast';
 import { type Visitors, walk } from '../../../parse/walk';
-import { isHigherOrderExpression } from '../factory';
-import { transformProps } from '../transform-props';
+import { isHigherOrderExpression } from '../shared/factory';
+import { transformProps } from '../shared/transform-props';
 import { Component } from './nodes/component';
 import { Element } from './nodes/element';
 import { Expression } from './nodes/expression';
@@ -35,7 +41,7 @@ export function transform(node: AstNode, state: DomTransformState): ts.Expressio
 
   transformProps(node, (_, value) => {
     state.args.push(value);
-    return getArgId(value);
+    return getUniqueId(value);
   });
 
   walk({ node, visitors: domVisitors, state });
@@ -43,8 +49,8 @@ export function transform(node: AstNode, state: DomTransformState): ts.Expressio
   if (isExpressionNode(node)) {
     if (!node.dynamic) {
       return $.string(encode(trimQuotes(node.expression.getText())));
-    } else if (hasArgId(node.expression)) {
-      const id = getArgId(node.expression);
+    } else if (hasUniqueId(node.expression)) {
+      const id = getUniqueId(node.expression);
       return state.hydratable && isHigherOrderExpression(node) ? $.call(id) : id;
     } else {
       return node.expression;
@@ -65,13 +71,10 @@ function createRender(state: DomTransformState) {
   if (shortCall) return shortCall;
 
   const id = $.createUniqueName(`$$_render`),
-    rootId = state.vars.block.getFirstName(),
+    rootId = state.vars.setup.getFirstName(),
     blockStatements = state.block.map($.createExpressionStatement),
     returnStatement = $.createReturnStatement(rootId),
-    block = $.createBlock(
-      [state.vars.block.toStatement(), ...blockStatements, returnStatement],
-      true,
-    ),
+    block = $.block([state.vars.setup.toStatement(), ...blockStatements, returnStatement]),
     args = getRenderArgs(state),
     fn = createFunction(id, createRenderFunctionParams(args), block);
 
@@ -85,7 +88,7 @@ function createRender(state: DomTransformState) {
 function createFragment(state: DomTransformState) {
   const id = $.createUniqueName(`$$_fragment`),
     args = getRenderArgs(state),
-    children = $.createArrayLiteralExpression(state.children.map(createFragmentChild)),
+    children = $.array(state.children.map(createFragmentChild)),
     fn = createFunction(id, createRenderFunctionParams(args), [$.createReturnStatement(children)]);
 
   state.renders.push(fn);
@@ -97,7 +100,7 @@ function createFragmentChild(childState: DomTransformState) {
   const root = childState.root;
   if (root && isExpressionNode(root)) {
     if (!root.dynamic) return root.expression;
-    const id = getArgId(root.expression);
+    const id = getUniqueId(root.expression);
     return childState.hydratable && root.dynamic ? $.call(id) : id;
   } else {
     return getRenderCall(childState);
@@ -113,7 +116,7 @@ function getShortCall(node: AstNode | null, state: DomTransformState) {
   if (state.hydratable) return null;
 
   if (node && isElementNode(node) && !node.isDynamic() && state.block.length === 0) {
-    const root = state.vars.block.declarations[0];
+    const root = state.vars.setup.declarations[0];
     if (
       root?.initializer &&
       ts.isCallExpression(root.initializer) &&
@@ -128,7 +131,7 @@ function getShortCall(node: AstNode | null, state: DomTransformState) {
 
 function createRenderFunctionParams(args: ts.Expression[]) {
   if (!args.length) return [];
-  return [createObjectBindingPattern(...args.map((node) => getArgId(node)))];
+  return [createObjectBindingPattern(...args.map((node) => getUniqueId(node)))];
 }
 
 function createRenderCall(id: ts.Identifier, args: ts.Expression[], isRootCall: boolean) {
@@ -138,10 +141,10 @@ function createRenderCall(id: ts.Identifier, args: ts.Expression[], isRootCall: 
 function createRenderCallParams(args: ts.Expression[], isRootCall: boolean) {
   if (!args.length) return [];
   return [
-    $.createObjectLiteralExpression(
+    $.object(
       isRootCall
-        ? args.map((node) => $.createPropertyAssignment(getArgId(node), node))
-        : args.map((node) => $.createShorthandPropertyAssignment(getArgId(node))),
+        ? args.map((node) => $.createPropertyAssignment(getUniqueId(node), node))
+        : args.map((node) => $.createShorthandPropertyAssignment(getUniqueId(node))),
     ),
   ];
 }

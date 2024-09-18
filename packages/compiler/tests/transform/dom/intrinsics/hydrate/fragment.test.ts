@@ -13,10 +13,10 @@ test('no children', () => {
 test('one static child element', () => {
   expect(domH(`<><div /></>`)).toMatchInlineSnapshot(`
     "import { $$_create_walker, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<!$><div></div>");
+    let $_template_1 = /* @__PURE__ */ $$_create_template("<!$><div></div>");
     function $$_render_1() {
-        let [$_r, $_w] = $$_create_walker($_t_1);
-        return $_r;
+        let [$_root_1, $_walker_1] = $$_create_walker($_template_1);
+        return $_root_1;
     }
     function $$_fragment_1() {
         return [$$_render_1()];
@@ -29,14 +29,14 @@ test('one static child element', () => {
 test('multiple static child elements', () => {
   expect(domH(`<><div /><span /></>`)).toMatchInlineSnapshot(`
     "import { $$_create_walker, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<!$><div></div>"), $_t_2 = $$_create_template("<!$><span></span>");
+    let $_template_1 = /* @__PURE__ */ $$_create_template("<!$><div></div>"), $_template_2 = /* @__PURE__ */ $$_create_template("<!$><span></span>");
     function $$_render_1() {
-        let [$_r, $_w] = $$_create_walker($_t_1);
-        return $_r;
+        let [$_root_1, $_walker_1] = $$_create_walker($_template_1);
+        return $_root_1;
     }
     function $$_render_2() {
-        let [$_r, $_w] = $$_create_walker($_t_2);
-        return $_r;
+        let [$_root_2, $_walker_2] = $$_create_walker($_template_2);
+        return $_root_2;
     }
     function $$_fragment_1() {
         return [$$_render_1(), $$_render_2()];
@@ -49,11 +49,11 @@ test('multiple static child elements', () => {
 test('one dynamic child element', () => {
   expect(domH(`<><div on:click={onClick} /></>`)).toMatchInlineSnapshot(`
     "import { $$_create_walker, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<!$><div></div>");
+    let $_template_1 = /* @__PURE__ */ $$_create_template("<!$><div></div>");
     function $$_render_1({ $1 }) {
-        let [$_r, $_w] = $$_create_walker($_t_1);
-        $$_listen($_r, "click", $1);
-        return $_r;
+        let [$_root_1, $_walker_1] = $$_create_walker($_template_1);
+        $$_listen($_root_1, "click", $1);
+        return $_root_1;
     }
     function $$_fragment_1({ $1 }) {
         return [$$_render_1({ $1 })];
@@ -67,16 +67,16 @@ test('one dynamic child element', () => {
 test('multiple dynamic child elements', () => {
   expect(domH(`<><div on:click={onA} /><span on:click={onB} /></>`)).toMatchInlineSnapshot(`
     "import { $$_create_walker, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<!$><div></div>"), $_t_2 = $$_create_template("<!$><span></span>");
+    let $_template_1 = /* @__PURE__ */ $$_create_template("<!$><div></div>"), $_template_2 = /* @__PURE__ */ $$_create_template("<!$><span></span>");
     function $$_render_1({ $1 }) {
-        let [$_r, $_w] = $$_create_walker($_t_1);
-        $$_listen($_r, "click", $1);
-        return $_r;
+        let [$_root_1, $_walker_1] = $$_create_walker($_template_1);
+        $$_listen($_root_1, "click", $1);
+        return $_root_1;
     }
     function $$_render_2({ $2 }) {
-        let [$_r, $_w] = $$_create_walker($_t_2);
-        $$_listen($_r, "click", $2);
-        return $_r;
+        let [$_root_2, $_walker_2] = $$_create_walker($_template_2);
+        $$_listen($_root_2, "click", $2);
+        return $_root_2;
     }
     function $$_fragment_1({ $1, $2 }) {
         return [$$_render_1({ $1 }), $$_render_2({ $2 })];
@@ -110,25 +110,25 @@ test('one dynamic child expression', () => {
 test('multiple dynamic child expressions', () => {
   expect(domH(`<>{a() ? <div on:click={onA} /> : null}{b() ? <span on:click={onB} /> : null}</>`))
     .toMatchInlineSnapshot(`
-    "import { $$_create_walker, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<!$><div></div>"), $_t_2 = $$_create_template("<!$><span></span>");
-    function $$_render_1({ $1 }) {
-        let [$_r, $_w] = $$_create_walker($_t_1);
-        $$_listen($_r, "click", $1);
-        return $_r;
-    }
-    function $$_render_2({ $3 }) {
-        let [$_r, $_w] = $$_create_walker($_t_2);
-        $$_listen($_r, "click", $3);
-        return $_r;
-    }
-    function $$_fragment_1({ $2, $4 }) {
-        return [$2(), $4()];
-    }
-    $$_fragment_1({ $2: () => a() ? $$_render_1({ $1: onA }) : null, $4: () => b() ? $$_render_2({ $3: onB }) : null });
-    $$_delegate_events(["click"]);
-    "
-  `);
+      "import { $$_create_walker, $$_listen, $$_delegate_events, $$_create_template } from "@maverick-js/dom";
+      let $_template_1 = /* @__PURE__ */ $$_create_template("<!$><div></div>"), $_template_2 = /* @__PURE__ */ $$_create_template("<!$><span></span>");
+      function $$_render_1({ $1 }) {
+          let [$_root_1, $_walker_1] = $$_create_walker($_template_1);
+          $$_listen($_root_1, "click", $1);
+          return $_root_1;
+      }
+      function $$_render_2({ $3 }) {
+          let [$_root_2, $_walker_2] = $$_create_walker($_template_2);
+          $$_listen($_root_2, "click", $3);
+          return $_root_2;
+      }
+      function $$_fragment_1({ $2, $4 }) {
+          return [$2(), $4()];
+      }
+      $$_fragment_1({ $2: () => a() ? $$_render_1({ $1: onA }) : null, $4: () => b() ? $$_render_2({ $3: onB }) : null });
+      $$_delegate_events(["click"]);
+      "
+    `);
 });
 
 test('import', () => {
@@ -143,23 +143,23 @@ import { Fragment } from "maverick.js";
 `),
   ).toMatchInlineSnapshot(`
     "import { $$_create_walker, $$_create_component, Fragment, $$_create_template } from "@maverick-js/dom";
-    let $_t_1 = $$_create_template("<!$><div></div>"), $_t_2 = $$_create_template("<!$><span></span>");
+    let $_template_1 = /* @__PURE__ */ $$_create_template("<!$><div></div>"), $_template_2 = /* @__PURE__ */ $$_create_template("<!$><span></span>");
     function $$_render_1() {
-        let [$_r, $_w] = $$_create_walker($_t_1);
-        return $_r;
+        let [$_root_1, $_walker_1] = $$_create_walker($_template_1);
+        return $_root_1;
     }
     function $$_render_2() {
-        let [$_r, $_w] = $$_create_walker($_t_2);
-        return $_r;
+        let [$_root_2, $_walker_2] = $$_create_walker($_template_2);
+        return $_root_2;
     }
     function $$_fragment_1() {
         return [$$_render_1(), $$_render_2()];
     }
     function $$_render_3() {
-        let $_c_1 = $$_create_component(Fragment, null, {
-            "default": () => $$_fragment_1()
+        let $_component_1 = $$_create_component(Fragment, null, {
+            "default": $$_fragment_1
         });
-        return $_c_1;
+        return $_component_1;
     }
     $$_render_3();
     "

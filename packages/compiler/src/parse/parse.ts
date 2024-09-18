@@ -44,7 +44,6 @@ export function parse(code: string, options: ParseOptions) {
 
     if (isJsxElementNode(node)) {
       const astNode = createAstNode(node);
-
       astNodes.push(astNode);
       return;
     } else if (ts.isJsxFragment(node)) {

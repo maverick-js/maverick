@@ -1,3 +1,4 @@
+import { isArray } from '@maverick-js/std';
 import { $, replaceTsNodes, type TsNodeMap } from '@maverick-js/ts';
 import ts from 'typescript';
 
@@ -10,14 +11,18 @@ import {
   type InferTsNode,
   isExpressionNode,
   type RefNode,
-} from '../../parse/ast';
-import { getAttributeNodeFullName, getEventNodeFullName } from '../../parse/utils';
-import type { NextState } from '../../parse/walk';
-import type { Transform } from './transformer';
+} from '../../../parse/ast';
+import { getAttributeNodeFullName, getEventNodeFullName } from '../../../parse/utils';
+import type { NextState } from '../../../parse/walk';
+import type { Transform, TransformResult } from '../transformer';
 
 export function createComponentProps(node: ComponentNode) {
   if (!node.props?.length) return;
-  return $.createObjectLiteralExpression(createAttributePropertyAssignmentList(node.props), true);
+  return $.object(createComponentPropsList(node), true);
+}
+
+export function createComponentPropsList(node: ComponentNode) {
+  return createAttributePropertyAssignmentList(node.props);
 }
 
 export function createComponentHostProps(node: ComponentNode, { ssr = false } = {}) {
@@ -38,34 +43,55 @@ export function createComponentHostProps(node: ComponentNode, { ssr = false } = 
 
   if (!props.length) return;
 
-  return $.createObjectLiteralExpression(props, true);
+  return $.object(props, true);
 }
 
 export function createComponentSlotsObject<State>(
   component: ComponentNode,
   transform: Transform<State>,
   nextState: NextState<State>,
+  resolve?: (
+    slot: AstNode,
+    state: State,
+    result: NonNullable<TransformResult>,
+    resolve: (node: TransformResult) => ts.Expression,
+  ) => ts.Expression,
 ) {
   if (!component.slots) return;
 
   const { slots } = component;
 
-  return $.createObjectLiteralExpression(
+  return $.object(
     Object.keys(slots).map((slotName) => {
-      const slot = slots[slotName],
+      let slot = slots[slotName],
         name = $.string(slotName),
         state = nextState(slot),
         result = transform(slot, state) ?? $.createNull();
 
-      return $.createPropertyAssignment(
-        name,
-        isExpressionNode(slot) && ts.isArrowFunction(slot.expression)
-          ? result
-          : $.arrowFn([], result),
-      );
+      if (isArray(result)) {
+        const lastNode = result.at(-1);
+        if (lastNode && ts.isExpression(lastNode)) {
+          result[result.length - 1] = $.createReturnStatement(lastNode);
+        }
+      }
+
+      if (resolve) {
+        result = resolve(slot, state, result, (node) => resolveSlot(slot, node));
+      } else {
+        result = resolveSlot(slot, result);
+      }
+
+      return $.createPropertyAssignment(name, result);
     }),
     true,
   );
+}
+
+function resolveSlot(slot: AstNode, result: TransformResult = $.createNull()) {
+  return !isArray(result) &&
+    (ts.isArrowFunction(result) || (isExpressionNode(slot) && ts.isArrowFunction(slot.expression)))
+    ? result
+    : $.arrowFn([], result);
 }
 
 export function isHigherOrderExpression(node: AstNode) {
@@ -90,7 +116,7 @@ export function createElementProps(node: ElementNode, { ssr = false } = {}) {
     }
   }
 
-  return props.length > 0 ? $.createObjectLiteralExpression(props, true) : undefined;
+  return props.length > 0 ? $.object(props, true) : undefined;
 }
 
 export function createAttributePropertyAssignmentList(attrs?: AttributeNode[]) {

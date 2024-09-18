@@ -6,22 +6,23 @@ import {
   createComponentHostProps,
   createComponentProps,
   createComponentSlotsObject,
-} from '../../factory';
+} from '../../shared/factory';
 import { insert } from '../position';
-import type { DomTransformState, DomVisitorContext } from '../state';
+import type { DomRuntime } from '../runtime';
+import type { DomVisitorContext } from '../state';
 import { transform } from '../transform';
 
 export function Component(node: ComponentNode, { state, walk }: DomVisitorContext) {
   const { vars, block, runtime } = state;
 
   const props = createComponentProps(node),
-    component = vars.block.component(
+    component = vars.setup.component(
       node.name,
       !node.spreads
         ? props
         : runtime.mergeProps([...node.spreads.map((s) => s.initializer), props]),
-      createComponentSlotsObject(node, transform, state.child.bind(state)),
-      createAttachHostCallback(node, state),
+      createComponentSlotsObject(node, transform, (node) => state.child(node)),
+      createAttachHostCallback(node, state.runtime),
     );
 
   if (!node.spreads) {
@@ -42,7 +43,7 @@ export function Component(node: ComponentNode, { state, walk }: DomVisitorContex
   }
 }
 
-function createAttachHostCallback(node: ComponentNode, { runtime }: DomTransformState) {
+export function createAttachHostCallback(node: ComponentNode, runtime: DomRuntime) {
   const host = $.id('host'),
     block: ts.Expression[] = [];
 

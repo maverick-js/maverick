@@ -1,15 +1,16 @@
 import {
   $,
   replaceTsNodes,
-  resetArgsCount,
+  resetUniqueIdCount,
   splitImportsAndBody,
   type TsNodeMap,
 } from '@maverick-js/ts';
 import ts from 'typescript';
 
 import { Scope } from '../../../parse/ast';
-import { markCustomElements } from '../element';
+import { markCustomElements } from '../shared/element';
 import type { Transformer } from '../transformer';
+import type { DomRuntime } from './runtime';
 import { DomTransformState } from './state';
 import { transform } from './transform';
 import { DomTemplateVariables } from './vars';
@@ -43,13 +44,13 @@ export function domTransformer({
       for (const node of nodes) {
         const result = transform(node, state.child(node, new Scope()));
         if (result) replace.set(node.node, result);
-        resetArgsCount();
+        resetUniqueIdCount();
       }
 
       const { imports, body } = splitImportsAndBody(sourceFile);
 
       if (ctx.options.delegateEvents && state.delegatedEvents.size > 0) {
-        body.push(delegateEvents(state));
+        body.push(delegateEvents(state.delegatedEvents, state.runtime));
       }
 
       const statements: ts.Statement[] = [];
@@ -103,10 +104,8 @@ function createTemplateVariables(state: DomTransformState) {
   return templates.length > 0 ? vars : null;
 }
 
-function delegateEvents({ delegatedEvents, runtime }: DomTransformState) {
+export function delegateEvents(events: Set<string>, runtime: DomRuntime) {
   return $.createExpressionStatement(
-    runtime.delegateEvents(
-      $.createArrayLiteralExpression(Array.from(delegatedEvents).map((type) => $.string(type))),
-    ),
+    runtime.delegateEvents($.array(Array.from(events).map((type) => $.string(type)))),
   );
 }

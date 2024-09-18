@@ -130,7 +130,7 @@ test('fragment named slot', () => {
   `);
 });
 
-test('render function ', () => {
+test('render function', () => {
   expect(ssr(`<Foo>{(props) => <div>{props.foo}</div>}</Foo>`)).toMatchInlineSnapshot(`
     "import { $$_escape, $$_ssr, $$_create_component } from "@maverick-js/ssr";
     let $$_t_1 = ["<div>", "</div>"];

@@ -5,14 +5,14 @@ import { Variables } from '../shared/variables';
 import type { DomRuntime } from './runtime';
 
 const ID = {
-  component: '$_c',
-  element: '$_e',
-  expression: '$_x',
-  host: '$_h',
-  marker: '$_m',
-  root: '$_r',
-  template: '$_t',
-  walker: '$_w',
+  component: '$_component',
+  element: '$_el',
+  expression: '$_expression',
+  host: '$_host',
+  marker: '$_marker',
+  root: '$_root',
+  template: '$_template',
+  walker: '$_walker',
 };
 
 export class DomTemplateVariables extends Variables {
@@ -28,7 +28,7 @@ export class DomTemplateVariables extends Variables {
   }
 }
 
-export class DomBlockVariables extends Variables {
+export class DomSetupVariables extends Variables {
   #runtime: DomRuntime;
 
   constructor(runtime: DomRuntime) {
@@ -45,8 +45,8 @@ export class DomBlockVariables extends Variables {
   }
 
   walker(template: ts.Identifier, walker?: ts.Identifier) {
-    const rootId = $.id(ID.root),
-      walkerId = $.id(ID.walker),
+    const rootId = $.createUniqueName(ID.root),
+      walkerId = $.createUniqueName(ID.walker),
       bindings = createArrayBindingPattern(rootId, walkerId);
 
     this.create(bindings, this.#runtime.createWalker(template, walker));

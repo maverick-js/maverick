@@ -1,14 +1,12 @@
 import ts from 'typescript';
 
 import { isIdentifierWithText, isStaticPropDeclaration } from './is';
-import { getModuleExportNameText } from './module';
 
 export function isClassThatExtends(
   node: ts.Node,
   className: ts.StringLiteral | ts.Identifier,
 ): node is ts.ClassDeclaration {
-  const classNameText = getModuleExportNameText(className);
-  return ts.isClassDeclaration(node) && !!findHeritageClauseByName(node, classNameText);
+  return ts.isClassDeclaration(node) && !!findHeritageClauseByName(node, className.text);
 }
 
 export function findHeritageClauseByName(node: ts.ClassDeclaration, name: string) {

@@ -33,7 +33,7 @@ export function markCustomElements(sourceFile: ts.SourceFile) {
 }
 
 function createStaticElementProp() {
-  return createStaticComputedProperty(createSymbolFor('element'), $.createTrue());
+  return createStaticComputedProperty(createSymbolFor('maverick.element'), $.createTrue());
 }
 
 function isMaverickElementClass(

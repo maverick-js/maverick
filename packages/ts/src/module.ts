@@ -2,10 +2,6 @@ import ts from 'typescript';
 
 import { isValueImportDeclarationFrom } from './is';
 
-export function getModuleExportNameText(name: ts.ModuleExportName) {
-  return ts.isStringLiteral(name) ? name.text : (name.escapedText as string);
-}
-
 export function getNamedImportBindings(node: ts.ImportDeclaration) {
   const bindings = node.importClause?.namedBindings;
   if (bindings && ts.isNamedImports(bindings)) {

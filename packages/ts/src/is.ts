@@ -1,6 +1,7 @@
 import { trimQuotes } from '@maverick-js/std';
 import ts from 'typescript';
 
+import { findIdentifiers } from './bindings';
 import type { JsxElementNode } from './types';
 
 export function isComponentTagName(tagName: string) {
@@ -114,7 +115,11 @@ export function isIdentifierWithText(
   node: ts.Node | undefined,
   text: string,
 ): node is ts.Identifier {
-  return !!node && ts.isIdentifier(node) && node.escapedText === text;
+  return !!node && ts.isIdentifier(node) && node.text === text;
+}
+
+export function isIdentifierEqual(a: ts.Identifier, b: ts.Identifier) {
+  return a.text === b.text;
 }
 
 export function isStaticPropDeclaration(node: ts.Node): node is ts.PropertyDeclaration {
@@ -122,4 +127,36 @@ export function isStaticPropDeclaration(node: ts.Node): node is ts.PropertyDecla
     ts.isPropertyDeclaration(node) &&
     !!node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.StaticKeyword)
   );
+}
+
+export function isCallExpressionWithName(node: ts.Node, name: string): node is ts.CallExpression {
+  return ts.isCallExpression(node) && isIdentifierWithText(node.expression, name);
+}
+
+export type AccessExpression =
+  | ts.Identifier
+  | ts.PropertyAccessExpression
+  | ts.ElementAccessExpression;
+
+export function isAccessExpression(node: ts.Node): node is AccessExpression {
+  return (
+    ts.isIdentifier(node) ||
+    ts.isPropertyAccessExpression(node) ||
+    ts.isElementAccessExpression(node)
+  );
+}
+
+export function isAccessExpressionEqual(a: AccessExpression, b: AccessExpression) {
+  const aIdentifiers = findIdentifiers(a),
+    bIdentifiers = findIdentifiers(b);
+
+  if (aIdentifiers.length !== bIdentifiers.length) return false;
+
+  for (let i = 0; i < aIdentifiers.length; i += 1) {
+    if (aIdentifiers[i].text !== bIdentifiers[i].text) {
+      return false;
+    }
+  }
+
+  return true;
 }

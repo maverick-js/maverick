@@ -11,7 +11,7 @@ import { encode } from 'html-entities';
 import ts from 'typescript';
 
 import { type ExpressionNode, isElementNode } from '../../../../parse/ast';
-import { transformAstNodeChildren } from '../../factory';
+import { transformAstNodeChildren } from '../../shared/factory';
 import type { SsrTransformState, SsrVisitorContext } from '../state';
 import { transform } from '../transform';
 
@@ -27,7 +27,7 @@ export function Expression(node: ExpressionNode, { state, walk }: SsrVisitorCont
   }
 
   node.expression = escapeExpressions(node.expression, state);
-  node.expression = transformAstNodeChildren(node, transform, state.child.bind(state));
+  node.expression = transformAstNodeChildren(node, transform, (node) => state.child(node));
 
   const rootElement = walk.path.find(isElementNode);
   if (rootElement) {

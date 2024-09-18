@@ -189,16 +189,13 @@ function parseAttrs(
       isStaticExpression = !!expression && isStaticLiteralNode(expression),
       isStaticValue = !initializer || isStaticLiteralNode(initializer) || isStaticExpression;
 
-    const signal = attrText.startsWith('$');
-
-    const dynamic =
-      signal ||
-      !isStaticValue ||
-      (namespace && DYNAMIC_NAMESPACE.has(namespace)) ||
-      INNER_CONTENT_PROP.has(name) ||
-      name === 'ref';
-
-    const init = expression ?? stringLiteral ?? ts.factory.createTrue();
+    const signal = attrText.startsWith('$'),
+      dynamic =
+        signal ||
+        !isStaticValue ||
+        (namespace && DYNAMIC_NAMESPACE.has(namespace)) ||
+        name === 'ref',
+      init = expression ?? stringLiteral ?? ts.factory.createTrue();
 
     if (dynamic) onDynamic?.();
 

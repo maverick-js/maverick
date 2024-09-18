@@ -4,7 +4,7 @@ export function uniqueItemsOnly<T>(items: T[]): T[] {
   return [...new Set(items)];
 }
 
-export function filterNullish<T>(array: (T | null | undefined)[]): T[] {
+export function filterFalsy<T>(array: (T | false | null | undefined)[]): T[] {
   return array.filter(Boolean) as T[];
 }
 

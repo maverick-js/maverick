@@ -48,7 +48,7 @@ importers:
         specifier: ^2.0.12
         version: 2.0.14
       typescript:
-        specifier: ^5.6.0
+        specifier: ^5.6.2
         version: 5.6.2
 
   packages/cli:
@@ -91,7 +91,7 @@ importers:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
       typescript:
-        specifier: ^5.6.0
+        specifier: ^5.6.2
         version: 5.6.2
       vite:
         specifier: ^5.0.0
@@ -143,7 +143,7 @@ importers:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
       typescript:
-        specifier: ^5.6.0
+        specifier: ^5.6.2
         version: 5.6.2
       vite:
         specifier: ^5.0.0
@@ -192,7 +192,7 @@ importers:
         specifier: ^4.0.0
         version: 4.25.0
       typescript:
-        specifier: ^5.6.0
+        specifier: ^5.6.2
         version: 5.6.2
       vite:
         specifier: ^5.0.0
@@ -229,7 +229,7 @@ importers:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
       typescript:
-        specifier: ^5.6.0
+        specifier: ^5.6.2
         version: 5.6.2
 
   packages/maverick:
@@ -260,7 +260,7 @@ importers:
         specifier: ^4.0.0
         version: 4.25.0
       typescript:
-        specifier: ^5.6.0
+        specifier: ^5.6.2
         version: 5.6.2
       vite:
         specifier: ^5.0.0
@@ -299,7 +299,7 @@ importers:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
       typescript:
-        specifier: ^5.6.0
+        specifier: ^5.6.2
         version: 5.6.2
       vite:
         specifier: ^5.0.0
@@ -333,7 +333,7 @@ importers:
         specifier: ^4.8.3
         version: 4.25.0
       typescript:
-        specifier: ^5.6.0
+        specifier: ^5.6.2
         version: 5.6.2
       vite:
         specifier: ^5.0.0
@@ -363,7 +363,7 @@ importers:
         specifier: ^4.8.3
         version: 4.25.0
       typescript:
-        specifier: ^5.6.0
+        specifier: ^5.6.2
         version: 5.6.2
       vite:
         specifier: ^5.0.0
@@ -394,7 +394,7 @@ importers:
         specifier: ^6.1.0
         version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
       typescript:
-        specifier: ^5.6.0
+        specifier: ^5.6.2
         version: 5.6.2
 
 packages:
@@ -2090,7 +2090,7 @@ packages:
       source-map: 0.6.1
       wordwrap: 1.0.0
     optionalDependencies:
-      uglify-js: 3.19.2
+      uglify-js: 3.19.3
     dev: true
 
   /has-flag@3.0.0:
@@ -3071,8 +3071,8 @@ packages:
     resolution: {integrity: sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==}
     dev: true
 
-  /uglify-js@3.19.2:
-    resolution: {integrity: sha512-S8KA6DDI47nQXJSi2ctQ629YzwOVs+bQML6DAtvy0wgNdpi+0ySpQK0g2pxBq2xfF2z3YCscu7NNA8nXT9PlIQ==}
+  /uglify-js@3.19.3:
+    resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
     engines: {node: '>=0.8.0'}
     hasBin: true
     requiresBuild: true

@@ -1,9 +1,9 @@
 import { trimQuotes } from '@maverick-js/std';
-import { $, getArgId } from '@maverick-js/ts';
+import { $, getUniqueId } from '@maverick-js/ts';
 import { encode } from 'html-entities';
 
 import { type ExpressionNode, isElementNode, Scope } from '../../../../parse/ast';
-import { isHigherOrderExpression, transformAstNodeChildren } from '../../factory';
+import { isHigherOrderExpression, transformAstNodeChildren } from '../../shared/factory';
 import { insert } from '../position';
 import type { DomVisitorContext } from '../state';
 import { transform } from '../transform';
@@ -24,7 +24,7 @@ export function Expression(node: ExpressionNode, { state, walk }: DomVisitorCont
 
     state.args.push(node.expression);
 
-    const id = getArgId(node.expression),
+    const id = getUniqueId(node.expression),
       rootElement = walk.path.find(isElementNode);
 
     if (rootElement) {

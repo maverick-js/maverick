@@ -1,7 +1,7 @@
 import { $ } from '@maverick-js/ts';
 
 import { type FragmentNode, isElementNode } from '../../../../parse/ast';
-import { transformAstNodeChildren } from '../../factory';
+import { transformAstNodeChildren } from '../../shared/factory';
 import type { DomVisitorContext } from '../state';
 import { transform } from '../transform';
 
@@ -12,7 +12,7 @@ export function Fragment(node: FragmentNode, { state, walk }: DomVisitorContext)
   // If the fragment has no parent element, we create an array containing each child render function.
   if (!hasParentElement) {
     const oldFragment = node.node,
-      newFragment = transformAstNodeChildren(node, transform, state.child.bind(state));
+      newFragment = transformAstNodeChildren(node, transform, (node) => state.child(node));
     $.updateJsxFragment(
       oldFragment,
       newFragment.openingFragment,

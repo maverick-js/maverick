@@ -56,16 +56,21 @@ export function trimTrailingSemicolon(text: string) {
   return text.replace(trailingSemicolon, '');
 }
 
-const trimQuoteStartRE = /^('|"|`)/;
-const trimQuoteEndRE = /('|"|`)$/;
+const trimQuoteStartRE = /^('|"|`)/,
+  trimQuoteEndRE = /('|"|`)$/;
+
 export function trimQuotes(text: string) {
   return text.replace(trimQuoteStartRE, '').replace(trimQuoteEndRE, '');
 }
 
-export function trimWhitespace(text: string) {
-  text = text.replace(/\r/g, '');
+const carriageReturnRE = /\r/g,
+  newLineRE = /\n/g,
+  spacesRE = /\s+/g;
 
-  if (/\n/g.test(text)) {
+export function trimWhitespace(text: string) {
+  text = text.replace(carriageReturnRE, '');
+
+  if (newLineRE.test(text)) {
     text = text
       .split('\n')
       .map((t, i) => (i ? t.replace(/^\s*/g, '') : t))
@@ -73,11 +78,14 @@ export function trimWhitespace(text: string) {
       .join(' ');
   }
 
-  return text.replace(/\s+/g, ' ');
+  return text.replace(spacesRE, ' ');
 }
 
+const doubleQuotesRe = /^"+|"+$/g,
+  singleQuotesRE = /^'+|'+$/g;
+
 export const escapeQuotes = (str: string): string =>
-  str.replace(/^"+|"+$/g, '').replace(/^'+|'+$/g, '');
+  str.replace(doubleQuotesRe, '').replace(singleQuotesRE, '');
 
 export const normalizeLineBreaks = (str: string): string => str.replace(/\\r/g, '\n');
 

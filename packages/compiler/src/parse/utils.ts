@@ -8,6 +8,9 @@ import {
   type ElementNode,
   type EventNode,
   isElementNode,
+  isExpressionNode,
+  isFragmentNode,
+  isTextNode,
 } from './ast';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
 import { createAstNode } from './create-ast';
@@ -68,4 +71,32 @@ export function getAttributeText(attr: AttributeNode) {
   return attr.initializer.kind !== ts.SyntaxKind.TrueKeyword
     ? trimQuotes(attr.initializer.getText())
     : '';
+}
+
+export function isStaticTree(node: AstNode) {
+  if (isElementNode(node)) {
+    return (
+      !node.isDynamic() && !node.props && (!node.children || node.children.every(isStaticTree))
+    );
+  } else if (isExpressionNode(node)) {
+    return !node.dynamic;
+  } else {
+    return isTextNode(node) || isFragmentNode(node);
+  }
+}
+
+export function getElementDepth(node: AstNode, depth = 0) {
+  if ((isElementNode(node) || isFragmentNode(node)) && node.children) {
+    let increment = isFragmentNode(node) ? 0 : 1,
+      maxDepth = depth + increment;
+
+    for (let i = 0; i < node.children.length; i++) {
+      let newDepth = getElementDepth(node.children[i], depth + increment);
+      if (newDepth > maxDepth) maxDepth = newDepth;
+    }
+
+    return maxDepth;
+  }
+
+  return depth;
 }

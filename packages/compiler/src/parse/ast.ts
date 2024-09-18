@@ -155,7 +155,7 @@ export function createFragmentNode(info: Omit<FragmentNode, 'kind'>): FragmentNo
 }
 
 export function createTextNode(info: Omit<TextNode, 'kind' | 'value'>): TextNode {
-  return { kind: AstNodeKind.Text, ...info, value: encode(trimWhitespace(info.node.getText())) };
+  return { kind: AstNodeKind.Text, ...info, value: encode(trimWhitespace(info.node.text)) };
 }
 
 export function createExpressionNode(info: Omit<ExpressionNode, 'kind'>): ExpressionNode {

@@ -23,11 +23,11 @@ class Lux {}
   ).toMatchInlineSnapshot(`
     "import { Component } from 'maverick.js';
     class Foo extends Component {
-        static [Symbol.for("element")] = true;
+        static [Symbol.for("maverick.element")] = true;
         static tagName = 'foo-element';
     }
     class Bar extends Component {
-        static [Symbol.for("element")] = true;
+        static [Symbol.for("maverick.element")] = true;
         static tagName = 'bar-element';
     }
     class Hux extends Component {

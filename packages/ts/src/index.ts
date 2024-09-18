@@ -1,3 +1,4 @@
+export * from './bindings';
 export * from './class';
 export * from './module';
 export * from './is';

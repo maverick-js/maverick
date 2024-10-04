@@ -5,8 +5,8 @@ import { isTrueKeyword, isValueImportDeclarationFrom } from './is';
 import { getNamedImportBindings } from './module';
 
 export const $ = ts.factory as typeof ts.factory & {
-  emptyString: () => ts.StringLiteral;
-  emptyObject: () => ts.ObjectLiteralExpression;
+  emptyString: ts.StringLiteral;
+  emptyObject: ts.ObjectLiteralExpression;
   id: typeof ts.factory.createIdentifier;
   string: typeof ts.factory.createStringLiteral;
   number: typeof ts.factory.createNumericLiteral;
@@ -14,6 +14,7 @@ export const $ = ts.factory as typeof ts.factory & {
   array: typeof ts.factory.createArrayLiteralExpression;
   object: typeof ts.factory.createObjectLiteralExpression;
   undefined: ts.Identifier;
+  null: ts.NullLiteral;
   var: typeof createVariableDeclaration;
   fn: typeof createFunction;
   bind: typeof bind;
@@ -41,12 +42,13 @@ $.var = createVariableDeclaration;
 
 $.string = $.createStringLiteral;
 $.bool = createBool;
-$.emptyString = () => $.string('');
-$.emptyObject = () => $.createObjectLiteralExpression();
+$.emptyString = $.string('');
+$.emptyObject = $.createObjectLiteralExpression();
 $.array = $.createArrayLiteralExpression;
 $.object = $.createObjectLiteralExpression;
 $.number = $.createNumericLiteral;
 $.undefined = $.id('undefined');
+$.null = $.createNull();
 $.prop = createPropertyGetExpression;
 $.setProp = createPropertySetExpression;
 
@@ -314,7 +316,7 @@ export function createNullFilledArgs(args: (ts.Expression | undefined | null)[])
     const arg = args[i];
     if (arg) {
       for (let j = pointer; j < i; j++) {
-        if (!args[j]) newArgs.push($.createNull());
+        if (!args[j]) newArgs.push($.null);
         pointer = j + 1;
       }
 
@@ -473,7 +475,7 @@ export function createTernaryExpression(
 export function createIfStatement(
   condition: ts.Expression,
   block: Array<ts.Expression | ts.Statement>,
-  elseBlock?: ts.IfStatement | Array<ts.Expression | ts.Statement>,
+  elseBlock?: ts.Statement | Array<ts.Expression | ts.Statement>,
 ) {
   $.createIfStatement(
     condition,

@@ -66,7 +66,7 @@ export function createComponentSlotsObject<State>(
       let slot = slots[slotName],
         name = $.string(slotName),
         state = nextState(slot),
-        result = transform(slot, state) ?? $.createNull();
+        result = transform(slot, state) ?? $.null;
 
       if (isArray(result)) {
         const lastNode = result.at(-1);
@@ -87,7 +87,7 @@ export function createComponentSlotsObject<State>(
   );
 }
 
-function resolveSlot(slot: AstNode, result: TransformResult = $.createNull()) {
+function resolveSlot(slot: AstNode, result: TransformResult = $.null) {
   return !isArray(result) &&
     (ts.isArrowFunction(result) || (isExpressionNode(slot) && ts.isArrowFunction(slot.expression)))
     ? result

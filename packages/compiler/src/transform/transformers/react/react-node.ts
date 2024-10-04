@@ -15,7 +15,7 @@ export interface ReactNode {
 
 export type ReactNodeName = string | ts.Identifier;
 
-export type ReactNodeProps = ts.Identifier | ts.PropertyAssignment[];
+export type ReactNodeProps = ts.Identifier | ts.ObjectLiteralElementLike[];
 
 export type ReactNodeChild = ts.Expression | ReactNode;
 

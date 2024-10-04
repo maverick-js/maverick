@@ -35,7 +35,7 @@ export class ReactRuntime extends Runtime {
     );
   }
 
-  createElementFromAST(node: AstNode): ts.Expression {
+  createStaticElement(node: AstNode): ts.Expression {
     if (isElementNode(node) && !node.isDynamic()) {
       const props =
         !node.attrs && node.content
@@ -45,13 +45,13 @@ export class ReactRuntime extends Runtime {
       return this.h(
         node.name,
         isArray(props) ? $.object(props, true) : props,
-        !node.content ? node.children?.map((node) => this.createElementFromAST(node)) : undefined,
+        !node.content ? node.children?.map((node) => this.createStaticElement(node)) : undefined,
       );
     } else if (isFragmentNode(node)) {
       return this.h(
         this.add('ReactFragment'),
         undefined,
-        node.children?.map((node) => this.createElementFromAST(node)),
+        node.children?.map((node) => this.createStaticElement(node)),
       );
     } else if (isTextNode(node)) {
       return $.string(node.value);
@@ -64,17 +64,17 @@ export class ReactRuntime extends Runtime {
 
   h(name: string | ts.Expression, props?: ts.Expression, children: ts.Expression[] = []) {
     return this.call(
-      '$$_h',
+      'h',
       filterFalsy([
         isString(name) ? $.string(name) : name,
-        props ?? (children.length > 0 ? $.createNull() : undefined),
+        props ?? (children.length > 0 ? $.null : undefined),
         ...children,
       ]),
     );
   }
 
   attach(callback: ts.Expression) {
-    return this.call('$$_attach', [callback]);
+    return this.call('attach', [callback]);
   }
 
   component(
@@ -85,56 +85,66 @@ export class ReactRuntime extends Runtime {
     onAttach?: ts.Expression,
   ) {
     return this.call(
-      '$$_component',
+      'component',
       createNullFilledArgs([
         $.id(tagName),
         props,
-        this.onlyClient(listeners) as ts.Expression,
+        listeners ? this.ifClient(listeners) : undefined,
         slots,
         onAttach,
       ]),
     );
   }
 
-  onlyClient(block: ts.Expression | Array<ts.Expression | ts.Statement> | undefined) {
-    if (!block) return;
-    return this.#if(this.isClient, block);
+  ifClient(truthy: ts.Expression, falsy?: ts.Expression) {
+    return this.#createConditionalExpression(this.isClient, truthy, falsy);
   }
 
-  onlyServer(block: ts.Expression | Array<ts.Expression | ts.Statement> | undefined) {
-    if (!block) return;
-    return this.#if(this.isServer, block);
+  ifServer(expression: ts.Expression, falsy?: ts.Expression) {
+    return this.#createConditionalExpression(this.isServer, expression, falsy);
   }
 
   html(content: ts.Expression) {
-    return this.call('$$_html', [content]);
+    return this.call('html', [content]);
   }
 
   memo(compute: ts.Expression, deps?: ts.Expression[]) {
-    return this.#computeWithDeps('$$_memo', compute, deps);
+    return this.#createCompute('memo', compute, deps);
   }
 
   computed(compute: ts.Expression | ts.Block, deps?: ts.Expression[]) {
-    return this.#computeWithDeps('$$_computed', compute, deps);
+    return this.#createCompute('computed', compute, deps);
   }
 
   expression(compute: ts.Expression, deps?: ts.Expression[]) {
-    return this.#computeWithDeps('$$_expression', compute, deps);
+    return this.#createCompute('expression', compute, deps);
   }
 
   appendHtml(html: ts.Expression) {
-    return this.call('$$_append_html', [html]);
+    return this.call('append_html', [html]);
   }
 
-  #if(condition: ts.Identifier, block: ts.Expression | Array<ts.Expression | ts.Statement>) {
-    if (!isArray(block)) {
-      return $.createLogicalAnd(condition, block);
-    } else {
-      return $.if(condition, block);
-    }
+  unwrap(expression: ts.Expression) {
+    return this.call('unwrap', [expression]);
   }
 
-  #computeWithDeps(id: string, compute: ts.Expression | ts.Block, deps?: ts.Expression[]) {
+  ssrSpread(props: ts.Expression) {
+    return this.call('ssr_spread', [props]);
+  }
+
+  ssrClass(base: ts.Expression, props: ts.PropertyAssignment[]) {
+    return this.call('ssr_class', props.length ? [base, $.object(props, true)] : [base]);
+  }
+
+  ssrStyle(base: ts.Expression, props: ts.PropertyAssignment[]) {
+    return this.call('ssr_style', props.length ? [base, $.object(props, true)] : [base]);
+  }
+
+  ssrAttrs(attrs: ts.Expression) {
+    return this.call('ssr_attrs', [attrs]);
+  }
+
+  #createCompute(id: string, compute: ts.Expression | ts.Block, deps?: ts.Expression[]) {
     const callback = this.#createComputeCallback(compute);
     return this.call(id, deps?.length ? [callback, $.array(deps)] : [callback]);
   }
@@ -145,5 +155,13 @@ export class ReactRuntime extends Runtime {
     } else {
       return $.arrowFn([], compute);
     }
+  }
+
+  #createConditionalExpression(
+    condition: ts.Identifier,
+    truthy: ts.Expression,
+    falsy?: ts.Expression,
+  ) {
+    return falsy ? $.ternary(condition, truthy, falsy) : $.createLogicalAnd(condition, truthy);
   }
 }

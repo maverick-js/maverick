@@ -11,11 +11,11 @@ import { For } from 'maverick.js';
     `),
   ).toMatchInlineSnapshot(`
     "import { $$_escape, $$_ssr, $$_create_component, For } from "@maverick-js/ssr";
-    let $$_t_1 = ["<div>", " - ", "</div>"];
+    let $$_template_1 = ["<div>", " - ", "</div>"];
     $$_create_component(For, {
         "each": [0, 1, 2]
     }, {
-        "default": (item, index) => $$_ssr($$_t_1, [$$_escape(item), $$_escape(index)])
+        "default": (item, index) => $$_ssr($$_template_1, [$$_escape(item), $$_escape(index)])
     });
     "
   `);

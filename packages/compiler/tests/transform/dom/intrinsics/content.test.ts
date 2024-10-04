@@ -1,6 +1,6 @@
 import { dom } from '../../transform';
 
-test('static innerHTML', () => {
+test('static', () => {
   expect(dom(`<div innerHTML="<div></div>"><span /></div>`)).toMatchInlineSnapshot(`
     "import { $$_clone, $$_create_template } from "@maverick-js/dom";
     let $_template_1 = /* @__PURE__ */ $$_create_template("<div><div></div></div>");
@@ -9,7 +9,7 @@ test('static innerHTML', () => {
   `);
 });
 
-test('static innerHTML', () => {
+test('dynamic', () => {
   expect(dom(`<div innerHTML={content}><span /></div>`)).toMatchInlineSnapshot(`
     "import { $$_clone, $$_create_template } from "@maverick-js/dom";
     let $_template_1 = /* @__PURE__ */ $$_create_template("<div></div>");
@@ -23,7 +23,7 @@ test('static innerHTML', () => {
   `);
 });
 
-test('$innerHTML', () => {
+test('signal', () => {
   expect(dom(`<div $innerHTML={content}><span /></div>`)).toMatchInlineSnapshot(`
     "import { $$_clone, $$_prop, $$_create_template } from "@maverick-js/dom";
     let $_template_1 = /* @__PURE__ */ $$_create_template("<div></div>");

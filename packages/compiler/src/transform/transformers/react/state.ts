@@ -1,4 +1,3 @@
-import type { AccessExpression } from '@maverick-js/ts';
 import ts from 'typescript';
 
 import { type AstNode, isComponentNode, isExpressionNode } from '../../../parse/ast';

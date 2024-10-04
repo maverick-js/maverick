@@ -57,19 +57,24 @@ test('dynamic', () => {
   expect(
     react(`
 function Foo() {
-  return <svg width={calcWidth} />
+  return <svg width={calcWidth} autocomplete />
 }`),
   ).toMatchInlineSnapshot(`
-    "import { $$_attach, $$_h } from "@maverick-js/react";
+    "import { $$_IS_SERVER, $$_attach, $$_h } from "@maverick-js/react";
     import { $$_attr } from "@maverick-js/dom";
     function Foo() {
-        let $_node_1 = $$_h($_render_1);
+        let $_ssr_attrs_1 = $$_IS_SERVER ? {
+            "width": calcWidth
+        } : null, $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
             $$_attr(el, "width", calcWidth);
         }
         function $_render_1() {
             let $_ref_1 = $$_attach($_attach_1);
             return $$_h("svg", {
+                autoComplete: true,
+                ...$_ssr_attrs_1,
+                suppressHydrationWarning: true,
                 ref: $_ref_1
             });
         }
@@ -86,10 +91,13 @@ function Foo() {
   return <svg width={calcWidth} height={calcHeight} />
 }`),
   ).toMatchInlineSnapshot(`
-    "import { $$_attach, $$_h } from "@maverick-js/react";
+    "import { $$_IS_SERVER, $$_attach, $$_h } from "@maverick-js/react";
     import { $$_attr } from "@maverick-js/dom";
     function Foo() {
-        let $_node_1 = $$_h($_render_1);
+        let $_ssr_attrs_1 = $$_IS_SERVER ? {
+            "width": calcWidth,
+            "height": calcHeight
+        } : null, $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
             $$_attr(el, "width", calcWidth);
             $$_attr(el, "height", calcHeight);
@@ -97,6 +105,8 @@ function Foo() {
         function $_render_1() {
             let $_ref_1 = $$_attach($_attach_1);
             return $$_h("svg", {
+                ...$_ssr_attrs_1,
+                suppressHydrationWarning: true,
                 ref: $_ref_1
             });
         }
@@ -113,16 +123,20 @@ function Foo() {
   return <svg $width={width} />
 }`),
   ).toMatchInlineSnapshot(`
-    "import { $$_attach, $$_h } from "@maverick-js/react";
+    "import { $$_unwrap, $$_IS_SERVER, $$_attach, $$_h } from "@maverick-js/react";
     import { $$_attr } from "@maverick-js/dom";
     function Foo() {
-        let $_node_1 = $$_h($_render_1);
+        let $_ssr_attrs_1 = $$_IS_SERVER ? {
+            "width": $$_unwrap(width)
+        } : null, $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
             $$_attr(el, "width", width);
         }
         function $_render_1() {
             let $_ref_1 = $$_attach($_attach_1);
             return $$_h("svg", {
+                ...$_ssr_attrs_1,
+                suppressHydrationWarning: true,
                 ref: $_ref_1
             });
         }
@@ -139,10 +153,13 @@ function Foo() {
   return <svg $width={width} $height={height} />
 }`),
   ).toMatchInlineSnapshot(`
-    "import { $$_attach, $$_h } from "@maverick-js/react";
+    "import { $$_unwrap, $$_IS_SERVER, $$_attach, $$_h } from "@maverick-js/react";
     import { $$_attr } from "@maverick-js/dom";
     function Foo() {
-        let $_node_1 = $$_h($_render_1);
+        let $_ssr_attrs_1 = $$_IS_SERVER ? {
+            "width": $$_unwrap(width),
+            "height": $$_unwrap(height)
+        } : null, $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
             $$_attr(el, "width", width);
             $$_attr(el, "height", height);
@@ -150,6 +167,8 @@ function Foo() {
         function $_render_1() {
             let $_ref_1 = $$_attach($_attach_1);
             return $$_h("svg", {
+                ...$_ssr_attrs_1,
+                suppressHydrationWarning: true,
                 ref: $_ref_1
             });
         }

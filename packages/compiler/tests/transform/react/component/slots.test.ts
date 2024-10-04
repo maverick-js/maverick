@@ -200,7 +200,7 @@ test('render function with nested component', () => {
   )}
 </Foo>`),
   ).toMatchInlineSnapshot(`
-    "import { $$_expression, $$_h, $$_component } from "@maverick-js/react";
+    "import { $$_expression, $$_h, $$_component, $$_memo } from "@maverick-js/react";
     let $_component_1 = $$_component(Foo, null, null, {
         "default": ({ foo, bar }) => ($$_h($_render_2.bind(foo, bar)))
     });
@@ -209,9 +209,9 @@ test('render function with nested component', () => {
         return $$_h("span", null, $_node_1, $_node_2);
     }
     function $_render_2(foo, bar) {
-        let $_node_3 = $$_expression(foo), $_component_2 = $$_component(Bar, null, null, {
+        let $_node_3 = $$_expression(foo), $_component_2 = $$_memo(() => $$_component(Bar, null, null, {
             "default": (bux) => $$_h($_render_1.bind(bux, bar))
-        });
+        }));
         return $$_h("div", null, $_node_3, $_component_2);
     }
     $_component_1
@@ -254,7 +254,7 @@ test('render function with many args and nested components', () => {
 </Foo>`,
     ),
   ).toMatchInlineSnapshot(`
-    "import { $$_expression, ReactFragment, $$_h, $$_component } from "@maverick-js/react";
+    "import { $$_expression, ReactFragment, $$_h, $$_component, $$_memo } from "@maverick-js/react";
     let $_component_1 = $$_component(Foo, null, null, {
         "default": (a, b, { c }, [d], e, f, g) => {
             return ($$_h($_render_4.bind(a, b, c, d, e, f, g)));
@@ -269,17 +269,17 @@ test('render function with many args and nested components', () => {
         return $$_h("div", null, $_node_4, $_node_5, $_node_6, $_node_7, $_node_8, $_node_9);
     }
     function $_render_3(e, f, a, g) {
-        let $_node_10 = $$_expression(e.a), $_node_11 = $$_expression(f.a), $_node_12 = $$_expression(f.b), $_component_2 = $$_component(Bux, null, null, {
+        let $_node_10 = $$_expression(e.a), $_node_11 = $$_expression(f.a), $_node_12 = $$_expression(f.b), $_component_2 = $$_memo(() => $$_component(Bux, null, null, {
             "default": () => $$_h($_render_1.bind(a, g))
-        }), $_component_3 = $$_component(Hux, null, null, {
+        })), $_component_3 = $$_memo(() => $$_component(Hux, null, null, {
             "default": (h) => $$_h($_render_2.bind(a, e, h))
-        });
+        }));
         return $$_h(ReactFragment, null, $_node_10, $$_h("span", null, $_node_11, $_node_12), $_component_2, $_component_3);
     }
     function $_render_4(a, b, c, d, e, f, g) {
-        let $_node_13 = $$_expression(a), $_node_14 = $$_expression(b), $_node_15 = $$_expression(c), $_node_16 = $$_expression(d), $_component_4 = $$_component(Bar, null, null, {
+        let $_node_13 = $$_expression(a), $_node_14 = $$_expression(b), $_node_15 = $$_expression(c), $_node_16 = $$_expression(d), $_component_4 = $$_memo(() => $$_component(Bar, null, null, {
             "default": () => $$_h($_render_3.bind(e, f, a, g))
-        });
+        }));
         return $$_h("div", null, $_node_13, $_node_14, $_node_15, $_node_16, $_component_4);
     }
     $_component_1

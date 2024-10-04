@@ -29,6 +29,6 @@ export abstract class Runtime {
   }
 
   protected call(name: string, args?: readonly ts.Expression[]) {
-    return $.createCallExpression(this.id(name), undefined, args);
+    return $.createCallExpression(this.id(`$$_${name}`), undefined, args);
   }
 }

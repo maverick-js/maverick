@@ -43,7 +43,7 @@ export function transform(node: AstNode, state: SsrTransformState): ts.Expressio
   if (state.statics.length === 1 && state.values.length === 0) {
     return state.statics[0];
   } else if (state.statics.length > 0) {
-    state.template = $.createUniqueName('$$_t');
+    state.template = $.createUniqueName('$$_template');
     return state.runtime.ssr(state.template, state.values);
   }
 
@@ -51,5 +51,5 @@ export function transform(node: AstNode, state: SsrTransformState): ts.Expressio
     return state.values.length === 1 ? state.values[0] : $.array(state.values);
   }
 
-  return $.createNull();
+  return $.null;
 }

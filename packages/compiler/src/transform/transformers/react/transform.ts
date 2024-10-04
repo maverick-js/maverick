@@ -38,7 +38,7 @@ export function transform(
 
   // This will occur when the entire node is static and hoisted from inside an expression.
   if (isElementNode(node) && !state.node) {
-    return state.result ?? $.createNull();
+    return state.result ?? $.null;
   }
 
   let $return: ts.Expression;
@@ -50,7 +50,7 @@ export function transform(
   } else if (isExpressionNode(node)) {
     $return = state.result!;
   } else {
-    $return = state.result ? runtime.h(state.result) : $.createNull();
+    $return = state.result ? runtime.h(state.result) : $.null;
   }
 
   // Let expression visitor handle it from here.

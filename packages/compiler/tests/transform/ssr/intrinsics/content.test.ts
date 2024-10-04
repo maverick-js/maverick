@@ -1,26 +1,26 @@
 import { ssr } from '../../transform';
 
-test('static innerHTML', () => {
+test('static', () => {
   expect(ssr(`<div innerHTML="<div></div>"><span /></div>`)).toMatchInlineSnapshot(`
     ""<div><div></div></div>";
     "
   `);
 });
 
-test('dynamic innerHTML', () => {
+test('dynamic', () => {
   expect(ssr(`<div innerHTML={content}><span /></div>`)).toMatchInlineSnapshot(`
     "import { $$_ssr } from "@maverick-js/ssr";
-    let $$_t_1 = ["<!$><div>", "</div>"];
-    $$_ssr($$_t_1, [content]);
+    let $$_template_1 = ["<!$><div>", "</div>"];
+    $$_ssr($$_template_1, [content]);
     "
   `);
 });
 
-test('$innerHTML', () => {
+test('signal', () => {
   expect(ssr(`<div $innerHTML={content}><span /></div>`)).toMatchInlineSnapshot(`
     "import { $$_ssr } from "@maverick-js/ssr";
-    let $$_t_1 = ["<!$><div>", "</div>"];
-    $$_ssr($$_t_1, [content]);
+    let $$_template_1 = ["<!$><div>", "</div>"];
+    $$_ssr($$_template_1, [content]);
     "
   `);
 });

@@ -48,16 +48,22 @@ function Foo() {
   return <svg var:foo={getFoo()} />
 }`),
   ).toMatchInlineSnapshot(`
-    "import { $$_attach, $$_h } from "@maverick-js/react";
+    "import { $$_ssr_style, $$_IS_SERVER, $$_attach, $$_h } from "@maverick-js/react";
     import { $$_style } from "@maverick-js/dom";
     function Foo() {
-        let $_node_1 = $$_h($_render_1);
+        let $_ssr_attrs_1 = $$_IS_SERVER ? {
+            style: $$_ssr_style("", {
+                "--foo": getFoo()
+            })
+        } : null, $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
             $$_style(el, "--foo", getFoo());
         }
         function $_render_1() {
             let $_ref_1 = $$_attach($_attach_1);
             return $$_h("svg", {
+                ...$_ssr_attrs_1,
+                suppressHydrationWarning: true,
                 ref: $_ref_1
             });
         }
@@ -74,10 +80,15 @@ function Foo() {
   return <svg var:foo={getFoo()} var:bar={getBar()} />
 }`),
   ).toMatchInlineSnapshot(`
-    "import { $$_attach, $$_h } from "@maverick-js/react";
+    "import { $$_ssr_style, $$_IS_SERVER, $$_attach, $$_h } from "@maverick-js/react";
     import { $$_style } from "@maverick-js/dom";
     function Foo() {
-        let $_node_1 = $$_h($_render_1);
+        let $_ssr_attrs_1 = $$_IS_SERVER ? {
+            style: $$_ssr_style("", {
+                "--foo": getFoo(),
+                "--bar": getBar()
+            })
+        } : null, $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
             $$_style(el, "--foo", getFoo());
             $$_style(el, "--bar", getBar());
@@ -85,6 +96,8 @@ function Foo() {
         function $_render_1() {
             let $_ref_1 = $$_attach($_attach_1);
             return $$_h("svg", {
+                ...$_ssr_attrs_1,
+                suppressHydrationWarning: true,
                 ref: $_ref_1
             });
         }
@@ -101,16 +114,22 @@ function Foo() {
   return <svg $var:foo={foo} />
 }`),
   ).toMatchInlineSnapshot(`
-    "import { $$_attach, $$_h } from "@maverick-js/react";
+    "import { $$_unwrap, $$_ssr_style, $$_IS_SERVER, $$_attach, $$_h } from "@maverick-js/react";
     import { $$_style } from "@maverick-js/dom";
     function Foo() {
-        let $_node_1 = $$_h($_render_1);
+        let $_ssr_attrs_1 = $$_IS_SERVER ? {
+            style: $$_ssr_style("", {
+                "--foo": $$_unwrap(foo)
+            })
+        } : null, $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
             $$_style(el, "--foo", foo);
         }
         function $_render_1() {
             let $_ref_1 = $$_attach($_attach_1);
             return $$_h("svg", {
+                ...$_ssr_attrs_1,
+                suppressHydrationWarning: true,
                 ref: $_ref_1
             });
         }
@@ -127,10 +146,15 @@ function Foo() {
   return <svg $var:foo={foo} $var:bar={bar}/>
 }`),
   ).toMatchInlineSnapshot(`
-    "import { $$_attach, $$_h } from "@maverick-js/react";
+    "import { $$_unwrap, $$_ssr_style, $$_IS_SERVER, $$_attach, $$_h } from "@maverick-js/react";
     import { $$_style } from "@maverick-js/dom";
     function Foo() {
-        let $_node_1 = $$_h($_render_1);
+        let $_ssr_attrs_1 = $$_IS_SERVER ? {
+            style: $$_ssr_style("", {
+                "--foo": $$_unwrap(foo),
+                "--bar": $$_unwrap(bar)
+            })
+        } : null, $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
             $$_style(el, "--foo", foo);
             $$_style(el, "--bar", bar);
@@ -138,6 +162,8 @@ function Foo() {
         function $_render_1() {
             let $_ref_1 = $$_attach($_attach_1);
             return $$_h("svg", {
+                ...$_ssr_attrs_1,
+                suppressHydrationWarning: true,
                 ref: $_ref_1
             });
         }

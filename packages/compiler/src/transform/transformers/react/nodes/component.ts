@@ -56,7 +56,10 @@ export function Component(node: ComponentNode, { state }: ReactVisitorContext) {
     onAttach = createAttachHostCallback(node, domRuntime);
 
   const component = runtime.component(node.name, props, listeners, slots, onAttach),
-    componentId = state[scope].vars.create('$_component', component).name;
+    componentId = state[scope].vars.create(
+      '$_component',
+      scope === 'render' ? runtime.memo(component) : component,
+    ).name;
 
   state.result = componentId;
   parent?.children.push(componentId);

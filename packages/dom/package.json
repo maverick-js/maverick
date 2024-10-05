@@ -1,0 +1,72 @@
+{
+  "name": "@maverick-js/dom",
+  "license": "MIT",
+  "version": "0.43.2",
+  "type": "module",
+  "types": "src/index.ts",
+  "module": "src/index.ts",
+  "sideEffects": false,
+  "contributors": [
+    "Rahim Alwer <rahim.alwer@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maverick-js/maverick.git",
+    "directory": "packages/dom"
+  },
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
+  },
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "pnpm clean && pnpm types && rollup -c",
+    "clean": "rimraf dist-npm",
+    "types": "tsc -p tsconfig.build.json",
+    "test": "pnpm test:client && pnpm test:server",
+    "format": "prettier src --write --loglevel warn",
+    "test:client": "vitest --run",
+    "test:client:watch": "vitest --watch",
+    "test:server": "SERVER=true vitest --run",
+    "test:server:watch": "SERVER=true vitest --watch"
+  },
+  "dependencies": {
+    "@maverick-js/std": "workspace:*"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^2.1.0",
+    "@maverick-js/compiler": "workspace:*",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "jsdom": "^20.0.0",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.7.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-esbuild": "^6.1.0",
+    "type-fest": "^4.8.3",
+    "typescript": "^5.6.2",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "$types": "index.d.ts",
+  "$exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "node": "./server/index.js",
+      "development": "./dev/index.js",
+      "default": "./prod/index.js"
+    },
+    "./server": {
+      "types": "./server.d.ts",
+      "node": "./server/server.js",
+      "development": "./dev/server.js",
+      "default": "./prod/server.js"
+    },
+    "./types/*": "./types/*",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

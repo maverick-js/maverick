@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@maverick-js/dom": ["../src/index.ts"]
+    }
+  }
+}

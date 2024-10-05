@@ -152,6 +152,49 @@ importers:
         specifier: ^1.0.0
         version: 1.6.0(@edge-runtime/vm@2.1.2)(@types/node@18.19.46)(jsdom@20.0.3)
 
+  packages/dom:
+    dependencies:
+      '@maverick-js/std':
+        specifier: workspace:*
+        version: link:../std
+    devDependencies:
+      '@edge-runtime/vm':
+        specifier: ^2.1.0
+        version: 2.1.2
+      '@maverick-js/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.2.3
+        version: 15.2.3(rollup@4.21.1)
+      jsdom:
+        specifier: ^20.0.0
+        version: 20.0.3
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.10
+      rollup:
+        specifier: ^4.7.0
+        version: 4.21.1
+      rollup-plugin-dts:
+        specifier: ^6.1.0
+        version: 6.1.1(rollup@4.21.1)(typescript@5.6.2)
+      rollup-plugin-esbuild:
+        specifier: ^6.1.0
+        version: 6.1.1(esbuild@0.19.12)(rollup@4.21.1)
+      type-fest:
+        specifier: ^4.8.3
+        version: 4.25.0
+      typescript:
+        specifier: ^5.6.2
+        version: 5.6.2
+      vite:
+        specifier: ^5.0.0
+        version: 5.4.2(@types/node@18.19.46)
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.0(@edge-runtime/vm@2.1.2)(@types/node@18.19.46)(jsdom@20.0.3)
+
   packages/element:
     dependencies:
       '@maverick-js/std':

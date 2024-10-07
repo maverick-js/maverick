@@ -185,9 +185,13 @@ function parseAttrs(
       nameParts = attrText.includes(':') ? attrText.split(':') : [],
       hasValidNamespace = isValidNamespace(nameParts[0]),
       namespace = hasValidNamespace ? (nameParts[0] as JsxNamespace) : undefined,
-      name = (hasValidNamespace ? nameParts[1] : attrText).replace(/^\$/, ''),
+      name = hasValidNamespace ? nameParts[1] : attrText,
       isStaticExpression = !!expression && isStaticLiteralNode(expression),
       isStaticValue = !initializer || isStaticLiteralNode(initializer) || isStaticExpression;
+
+    if (!isComponent || hasValidNamespace) {
+      name = name.replace(/^\$/, '');
+    }
 
     const signal = attrText.startsWith('$'),
       dynamic =

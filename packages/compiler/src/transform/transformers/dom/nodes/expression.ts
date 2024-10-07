@@ -32,4 +32,8 @@ export function Expression(node: ExpressionNode, { state, walk }: DomVisitorCont
       insert(rootElement, value, node, state, walk);
     }
   }
+
+  if (state.result === $.null) {
+    state.result = node.expression;
+  }
 }

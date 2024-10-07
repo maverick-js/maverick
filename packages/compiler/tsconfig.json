@@ -3,6 +3,6 @@
   "compilerOptions": {
     "types": ["@types/node", "vitest/globals"]
   },
-  "include": ["src", "tests", "../logger/src/logger.ts", "../logger/src/ms.ts"],
+  "include": ["src", "tests"],
   "exclude": ["dist-*", "node_modules"]
 }

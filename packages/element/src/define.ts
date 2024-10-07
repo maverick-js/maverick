@@ -1,12 +1,6 @@
-export function defineCustomElement(element: CustomElementConstructor, throws = false) {
+import type { CustomElementConstructor } from 'maverick.js';
+
+export function defineCustomElement(tagName: string, element: CustomElementConstructor) {
   if (__SERVER__) return;
-
-  if (throws || !window.customElements.get(element.tagName)) {
-    window.customElements.define(element.tagName, element);
-  }
-}
-
-export interface CustomElementConstructor {
-  readonly tagName: string;
-  new (): HTMLElement;
+  window.customElements.define(tagName, element);
 }

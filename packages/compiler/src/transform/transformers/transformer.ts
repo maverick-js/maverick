@@ -3,9 +3,8 @@ import type ts from 'typescript';
 import type { AstNode } from '../../parse/ast';
 import type { TransformContext } from '../transform';
 
-export interface Transformer {
-  name: string;
-  transform(data: TransformData): ts.SourceFile;
+export interface Transform {
+  (data: TransformData): ts.SourceFile;
 }
 
 export interface TransformData {
@@ -14,8 +13,8 @@ export interface TransformData {
   ctx: TransformContext;
 }
 
-export interface Transform<State> {
-  (node: AstNode, state: State): TransformResult;
+export interface StateTransform<State> {
+  (node: AstNode, state: State): StateTransformResult;
 }
 
-export type TransformResult = ts.Expression | Array<ts.Expression | ts.Statement> | undefined;
+export type StateTransformResult = ts.Expression | Array<ts.Expression | ts.Statement> | undefined;

@@ -1,15 +1,15 @@
 import type { Constructor } from 'type-fest';
 
 const EVENT: Constructor<Event> = __SERVER__ ? (class Event {} as any) : Event,
-  DOM_EVENT = Symbol('DOM_EVENT');
+  MAVERICK_EVENT_SYMBOL = Symbol.for('maverick.event');
 
-export interface DOMEventInit<Detail = unknown> extends EventInit {
+export interface MaverickEventInit<Detail = unknown> extends EventInit {
   readonly detail: Detail;
   readonly trigger?: Event;
 }
 
-export class DOMEvent<Detail = unknown> extends EVENT {
-  [DOM_EVENT] = true;
+export class MaverickEvent<Detail = unknown> extends EVENT {
+  readonly [MAVERICK_EVENT_SYMBOL] = true;
 
   /**
    * The event detail.
@@ -47,8 +47,8 @@ export class DOMEvent<Detail = unknown> extends EVENT {
   constructor(
     type: string,
     ...init: Detail extends void | undefined | never
-      ? [init?: Partial<DOMEventInit<Detail>>]
-      : [init: DOMEventInit<Detail>]
+      ? [init?: Partial<MaverickEventInit<Detail>>]
+      : [init: MaverickEventInit<Detail>]
   ) {
     super(type, init[0]);
     this.detail = init[0]?.detail!;
@@ -74,7 +74,7 @@ export class EventTriggers implements Iterable<Event> {
    */
   add(event: Event): void {
     this.chain.push(event);
-    if (isDOMEvent(event)) {
+    if (isMaverickEvent(event)) {
       this.chain.push(...event.triggers);
     }
   }
@@ -125,10 +125,10 @@ export class EventTriggers implements Iterable<Event> {
 }
 
 /**
- * Whether the given `event` is a `DOMEvent` class.
+ * Whether the given `event` is a `MaverickEvent` class.
  */
-export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {
-  return !!event?.[DOM_EVENT];
+export function isMaverickEvent(event?: Event | null): event is MaverickEvent<unknown> {
+  return !!event?.[MAVERICK_EVENT_SYMBOL];
 }
 
 /**
@@ -136,7 +136,7 @@ export function isDOMEvent(event?: Event | null): event is DOMEvent<unknown> {
  * started the chain.
  * @deprecated - Use `event.originEvent`
  */
-export function getOriginEvent(event: DOMEvent): Event | undefined {
+export function getOriginEvent(event: MaverickEvent): Event | undefined {
   return event.originEvent;
 }
 
@@ -148,7 +148,7 @@ export function walkTriggerEventChain<T>(
   event: Event,
   callback: (event: Event) => NonNullable<T> | void,
 ): [event: Event, value: NonNullable<T>] | undefined {
-  if (!isDOMEvent(event)) return;
+  if (!isMaverickEvent(event)) return;
   return event.triggers.walk(callback);
 }
 
@@ -157,7 +157,7 @@ export function walkTriggerEventChain<T>(
  * @deprecated - Use `event.triggers.findType('')`
  */
 export function findTriggerEvent(event: Event, type: string): Event | undefined {
-  return isDOMEvent(event) ? event.triggers.findType(type) : undefined;
+  return isMaverickEvent(event) ? event.triggers.findType(type) : undefined;
 }
 
 /**
@@ -172,35 +172,45 @@ export function hasTriggerEvent(event: Event, type: string): boolean {
  * Appends the given `trigger` to the event chain.
  * @deprecated - Use `event.triggers.add(event)`
  */
-export function appendTriggerEvent(event: DOMEvent, trigger?: Event) {
+export function appendTriggerEvent(event: MaverickEvent, trigger?: Event) {
   if (trigger) event.triggers.add(trigger);
 }
 
 export type InferEventDetail<T> = T extends { detail: infer Detail }
   ? Detail
-  : T extends DOMEvent<infer Detail>
+  : T extends MaverickEvent<infer Detail>
     ? Detail
-    : T extends DOMEventInit<infer Detail>
+    : T extends MaverickEventInit<infer Detail>
       ? Detail
       : unknown;
 
 export type InferEventInit<T> =
-  T extends Constructor<DOMEvent>
-    ? DOMEventInit<InferEventDetail<InstanceType<T>>>
-    : T extends DOMEvent
-      ? DOMEventInit<InferEventDetail<T>>
-      : T extends DOMEventInit
+  T extends Constructor<MaverickEvent>
+    ? MaverickEventInit<InferEventDetail<InstanceType<T>>>
+    : T extends MaverickEvent
+      ? MaverickEventInit<InferEventDetail<T>>
+      : T extends MaverickEventInit
         ? T
-        : DOMEventInit<unknown>;
+        : MaverickEventInit<unknown>;
 
 export type EventCallback<T extends Event> =
   | ((event: T) => void)
   | { handleEvent(event: T): void }
   | null;
 
-export class EventsTarget<Events> extends EventTarget {
+export class MaverickEventTarget<Events> extends EventTarget {
   /** @internal type only */
-  $ts__events?: Events;
+  readonly $ts__events?: Events;
+
+  dispatch<T extends keyof Events>(
+    type: T,
+    ...detail: InferEventDetail<Events[T]> extends void | undefined | never
+      ? [detail?: never]
+      : [detail: InferEventDetail<Events[T]>]
+  ) {
+    return this.dispatchEvent(new MaverickEvent(type as string, detail?.[0] as any));
+  }
+
   override addEventListener<Type extends keyof Events>(
     type: Type & string,
     callback: EventCallback<Events[Type] & Event>,
@@ -208,6 +218,7 @@ export class EventsTarget<Events> extends EventTarget {
   ) {
     return super.addEventListener(type as string, callback as EventListener, options);
   }
+
   override removeEventListener<Type extends keyof Events>(
     type: Type & string,
     callback: EventCallback<Events[Type] & Event>,
@@ -240,6 +251,10 @@ export function anySignal(...signals: AbortSignal[]): AbortSignal {
   return controller.signal;
 }
 
+export function isEventTarget(value: any): value is EventTarget {
+  return value && value instanceof EventTarget;
+}
+
 export function isPointerEvent(event: Event | undefined): event is PointerEvent {
   return !!event?.type.startsWith('pointer');
 }
@@ -266,4 +281,29 @@ export function wasEscapeKeyPressed(event: Event | undefined) {
 
 export function isKeyboardClick(event: Event | undefined) {
   return isKeyboardEvent(event) && (event.key === 'Enter' || event.key === ' ');
+}
+
+const forwardedEventProps = /* #__PURE__ */ [
+  'target',
+  'currentTarget',
+  'defaultPrevented',
+  'timeStamp',
+  'composedPath',
+];
+
+export function cloneEvent<T extends Event>(event: T, init?: Partial<T>): T {
+  const prototype = Object.getPrototypeOf(event),
+    clone = new prototype.constructor(event.type, { ...event, ...init });
+
+  clone.origin = event;
+
+  for (const prop of forwardedEventProps) {
+    Object.defineProperty(clone, prop, {
+      get() {
+        return event[prop];
+      },
+    });
+  }
+
+  return clone;
 }

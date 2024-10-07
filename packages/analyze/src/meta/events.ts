@@ -6,7 +6,7 @@ import { getDocs } from '../utils/docs';
 import { buildTypeMeta, serializeType } from '../utils/types';
 import type { EventMeta } from './component';
 import { getDocTags, hasDocTag } from './doctags';
-import { TS_NODE } from './symbols';
+import { TS_NODE_SYMBOL } from './symbols';
 
 const filteredTagNames = new Set(['internal', 'deprecated', 'bubbles', 'composed', 'cancellable']);
 
@@ -62,7 +62,7 @@ export function buildEventsMeta(checker: ts.TypeChecker, typesRoot?: ts.Type) {
     }
 
     meta.set(name, {
-      [TS_NODE]: signature,
+      [TS_NODE_SYMBOL]: signature,
       name,
       type,
       detail,

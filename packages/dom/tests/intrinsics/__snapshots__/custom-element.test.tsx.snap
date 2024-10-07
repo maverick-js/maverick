@@ -1,0 +1,26 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`render 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <mk-foo
+    data-foo=""
+  >
+    <div>
+      Foo Content
+    </div>
+    <mk-bar
+      data-bar=""
+    >
+      <div>
+        Bar Content
+      </div>
+    </mk-bar>
+  </mk-foo>
+</body>
+`;

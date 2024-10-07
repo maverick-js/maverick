@@ -1,4 +1,8 @@
-import { defineCustomElement, Host, type MaverickElement } from '@maverick-js/element';
+import {
+  createCustomElement,
+  defineCustomElement,
+  type MaverickElement,
+} from '@maverick-js/element';
 import { waitAnimationFrame } from '@maverick-js/std';
 import { Component } from 'maverick.js';
 
@@ -14,7 +18,7 @@ it('should keep elements alive', async () => {
     grandchildBDispose = vi.fn();
 
   function createElement(name: string, dispose: () => void) {
-    return class extends Host(
+    return class extends createElement(
       HTMLElement,
       class extends Component {
         protected override onDestroy() {

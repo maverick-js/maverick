@@ -1,0 +1,34 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`pass props to class component 1`] = `
+<body>
+  <div>
+    10
+    10
+  </div>
+</body>
+`;
+
+exports[`pass props to class component 2`] = `
+<body>
+  <div>
+    10
+    20
+  </div>
+</body>
+`;
+
+exports[`pass props to function component 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div>
+    10
+    20
+  </div>
+</body>
+`;

@@ -8,7 +8,7 @@ import {
 import { noop } from '@maverick-js/std';
 import { type AnyComponent, scoped } from 'maverick.js';
 
-import { SETUP } from '../symbols';
+import { SETUP_SYMBOL } from '../symbols';
 
 export class MaverickServerElement<T extends AnyComponent = AnyComponent> implements ServerElement {
   keepAlive = false;
@@ -79,7 +79,7 @@ export class MaverickServerElement<T extends AnyComponent = AnyComponent> implem
     return this.attributes.removeAttribute(name);
   }
 
-  [SETUP]() {}
+  [SETUP_SYMBOL]() {}
   addEventListener() {}
   removeEventListener() {}
 

@@ -1,0 +1,29 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`host vars 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div
+    style="background-color: var(--bg-color); z-index: var(--z-index); --color: red; --bg-color: red; --z-index: 20;"
+  />
+</body>
+`;
+
+exports[`host vars 2`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div
+    style="background-color: var(--bg-color); z-index: var(--z-index); --color: orange; --bg-color: red; --z-index: 20;"
+  />
+</body>
+`;

@@ -1,3 +1,5 @@
+export * from './custom-element/attrs';
+export * from './custom-element/types';
 export * from './component';
 export * from './context';
 export * from './controller';

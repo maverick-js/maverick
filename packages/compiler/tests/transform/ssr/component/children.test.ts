@@ -1,6 +1,6 @@
 import { ssr } from '../../transform';
 
-test('simple', () => {
+test('none', () => {
   expect(ssr(`<Foo />`)).toMatchInlineSnapshot(`
     "import { $$_create_component } from "@maverick-js/ssr";
     $$_create_component(Foo);

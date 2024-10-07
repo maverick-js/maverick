@@ -1,6 +1,6 @@
 import { react } from '../../transform';
 
-test('simple', () => {
+test('none', () => {
   expect(react(`<Foo />`)).toMatchInlineSnapshot(`
     "import { $$_component } from "@maverick-js/react";
     let $_component_1 = $$_component(Foo);
@@ -47,7 +47,7 @@ test('multiple static child elements', () => {
 test('one dynamic child element', () => {
   expect(react(`<Foo><span on:click={onClick} /></Foo>`)).toMatchInlineSnapshot(`
     "import { $$_attach, $$_h, $$_component } from "@maverick-js/react";
-    import { $$_listen, $$_delegate_events } from "@maverick-js/dom";
+    import { $$_listen } from "@maverick-js/dom";
     let $_node_1 = $$_h($_render_1), $_component_1 = $$_component(Foo, null, null, {
         "default": () => $_node_1
     });
@@ -61,7 +61,6 @@ test('one dynamic child element', () => {
         });
     }
     $_component_1
-    $$_delegate_events(["click"]);
     "
   `);
 });
@@ -69,7 +68,7 @@ test('one dynamic child element', () => {
 test('multiple dynamic child elements', () => {
   expect(react(`<Foo><span on:click={onA} /><span on:click={onB} /></Foo>`)).toMatchInlineSnapshot(`
     "import { ReactFragment, $$_attach, $$_h, $$_component } from "@maverick-js/react";
-    import { $$_listen, $$_delegate_events } from "@maverick-js/dom";
+    import { $$_listen } from "@maverick-js/dom";
     let $_node_1 = $$_h($_render_1), $_component_1 = $$_component(Foo, null, null, {
         "default": () => $_node_1
     });
@@ -88,7 +87,6 @@ test('multiple dynamic child elements', () => {
         }));
     }
     $_component_1
-    $$_delegate_events(["click"]);
     "
   `);
 });
@@ -130,7 +128,7 @@ function Bar() {
     ),
   ).toMatchInlineSnapshot(`
     "import { ReactFragment, $$_IS_CLIENT, $$_component, $$_memo, $$_h, $$_computed, $$_expression, $$_attach } from "@maverick-js/react";
-    import { $$_listen, $$_delegate_events } from "@maverick-js/dom";
+    import { $$_listen } from "@maverick-js/dom";
     function Bar() {
         let $_node_1 = $$_h($_render_1), $_computed_1 = $$_computed(() => a() ? $_node_1 : null), $_node_2 = $$_h($_render_2), $_computed_2 = $$_computed(() => b() ? $_node_2 : null), $_node_3 = $$_h($_render_3), $_component_1 = $$_component(Foo, null, null, {
             "default": () => $_node_3
@@ -156,7 +154,24 @@ function Bar() {
         }
         return $_component_1;
     }
-    $$_delegate_events(["click"]);
+    "
+  `);
+});
+
+test('child component', () => {
+  expect(react(`<Foo><Bar on:foo={onFoo} /></Foo>`)).toMatchInlineSnapshot(`
+    "import { $$_IS_CLIENT, $$_component, $$_memo, $$_h } from "@maverick-js/react";
+    import { $$_listen } from "@maverick-js/dom";
+    let $_node_1 = $$_h($_render_1), $_component_1 = $$_component(Foo, null, null, {
+        "default": () => $_node_1
+    });
+    function $_render_1() {
+        let $_component_2 = $$_memo(() => $$_component(Bar, null, $$_IS_CLIENT && (instance => {
+            $$_listen(instance, "foo", onFoo);
+        })));
+        return $_component_2;
+    }
+    $_component_1
     "
   `);
 });

@@ -1,0 +1,71 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dynamic 1`] = `
+<div
+  style="color: blue; background-color: red;"
+/>
+`;
+
+exports[`signal 1`] = `
+<div
+  style="color: blue;"
+/>
+`;
+
+exports[`signal 2`] = `
+<div
+  style="color: red;"
+/>
+`;
+
+exports[`signal 3`] = `
+<div
+  style=""
+/>
+`;
+
+exports[`static 1`] = `
+<div
+  style="color: blue;"
+/>
+`;
+
+exports[`with dynamic base 1`] = `
+<body>
+  <div
+    style="background-color: pink; color: red;"
+  />
+</body>
+`;
+
+exports[`with dynamic base 2`] = `
+<body>
+  <div
+    style="background-color: pink; color: orange;"
+  />
+</body>
+`;
+
+exports[`with signal base 1`] = `
+<body>
+  <div
+    style="background-color: red; color: red;"
+  />
+</body>
+`;
+
+exports[`with signal base 2`] = `
+<body>
+  <div
+    style="color: red; background-color: red; z-index: 10;"
+  />
+</body>
+`;
+
+exports[`with signal base 3`] = `
+<body>
+  <div
+    style="color: blue; background-color: red; z-index: 10;"
+  />
+</body>
+`;

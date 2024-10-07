@@ -46,13 +46,13 @@ function Foo() {
 }`),
   ).toMatchInlineSnapshot(`
     "import { $$_unwrap, $$_IS_SERVER, $$_attach, $$_h } from "@maverick-js/react";
-    import { $$_prop } from "@maverick-js/dom";
+    import { $$_content } from "@maverick-js/dom";
     function Foo() {
         let $_ssr_attrs_1 = $$_IS_SERVER ? {
             dangerouslySetInnerHTML: { __html: $$_unwrap(content) }
         } : null, $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
-            $$_prop(el, "innerHTML", content);
+            $$_content(el, "innerHTML", content);
         }
         function $_render_1() {
             let $_ref_1 = $$_attach($_attach_1);

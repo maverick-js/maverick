@@ -14,7 +14,7 @@ import {
 } from '../../../parse/ast';
 import { getAttributeNodeFullName, getEventNodeFullName } from '../../../parse/utils';
 import type { NextState } from '../../../parse/walk';
-import type { Transform, TransformResult } from '../transformer';
+import type { StateTransform, StateTransformResult } from '../transformer';
 
 export function createComponentProps(node: ComponentNode) {
   if (!node.props?.length) return;
@@ -48,13 +48,13 @@ export function createComponentHostProps(node: ComponentNode, { ssr = false } = 
 
 export function createComponentSlotsObject<State>(
   component: ComponentNode,
-  transform: Transform<State>,
+  transform: StateTransform<State>,
   nextState: NextState<State>,
   resolve?: (
     slot: AstNode,
     state: State,
-    result: NonNullable<TransformResult>,
-    resolve: (node: TransformResult) => ts.Expression,
+    result: NonNullable<StateTransformResult>,
+    resolve: (node: StateTransformResult) => ts.Expression,
   ) => ts.Expression,
 ) {
   if (!component.slots) return;
@@ -87,7 +87,7 @@ export function createComponentSlotsObject<State>(
   );
 }
 
-function resolveSlot(slot: AstNode, result: TransformResult = $.null) {
+function resolveSlot(slot: AstNode, result: StateTransformResult = $.null) {
   return !isArray(result) &&
     (ts.isArrowFunction(result) || (isExpressionNode(slot) && ts.isArrowFunction(slot.expression)))
     ? result
@@ -98,7 +98,7 @@ export function isHigherOrderExpression(node: AstNode) {
   return isExpressionNode(node) && node.children && !ts.isArrowFunction(node.expression);
 }
 
-export function createElementProps(node: ElementNode, { ssr = false } = {}) {
+export function createElementSpreadProps(node: ElementNode, { ssr = false } = {}) {
   const props: ts.PropertyAssignment[] = [];
 
   props.push(
@@ -110,7 +110,18 @@ export function createElementProps(node: ElementNode, { ssr = false } = {}) {
 
   if (!ssr) {
     props.push(...createAttributePropertyAssignmentList(node.props));
+
+    if (node.content) {
+      props.push(
+        $.createPropertyAssignment(
+          $.string(`content:${node.content.name}`),
+          node.content.initializer,
+        ),
+      );
+    }
+
     props.push(...createEventPropertyAssignmentList(node.events));
+
     if (node.ref) {
       props.push(createRefPropertyAssignment(node.ref));
     }
@@ -141,7 +152,7 @@ export function createRefPropertyAssignment(node: RefNode) {
 
 export function transformAstNodeChildren<Node extends AstNode, State>(
   node: Node,
-  transform: Transform<State>,
+  transform: StateTransform<State>,
   nextState: NextState<State>,
 ): InferTsNode<Node> {
   const map: TsNodeMap = new WeakMap();

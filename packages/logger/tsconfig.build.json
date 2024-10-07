@@ -2,7 +2,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "declarationDir": "types",
-    "paths": {}
+    "paths": {
+      "@maverick-js/std": ["../std/types/index.d.ts"]
+    }
   },
   "include": ["src"]
 }

@@ -5,7 +5,7 @@ import { getDocs } from '../utils/docs';
 import { buildTypeMeta, serializeType } from '../utils/types';
 import type { MethodMeta, ParameterMeta } from './component';
 import { getDocTags, hasDocTag } from './doctags';
-import { TS_NODE } from './symbols';
+import { TS_NODE_SYMBOL } from './symbols';
 
 export interface MethodMetaInfo {
   type: ts.Type;
@@ -25,7 +25,7 @@ export function buildMethodMeta(
   const parameters: ParameterMeta[] = declaration.parameters
     .filter((parameter) => parameter.type)
     .map((parameter) => ({
-      [TS_NODE]: parameter,
+      [TS_NODE_SYMBOL]: parameter,
       name: (parameter.name as ts.Identifier).escapedText as string,
       type: buildTypeMeta(checker, checker.getTypeAtLocation(parameter)),
       optional: !isUndefined(parameter.questionToken) ? true : undefined,
@@ -40,7 +40,7 @@ export function buildMethodMeta(
   }
 
   return {
-    [TS_NODE]: declaration,
+    [TS_NODE_SYMBOL]: declaration,
     name,
     docs,
     doctags,
@@ -48,7 +48,7 @@ export function buildMethodMeta(
     deprecated,
     parameters,
     signature: {
-      [TS_NODE]: signature,
+      [TS_NODE_SYMBOL]: signature,
       type: checker.signatureToString(
         signature,
         declaration,
@@ -57,7 +57,7 @@ export function buildMethodMeta(
       ),
     },
     return: {
-      [TS_NODE]: returnType,
+      [TS_NODE_SYMBOL]: returnType,
       type: serializeType(checker, returnType),
     },
   };

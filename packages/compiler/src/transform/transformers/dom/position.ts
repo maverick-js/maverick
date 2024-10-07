@@ -6,6 +6,8 @@ import {
   type ElementNode,
   type ExpressionNode,
   isElementNode,
+  isTextNode,
+  type TextNode,
 } from '../../../parse/ast';
 import { findElementIndex } from '../../../parse/utils';
 import type { Walker } from '../../../parse/walk';
@@ -25,7 +27,11 @@ import type { DomTransformState } from './state';
  *   element_2 = element.nextSibling; // <span>
  * ```
  */
-export function getElementId(node: ElementNode, state: DomTransformState, walk: Walker<any>) {
+export function getElementId(
+  node: ElementNode | TextNode,
+  state: DomTransformState,
+  walk: Walker<any>,
+) {
   if (state.elements.has(node)) {
     return state.elements.get(node);
   }
@@ -36,17 +42,23 @@ export function getElementId(node: ElementNode, state: DomTransformState, walk: 
     if (state.elements.has(child)) continue;
 
     const parentId = state.elements.get(parent);
-    assert(parentId);
+    if (!parentId) continue;
 
     const expression =
       childIndex === 0
         ? $.prop(parentId, $.id('firstChild'))
         : state.runtime.child(parentId, childIndex);
 
-    state.elements.set(child, state.vars.setup.element(expression));
+    state.elements.set(child, state.vars.setup.node(expression));
   }
 
   return state.elements.get(node);
+}
+
+export interface ElementPosition {
+  parent: ElementNode;
+  child: ElementNode | TextNode;
+  childIndex: number;
 }
 
 /**
@@ -54,9 +66,9 @@ export function getElementId(node: ElementNode, state: DomTransformState, walk: 
  * result can be used to build the correct element access expression as shown in `getElementId`
  * above.
  */
-export function getChildElementPositions(node: ElementNode, walk: Walker<any>) {
+export function getChildElementPositions(node: ElementNode | TextNode, walk: Walker<any>) {
   let current = node,
-    path: { parent: ElementNode; child: ElementNode; childIndex: number }[] = [];
+    path: ElementPosition[] = [];
 
   for (let i = walk.path.length - 1; i >= 0; i--) {
     const parent = walk.path[i];
@@ -90,10 +102,16 @@ export function getMarkerId(
   if (!parentElement?.children || parentElement.children.length === 1) return;
 
   const componentIndex = parentElement.children.indexOf(node),
-    siblingElement = parentElement.children.slice(componentIndex + 1).find(isElementNode);
+    sibling = parentElement.children
+      .slice(componentIndex + 1)
+      .find((node) => isElementNode(node) || isTextNode(node));
 
-  if (siblingElement) {
-    return getElementId(siblingElement, state, walk);
+  if (sibling) {
+    return getElementId(sibling, state, walk);
+  }
+
+  if (parentElement.children.length) {
+    return $.null;
   }
 }
 
@@ -103,16 +121,35 @@ export function insert(
   node: ComponentNode | ExpressionNode,
   state: DomTransformState,
   walk: Walker<any>,
+  marker?: ts.Identifier | null,
 ) {
   if (state.hydratable) {
     state.html += '<!$>';
-    assert(state.walker);
-    const markerId = state.vars.setup.nextNode(state.walker);
-    state.block.push(state.runtime.insertAtMarker(markerId, value));
+
+    if (!marker) {
+      marker = state.vars.setup.nextNode(state.walker!);
+    }
+
+    state.block.push(state.runtime.insertAtMarker(marker!, value));
   } else {
     const rootId = state.elements.get(rootElement);
-    assert(rootId);
     const markerId = getMarkerId(node, state, walk);
-    state.block.push(state.runtime.insert(rootId, value, markerId));
+    state.block.push(state.runtime.insert(rootId!, value, markerId));
+
+    const children = rootElement.children!;
+    if (children.length > 3) {
+      const index = children.indexOf(node),
+        prevSibling = children[index - 1],
+        nextSibling = children[index + 1],
+        isPrevSiblingTextNode = prevSibling && isTextNode(prevSibling),
+        isNextSiblingTextNode = nextSibling && isTextNode(nextSibling);
+
+      if (isPrevSiblingTextNode && isNextSiblingTextNode) {
+        // Problem: `<span>{a}-{b}-{c}</span>` will result in the following html `<span>--</span>`
+        // with the text nodes being merged.
+        // Solution: Split with a comment so `b` is inserted correctly: `<span>-<!>-</span>`
+        state.html += '<!>';
+      }
+    }
   }
 }

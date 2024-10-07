@@ -1,29 +1,28 @@
 import type { InferSignalValue, ReadSignal, WriteSignal } from '@maverick-js/signals';
-import type { ConditionalExcept, ConditionalPick, KebabCase } from 'type-fest';
+import type { ConditionalExcept, ConditionalPick, IsNever, KebabCase } from 'type-fest';
 
 import type { JSX } from '../jsx/jsx';
 
-export interface HostFC<Props = {}, CSSVars = {}, Slots = never> {
-  (props: HostFCProps<Props, CSSVars, Slots>): JSX.Element;
+export type NoChildren<T> = Omit<T, 'children'>;
+
+export interface FunctionComponent<
+  Host extends Node = never,
+  Props = {},
+  Events = {},
+  CSSVars = {},
+> {
+  (props: FunctionComponentProps<Host, Props, Events, CSSVars>): JSX.Element;
 }
 
-export type HostFCProps<Props = {}, CSSVars = {}, Slots = never> = JSX.ComponentAttributes<
-  Props,
-  HTMLElementEventMap,
-  CSSVars,
-  Slots
-> & {
-  $slots?: Slots;
-};
-
-export interface FC<Props = {}, Slots = never> {
-  (props: FCProps<Props, Slots>): JSX.Element;
-}
-
-export type FCProps<Props = {}, Slots = never> = Props &
-  JSX.ComponentChildrenProp<Slots> & {
-    $slots?: Slots;
-  };
+export type FunctionComponentProps<
+  Host extends Node = never,
+  Props = {},
+  Events = {},
+  CSSVars = {},
+> =
+  IsNever<Host> extends true
+    ? Props & { children?: JSX.Element }
+    : JSX.ComponentAttributes<Props, Events, CSSVars> & JSX.RefAttributes<Host>;
 
 export type SignalOrValue<T> = T | ReadSignal<T>;
 
@@ -65,7 +64,7 @@ export type AnyRecord = {
   [name: string]: any;
 };
 
-export interface EventHandler<E> {
+export interface EventHandler<E = Event> {
   (this: never, event: E): void;
 }
 

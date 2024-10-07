@@ -4,11 +4,7 @@ import ts from 'typescript';
 
 import { type ComponentNode, isExpressionNode } from '../../../../parse/ast';
 import { createAttachHostCallback } from '../../dom/nodes/component';
-import {
-  createComponentProps,
-  createComponentSlotsObject,
-  createEventPropertyAssignmentList,
-} from '../../shared/factory';
+import { createComponentProps, createComponentSlotsObject } from '../../shared/factory';
 import type { ReactTransformState, ReactVisitorContext } from '../state';
 import { transform } from '../transform';
 import { resolveExpressionChild } from './expression';
@@ -16,7 +12,7 @@ import { resolveExpressionChild } from './expression';
 export function Component(node: ComponentNode, { state }: ReactVisitorContext) {
   const { runtime, domRuntime } = state,
     // Avoid creating a render function wrapper if not needed.
-    scope = state.isExpressionChild ? 'render' : 'setup';
+    scope = state.isExpressionChild || state.isSlot ? 'render' : 'setup';
 
   const parent = state.node;
   state.node = null; // temp remove so slots create new roots.
@@ -26,18 +22,29 @@ export function Component(node: ComponentNode, { state }: ReactVisitorContext) {
   const props = !node.spreads
       ? $props
       : domRuntime.mergeProps([...node.spreads.map((s) => s.initializer), $props]),
-    listeners = !node.spreads
+    propsId = node.spreads
+      ? state[scope].vars.create(
+          '$_prop',
+          scope === 'render' && props ? runtime.memo(props) : props,
+        ).name
+      : undefined,
+    listeners = !propsId
       ? createListenersCallback(node, state)
-      : domRuntime.listenCallback(
-          ...node.spreads.map((s) => s.initializer),
-          node.events && node.spreads
-            ? $.object(createEventPropertyAssignmentList(node.events), true)
-            : undefined,
-        ),
+      : domRuntime.listenCallback(propsId),
+    listenerId = propsId
+      ? state[scope].vars.create(
+          '$_listeners',
+          scope === 'render' && listeners ? runtime.memo(listeners) : listeners,
+        ).name
+      : undefined,
     slots = createComponentSlotsObject(
       node,
       transform,
-      (node) => state.child(node),
+      (node) => {
+        const childState = state.child(node);
+        childState.isSlot = true;
+        return childState;
+      },
       (slot, childState, result, resolve) => {
         if (isExpressionNode(slot) && ts.isArrowFunction(slot.expression)) {
           // Pass render function identifiers directly to slot.
@@ -53,9 +60,15 @@ export function Component(node: ComponentNode, { state }: ReactVisitorContext) {
         return resolve(result);
       },
     ),
-    onAttach = createAttachHostCallback(node, domRuntime);
+    onAttach = createAttachHostCallback(node, domRuntime, propsId);
 
-  const component = runtime.component(node.name, props, listeners, slots, onAttach),
+  const component = runtime.component(
+      node.name,
+      propsId ?? props,
+      listenerId ?? listeners,
+      slots,
+      onAttach,
+    ),
     componentId = state[scope].vars.create(
       '$_component',
       scope === 'render' ? runtime.memo(component) : component,

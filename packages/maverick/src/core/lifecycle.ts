@@ -1,37 +1,30 @@
-import type { DOMEvent } from '@maverick-js/std';
+import type { MaverickEvent } from '@maverick-js/std';
 
-import { currentInstance } from './instance';
+import { $$_current_instance } from './instance';
 
-export interface SetupCallback {
-  (): void;
-}
+export const SETUP_SYMBOL = Symbol.for('maverick.setup');
+export const ATTACH_SYMBOL = Symbol.for('maverick.attach');
+export const CONNECT_SYMBOL = Symbol.for('maverick.connect');
+export const DESTROY_SYMBOL = Symbol.for('maverick.destroy');
 
-export interface DestroyCallback {
-  (): void;
-}
+export const componentLifecycleSymbols = [
+  SETUP_SYMBOL,
+  ATTACH_SYMBOL,
+  CONNECT_SYMBOL,
+  DESTROY_SYMBOL,
+];
 
-export interface HostElementCallback {
-  (host: HTMLElement): any;
-}
-
-export interface LifecycleHooks {
-  onSetup?: SetupCallback;
-  onAttach?: HostElementCallback;
-  onConnect?: HostElementCallback;
-  onDestroy?: DestroyCallback;
-}
-
-export interface LifecycleEvents {
+export interface ComponentLifecycleEvents {
   /** Fired when the component attaches to a host element. */
-  attach: DOMEvent<void>;
+  attach: MaverickEvent<void>;
   /** Fired when the component detaches from a host element. */
-  detach: DOMEvent<void>;
+  detach: MaverickEvent<void>;
   /** Fired when the host element connects to the DOM. */
-  connect: DOMEvent<void>;
+  connect: MaverickEvent<void>;
   /** Fired when the host element disconnects from the DOM. */
-  disconnect: DOMEvent<void>;
+  disconnect: MaverickEvent<void>;
   /** Fired when the component instance is destroyed. */
-  destroy: DOMEvent<void>;
+  destroy: MaverickEvent<void>;
 }
 
 /**
@@ -42,7 +35,11 @@ export interface LifecycleEvents {
  * - The host element has not attached yet - wait for `onAttach`.
  */
 export function onSetup(callback: SetupCallback) {
-  currentInstance?.addHooks({ onSetup: callback });
+  $$_current_instance![SETUP_SYMBOL].push(callback);
+}
+
+export interface SetupCallback {
+  (): void;
 }
 
 /**
@@ -51,8 +48,14 @@ export function onSetup(callback: SetupCallback) {
  * - This hook can run more than once as the component attaches/detaches from a host element.
  * - This hook may be called while the host element is not connected to the DOM yet.
  */
-export function onAttach(callback: HostElementCallback) {
-  currentInstance?.addHooks({ onAttach: callback });
+export function onAttach(callback: AttachCallback) {
+  $$_current_instance![ATTACH_SYMBOL].push(callback);
+}
+
+export interface AttachCallback extends HostElementCallback {}
+
+export interface HostElementCallback {
+  (host: HTMLElement): any;
 }
 
 /**
@@ -60,9 +63,11 @@ export function onAttach(callback: HostElementCallback) {
  *
  * - This hook can run more than once as the host disconnects and re-connects to the DOM.
  */
-export function onConnect(callback: HostElementCallback) {
-  currentInstance?.addHooks({ onConnect: callback });
+export function onConnect(callback: ConnectCallback) {
+  $$_current_instance![CONNECT_SYMBOL].push(callback);
 }
+
+export interface ConnectCallback extends HostElementCallback {}
 
 /**
  * The given callback is invoked when the component is destroyed.
@@ -72,5 +77,9 @@ export function onConnect(callback: HostElementCallback) {
  * - This hook is called both client-side and server-side.
  */
 export function onDestroy(callback: DestroyCallback) {
-  currentInstance?.addHooks({ onDestroy: callback });
+  $$_current_instance![DESTROY_SYMBOL].push(callback);
+}
+
+export interface DestroyCallback {
+  (el: HTMLElement | null): void;
 }

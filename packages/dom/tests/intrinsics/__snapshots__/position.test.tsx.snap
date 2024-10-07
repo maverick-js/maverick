@@ -1,0 +1,50 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`children 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div>
+    <span
+      data-test="foo"
+    />
+    <span
+      data-test="foo"
+    />
+    <span
+      data-test="foo"
+    />
+  </div>
+</body>
+`;
+
+exports[`grandchildren 1`] = `
+<body>
+  <div>
+    <div>
+      <span
+        data-test="foo"
+      />
+      <span
+        data-test="foo"
+      />
+      <span
+        data-test="foo"
+      />
+    </div>
+  </div>
+</body>
+`;
+
+exports[`insert before 1`] = `
+<body>
+  <div>
+    foo
+    <span />
+  </div>
+</body>
+`;

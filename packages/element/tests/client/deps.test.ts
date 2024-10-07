@@ -2,8 +2,8 @@ import { getContext, setContext } from '@maverick-js/signals';
 import { waitAnimationFrame } from '@maverick-js/std';
 import { Component, createContext, onError, provideContext, useContext } from 'maverick.js';
 
-import { defineCustomElement, Host, type MaverickElement } from '../../src';
-import { SETUP_STATE } from '../../src/symbols';
+import { createCustomElement, defineCustomElement, type MaverickElement } from '../../src';
+import { SETUP_STATE_SYMBOL } from '../../src/symbols';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -24,7 +24,7 @@ it('should wait for parents to connect', async () => {
     }
   }
 
-  class ParentAElement extends Host(HTMLElement, ParentA) {
+  class ParentAElement extends createCustomElement(HTMLElement, ParentA) {
     static tagName = 'mk-parent-a';
   }
 
@@ -40,7 +40,7 @@ it('should wait for parents to connect', async () => {
     }
   }
 
-  class ParentBElement extends Host(HTMLElement, ParentB) {
+  class ParentBElement extends createCustomElement(HTMLElement, ParentB) {
     static tagName = 'mk-parent-b';
   }
 
@@ -57,7 +57,7 @@ it('should wait for parents to connect', async () => {
     }
   }
 
-  class ChildElement extends Host(HTMLElement, Child) {
+  class ChildElement extends createCustomElement(HTMLElement, Child) {
     static tagName = 'mk-child';
   }
 
@@ -76,7 +76,7 @@ it('should wait for parents to connect', async () => {
     }
   }
 
-  class GrandChildElement extends Host(HTMLElement, GrandChild) {
+  class GrandChildElement extends createCustomElement(HTMLElement, GrandChild) {
     static tagName = 'mk-grandchild';
   }
 
@@ -106,10 +106,10 @@ it('should wait for parents to connect', async () => {
   `);
 
   defineCustomElement(GrandChildElement);
-  expect(grandchild[SETUP_STATE] === 2).toBeFalsy();
+  expect(grandchild[SETUP_STATE_SYMBOL] === 2).toBeFalsy();
 
   defineCustomElement(ChildElement);
-  expect(child[SETUP_STATE] === 2).toBeFalsy();
+  expect(child[SETUP_STATE_SYMBOL] === 2).toBeFalsy();
 
   await waitAnimationFrame();
 
@@ -117,18 +117,18 @@ it('should wait for parents to connect', async () => {
   await waitAnimationFrame();
 
   // not ready
-  expect(parentB[SETUP_STATE] === 2).toBeFalsy();
-  expect(child[SETUP_STATE] === 2).toBeFalsy();
-  expect(grandchild[SETUP_STATE] === 2).toBeFalsy();
+  expect(parentB[SETUP_STATE_SYMBOL] === 2).toBeFalsy();
+  expect(child[SETUP_STATE_SYMBOL] === 2).toBeFalsy();
+  expect(grandchild[SETUP_STATE_SYMBOL] === 2).toBeFalsy();
 
   defineCustomElement(ParentAElement);
-  expect(parentA[SETUP_STATE] === 2).toBeTruthy();
+  expect(parentA[SETUP_STATE_SYMBOL] === 2).toBeTruthy();
 
   await waitAnimationFrame();
 
-  expect(parentB[SETUP_STATE] === 2).toBeTruthy();
-  expect(child[SETUP_STATE] === 2).toBeTruthy();
-  expect(grandchild[SETUP_STATE] === 2).toBeTruthy();
+  expect(parentB[SETUP_STATE_SYMBOL] === 2).toBeTruthy();
+  expect(child[SETUP_STATE_SYMBOL] === 2).toBeTruthy();
+  expect(grandchild[SETUP_STATE_SYMBOL] === 2).toBeTruthy();
 
   parentA.remove();
   await waitAnimationFrame();

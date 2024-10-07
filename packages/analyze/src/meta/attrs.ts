@@ -4,7 +4,7 @@ import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
 import { escapeQuotes } from '../../utils/str';
 import { getProperties } from '../utils/walk';
 import type { AttrsMeta } from './custom-element';
-import { TS_NODE } from './symbols';
+import { TS_NODE_SYMBOL } from './symbols';
 
 export function buildAttrsMeta(
   checker: ts.TypeChecker,
@@ -33,7 +33,7 @@ export function buildAttrsMeta(
 
     if (attr) {
       attrs[propName] = {
-        [TS_NODE]: assignment,
+        [TS_NODE_SYMBOL]: assignment,
         attr: ts.isStringLiteral(attr) ? escapeQuotes(attr.getText()) : false,
       };
     }

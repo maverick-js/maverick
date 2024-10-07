@@ -1,31 +1,39 @@
-import type { WritableKeys } from '@maverick-js/std';
-import type { IsNever } from 'type-fest';
+import { isFunction, type WritableKeys } from '@maverick-js/std';
 
 import type { JSX } from '../jsx/jsx';
 import { ViewController } from './controller';
+import type { CustomElement, CustomElementOptions } from './custom-element/types';
 import { Instance } from './instance';
-import type { LifecycleEvents } from './lifecycle';
+import type { ComponentLifecycleEvents } from './lifecycle';
 import { type Dispose, effect, type Maybe, scoped } from './signals';
 import type { State } from './state';
+import type { CUSTOM_ELEMENT_SYMBOL } from './symbols';
 import type { SignalOrValueRecord } from './types';
 
-export class Component<
-  Props = {},
-  State = {},
-  Events = {},
-  CSSVars = {},
-  Slots = {},
-> extends ViewController<Props, State, Events & LifecycleEvents, CSSVars> {
-  /** @internal - DO NOT USE (for jsx types only) */
-  jsxProps!: JSX.ComponentAttributes<SignalOrValueRecord<Props>, Events, CSSVars, Slots>;
+const COMPONENT_CTOR_SYMBOL = /* #__PURE__ */ Symbol.for('maverick.component.ctor');
 
-  render?(props: ComponentRenderProps<Slots>): JSX.Element;
+export function isComponentConstructor(value: unknown): value is ComponentConstructor {
+  return isFunction(value) && COMPONENT_CTOR_SYMBOL in value;
+}
+
+export class Component<Props = {}, State = {}, Events = {}, CSSVars = {}> extends ViewController<
+  Props,
+  State,
+  Events & ComponentLifecycleEvents,
+  CSSVars
+> {
+  static [COMPONENT_CTOR_SYMBOL] = true;
+
+  /** @internal - DO NOT USE (for jsx types only) */
+  jsxProps!: JSX.ComponentAttributes<Partial<SignalOrValueRecord<Props>>, Events, CSSVars>;
+
+  render?(): JSX.Element;
 
   subscribe(callback: (state: Readonly<State>) => Maybe<Dispose>) {
     if (__DEV__ && !this.state) {
       const name = this.constructor.name;
       throw Error(
-        `[maverick] component \`${name}\` can not be subscribed to because it has no internal state`,
+        `[maverick]: component \`${name}\` can not be subscribed to because it has no internal state`,
       );
     }
 
@@ -37,11 +45,13 @@ export class Component<
   }
 }
 
-export interface AnyComponent extends Component<any, any, any, any, any> {}
+export interface AnyComponent extends Component<any, any, any, any> {}
 
 export interface ComponentConstructor<T extends Component = AnyComponent> {
+  readonly element?: CustomElementOptions<InferComponentCSSProps<T>>;
   readonly props?: InferComponentProps<T>;
   readonly state?: State<InferComponentState<T>>;
+  [CUSTOM_ELEMENT_SYMBOL]?(): CustomElement<T>;
   new (): T;
 }
 
@@ -50,7 +60,7 @@ export type InferComponentProps<T> = T extends Component<infer Props> ? Props : 
 export type InferComponentState<T> = T extends Component<any, infer State> ? State : {};
 
 export type InferComponentEvents<T> =
-  T extends Component<any, any, infer Events> ? Events & LifecycleEvents : {};
+  T extends Component<any, any, infer Events> ? Events & ComponentLifecycleEvents : {};
 
 export type InferComponentCSSProps<T> =
   T extends Component<any, any, any, infer CSSVars> ? CSSVars : {};
@@ -63,15 +73,5 @@ export type InferComponentCSSVars<
   CSSProps = InferComponentCSSProps<Component>,
 > = { [Var in WritableKeys<CSSProps> as `--${Var & string}`]: CSSProps[Var] };
 
-export type InferComponentSlots<T> =
-  T extends Component<any, any, any, any, infer Slots> ? Slots : {};
-
 export type InferComponentInstance<T> =
   T extends Component<infer Props, infer State> ? Instance<Props, State> : {};
-
-export interface ComponentRenderProps<Slots> {
-  $slots: Slots;
-}
-
-export type ComponentSlot<Props = never> =
-  IsNever<Props> extends true ? { (): JSX.Element } : { (props: Props): JSX.Element };

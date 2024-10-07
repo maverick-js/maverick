@@ -2,13 +2,16 @@
   "$schema": "https://turborepo.org/schema.json",
   "tasks": {
     "bundle": {
+      "inputs": ["src/**", "rollup.config.js"],
       "dependsOn": ["clean"],
       "outputs": ["dist-npm"]
     },
     "types": {
       "dependsOn": ["^types"],
+      "inputs": ["src/**"],
       "outputs": ["types/**", "dist-npm/**/*.d.ts", "tsconfig.build.tsbuildinfo"]
     },
+
     "clean": {
       "cache": false
     },
@@ -16,7 +19,7 @@
       "inputs": ["src/**"]
     },
     "test": {
-      "inputs": ["src/**"]
+      "inputs": ["src/**", "tests/**", "vite.config.ts"]
     }
   }
 }

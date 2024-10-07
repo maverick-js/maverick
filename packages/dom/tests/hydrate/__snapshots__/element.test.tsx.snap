@@ -1,0 +1,83 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`hydrate 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <!--$-->
+  <div>
+    Count is
+    <!--$-->
+    1
+    <!--$-->
+    <!--$-->
+    <span>
+      <!--$-->
+      1
+    </span>
+    <!--$-->
+    <span>
+      <!--$-->
+      1
+    </span>
+  </div>
+</body>
+`;
+
+exports[`hydrate 2`] = `
+<body>
+  
+    
+  
+  
+
+
+  <!--$-->
+  <div>
+    Count is
+    <!--$-->
+    1
+    <!--$-->
+    <span>
+      <!--$-->
+      1
+    </span>
+    <!--$-->
+    <span>
+      <!--$-->
+      1
+    </span>
+  </div>
+</body>
+`;
+
+exports[`hydrate 3`] = `
+<body>
+  
+    
+  
+  
+
+
+  <!--$-->
+  <div>
+    Count is
+    <!--$-->
+    2
+    <!--$-->
+    <span>
+      <!--$-->
+      2
+    </span>
+    <!--$-->
+    <span>
+      <!--$-->
+      2
+    </span>
+  </div>
+</body>
+`;

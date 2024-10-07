@@ -3,7 +3,7 @@ import { dirname } from 'pathe';
 import type { ComponentMeta } from '../meta/component';
 import type { CustomElementMeta } from '../meta/custom-element';
 import type { ReactComponentMeta } from '../meta/react';
-import { TS_NODE } from '../meta/symbols';
+import { TS_NODE_SYMBOL } from '../meta/symbols';
 import { resolveConfigPaths } from '../utils/resolve';
 import type { AnalyzePluginBuilder } from './analyze-plugin';
 
@@ -30,7 +30,7 @@ const DEFAULT_CONFIG: JSONPluginConfig = {
 };
 
 const replacer = (key: string | symbol, value: any) => {
-  return key !== TS_NODE ? value : undefined;
+  return key !== TS_NODE_SYMBOL ? value : undefined;
 };
 
 /**

@@ -13,7 +13,7 @@ import { buildPropMeta, buildPropsMeta, resolvePropTags } from '../meta/props';
 import type { ReactCallbackMeta, ReactPropMeta } from '../meta/react';
 import { buildSlotsMeta } from '../meta/slots';
 import { buildStateMeta } from '../meta/state';
-import { TS_NODE } from '../meta/symbols';
+import { TS_NODE_SYMBOL } from '../meta/symbols';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta, serializeType } from '../utils/types';
 import type {
@@ -34,7 +34,7 @@ export function createBuildPlugin(): AnalyzePlugin {
       let doctags = getDocTags(node.root),
         filteredDoctags = doctags?.filter((tag) => tag.name !== 'cssvar' && tag.name !== 'part');
       return {
-        [TS_NODE]: node.root,
+        [TS_NODE_SYMBOL]: node.root,
         type: 'component',
         name: node.name,
         file: buildFileMeta(node.root),
@@ -53,18 +53,18 @@ export function createBuildPlugin(): AnalyzePlugin {
       let doctags = getDocTags(node.root),
         filteredDoctags = doctags?.filter((tag) => tag.name !== 'slot' && tag.name !== 'csspart');
       return {
-        [TS_NODE]: node.root,
+        [TS_NODE_SYMBOL]: node.root,
         type: 'element',
         file: buildFileMeta(node.root),
         name: node.name,
         docs: getDocs(checker, node.root.name!),
         doctags: filteredDoctags?.length ? filteredDoctags : undefined,
         tag: {
-          [TS_NODE]: node.tag.node,
+          [TS_NODE_SYMBOL]: node.tag.node,
           name: node.tag.name,
         },
         component: node.component
-          ? { [TS_NODE]: node.component.node, name: node.component.name }
+          ? { [TS_NODE_SYMBOL]: node.component.node, name: node.component.name }
           : undefined,
         attrs: buildAttrsMeta(checker, node.attrs),
         cssparts: buildCSSPartsMeta(doctags),
@@ -97,7 +97,7 @@ export function createBuildPlugin(): AnalyzePlugin {
       }
 
       return {
-        [TS_NODE]: node.root,
+        [TS_NODE_SYMBOL]: node.root,
         type: 'react',
         file: buildFileMeta(node.root),
         namespace: node.namespace,
@@ -155,7 +155,7 @@ function buildReactCallback(checker: ts.TypeChecker, node: ts.Node): ReactCallba
   }
 
   return {
-    [TS_NODE]: node,
+    [TS_NODE_SYMBOL]: node,
     name: identifier.escapedText as string,
     docs: getDocs(checker, identifier),
     doctags,
@@ -163,7 +163,7 @@ function buildReactCallback(checker: ts.TypeChecker, node: ts.Node): ReactCallba
     parameters: parameters
       ?.filter((param) => ts.isIdentifier(param.name) && param.type)
       .map((param) => ({
-        [TS_NODE]: param,
+        [TS_NODE_SYMBOL]: param,
         name: (param.name as ts.Identifier).escapedText as string,
         type: buildTypeMeta(checker, checker.getTypeAtLocation(param)),
       })),

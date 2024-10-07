@@ -11,6 +11,7 @@ import {
   isExpressionNode,
   isFragmentNode,
   isTextNode,
+  type TextNode,
 } from './ast';
 import { RESERVED_ATTR_NAMESPACE, RESERVED_NAMESPACE } from './constants';
 import { createAstNode } from './create-ast';
@@ -52,10 +53,10 @@ export function getExpressionChildren(expression: ts.Expression) {
 }
 
 export function filterElementNodes(children: AstNode[]) {
-  return children.filter((node) => isElementNode(node));
+  return children.filter((node) => isElementNode(node) || isTextNode(node));
 }
 
-export function findElementIndex(parent: ElementNode, node: ElementNode) {
+export function findElementIndex(parent: ElementNode, node: ElementNode | TextNode) {
   return filterElementNodes(parent.children!).indexOf(node);
 }
 

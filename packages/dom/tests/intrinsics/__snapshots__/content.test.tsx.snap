@@ -1,0 +1,45 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dynamic 1`] = `
+<body>
+  <div>
+    <span>
+      Hello
+    </span>
+  </div>
+</body>
+`;
+
+exports[`signal 1`] = `
+<body>
+  <div>
+    <span>
+      Yes
+    </span>
+  </div>
+</body>
+`;
+
+exports[`signal 2`] = `
+<body>
+  <div>
+    No
+  </div>
+</body>
+`;
+
+exports[`static 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div>
+    <span>
+      Hello
+    </span>
+  </div>
+</body>
+`;

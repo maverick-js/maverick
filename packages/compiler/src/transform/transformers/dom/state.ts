@@ -1,14 +1,16 @@
+import { $ } from '@maverick-js/ts';
 import type ts from 'typescript';
 
-import { type AstNode, type ElementNode, Scope } from '../../../parse/ast';
+import { type AstNode, type ElementNode, Scope, type TextNode } from '../../../parse/ast';
 import type { VisitorContext } from '../../../parse/walk';
+import { Variables } from '../shared/variables';
 import { DomRuntime } from './runtime';
 import { DomSetupVariables } from './vars';
 
 export class DomTransformState {
   readonly root: AstNode | null;
   readonly scope: Scope;
-  readonly elements: Map<ElementNode, ts.Identifier> = new Map();
+  readonly elements: Map<ElementNode | TextNode, ts.Identifier> = new Map();
   readonly args: ts.Expression[] = [];
   readonly block: ts.Expression[] = [];
   readonly renders: ts.FunctionDeclaration[];
@@ -16,9 +18,11 @@ export class DomTransformState {
   readonly runtime: DomRuntime;
   readonly delegatedEvents: Set<string>;
   readonly children: DomTransformState[] = [];
-  readonly vars: Readonly<{ setup: DomSetupVariables }>;
+  readonly vars: Readonly<{ module: Variables; setup: DomSetupVariables }>;
 
   html = '';
+  importNodes = false;
+  result: ts.Expression = $.null;
 
   template?: ts.Identifier;
   element?: ts.Identifier;
@@ -29,7 +33,10 @@ export class DomTransformState {
     this.scope = init?.scope ?? new Scope();
     this.renders = init?.renders ?? [];
     this.runtime = init?.runtime ?? new DomRuntime();
-    this.vars = { setup: new DomSetupVariables(this.runtime) };
+    this.vars = {
+      module: init?.vars?.module ?? new Variables(),
+      setup: new DomSetupVariables(this.runtime),
+    };
     this.hydratable = init?.hydratable ?? false;
     this.delegatedEvents = init?.delegatedEvents ?? new Set();
   }

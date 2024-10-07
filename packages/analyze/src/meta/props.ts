@@ -6,7 +6,7 @@ import { buildTypeMeta } from '../utils/types';
 import { getPropertiesAndGetters } from '../utils/walk';
 import type { DocTagMeta, PropMeta } from './component';
 import { findDocTag, getDocTags, hasDocTag } from './doctags';
-import { TS_NODE } from './symbols';
+import { TS_NODE_SYMBOL } from './symbols';
 
 export interface PropMetaInfo {
   value?: string | false;
@@ -102,7 +102,7 @@ export function buildPropMeta(
   }
 
   return {
-    [TS_NODE]: node,
+    [TS_NODE_SYMBOL]: node,
     name,
     default: defaultValue?.length ? defaultValue : undefined,
     type: buildTypeMeta(checker, info.type),

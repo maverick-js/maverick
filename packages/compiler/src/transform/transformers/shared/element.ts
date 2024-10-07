@@ -1,8 +1,8 @@
 import {
   $,
   addClassMembers,
-  createStaticComputedProperty,
-  createSymbolFor,
+  createImports,
+  createStaticComputedMethod,
   findImportDeclarationFromModule,
   findImportSpecifierFromDeclaration,
   findStaticProp,
@@ -10,35 +10,60 @@ import {
 } from '@maverick-js/ts';
 import ts from 'typescript';
 
-export function markCustomElements(sourceFile: ts.SourceFile) {
+export function setupCustomElements(
+  sourceFile: ts.SourceFile,
+  register: (component: ts.ClassDeclaration) => ts.Expression,
+  registerImports: ts.Statement[] = [],
+): ts.SourceFile {
   const maverickImport = findImportDeclarationFromModule(sourceFile, 'maverick.js'),
     maverickComponent = findImportSpecifierFromDeclaration(maverickImport, 'Component');
 
   if (maverickComponent) {
-    const statements: ts.Statement[] = [];
+    let statements: ts.Statement[] = [],
+      hasCustomElement = false;
 
     for (const statement of sourceFile.statements) {
       if (isMaverickElementClass(statement, maverickComponent)) {
-        const newClass = addClassMembers(statement, [createStaticElementProp()]);
+        const newClass = addClassMembers(statement, [
+          createStaticElementRegistration(register(statement)),
+        ]);
+
         statements.push(newClass);
+        hasCustomElement = true;
       } else {
         statements.push(statement);
       }
     }
 
-    return $.updateSourceFile(sourceFile, statements);
+    return hasCustomElement
+      ? $.updateSourceFile(sourceFile, [
+          ...registerImports,
+          createCustomElementSymbolImport(),
+          ...statements,
+        ])
+      : sourceFile;
   }
 
   return sourceFile;
 }
 
-function createStaticElementProp() {
-  return createStaticComputedProperty(createSymbolFor('maverick.element'), $.createTrue());
+const CUSTOM_ELEMENT_SYMBOL_NAME = 'CUSTOM_ELEMENT_SYMBOL';
+
+function createCustomElementSymbolImport() {
+  return createImports([$.id(CUSTOM_ELEMENT_SYMBOL_NAME)], 'maverick.js');
+}
+
+function createStaticElementRegistration(registration: ts.Expression) {
+  return createStaticComputedMethod(
+    $.id(CUSTOM_ELEMENT_SYMBOL_NAME),
+    [],
+    [$.createReturnStatement(registration)],
+  );
 }
 
 function isMaverickElementClass(
   node: ts.Node,
-  component: ts.ImportSpecifier,
+  specifier: ts.ImportSpecifier,
 ): node is ts.ClassDeclaration {
-  return isClassThatExtends(node, component.name) && !!findStaticProp(node, 'tagName');
+  return isClassThatExtends(node, specifier.name) && !!findStaticProp(node, 'element');
 }

@@ -19,7 +19,7 @@ function Foo() {
         let $_component_1 = $$_component(For, {
             "each": [0, 1, 2]
         }, null, {
-            "default": (item, index) => $$_h($_render_1.bind(item, index))
+            "default": (item, index) => $$_h($_render_1.bind(null, item, index))
         });
         function $_render_1(item, index) {
             let $_node_1 = $$_expression(item), $_node_2 = $$_expression(index);

@@ -381,6 +381,25 @@ export function createStaticComputedProperty(name: ts.Expression, init: ts.Expre
   );
 }
 
+export function createStaticComputedMethod(
+  name: ts.Expression,
+  params:
+    | Array<ts.BindingName | ts.ParameterDeclaration>
+    | NodeArray<ts.BindingName | ts.ParameterDeclaration>,
+  block: Array<ts.Expression | ts.Statement>,
+) {
+  return $.createMethodDeclaration(
+    [$.createToken(ts.SyntaxKind.StaticKeyword)],
+    undefined,
+    $.createComputedPropertyName(name),
+    undefined,
+    undefined,
+    params.map(mapBindingNameToParam),
+    undefined,
+    $.block(block),
+  );
+}
+
 export function addClassMembers(node: ts.ClassDeclaration, newMembers: ts.ClassElement[]) {
   return $.updateClassDeclaration(
     node,
@@ -441,8 +460,8 @@ export function createJsxExpression(
 }
 
 /** Binding arguments to a function. */
-export function bind(fnId: ts.Identifier, args: ts.Expression[]) {
-  return $.call($.prop(fnId, 'bind'), args);
+export function bind(fnId: ts.Identifier, thisArg: ts.Expression, args: ts.Expression[]) {
+  return $.call($.prop(fnId, 'bind'), [thisArg, ...args]);
 }
 
 /** Mark a node as pure so bundlers can safely remove the code if it's not used. */

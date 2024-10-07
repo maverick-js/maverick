@@ -1,0 +1,100 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dynamic child elements 1`] = `
+<body>
+  <div>
+    <span />
+    <span />
+  </div>
+</body>
+`;
+
+exports[`dynamic child expression 1`] = `
+<body>
+  <div>
+    Foo
+  </div>
+</body>
+`;
+
+exports[`multiple dynamic child expressions 1`] = `
+<body>
+  <div>
+    <div />
+    <span />
+  </div>
+</body>
+`;
+
+exports[`multiple dynamic child expressions 2`] = `
+<body>
+  <div>
+    <!--~-->
+    <span />
+  </div>
+</body>
+`;
+
+exports[`multiple dynamic child expressions 3`] = `
+<body>
+  <div>
+    <!--~-->
+    <!--~-->
+  </div>
+</body>
+`;
+
+exports[`multiple dynamic child expressions 4`] = `
+<body>
+  <div>
+    <div />
+    <!--~-->
+  </div>
+</body>
+`;
+
+exports[`multiple dynamic child expressions 5`] = `
+<body>
+  <div>
+    <div />
+    <span />
+  </div>
+</body>
+`;
+
+exports[`no children 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div />
+</body>
+`;
+
+exports[`static child elements 1`] = `
+<body>
+  <div>
+    <span />
+    <span />
+  </div>
+</body>
+`;
+
+exports[`static child expression 1`] = `
+<body>
+  <div>
+    Foo
+  </div>
+</body>
+`;
+
+exports[`text child 1`] = `
+<body>
+  <div>
+    Foo
+  </div>
+</body>
+`;

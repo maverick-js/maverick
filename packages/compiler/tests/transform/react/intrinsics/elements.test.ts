@@ -73,7 +73,7 @@ function Foo() {
 }`),
   ).toMatchInlineSnapshot(`
     "import { $$_attach, $$_h } from "@maverick-js/react";
-    import { $$_listen, $$_delegate_events } from "@maverick-js/dom";
+    import { $$_listen } from "@maverick-js/dom";
     function Foo() {
         let $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
@@ -87,7 +87,6 @@ function Foo() {
         }
         return $_node_1;
     }
-    $$_delegate_events(["click"]);
     "
   `);
 });
@@ -100,7 +99,7 @@ function Foo() {
 }`),
   ).toMatchInlineSnapshot(`
     "import { $$_attach, $$_h } from "@maverick-js/react";
-    import { $$_listen, $$_delegate_events } from "@maverick-js/dom";
+    import { $$_listen } from "@maverick-js/dom";
     function Foo() {
         let $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
@@ -119,7 +118,6 @@ function Foo() {
         }
         return $_node_1;
     }
-    $$_delegate_events(["click"]);
     "
   `);
 });
@@ -168,7 +166,7 @@ function Foo() {
 }`),
   ).toMatchInlineSnapshot(`
     "import { $$_attach, $$_h, $$_computed, $$_expression } from "@maverick-js/react";
-    import { $$_listen, $$_delegate_events } from "@maverick-js/dom";
+    import { $$_listen } from "@maverick-js/dom";
     function Foo() {
         let $_node_1 = $$_h($_render_1), $_computed_1 = $$_computed(() => a() ? $_node_1 : null), $_node_2 = $$_h($_render_2), $_computed_2 = $$_computed(() => b() ? $_node_2 : null), $_node_3 = $$_h($_render_3);
         function $_attach_1(el) {
@@ -195,7 +193,6 @@ function Foo() {
         }
         return $_node_3;
     }
-    $$_delegate_events(["click"]);
     "
   `);
 });

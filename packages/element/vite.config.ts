@@ -19,6 +19,6 @@ export default defineConfig({
   test: {
     include: [`tests/${SERVER ? 'server' : 'client'}/**/*.test.{ts,tsx}`],
     globals: true,
-    environment: SERVER ? 'edge-runtime' : 'jsdom',
+    environment: SERVER ? 'edge-runtime' : 'happy-dom',
   },
 });

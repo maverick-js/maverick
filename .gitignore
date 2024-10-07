@@ -29,6 +29,8 @@ pnpm-debug.log*
 chrome-profiler-events*.json
 speed-measure-plugin*.json
 tsconfig.build.tsbuild*
+vite.config.js
+vite.config.js.*
 
 /.link
 /tmp

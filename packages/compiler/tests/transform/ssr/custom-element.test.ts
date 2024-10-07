@@ -6,15 +6,22 @@ test('add element symbol', () => {
       `
 import { Component } from 'maverick.js';
 class Foo extends Component {
-  static tagName = 'foo-element';
+  static element = {
+    name: 'foo-element'
+  }
 }`,
       { customElements: true },
     ),
   ).toMatchInlineSnapshot(`
-    "import { Component } from 'maverick.js';
+    "import { CUSTOM_ELEMENT_SYMBOL } from "maverick.js";
+    import { Component } from 'maverick.js';
     class Foo extends Component {
-        static [Symbol.for("maverick.element")] = true;
-        static tagName = 'foo-element';
+        static [CUSTOM_ELEMENT_SYMBOL]() {
+            return true;
+        }
+        static element = {
+            name: 'foo-element'
+        };
     }
     "
   `);

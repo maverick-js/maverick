@@ -1,19 +1,18 @@
-import { DOMEvent, type DOMEventInit } from '@maverick-js/std';
+import { MaverickEvent, type MaverickEventInit } from '@maverick-js/std';
 
-import { currentInstance, Instance } from './instance';
-import type { LifecycleHooks } from './lifecycle';
+import { $$_current_instance, Instance } from './instance';
 import { type Scope, untrack } from './signals';
-import { ON_DISPATCH } from './symbols';
+import { ON_DISPATCH_SYMBOL } from './symbols';
 import type { ReadSignalRecord, WriteSignalRecord } from './types';
 
 export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> extends EventTarget {
   /** @internal */
-  $$!: Instance<Props, State>;
+  readonly $$: Instance<Props, State>;
 
   /** @internal type holder only */
-  $ts__events?: Events;
+  readonly $ts__events?: Events;
   /** @internal type holder only */
-  $ts__vars?: CSSVars;
+  readonly $ts__vars?: CSSVars;
 
   get host(): HTMLElement | null {
     return this.$$.host;
@@ -49,86 +48,49 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
 
   constructor() {
     super();
-    if (currentInstance) this.#attach(currentInstance);
-  }
-
-  #attach(instance: Instance<Props, State>) {
-    this.$$ = instance;
-    instance.addHooks(this as unknown as LifecycleHooks);
-    return this;
+    this.$$ = $$_current_instance!;
   }
 
   /**
-   * The given callback is invoked when the component is ready to be set up.
-   *
-   * - This hook will run once.
-   * - It's safe to use context inside this hook.
-   * - The host element has not attached yet - wait for `onAttach`.
-   */
-  protected onSetup?(): void;
-
-  /**
-   * The given callback is invoked when the component instance has attached to a host element.
-   *
-   * - This hook can run more than once as the component attaches/detaches from a host element.
-   * - This hook may be called while the host element is not connected to the DOM yet.
-   */
-  protected onAttach?(host: HTMLElement): void;
-
-  /**
-   * The given callback is invoked when the host element has connected to the DOM.
-   *
-   * - This hook can run more than once as the host disconnects and re-connects to the DOM.
-   */
-  protected onConnect?(host: HTMLElement): void;
-
-  /**
-   * The given callback is invoked when the component is destroyed.
-   *
-   * - This hook will only run once when the component is finally destroyed.
-   * - This hook may be called before being attached to a host element.
-   * - This hook is called both client-side and server-side.
-   */
-  protected onDestroy?(): void;
-
-  /**
-   * Type-safe utility for creating component DOM events.
+   * Type-safe utility for creating component Maverick Events.
    */
   createEvent<Type extends keyof Events = keyof Events>(
     type: Type & string,
-    ...init: Events[Type] extends DOMEvent
+    ...init: Events[Type] extends MaverickEvent
       ? Events[Type]['detail'] extends void | undefined | never
-        ? [init?: Partial<DOMEventInit<Events[Type]>['detail']>]
-        : [init: DOMEventInit<Events[Type]['detail']>]
+        ? [init?: Partial<MaverickEventInit<Events[Type]>['detail']>]
+        : [init: MaverickEventInit<Events[Type]['detail']>]
       : never
   ): Events[Type] {
-    return new DOMEvent(type, init[0] as DOMEventInit) as Events[Type];
+    return new MaverickEvent(type, init[0] as MaverickEventInit) as Events[Type];
   }
 
   /**
-   * Creates a `DOMEvent` and dispatches it. This method is typed to match all component events.
+   * Creates a `MaverickEvent` and dispatches it. This method is typed to match all component events.
    */
   dispatch<Type extends Event | keyof Events>(
     type: Type,
     ...init: Type extends Event
       ? [init?: never]
       : Type extends keyof Events
-        ? Events[Type] extends DOMEvent
+        ? Events[Type] extends MaverickEvent
           ? Events[Type]['detail'] extends void | undefined | never
-            ? [init?: Partial<DOMEventInit<Events[Type]['detail']>>]
-            : [init: DOMEventInit<Events[Type]['detail']>]
+            ? [init?: Partial<MaverickEventInit<Events[Type]['detail']>>]
+            : [init: MaverickEventInit<Events[Type]['detail']>]
           : [init?: never]
         : [init?: never]
   ): boolean {
     if (__SERVER__) return false;
     return this.dispatchEvent(
-      type instanceof Event ? type : new DOMEvent(type as string, init[0] as DOMEventInit),
+      type instanceof Event
+        ? type
+        : new MaverickEvent(type as string, init[0] as MaverickEventInit),
     );
   }
 
   override dispatchEvent(event: Event): boolean {
     return untrack(() => {
-      this.$$[ON_DISPATCH]?.(event);
+      this.$$[ON_DISPATCH_SYMBOL]?.(event);
       return super.dispatchEvent(event);
     });
   }

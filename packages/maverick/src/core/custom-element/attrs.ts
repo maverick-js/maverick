@@ -25,33 +25,42 @@ export interface Attribute<Value = unknown> extends SignalOptions<Value> {
   converter?: AttributeConverter<Value>;
 }
 
-export const STRING: AttributeConverter<string | null> = (v) => (v === null ? '' : v + '');
-export const NULLABLE_STRING: AttributeConverter<string | null> = (v) =>
+export const STRING_ATTR: AttributeConverter<string | null> = (v) => (v === null ? '' : v + '');
+
+export const NULLABLE_STRING_ATTR: AttributeConverter<string | null> = (v) =>
   v === null ? null : v + '';
-export const NUMBER: AttributeConverter<number | null> = (v) => (v === null ? 0 : Number(v));
-export const NULLABLE_NUMBER: AttributeConverter<number | null> = (v) =>
+
+export const NUMBER_ATTR: AttributeConverter<number | null> = (v) => (v === null ? 0 : Number(v));
+
+export const NULLABLE_NUMBER_ATTR: AttributeConverter<number | null> = (v) =>
   v === null ? null : Number(v);
-export const BOOLEAN: AttributeConverter<boolean | null> = (v) => v !== null;
-export const FUNCTION: AttributeConverter<(() => void) | null> = () => null;
-export const ARRAY: AttributeConverter<unknown[] | null> = (v) => (v === null ? [] : JSON.parse(v));
-export const OBJECT: AttributeConverter<object | null> = (v) => (v === null ? {} : JSON.parse(v));
+
+export const BOOLEAN_ATTR: AttributeConverter<boolean | null> = (v) => v !== null;
+
+export const FUNCTION_ATTR: AttributeConverter<(() => void) | null> = () => null;
+
+export const ARRAY_ATTR: AttributeConverter<unknown[] | null> = (v) =>
+  v === null ? [] : JSON.parse(v);
+
+export const OBJECT_ATTR: AttributeConverter<object | null> = (v) =>
+  v === null ? {} : JSON.parse(v);
 
 export function inferAttributeConverter(value: unknown): AttributeConverter<any> {
-  if (value === null) return NULLABLE_STRING;
+  if (value === null) return NULLABLE_STRING_ATTR;
   switch (typeof value) {
     case 'undefined':
-      return STRING;
+      return STRING_ATTR;
     case 'string':
-      return STRING;
+      return STRING_ATTR;
     case 'boolean':
-      return BOOLEAN;
+      return BOOLEAN_ATTR;
     case 'number':
-      return NUMBER;
+      return NUMBER_ATTR;
     case 'function':
-      return FUNCTION;
+      return FUNCTION_ATTR;
     case 'object':
-      return isArray(value) ? ARRAY : OBJECT;
+      return isArray(value) ? ARRAY_ATTR : OBJECT_ATTR;
     default:
-      return STRING;
+      return STRING_ATTR;
   }
 }

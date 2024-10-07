@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`multiple spreads 1`] = `
+<div
+  class="foo hux bar bux"
+  data-bar=""
+  data-foo=""
+  style="color: var(--color); --color: red; background-color: red; --foo: 10;"
+/>
+`;
+
+exports[`multiple spreads 2`] = `
+<div
+  class="foo hux tux mux"
+  data-bar=""
+  data-foo=""
+  style="color: var(--color); --color: red; background-color: orange; --foo: 10;"
+/>
+`;
+
+exports[`one spread 1`] = `
+<div
+  class="foo"
+  data-foo=""
+  style="color: var(--color); --color: blue;"
+/>
+`;

@@ -1,22 +1,31 @@
 import type { Maybe, ReadSignal } from '@maverick-js/signals';
 
 import type { JSX } from '../jsx/jsx';
-import type { LifecycleEvents } from './lifecycle';
+import type { ComponentLifecycleEvents } from './lifecycle';
+import type { SignalOrValue } from './types';
+
+// ---------------------------------------------------------------------------------------------
+// <Host>
+// ---------------------------------------------------------------------------------------------
 
 export interface HostProps
-  extends JSX.IntrinsicElementAttributes<HTMLElement>,
-    JSX.OnAttributes<HTMLElement, LifecycleEvents> {
+  extends Omit<JSX.IntrinsicElementAttributes<HTMLElement>, 'as' | 'children'>,
+    JSX.OnAttributes<HTMLElement, ComponentLifecycleEvents> {
   as: keyof HTMLElementTagNameMap;
   children?: JSX.Element;
 }
 
 /**
  * This component can be used at the root of the render function to set attributes and event
- * listeners on the host element (the root custom element that content will be rendered inside).
+ * listeners on the host element (the root element that content will be rendered inside).
  */
 export function Host(props: HostProps) {
   return null; // virtual component, replaced by compiler.
 }
+
+// ---------------------------------------------------------------------------------------------
+// <Fragment>
+// ---------------------------------------------------------------------------------------------
 
 export interface FragmentProps {
   slot?: string;
@@ -39,8 +48,14 @@ export function Fragment(props: FragmentProps): JSX.Element {
   return null; // virtual component, replaced by compiler.
 }
 
+// ---------------------------------------------------------------------------------------------
+// <Portal>
+// ---------------------------------------------------------------------------------------------
+
+export type PortalTarget = Node | string | null;
+
 export interface PortalProps {
-  to: string | Node | null;
+  to: SignalOrValue<PortalTarget>;
   children: JSX.Element;
 }
 
@@ -58,28 +73,63 @@ export function Portal(props: PortalProps): JSX.Element {
   return null; // virtual component, replaced by compiler.
 }
 
+// ---------------------------------------------------------------------------------------------
+// <For>
+// ---------------------------------------------------------------------------------------------
+
+export interface ForDefaultSlot<Item> {
+  (item: ReadSignal<Item>, index: number): JSX.Element;
+}
+
 export interface ForProps<Item> {
   each: Maybe<Item[] | ReadSignal<Item[]>>;
-  key?: (item: Item) => any;
-  children: (item: Item, index: number) => Element;
+  children: ForDefaultSlot<Item>;
 }
 
 /**
- * Render a list of items and optionally provide a key to map items to a specific node.
+ * Non-keyed list iteration where rendered nodes are keyed to an array index. This is useful when
+ * there is no conceptual key (i.e., primitives).
+ *
+ * Prefer `ForKeyed` when referential checks are required (e.g., `[{}, {}]`) - the value is fixed
+ * but index changes.
  *
  * @example
  * ```jsx
  * <For each={[0, 1, 2]}>
- *   {(item, index) => <div>{item}</div>}
- * </For>
- * ```
- * @example
- * ```jsx
- * <For each={[{ title: '' }, { title: '' }]} key={(item) => item.title}>
- *   {(item, index) => <div>{item.title}</div>}
+ *   {($value, index) => <div>{$value} - {index}</div>}
  * </For>
  * ```
  */
 export function For<Item>(props: ForProps<Item>): JSX.Element {
-  return null;
+  return null; // virtual component, replaced by compiler.
+}
+
+// ---------------------------------------------------------------------------------------------
+// <ForKeyed>
+// ---------------------------------------------------------------------------------------------
+
+export interface ForKeyedDefaultSlot<Item> {
+  (item: Item, index: ReadSignal<number>): JSX.Element;
+}
+
+export interface ForKeyedProps<Item> {
+  each: Maybe<Item[] | ReadSignal<Item[]>>;
+  children: ForKeyedDefaultSlot<Item>;
+}
+
+/**
+ * A referentially keyed loop with efficient updating of only changed items.
+ *
+ * Prefer `For` when working with primitives (e.g., `[1, 2, 3]`) - the index is fixed but the
+ * value changes.
+ *
+ * @example
+ * ```jsx
+ * <ForKeyed each={[{ id: 0 }, { id: 1 }, { id: 2 }]}>
+ *   {(item, $index) => <div>{item.id} - {$index}</div>}
+ * </ForKeyed>
+ * ```
+ */
+export function ForKeyed<Item>(props: ForKeyedProps<Item>): JSX.Element {
+  return null; // virtual component, replaced by compiler.
 }

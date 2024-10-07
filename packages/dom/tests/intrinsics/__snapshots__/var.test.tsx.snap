@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dynamic 1`] = `
+<div
+  style="--foo: blue; --bar: 50;"
+/>
+`;
+
+exports[`signal 1`] = `
+<div
+  style="--color: blue;"
+/>
+`;
+
+exports[`signal 2`] = `
+<div
+  style="--color: red;"
+/>
+`;
+
+exports[`signal 3`] = `
+<div
+  style=""
+/>
+`;
+
+exports[`static 1`] = `
+<div
+  style="--foo: 1; --bar: 2;"
+/>
+`;

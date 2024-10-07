@@ -77,6 +77,7 @@ export interface ComponentAttributes {
   classes?: AttributeNode[];
   spreads?: SpreadNode[];
   events?: EventNode[];
+  ref?: RefNode;
 }
 
 export interface ComponentNode extends ComponentAttributes {

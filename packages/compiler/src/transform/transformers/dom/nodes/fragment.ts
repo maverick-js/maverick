@@ -22,4 +22,8 @@ export function Fragment(node: FragmentNode, { state, walk }: DomVisitorContext)
   } else {
     walk.children();
   }
+
+  if (state.result === $.null) {
+    state.result = node.node;
+  }
 }

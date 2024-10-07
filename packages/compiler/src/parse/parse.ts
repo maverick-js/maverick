@@ -34,15 +34,15 @@ export function parse(code: string, options: ParseOptions) {
       const Fragment = findImportSpecifierFromDeclaration(node, 'Fragment'),
         Portal = findImportSpecifierFromDeclaration(node, 'Portal'),
         For = findImportSpecifierFromDeclaration(node, 'For'),
+        ForKeyed = findImportSpecifierFromDeclaration(node, 'ForKeyed'),
         Host = findImportSpecifierFromDeclaration(node, 'Host');
 
       if (isValueImportSpecifier(Fragment)) analysis.components.Fragment = Fragment;
       if (isValueImportSpecifier(Portal)) analysis.components.Portal = Portal;
       if (isValueImportSpecifier(For)) analysis.components.For = For;
+      if (isValueImportSpecifier(ForKeyed)) analysis.components.ForKeyed = ForKeyed;
       if (isValueImportSpecifier(Host)) analysis.components.Host = Host;
-    }
-
-    if (isJsxElementNode(node)) {
+    } else if (isJsxElementNode(node)) {
       const astNode = createAstNode(node);
       astNodes.push(astNode);
       return;

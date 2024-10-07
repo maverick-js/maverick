@@ -1,4 +1,4 @@
-import { defineCustomElement, Host } from '@maverick-js/element';
+import { createCustomElement, defineCustomElement } from '@maverick-js/element';
 import { waitAnimationFrame } from '@maverick-js/std';
 import { Component, createContext, onDispose, provideContext, useContext } from 'maverick.js';
 
@@ -7,7 +7,7 @@ afterEach(() => {
 });
 
 it('should handle basic setup and destroy', () => {
-  class TestElement extends Host(HTMLElement, class extends Component {}) {
+  class TestElement extends createCustomElement(HTMLElement, class extends Component {}) {
     static tagName = 'mk-test-1';
   }
 
@@ -28,7 +28,7 @@ it('should observe attributes', () => {
     bazBaxHux: number;
   }
 
-  class TestElement extends Host(
+  class TestElement extends createCustomElement(
     HTMLElement,
     class extends Component<Props> {
       static props: Props = {
@@ -64,7 +64,7 @@ it('should call lifecycle hooks', async () => {
     disconnect = vi.fn(),
     Context = createContext<number>();
 
-  class TestElement extends Host(
+  class TestElement extends createCustomElement(
     HTMLElement,
     class extends Component {
       constructor() {

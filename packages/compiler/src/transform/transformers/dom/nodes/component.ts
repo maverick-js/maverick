@@ -1,4 +1,4 @@
-import { $ } from '@maverick-js/ts';
+import { $, getUniqueId } from '@maverick-js/ts';
 import ts from 'typescript';
 
 import { type ComponentNode, isElementNode } from '../../../../parse/ast';
@@ -6,54 +6,88 @@ import {
   createComponentHostProps,
   createComponentProps,
   createComponentSlotsObject,
+  createEventPropertyAssignmentList,
 } from '../../shared/factory';
 import { insert } from '../position';
 import type { DomRuntime } from '../runtime';
-import type { DomVisitorContext } from '../state';
+import type { DomTransformState, DomVisitorContext } from '../state';
 import { transform } from '../transform';
 
 export function Component(node: ComponentNode, { state, walk }: DomVisitorContext) {
-  const { vars, block, runtime } = state;
+  const { vars, runtime } = state;
+
+  const name = $.id(node.name);
+  state.args.push(name);
+
+  const rootElement = walk.path.find(isElementNode),
+    marker = state.hydratable && rootElement ? state.vars.setup.nextNode(state.walker!) : null;
 
   const props = createComponentProps(node),
+    mergedSpreadPropsId = node.spreads
+      ? vars.setup.create(
+          '$$_merged_props',
+          runtime.mergeProps([...node.spreads.map((s) => s.initializer), props]),
+        ).name
+      : null,
     component = vars.setup.component(
-      node.name,
-      !node.spreads
-        ? props
-        : runtime.mergeProps([...node.spreads.map((s) => s.initializer), props]),
+      getUniqueId(name),
+      !mergedSpreadPropsId ? props : mergedSpreadPropsId,
+      !mergedSpreadPropsId
+        ? createEventListener(node, state)
+        : runtime.listenCallback(
+            mergedSpreadPropsId,
+            node.events
+              ? $.object(createEventPropertyAssignmentList(node.events), true)
+              : undefined,
+          ),
       createComponentSlotsObject(node, transform, (node) => state.child(node)),
-      createAttachHostCallback(node, state.runtime),
+      createAttachHostCallback(node, state.runtime, mergedSpreadPropsId),
     );
 
-  if (!node.spreads) {
-    if (node.events) {
-      for (const event of node.events) {
-        if (event.forward) {
-          block.push(runtime.forwardEvent(component, event.type, event.capture));
-        } else {
-          block.push(runtime.listen(component, event.type, event.initializer, event.capture));
-        }
-      }
-    }
+  if (rootElement) {
+    insert(rootElement, component, node, state, walk, marker);
   }
 
-  const rootElement = walk.path.find(isElementNode);
-  if (rootElement) {
-    insert(rootElement, component, node, state, walk);
+  if (state.result === $.null) {
+    state.result = component;
   }
 }
 
-export function createAttachHostCallback(node: ComponentNode, runtime: DomRuntime) {
+export function createEventListener(node: ComponentNode, state: DomTransformState) {
+  if (!node.events) return;
+
+  const { runtime } = state,
+    targetId = $.createUniqueName('$_target'),
+    body: ts.Expression[] = [];
+
+  for (const event of node.events) {
+    if (event.forward) {
+      body.push(runtime.forwardEvent(targetId, event.type, event.capture));
+    } else {
+      body.push(runtime.listen(targetId, event.type, event.initializer, event.capture));
+    }
+  }
+
+  return $.arrowFn([targetId], body);
+}
+
+export function createAttachHostCallback(
+  node: ComponentNode,
+  runtime: DomRuntime,
+  spreadId?: ts.Expression | null,
+) {
   const host = $.id('host'),
     block: ts.Expression[] = [];
 
-  if (node.spreads) {
-    const props = runtime.mergeProps([
-      ...node.spreads.map((s) => s.initializer),
-      createComponentHostProps(node),
-    ]);
+  if (node.spreads || spreadId) {
+    const props = spreadId
+      ? spreadId
+      : runtime.mergeProps([
+          ...node.spreads!.map((s) => s.initializer),
+          createComponentHostProps(node),
+        ]);
 
-    block.push(runtime.spread(host, props));
+    block.push(runtime.hostSpread(host, props));
   } else {
     if (node.class) {
       block.push(runtime.appendClass(host, node.class.initializer));
@@ -69,6 +103,10 @@ export function createAttachHostCallback(node: ComponentNode, runtime: DomRuntim
       for (const cssvar of node.vars) {
         block.push(runtime.style(host, `--${cssvar.name}`, cssvar.initializer));
       }
+    }
+
+    if (node.ref) {
+      block.push(runtime.ref(host, node.ref.initializer));
     }
   }
 

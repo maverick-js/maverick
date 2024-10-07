@@ -1,0 +1,29 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`host vars 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div
+    class="foo bar"
+  />
+</body>
+`;
+
+exports[`host vars 2`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div
+    class="foo"
+  />
+</body>
+`;

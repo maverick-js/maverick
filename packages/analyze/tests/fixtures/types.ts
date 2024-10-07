@@ -1,5 +1,5 @@
 import { Component, State, method, prop, } from '../../../../maverick/src/core';
-import type { DOMEvent } from '../../../../std/src';
+import type { MaverickEvent } from '../../../../std/src';
 
 interface MooProps<T> {
   /** This is the moo docs. */
@@ -44,7 +44,7 @@ type FooProps = Pick<MooProps<string>, 'moo' | 'mooBoo'> & {
   show: () => string;
 };
 
-interface BaseEvent extends DOMEvent<boolean> {}
+interface BaseEvent extends MaverickEvent<boolean> {}
 interface FooEvent extends BaseEvent {}
 
 /**
@@ -52,7 +52,7 @@ interface FooEvent extends BaseEvent {}
  *
  * @internal
  */
-type BazEvent = DOMEvent<0 | 1>;
+type BazEvent = MaverickEvent<0 | 1>;
 
 interface FooEvents extends BarEvents {
   /**
@@ -61,12 +61,12 @@ interface FooEvents extends BarEvents {
    * @bubbles
    */
   foo: FooEvent;
-  bar: DOMEvent<void>;
+  bar: MaverickEvent<void>;
 }
 
 type BarEvents = {
   baz: BazEvent;
-  boo: DOMEvent<string | null>;
+  boo: MaverickEvent<string | null>;
 } & {
   /***
    * This is the lux event.
@@ -74,15 +74,15 @@ type BarEvents = {
    * @composed
    * @deprecated
    */
-  lux: DOMEvent<string | null>;
-  hux: DOMEvent<number | null>;
+  lux: MaverickEvent<string | null>;
+  hux: MaverickEvent<number | null>;
 } & BazEvents;
 
 type FooBoo = 'a' | 'b' | 'c';
 
 type BazEvents = {
-  'bax-hux': DOMEvent<0 | 1 | 2 | 3>;
-  'baz-boo': DOMEvent<FooBoo>;
+  'bax-hux': MaverickEvent<0 | 1 | 2 | 3>;
+  'baz-boo': MaverickEvent<FooBoo>;
 };
 
 interface FooCSSVars {

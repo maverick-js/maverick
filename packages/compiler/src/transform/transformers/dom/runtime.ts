@@ -7,30 +7,25 @@ import { Runtime } from '../shared/runtime';
 export class DomRuntime extends Runtime {
   protected override pkg = '@maverick-js/dom';
 
-  createTemplate(html: ts.StringLiteral) {
-    return $.pure(this.call('create_template', [html]));
-  }
-
-  createFragment() {
-    return this.call('create_fragment');
+  createTemplate(html: ts.StringLiteral, importNodes: boolean) {
+    return $.pure(this.call('create_template', importNodes ? [html, $.createTrue()] : [html]));
   }
 
   createComponent(
-    name: string,
+    name: ts.Expression,
     props?: ts.Expression,
+    listen?: ts.Expression,
     slots?: ts.Expression,
     onAttach?: ts.Expression,
   ) {
-    const id = $.id(name);
-    return this.call('create_component', createNullFilledArgs([id, props, slots, onAttach]));
+    return this.call(
+      'create_component',
+      createNullFilledArgs([name, props, listen, slots, onAttach]),
+    );
   }
 
-  createWalker(fragment: ts.Identifier, walker?: ts.Identifier) {
-    return this.call('create_walker', walker ? [fragment, walker] : [fragment]);
-  }
-
-  nextTemplate(fragment: ts.Identifier) {
-    return this.call('next_template', [fragment]);
+  createWalker(template: ts.Expression) {
+    return this.call('create_walker', [template]);
   }
 
   nextElement(walker: ts.Identifier) {
@@ -49,11 +44,7 @@ export class DomRuntime extends Runtime {
     return this.call('child', [parent, $.number(index)]);
   }
 
-  children(id: ts.Identifier) {
-    return this.call('children', [id]);
-  }
-
-  insert(parent: ts.Identifier, value: ts.Expression, marker?: ts.Identifier) {
+  insert(parent: ts.Identifier, value: ts.Expression, marker?: ts.Identifier | ts.NullLiteral) {
     return this.call('insert', marker ? [parent, value, marker] : [parent, value]);
   }
 
@@ -81,10 +72,6 @@ export class DomRuntime extends Runtime {
     return this.call('delegate_events', [types]);
   }
 
-  clone(fragment: ts.Identifier) {
-    return this.call('clone', [fragment]);
-  }
-
   ref(element: ts.Identifier, ref: ts.Expression) {
     return this.call('ref', [element, ref]);
   }
@@ -97,12 +84,20 @@ export class DomRuntime extends Runtime {
     return $.setProp(obj, prop, value);
   }
 
+  content(el: ts.Identifier, prop: string, value: ts.Expression) {
+    return this.call('content', [el, $.string(prop), value]);
+  }
+
   attr(el: ts.Identifier, name: string, value: ts.Expression) {
     return this.call('attr', [el, $.string(name), value]);
   }
 
   class(el: ts.Identifier, name: string, value: ts.Expression) {
     return this.call('class', [el, $.string(name), value]);
+  }
+
+  classTokens(el: ts.Identifier, value: ts.Expression) {
+    return this.call('class_tokens', [el, value]);
   }
 
   appendClass(el: ts.Identifier, value: ts.Expression) {
@@ -113,8 +108,16 @@ export class DomRuntime extends Runtime {
     return this.call('style', [el, $.string(prop), value]);
   }
 
+  styleTokens(el: ts.Identifier, value: ts.Expression) {
+    return this.call('style_tokens', [el, value]);
+  }
+
   spread(el: ts.Identifier, props: ts.Expression) {
     return this.call('spread', [el, props]);
+  }
+
+  hostSpread(el: ts.Identifier, props: ts.Expression) {
+    return this.call('host_spread', [el, props]);
   }
 
   mergeProps(sources: (ts.Expression | null | undefined)[]) {

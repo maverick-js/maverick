@@ -84,7 +84,6 @@ export const PROP_ALIAS = {
   readonly: 'readOnly',
 };
 
-// List of events that can be delegated - not currently used.
 export const DELEGATED_EVENT_TYPE = new Set([
   'beforeinput',
   'click',

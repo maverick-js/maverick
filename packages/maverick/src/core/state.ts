@@ -31,7 +31,7 @@ import type { AnyRecord, ReadSignalRecord } from './types';
  * ```
  */
 export class State<Record> {
-  readonly id = Symbol(__DEV__ ? 'STATE' : 0);
+  readonly id = Symbol('maverick.state');
   readonly record: Record;
 
   #descriptors: {

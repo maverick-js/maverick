@@ -3,7 +3,7 @@ import { $ } from '@maverick-js/ts';
 import type ts from 'typescript';
 
 import { type AttributeNode, type ElementNode, isFragmentNode } from '../../../../parse/ast';
-import { createElementProps } from '../../shared/factory';
+import { createElementSpreadProps } from '../../shared/factory';
 import type { SsrVisitorContext } from '../state';
 
 export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
@@ -19,7 +19,7 @@ export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
   if (node.spreads) {
     const props = runtime.mergeProps([
       ...node.spreads.map((s) => s.initializer),
-      createElementProps(node, { ssr: true }),
+      createElementSpreadProps(node, { ssr: true }),
     ]);
 
     state.value(runtime.attrs(props));

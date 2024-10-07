@@ -1,6 +1,6 @@
 import type ts from 'typescript';
 
-import type { TS_NODE } from './symbols';
+import type { TS_NODE_SYMBOL } from './symbols';
 
 export interface TypeMeta {
   primitive: string;
@@ -9,7 +9,7 @@ export interface TypeMeta {
 }
 
 export interface PropMeta {
-  [TS_NODE]?: ts.Node;
+  [TS_NODE_SYMBOL]?: ts.Node;
   name: string;
   type: TypeMeta;
   default?: string;
@@ -22,7 +22,7 @@ export interface PropMeta {
 }
 
 export interface ParameterMeta {
-  [TS_NODE]?: ts.Node;
+  [TS_NODE_SYMBOL]?: ts.Node;
   name: string;
   type: TypeMeta;
   default?: string;
@@ -30,15 +30,15 @@ export interface ParameterMeta {
 }
 
 export interface MethodMeta {
-  [TS_NODE]?: ts.Node;
+  [TS_NODE_SYMBOL]?: ts.Node;
   name: string;
   parameters: ParameterMeta[];
   signature: {
-    [TS_NODE]?: ts.Signature;
+    [TS_NODE_SYMBOL]?: ts.Signature;
     type: string;
   };
   return: {
-    [TS_NODE]?: ts.Type;
+    [TS_NODE_SYMBOL]?: ts.Type;
     type: string;
   };
   docs?: string;
@@ -48,7 +48,7 @@ export interface MethodMeta {
 }
 
 export interface EventMeta {
-  [TS_NODE]?: ts.Node;
+  [TS_NODE_SYMBOL]?: ts.Node;
   name: string;
   type: TypeMeta;
   detail: TypeMeta;
@@ -62,7 +62,7 @@ export interface EventMeta {
 }
 
 export interface CSSVarMeta {
-  [TS_NODE]?: ts.Node;
+  [TS_NODE_SYMBOL]?: ts.Node;
   name: string;
   default?: string;
   docs?: string;
@@ -76,13 +76,13 @@ export interface CSSVarMeta {
 }
 
 export interface PartMeta {
-  [TS_NODE]?: ts.Node;
+  [TS_NODE_SYMBOL]?: ts.Node;
   name: string;
   docs?: string;
 }
 
 export interface StateMeta {
-  [TS_NODE]?: ts.Node;
+  [TS_NODE_SYMBOL]?: ts.Node;
   name: string;
   type: TypeMeta;
   default?: string;
@@ -94,13 +94,13 @@ export interface StateMeta {
 }
 
 export interface DocTagMeta {
-  [TS_NODE]?: ts.Node;
+  [TS_NODE_SYMBOL]?: ts.Node;
   name: string;
   text?: string;
 }
 
 export interface FileMeta {
-  [TS_NODE]?: ts.SourceFile;
+  [TS_NODE_SYMBOL]?: ts.SourceFile;
   path: string;
 }
 
@@ -117,7 +117,7 @@ export interface ComponentGenericsMeta {
 }
 
 export interface ComponentMeta extends Record<string, unknown> {
-  [TS_NODE]?: ts.ClassDeclaration;
+  [TS_NODE_SYMBOL]?: ts.ClassDeclaration;
   type: 'component';
   file: FileMeta;
   name: string;

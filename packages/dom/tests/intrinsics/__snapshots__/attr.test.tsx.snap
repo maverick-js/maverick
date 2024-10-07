@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dynamic 1`] = `
+<body>
+  <div
+    data-bar="1080"
+    data-foo="1920"
+  />
+</body>
+`;
+
+exports[`signal 1`] = `
+<body>
+  <div
+    data-foo="1920"
+  />
+</body>
+`;
+
+exports[`signal 2`] = `
+<body>
+  <div
+    data-foo="720"
+  />
+</body>
+`;
+
+exports[`static 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div
+    data-bar="1080"
+    data-foo="1920"
+  />
+</body>
+`;

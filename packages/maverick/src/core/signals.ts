@@ -36,6 +36,8 @@ export {
   untrack,
 } from '@maverick-js/signals';
 
+export { computedKeyedMap, computedMap } from '@maverick-js/signals/map';
+
 /**
  * Invokes the given function each time any of the signals that are read inside are updated
  * (i.e., their value changes). The effect is immediately invoked on initialization.

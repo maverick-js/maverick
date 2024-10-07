@@ -6,6 +6,7 @@ export interface ParseAnalysis {
     Fragment?: ts.ImportSpecifier;
     Portal?: ts.ImportSpecifier;
     For?: ts.ImportSpecifier;
+    ForKeyed?: ts.ImportSpecifier;
     Host?: ts.ImportSpecifier;
   };
 }

@@ -1,0 +1,35 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`portal 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div
+    data-portal=""
+    style="display: contents;"
+  >
+    <div>
+      Content
+    </div>
+  </div>
+</body>
+`;
+
+exports[`signal 1`] = `
+<body>
+  <div
+    data-portal=""
+    style="display: contents;"
+  >
+    <div>
+      Content
+    </div>
+  </div>
+</body>
+`;
+
+exports[`signal 2`] = `<body />`;

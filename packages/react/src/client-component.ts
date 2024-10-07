@@ -7,7 +7,7 @@ import {
   type Scope,
   tick,
 } from '../../maverick/src/core';
-import { ON_DISPATCH } from '../../maverick/src/core/symbols';
+import { ON_DISPATCH_SYMBOL } from '../../maverick/src/core/symbols';
 import { camelToKebabCase, kebabToPascalCase } from '../../std/src/string';
 import { isFunction, isUndefined } from '../../std/src/unit';
 import { ReactScopeContext, WithScope } from './scope';
@@ -113,7 +113,7 @@ export function createClientComponent<T extends Component>(
           detachFromHost(state);
 
           state.component!.$$.destroy();
-          state.component!.$$[ON_DISPATCH] = null;
+          state.component!.$$[ON_DISPATCH_SYMBOL] = null;
 
           state.callbacks = {};
           state.domCallbacks = {};
@@ -289,7 +289,7 @@ function initComponent<T extends Component>(
   scope: Scope | null,
 ): T {
   const component = createComponent(Component, { props, scope });
-  component.$$[ON_DISPATCH] = onDispatch.bind(state);
+  component.$$[ON_DISPATCH_SYMBOL] = onDispatch.bind(state);
   component.$$.setup();
   return component;
 }

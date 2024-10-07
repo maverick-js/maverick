@@ -36,6 +36,7 @@ export class ReactTransformState {
 
   readonly isChild: boolean;
   readonly isExpressionChild: boolean | null = null;
+  isSlot = false;
   readonly isRenderFunctionChild: boolean;
 
   readonly delegatedEvents: Set<string>;

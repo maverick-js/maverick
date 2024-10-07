@@ -160,3 +160,26 @@ export function isAccessExpressionEqual(a: AccessExpression, b: AccessExpression
 
   return true;
 }
+
+export function isFunctionModuleScope(sourceFile: ts.SourceFile, id: ts.Identifier) {
+  for (const statement of sourceFile.statements) {
+    if (ts.isImportDeclaration(statement)) {
+      const clause = statement.importClause,
+        bindings = clause?.namedBindings;
+
+      if (clause && clause.name?.text === id.text) {
+        return true;
+      }
+
+      return (
+        bindings &&
+        ts.isNamedImports(bindings) &&
+        bindings.elements.some((el) => el.name.text === id.text)
+      );
+    } else if (ts.isFunctionDeclaration(statement)) {
+      return statement.name?.text === id.text;
+    }
+  }
+
+  return false;
+}

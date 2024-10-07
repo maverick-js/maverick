@@ -6,7 +6,7 @@ import { buildTypeMeta } from '../utils/types';
 import { getPropertiesAndGetters, getValueNode } from '../utils/walk';
 import type { StateMeta } from './component';
 import { getDocTags, hasDocTag } from './doctags';
-import { TS_NODE } from './symbols';
+import { TS_NODE_SYMBOL } from './symbols';
 
 export function buildStateMeta(
   checker: ts.TypeChecker,
@@ -45,7 +45,7 @@ export function buildStateMeta(
           value && ts.isPropertyAssignment(value) ? value.initializer.getText() : undefined;
 
       meta.push({
-        [TS_NODE]: signature,
+        [TS_NODE_SYMBOL]: signature,
         name,
         type: buildTypeMeta(checker, type),
         docs,

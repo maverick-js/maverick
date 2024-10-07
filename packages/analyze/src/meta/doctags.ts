@@ -6,12 +6,12 @@ import { filterArrayUnique } from '../../utils/array';
 import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
 import { escapeQuotes } from '../../utils/str';
 import type { DocTagMeta } from './component';
-import { TS_NODE } from './symbols';
+import { TS_NODE_SYMBOL } from './symbols';
 
 export function splitJsDocTagText(tag: DocTagMeta) {
   const [title, description] = (tag.text?.split(' - ') ?? []).map((s) => s.trim());
   return {
-    [TS_NODE]: tag[TS_NODE],
+    [TS_NODE_SYMBOL]: tag[TS_NODE_SYMBOL],
     title: !description ? undefined : title,
     description: !description ? title : description,
   };
@@ -37,7 +37,7 @@ export const getDocTags = (node?: ts.Node): DocTagMeta[] | undefined => {
   if (!node) return undefined;
   const tags = (node as any).jsDoc?.[0]?.tags;
   return tags?.map((docTagNode: any) => ({
-    [TS_NODE]: docTagNode,
+    [TS_NODE_SYMBOL]: docTagNode,
     name: docTagNode.tagName.escapedText,
     text: resolveDocTagText(node, docTagNode.comment),
   }));
@@ -56,7 +56,7 @@ export function buildMetaFromDocTags(doctags: DocTagMeta[], tagName: string, exa
     onDuplicateFound: (tag) => {
       reportDiagnosticByNode(
         `Found duplicate \`@${tagName}\` tags with the name \`${tag.title}\`.`,
-        tag[TS_NODE],
+        tag[TS_NODE_SYMBOL],
         LogLevel.Warn,
       );
     },
@@ -67,7 +67,7 @@ export function buildMetaFromDocTags(doctags: DocTagMeta[], tagName: string, exa
           `Tag \`@${tagName}\` is missing a title.`,
           `\n${kleur.bold('EXAMPLE')}\n\n${example}`,
         ].join('\n'),
-        tag[TS_NODE],
+        tag[TS_NODE_SYMBOL],
         LogLevel.Warn,
       );
     }
@@ -78,13 +78,13 @@ export function buildMetaFromDocTags(doctags: DocTagMeta[], tagName: string, exa
           `Tag \`@${tagName}\` is missing a description.`,
           `\n${kleur.bold('EXAMPLE')}\n\n${example}`,
         ].join('\n'),
-        tag[TS_NODE],
+        tag[TS_NODE_SYMBOL],
         LogLevel.Warn,
       );
     }
 
     return {
-      [TS_NODE]: tag[TS_NODE],
+      [TS_NODE_SYMBOL]: tag[TS_NODE_SYMBOL],
       name: tag.title ?? '',
       description: tag.description ?? '',
     };

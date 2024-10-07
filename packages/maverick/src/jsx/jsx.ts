@@ -1,11 +1,12 @@
 /// <reference lib="dom" />
-import type { ConditionalPick, HasRequiredKeys, IsAny, IsEmptyObject, IsNever } from 'type-fest';
+import type { CSSStyleProperty } from '@maverick-js/std';
+import type { ConditionalPick } from 'type-fest';
 
-import type { AnyComponent, ComponentRenderProps, NullableRecord, ReadSignal } from '../core';
+import type { AnyComponent, NullableRecord, ReadSignal } from '../core';
 
 type DOMNode = Node;
 type DOMElement = Element;
-type DOMEvent = Event;
+type MaverickEvent = Event;
 
 declare global {
   /**
@@ -29,7 +30,7 @@ declare global {
    * ```ts
    * declare global {
    *   interface MaverickOnAttributes {
-   *     foo: DOMEvent<number>;
+   *     foo: MaverickEvent<number>;
    *   }
    * }
    * ```
@@ -96,7 +97,7 @@ export namespace JSX {
   export type Nodes = Node[];
 
   export interface NodeFactory {
-    (): Node;
+    (...props: any[]): Node;
   }
 
   export type Element = Node | ReadSignal<Node>;
@@ -110,7 +111,7 @@ export namespace JSX {
   }
 
   export interface ElementClass extends AnyComponent {
-    render(props: ComponentRenderProps<any>): Node;
+    render(): Node;
   }
 
   /**
@@ -170,9 +171,9 @@ export namespace JSX {
   };
 
   export interface InnerContentAttributes {
-    innerHTML?: AttrValue;
-    innerText?: AttrValue;
-    textContent?: AttrValue;
+    innerHTML?: string;
+    innerText?: string;
+    textContent?: string;
   }
 
   export interface SignalInnerContentAttributes
@@ -188,7 +189,7 @@ export namespace JSX {
     (ref: Element): void;
   }
 
-  export type RefArray<Element> = ReadonlyArray<Ref<Element>>;
+  export type RefArray<Element> = Ref<Element>[];
 
   export interface RefAttributes<Element> {
     ref?: Ref<Element> | RefArray<Element>;
@@ -209,7 +210,7 @@ export namespace JSX {
     readonly currentTarget: Target;
   };
 
-  export type EventHandler<Event = DOMEvent> = {
+  export type EventHandler<Event = MaverickEvent> = {
     (this: never, event: Event): void;
   };
 
@@ -292,7 +293,7 @@ export namespace JSX {
   };
 
   export type CSSProperties = AnyCSSProperty &
-    HTMLCSSProperties & {
+    CSSStyleProperties & {
       cssText?: string | null;
     };
 
@@ -339,11 +340,8 @@ export namespace JSX {
     children?: Element;
   }
 
-  export type HTMLCSSProperties = {
-    [P in keyof Omit<
-      CSSStyleDeclaration,
-      'item' | 'setProperty' | 'removeProperty' | 'getPropertyValue' | 'getPropertyPriority'
-    >]?: CSSValue;
+  export type CSSStyleProperties = {
+    [P in CSSStyleProperty]?: CSSValue;
   };
 
   export type DataAttributes = {
@@ -368,12 +366,9 @@ export namespace JSX {
       SignalInnerContentAttributes,
       GlobalCSSVarAttributes {}
 
-  export type ComponentAttributes<
-    Props = {},
-    Events = {},
-    CSSVars = {},
-    Slots = {},
-  > = Partial<Props> &
+  export type ComponentAttributes<Props = {}, Events = {}, CSSVars = {}> = Props &
+    DataAttributes &
+    SignalDataAttributes &
     ClassAttributes &
     SignalClassAttributes &
     CSSVarAttributes<CSSVars> &
@@ -381,18 +376,8 @@ export namespace JSX {
     GlobalCSSVarAttributes &
     OnAttributes<EventTarget, Events> & {
       class?: string;
-    } & ComponentChildrenProp<Slots>;
-
-  export type ComponentChildrenProp<Slots> =
-    IsEmptyObject<Slots> extends true
-      ? {}
-      : IsNever<Slots> extends true
-        ? {}
-        : IsAny<Slots> extends true
-          ? { children?: JSX.Element }
-          : HasRequiredKeys<Slots & {}> extends true
-            ? { children: JSX.Element }
-            : { children?: JSX.Element };
+      children?: JSX.Element;
+    };
 
   export interface HTMLMarqueeElement extends HTMLElement, HTMLMarqueeElementProperties {}
 
@@ -426,7 +411,6 @@ export namespace JSX {
     allow?: string;
     allowFullScreen?: boolean;
     allowTransparency?: boolean;
-    as?: string;
     as?: string;
     async?: boolean;
     autocomplete?: string;

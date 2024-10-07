@@ -1,0 +1,47 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`<Host> 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div
+    class="foo bar"
+    data-foo=""
+    style="--foo: 10;"
+  >
+    <span>
+      Contents
+    </span>
+  </div>
+</body>
+`;
+
+exports[`attach to host 1`] = `
+<body>
+  <div
+    class="foo bar hux"
+    style="--foo: 10;"
+  >
+    <span>
+      Contents
+    </span>
+  </div>
+</body>
+`;
+
+exports[`attach to host 2`] = `
+<body>
+  <div
+    class="foo bar hux"
+    style="--foo: 20;"
+  >
+    <span>
+      Contents
+    </span>
+  </div>
+</body>
+`;

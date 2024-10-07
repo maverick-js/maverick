@@ -5,7 +5,7 @@ import { getDocs } from '../utils/docs';
 import { buildTypeMeta } from '../utils/types';
 import type { CSSVarMeta, DocTagMeta } from './component';
 import { buildMetaFromDocTags, findDocTag, getDocTags, hasDocTag } from './doctags';
-import { TS_NODE } from './symbols';
+import { TS_NODE_SYMBOL } from './symbols';
 
 const filteredTagNames = new Set([
   'internal',
@@ -67,7 +67,7 @@ export function buildCSSVarsMeta(
       }
 
       meta.set(name, {
-        [TS_NODE]: signature,
+        [TS_NODE_SYMBOL]: signature,
         name,
         default: $default,
         type,

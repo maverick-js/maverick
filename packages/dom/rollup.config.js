@@ -7,19 +7,13 @@ import { copyPkgFiles } from '../../.build/copy-pkg-files.js';
 
 const EXTERNAL = [/maverick.js/, /@maverick-js/];
 
-export default defineConfig([
-  define({ type: 'dev' }),
-  define({ type: 'prod' }),
-  define({ type: 'server' }),
-  defineTypes(),
-]);
+export default defineConfig([define({ type: 'dev' }), define({ type: 'prod' }), defineTypes()]);
 
 /** @returns {import('rollup').RollupOptions} */
 function defineTypes() {
   return {
     input: {
       index: 'types/index.d.ts',
-      server: 'types/server/index.d.ts',
     },
     output: {
       dir: 'dist-npm',
@@ -34,7 +28,7 @@ function defineTypes() {
 
 /**
  * @typedef {{
- *   type: 'dev' | 'prod' | 'server'
+ *   type: 'dev' | 'prod'
  * }} BundleOptions
  */
 
@@ -48,7 +42,6 @@ function define({ type = 'dev' }) {
   return {
     input: {
       index: 'src/index.ts',
-      server: 'src/server/index.ts',
     },
     external: EXTERNAL,
     treeshake: true,
@@ -69,7 +62,6 @@ function define({ type = 'dev' }) {
       esbuild({
         define: {
           __DEV__: isDev ? 'true' : 'false',
-          __SERVER__: type === 'server' ? 'true' : 'false',
           __TEST__: 'false',
         },
       }),

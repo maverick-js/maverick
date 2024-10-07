@@ -12,7 +12,8 @@ import {
   isTextNode,
 } from '../../../../parse/ast';
 import { getElementDepth, isStaticTree } from '../../../../parse/utils';
-import { createElementProps } from '../../shared/factory';
+import { containsCustomElement, createElementDomExpressions } from '../../dom/nodes/element';
+import { createElementSpreadProps } from '../../shared/factory';
 import { getReactPropName } from '../attr-map';
 import { createDangerouslySetInnerHTMLProp, createReactNode } from '../react-node';
 import type { ReactTransformState, ReactVisitorContext } from '../state';
@@ -39,7 +40,7 @@ export function Element(node: ElementNode, { state, walk }: ReactVisitorContext)
     if (node.spreads) {
       const mergedProps = domRuntime.mergeProps([
         ...node.spreads.map((s) => s.initializer),
-        createElementProps(node),
+        createElementSpreadProps(node),
       ]);
 
       const propsId = state[scope].vars.create(
@@ -82,9 +83,7 @@ export function Element(node: ElementNode, { state, walk }: ReactVisitorContext)
 
     if (node.content) {
       if (node.content.signal) {
-        attach.push(
-          domRuntime.prop(el, node.content.name, node.content.initializer, node.content.signal),
-        );
+        attach.push(domRuntime.content(el, node.content.name, node.content.initializer));
       } else {
         props.push(createDangerouslySetInnerHTMLProp(node.content.initializer));
       }
@@ -129,13 +128,16 @@ export function renderTemplate(node: ElementNode, state: ReactTransformState) {
 
   const vNodeId = $.createUniqueName('$_node'),
     templateId = $.createUniqueName('$_template'),
-    refCallback = runtime.appendHtml(domRuntime.clone(templateId)),
+    refCallback = runtime.appendHtml($.call(templateId)),
     refProp = $.createPropertyAssignment('ref', refCallback),
     vNode = $.pure(runtime.createElement(createReactNode(node.name, [refProp]))),
     template = $.string(node.children!.map(renderToString).join(''));
 
   state.module.vars.create(vNodeId, vNode);
-  state.module.vars.create(templateId, domRuntime.createTemplate(template));
+  state.module.vars.create(
+    templateId,
+    domRuntime.createTemplate(template, containsCustomElement(node)),
+  );
 
   if (!state.result) state.result = vNodeId;
 }
@@ -176,53 +178,15 @@ function getClientProps(
   { domRuntime, delegatedEvents }: ReactTransformState,
 ) {
   const props: ts.PropertyAssignment[] = [],
-    attach: ts.Expression[] = [];
-
-  if (node.attrs) {
-    for (const attr of node.attrs) {
-      if (!attr.dynamic) {
-        const name = getReactPropName(attr.name);
-        props.push($.createPropertyAssignment(name, attr.initializer));
-      } else {
-        attach.push(domRuntime.attr(el, attr.name, attr.initializer));
-      }
-    }
-  }
-
-  if (node.props) {
-    for (const prop of node.props) {
-      attach.push(domRuntime.prop(el, prop.name, prop.initializer, prop.signal));
-    }
-  }
-
-  if (node.classes) {
-    for (const c of node.classes) {
-      attach.push(domRuntime.class(el, c.name, c.initializer));
-    }
-  }
-
-  if (node.styles) {
-    for (const style of node.styles) {
-      attach.push(domRuntime.style(el, style.name, style.initializer));
-    }
-  }
-
-  if (node.vars) {
-    for (const cssvar of node.vars) {
-      attach.push(domRuntime.style(el, `--${cssvar.name}`, cssvar.initializer));
-    }
-  }
-
-  if (node.events) {
-    for (const event of node.events) {
-      attach.push(domRuntime.listen(el, event.type, event.initializer, event.capture));
-      if (event.delegate) delegatedEvents.add(event.type);
-    }
-  }
-
-  if (node.ref) {
-    attach.push(domRuntime.ref(el, node.ref.initializer));
-  }
+    attach: ts.Expression[] = [
+      ...createElementDomExpressions(el, node, domRuntime, {
+        delegatedEvents,
+        onStaticAttr: (attr) => {
+          const name = getReactPropName(attr.name);
+          props.push($.createPropertyAssignment(name, attr.initializer));
+        },
+      }),
+    ];
 
   return { props, attach };
 }

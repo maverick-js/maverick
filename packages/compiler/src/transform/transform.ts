@@ -6,23 +6,18 @@ import {
   mapLogLevelStringToNumber,
   setGlobalLogLevel,
 } from '@maverick-js/logger';
-import { isUndefined } from '@maverick-js/std';
 import { removeImports } from '@maverick-js/ts';
-import MagicString, { type SourceMapOptions } from 'magic-string';
 import { relative } from 'pathe';
 
 import type { ParseAnalysis } from '../parse/analysis';
 import { parse } from '../parse/parse';
 import { printFile } from './print';
-import type { Transformer } from './transformers/transformer';
+import type { Transform } from './transformers/transformer';
 
 export interface TransformOptions {
-  transformer: Transformer;
+  transform: Transform;
   logLevel?: LogLevelName;
   filename: string;
-  sourcemap?: boolean | SourceMapOptions;
-  /** @default true */
-  delegateEvents?: boolean;
 }
 
 export interface TransformContext {
@@ -32,7 +27,7 @@ export interface TransformContext {
 }
 
 export function transform(source: string, options: TransformOptions) {
-  const { transformer, logLevel = 'warn', filename, sourcemap = true } = options;
+  const { transform, logLevel = 'warn', filename } = options;
 
   setGlobalLogLevel(mapLogLevelStringToNumber(logLevel));
 
@@ -44,10 +39,6 @@ export function transform(source: string, options: TransformOptions) {
     { analysis, sourceFile, nodes } = parse(source, options);
 
   logTime({ message: 'Built AST', startTime: astStartTime }, LogLevel.Info);
-
-  if (isUndefined(options.delegateEvents)) {
-    options.delegateEvents = true;
-  }
 
   const virtualImports = Object.values(analysis.components);
   if (virtualImports.length > 0) {
@@ -61,22 +52,9 @@ export function transform(source: string, options: TransformOptions) {
 
   // Transform JSX
   const transformStartTime = process.hrtime(),
-    transformedFile = transformer.transform({ sourceFile, nodes, ctx }),
-    code = new MagicString(source).overwrite(0, source.length, printFile(transformedFile));
+    transformedFile = transform({ sourceFile, nodes, ctx });
 
-  logTime(
-    { message: `Transformed AST with [${transformer.name}]`, startTime: transformStartTime },
-    LogLevel.Info,
-  );
+  logTime({ message: `Transformed AST`, startTime: transformStartTime }, LogLevel.Info);
 
-  return {
-    code: code.toString(),
-    map: sourcemap
-      ? code.generateMap(
-          typeof sourcemap === 'boolean'
-            ? { source: filename, file: filename, hires: true }
-            : { source: filename, file: filename, ...sourcemap },
-        )
-      : null,
-  };
+  return { code: printFile(transformedFile) };
 }

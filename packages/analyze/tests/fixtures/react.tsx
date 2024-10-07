@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Component } from '../../../../maverick/src/core';
 import type { ReactElementProps } from '../../../../react/src';
-import type { DOMEvent } from '../../../../std/src';
+import type { MaverickEvent } from '../../../../std/src';
 
 /* -------------------------------------------------------------------------------------------------
  * Foo
@@ -49,8 +49,8 @@ interface BarComponentEvents {
    *
    * @bubbles
    */
-  foo: DOMEvent<number>;
-  bar: DOMEvent<void>;
+  foo: MaverickEvent<number>;
+  bar: MaverickEvent<void>;
 }
 
 class BarComponent extends Component<BarComponentProps, {}, BarComponentEvents> {}

@@ -93,7 +93,7 @@ it('should render styles', () => {
   `);
 });
 
-it('should noop dom events api', () => {
+it('should noop events api', () => {
   class TestComponent extends Component {
     override onAttach(el) {
       el.addEventListener('click', () => {});

@@ -6,7 +6,7 @@ import { buildTypeMeta } from '../utils/types';
 import type { MembersMeta, MethodMeta, PropMeta } from './component';
 import { buildMethodMeta } from './methods';
 import { buildPropMeta } from './props';
-import { TS_NODE } from './symbols';
+import { TS_NODE_SYMBOL } from './symbols';
 
 export function buildMembersMeta(
   checker: ts.TypeChecker,
@@ -42,14 +42,14 @@ export function buildMembersMeta(
   if (stateType && stateDeclaration) {
     const type = buildTypeMeta(checker, stateType);
     props.push({
-      [TS_NODE]: stateDeclaration,
+      [TS_NODE_SYMBOL]: stateDeclaration,
       name: 'state',
       docs: 'This object contains the current state of the component.',
       type,
       readonly: true,
     });
     methods.push({
-      [TS_NODE]: stateDeclaration,
+      [TS_NODE_SYMBOL]: stateDeclaration,
       name: 'subscribe',
       docs: 'Subscribe to live updates of component state.',
       parameters: [

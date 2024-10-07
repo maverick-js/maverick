@@ -1,23 +1,50 @@
 /// <reference types="vitest" />
+import { domTransform, type DomTransformOptions } from '@maverick-js/compiler';
+import { maverick } from '@maverick-js/compiler/vite';
 import { defineConfig } from 'vite';
-
-const SERVER = !!process.env.SERVER;
 
 export default defineConfig({
   define: {
     __DEV__: 'true',
     __TEST__: 'true',
-    __SERVER__: SERVER ? 'true' : 'false',
+    __SERVER__: 'false',
   },
   resolve: {
     alias: {
       '@maverick-js/dom': '/src/index.ts',
     },
   },
+  plugins: [
+    maverick({
+      transform(data, { id }) {
+        const options: DomTransformOptions = {};
+
+        if (id.includes('hydrate')) {
+          options.hydratable = true;
+        }
+
+        if (id.includes('custom-element')) {
+          options.customElements = true;
+        }
+
+        if (id.includes('delegate')) {
+          options.delegateEvents = true;
+        }
+
+        return domTransform(data, options);
+      },
+    }),
+  ],
   // https://vitest.dev/config
   test: {
-    include: [`tests/${SERVER ? 'server' : 'client'}/**/*.test.{ts,tsx}`],
+    include: [`tests/**/*.test.{ts,tsx}`],
     globals: true,
-    environment: SERVER ? 'edge-runtime' : 'jsdom',
+    browser: {
+      enabled: true,
+      headless: true,
+      provider: 'playwright',
+      name: 'chromium',
+      screenshotFailures: false,
+    },
   },
 });

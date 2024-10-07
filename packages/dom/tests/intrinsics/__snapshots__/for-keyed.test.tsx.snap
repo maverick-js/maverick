@@ -1,0 +1,133 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should render keyed loop 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <span>
+    a
+     - 
+    0
+  </span>
+  <span>
+    b
+     - 
+    1
+  </span>
+  <span>
+    c
+     - 
+    2
+  </span>
+</body>
+`;
+
+exports[`should render keyed loop 2`] = `
+<body>
+  
+    
+  
+  
+
+
+  <span>
+    b
+     - 
+    1
+  </span>
+  <span>
+    a
+     - 
+    0
+  </span>
+  <span>
+    c
+     - 
+    2
+  </span>
+</body>
+`;
+
+exports[`should render keyed loop 3`] = `
+<body>
+  
+    
+  
+  
+
+
+  <span>
+    b
+     - 
+    1
+  </span>
+  <span>
+    a
+     - 
+    0
+  </span>
+</body>
+`;
+
+exports[`should render keyed loop 4`] = `
+<body>
+  
+    
+  
+  
+
+
+  <span>
+    b
+     - 
+    1
+  </span>
+  <span>
+    a
+     - 
+    0
+  </span>
+  <span>
+    d
+     - 
+    2
+  </span>
+  <span>
+    e
+     - 
+    3
+  </span>
+</body>
+`;
+
+exports[`should render keyed loop 5`] = `
+<body>
+  
+    
+  
+  
+
+
+  <span>
+    a
+     - 
+    0
+  </span>
+  <span>
+    d
+     - 
+    2
+  </span>
+  <span>
+    e
+     - 
+    3
+  </span>
+</body>
+`;
+
+exports[`should render keyed loop 6`] = `<body />`;

@@ -9,7 +9,7 @@ function Foo() {
     `),
   ).toMatchInlineSnapshot(`
     "import { $$_attach, $$_h } from "@maverick-js/react";
-    import { $$_listen, $$_delegate_events } from "@maverick-js/dom";
+    import { $$_listen } from "@maverick-js/dom";
     function Foo() {
         let $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
@@ -23,7 +23,6 @@ function Foo() {
         }
         return $_node_1;
     }
-    $$_delegate_events(["click"]);
     "
   `);
 });
@@ -64,7 +63,7 @@ function Foo() {
     `),
   ).toMatchInlineSnapshot(`
     "import { $$_attach, $$_h } from "@maverick-js/react";
-    import { $$_listen, $$_delegate_events } from "@maverick-js/dom";
+    import { $$_listen } from "@maverick-js/dom";
     function Foo() {
         let $_node_1 = $$_h($_render_1);
         function $_attach_1(el) {
@@ -79,7 +78,6 @@ function Foo() {
         }
         return $_node_1;
     }
-    $$_delegate_events(["pointerdown", "pointerup"]);
     "
   `);
 });

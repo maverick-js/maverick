@@ -27,6 +27,7 @@ const visitors: Visitors<TransformState> = {
       state,
       component.events?.filter((e) => !e.forward),
     );
+    if (component.ref?.initializer) transformAttrs(component, state, [component.ref]);
   },
   Fragment(node, { walk }) {
     const parentElement = walk.path.at(-1),

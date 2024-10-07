@@ -11,7 +11,7 @@ import ts from 'typescript';
 
 import { type ExpressionNode } from '../../../../parse/ast';
 import { transformAstNodeChildren } from '../../shared/factory';
-import type { TransformResult } from '../../transformer';
+import type { StateTransformResult } from '../../transformer';
 import type { ReactTransformState, ReactVisitorContext } from '../state';
 import { transform } from '../transform';
 
@@ -104,7 +104,7 @@ export function Expression(node: ExpressionNode, { state }: ReactVisitorContext)
 }
 
 export function resolveExpressionChild(
-  result: TransformResult,
+  result: StateTransformResult,
   parentState: ReactTransformState,
   childState: ReactTransformState,
 ) {
@@ -137,7 +137,7 @@ export function resolveExpressionChild(
       return node.name;
     } else {
       return childState.render.binds.size > 0
-        ? runtime.h($.bind(renderId, Array.from(args).map($.id)))
+        ? runtime.h($.bind(renderId, $.null, Array.from(args).map($.id)))
         : runtime.h(renderId);
     }
   }

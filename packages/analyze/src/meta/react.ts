@@ -1,7 +1,7 @@
 import type ts from 'typescript';
 
 import type { DocTagMeta, FileMeta, ParameterMeta, PropMeta, TypeMeta } from './component';
-import type { TS_NODE } from './symbols';
+import type { TS_NODE_SYMBOL } from './symbols';
 
 export interface ReactRefMeta {
   type: TypeMeta;
@@ -10,7 +10,7 @@ export interface ReactRefMeta {
 export interface ReactPropMeta extends PropMeta {}
 
 export interface ReactCallbackMeta {
-  [TS_NODE]?: ts.Node;
+  [TS_NODE_SYMBOL]?: ts.Node;
   name: string;
   type: TypeMeta;
   docs?: string;
@@ -27,7 +27,7 @@ export interface ModuleExport {
 }
 
 export interface ReactComponentMeta extends Record<string, unknown> {
-  [TS_NODE]?: ts.Node;
+  [TS_NODE_SYMBOL]?: ts.Node;
   type: 'react';
   file: FileMeta;
   namespace?: string;

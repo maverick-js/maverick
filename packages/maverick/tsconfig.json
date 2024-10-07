@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
     "lib": ["dom", "dom.iterable", "es2020"],
     "types": ["@types/node", "vitest/globals"]
   },

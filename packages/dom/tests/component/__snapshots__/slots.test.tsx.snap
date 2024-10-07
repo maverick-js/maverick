@@ -1,0 +1,72 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dynamic elements 1`] = `
+<body>
+  <div />
+  <div />
+</body>
+`;
+
+exports[`multiple static elements in named slot 1`] = `
+<body>
+  <div />
+  <div />
+</body>
+`;
+
+exports[`namespaced slot 1`] = `
+<body>
+  <div />
+  <div />
+  <span />
+  <span />
+</body>
+`;
+
+exports[`render function 1`] = `
+<body>
+  <div>
+    <span>
+      10
+       - 
+      20
+      <!---->
+       - 
+      0
+    </span>
+  </div>
+</body>
+`;
+
+exports[`render function 2`] = `
+<body>
+  <div>
+    <span>
+      10
+       - 
+      20
+      <!---->
+       - 
+      30
+    </span>
+  </div>
+</body>
+`;
+
+exports[`single static element in default slot 1`] = `
+<body>
+  <div />
+</body>
+`;
+
+exports[`single static element in named slot 1`] = `
+<body>
+  <div />
+</body>
+`;
+
+exports[`text 1`] = `
+<body>
+  Hello World!
+</body>
+`;

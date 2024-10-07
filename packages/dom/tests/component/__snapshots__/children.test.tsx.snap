@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`component 1`] = `
+<body>
+  <div>
+    <span>
+      Bar
+    </span>
+    <span>
+      Bux
+    </span>
+  </div>
+</body>
+`;
+
+exports[`expression 1`] = `
+<body>
+  Hello World!
+</body>
+`;
+
+exports[`none 1`] = `<body />`;

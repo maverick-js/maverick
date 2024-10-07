@@ -71,7 +71,7 @@ function createRender(state: DomTransformState) {
   if (shortCall) return shortCall;
 
   const id = $.createUniqueName(`$$_render`),
-    rootId = state.vars.setup.getFirstName(),
+    rootId = state.result,
     blockStatements = state.block.map($.createExpressionStatement),
     returnStatement = $.createReturnStatement(rootId),
     block = $.block([state.vars.setup.toStatement(), ...blockStatements, returnStatement]),

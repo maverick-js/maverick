@@ -1,18 +1,28 @@
-import { DOMEvent } from '@maverick-js/std';
+import { isFunction, MaverickEvent } from '@maverick-js/std';
 
 import type { Component, ComponentConstructor, InferComponentProps } from './component';
 import { provideContext } from './context';
-import type { HostElementCallback, LifecycleHooks, SetupCallback } from './lifecycle';
+import {
+  ATTACH_SYMBOL,
+  type AttachCallback,
+  componentLifecycleSymbols,
+  CONNECT_SYMBOL,
+  type ConnectCallback,
+  DESTROY_SYMBOL,
+  type DestroyCallback,
+  SETUP_SYMBOL,
+  type SetupCallback,
+} from './lifecycle';
 import { createScope, getScope, onDispose, root, type Scope, scoped, signal } from './signals';
 import { State as StateFactory } from './state';
-import { ON_DISPATCH } from './symbols';
-import type { WriteSignalRecord } from './types';
+import { ON_DISPATCH_SYMBOL } from './symbols';
+import type { SignalOrValueRecord, WriteSignalRecord } from './types';
 
-export let currentInstance: AnyInstance | null = null;
+export let $$_current_instance: AnyInstance | null = null;
 
 export interface InstanceInit<Props = {}> {
   scope?: Scope | null;
-  props?: Readonly<Partial<Props>> | null;
+  props?: Readonly<Partial<SignalOrValueRecord<Props>>> | null;
 }
 
 const EMPTY_PROPS = {} as any;
@@ -21,7 +31,7 @@ export interface AnyInstance extends Instance<any, any> {}
 
 export class Instance<Props = {}, State = {}> {
   /* @internal */
-  [ON_DISPATCH]?: ((event: Event) => void) | null = null;
+  [ON_DISPATCH_SYMBOL]?: ((event: Event) => void) | null = null;
 
   readonly $host = signal<HTMLElement | null>(null);
 
@@ -37,10 +47,10 @@ export class Instance<Props = {}, State = {}> {
   state!: Readonly<State>;
   $state!: any;
 
-  #setupCallbacks: SetupCallback[] = [];
-  #attachCallbacks: HostElementCallback[] = [];
-  #connectCallbacks: HostElementCallback[] = [];
-  #destroyCallbacks: HostElementCallback[] = [];
+  [SETUP_SYMBOL]: SetupCallback[] = [];
+  [ATTACH_SYMBOL]: AttachCallback[] = [];
+  [CONNECT_SYMBOL]: ConnectCallback[] = [];
+  [DESTROY_SYMBOL]: DestroyCallback[] = [];
 
   constructor(scope: Scope, props: Props, state?: StateFactory<State>, init?: InstanceInit<Props>) {
     this.scope = scope;
@@ -58,11 +68,12 @@ export class Instance<Props = {}, State = {}> {
     }
 
     if (props) {
-      this.props = createInstanceProps(props) as WriteSignalRecord<Props>;
+      this.props = createInstanceProps(props, init?.props) as WriteSignalRecord<Props>;
 
       if (init?.props) {
         for (const prop of Object.keys(init.props)) {
-          this.props[prop]?.set(init.props[prop]);
+          const value = init.props[prop];
+          if (!isFunction(value)) this.props[prop]?.set(value);
         }
       }
     }
@@ -71,19 +82,22 @@ export class Instance<Props = {}, State = {}> {
   }
 
   setup() {
-    currentInstance = this;
+    $$_current_instance = this;
 
-    scoped(() => {
-      for (const callback of this.#setupCallbacks) callback();
-    }, this.scope);
+    const callbacks = this[SETUP_SYMBOL];
+    if (callbacks) {
+      scoped(() => {
+        for (const callback of callbacks) callback();
+      }, this.scope);
+    }
 
-    currentInstance = null;
+    $$_current_instance = null;
   }
 
   attach(host: HTMLElement) {
     if (this.host) return;
 
-    currentInstance = this;
+    $$_current_instance = this;
 
     this.host = host;
     this.$host.set(host);
@@ -92,16 +106,19 @@ export class Instance<Props = {}, State = {}> {
       (host as any).$$COMPONENT_NAME = this.component?.constructor.name;
     }
 
-    scoped(() => {
-      this.attachScope = createScope();
+    const callbacks = this[ATTACH_SYMBOL];
+    if (callbacks.length > 0) {
       scoped(() => {
-        for (const callback of this.#attachCallbacks) callback(this.host!);
-      }, this.attachScope);
-    }, this.scope);
+        this.attachScope = createScope();
+        scoped(() => {
+          for (const callback of callbacks) callback(this.host!);
+        }, this.attachScope);
+      }, this.scope);
+    }
 
     this.component?.dispatchEvent(new Event('attach'));
 
-    currentInstance = null;
+    $$_current_instance = null;
   }
 
   detach() {
@@ -113,52 +130,56 @@ export class Instance<Props = {}, State = {}> {
       (this.host as any).$$COMPONENT_NAME = null;
     }
 
-    this.component?.dispatch(new DOMEvent<void>('detach'));
+    this.component?.dispatch(new MaverickEvent<void>('detach'));
 
     this.host = null;
     this.$host.set(null);
   }
 
   connect() {
-    if (!this.host || !this.attachScope || !this.#connectCallbacks.length) return;
+    const callbacks = this[CONNECT_SYMBOL];
 
-    currentInstance = this;
+    if (!this.host || !this.attachScope || !callbacks.length) return;
+
+    $$_current_instance = this;
 
     scoped(() => {
       this.connectScope = createScope();
       scoped(() => {
-        for (const callback of this.#connectCallbacks) callback(this.host!);
+        for (const callback of callbacks) callback(this.host!);
       }, this.connectScope);
     }, this.attachScope);
 
-    this.component?.dispatch(new DOMEvent<void>('connect'));
+    this.component?.dispatch(new MaverickEvent<void>('connect'));
 
-    currentInstance = null;
+    $$_current_instance = null;
   }
 
   disconnect() {
     this.connectScope?.dispose();
     this.connectScope = null;
-    this.component?.dispatch(new DOMEvent<void>('disconnect'));
+    this.component?.dispatch(new MaverickEvent<void>('disconnect'));
   }
 
   destroy() {
     if (this.destroyed) return;
     this.destroyed = true;
 
-    scoped(() => {
-      for (const callback of this.#destroyCallbacks) callback(this.host!);
-    }, this.scope);
+    const callbacks = this[DESTROY_SYMBOL];
+    if (callbacks.length > 0) {
+      scoped(() => {
+        for (const callback of callbacks) callback(this.host);
+      }, this.scope);
+    }
 
     const host = this.host;
 
     this.detach();
     this.scope!.dispose();
 
-    this.#setupCallbacks.length = 0;
-    this.#attachCallbacks.length = 0;
-    this.#connectCallbacks.length = 0;
-    this.#destroyCallbacks.length = 0;
+    for (const hook of Object.values(componentLifecycleSymbols)) {
+      this[hook].length = 0;
+    }
 
     this.props = EMPTY_PROPS;
     this.scope = null;
@@ -168,24 +189,20 @@ export class Instance<Props = {}, State = {}> {
     // @ts-expect-error
     if (host) delete host.$;
 
-    this.component?.dispatch(new DOMEvent<void>('destroy'));
+    this.component?.dispatch(new MaverickEvent<void>('destroy'));
     this.component = null;
-  }
-
-  addHooks(target: LifecycleHooks) {
-    if (target.onSetup) this.#setupCallbacks.push(target.onSetup.bind(target));
-    if (target.onAttach) this.#attachCallbacks.push(target.onAttach.bind(target));
-    if (target.onConnect) this.#connectCallbacks.push(target.onConnect.bind(target));
-    if (target.onDestroy) this.#destroyCallbacks.push(target.onDestroy.bind(target));
   }
 }
 
-function createInstanceProps<Props>(props: Props) {
+function createInstanceProps<Props>(
+  props: Props,
+  init?: Partial<SignalOrValueRecord<Props>> | null,
+) {
   const $props = {} as WriteSignalRecord<Props>;
 
   for (const name of Object.keys(props as Record<string, any>)) {
     const def = props[name];
-    $props[name] = signal(def, def);
+    $props[name] = init && isFunction(init[name]) ? init[name] : signal(def, def);
   }
 
   return $props;
@@ -196,12 +213,12 @@ export function createComponent<T extends Component>(
   init?: InstanceInit<InferComponentProps<T>>,
 ) {
   return root(() => {
-    currentInstance = new Instance(getScope()!, Component.props, Component.state, init);
+    $$_current_instance = new Instance(getScope()!, Component.props, Component.state, init);
 
     const component = new Component();
 
-    currentInstance.component = component;
-    currentInstance = null;
+    $$_current_instance.component = component;
+    $$_current_instance = null;
 
     return component;
   });

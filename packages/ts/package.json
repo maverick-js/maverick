@@ -31,12 +31,12 @@
     "@maverick-js/std": "workspace:*"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "rimraf": "^5.0.5",
-    "rollup": "^4.7.0",
-    "rollup-plugin-dts": "^6.1.0",
-    "rollup-plugin-esbuild": "^6.1.0",
-    "typescript": "^5.6.2"
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "rimraf": "^5.0.10",
+    "rollup": "^4.24.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "typescript": "^5.6.3"
   },
   "exports": {
     ".": "./src/index.ts"

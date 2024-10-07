@@ -1,0 +1,79 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dynamic 1`] = `
+<body>
+  <div
+    class="... foo"
+  />
+</body>
+`;
+
+exports[`signal 1`] = `
+<body>
+  <div
+    class="foo"
+  />
+</body>
+`;
+
+exports[`signal 2`] = `
+<body>
+  <div
+    class=""
+  />
+</body>
+`;
+
+exports[`static 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <div
+    class="... foo"
+  />
+</body>
+`;
+
+exports[`with dynamic base 1`] = `
+<body>
+  <div
+    class="bar bux foo"
+  />
+</body>
+`;
+
+exports[`with dynamic base 2`] = `
+<body>
+  <div
+    class="bar bux"
+  />
+</body>
+`;
+
+exports[`with signal base 1`] = `
+<body>
+  <div
+    class="bar bux foo"
+  />
+</body>
+`;
+
+exports[`with signal base 2`] = `
+<body>
+  <div
+    class="foo hux lux"
+  />
+</body>
+`;
+
+exports[`with signal base 3`] = `
+<body>
+  <div
+    class="hux lux"
+  />
+</body>
+`;

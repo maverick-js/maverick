@@ -103,7 +103,7 @@ function Foo() {
     import { $$_merge_props, $$_spread } from "@maverick-js/dom";
     function Foo() {
         let $_component_1 = $$_component(Bar, null, null, {
-            "default": (props) => $$_h($_render_1.bind(props))
+            "default": (props) => $$_h($_render_1.bind(null, props))
         });
         function $_attach_1(el) {
             $$_spread(el, $_props_1);

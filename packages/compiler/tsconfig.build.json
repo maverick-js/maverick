@@ -2,7 +2,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "declarationDir": "types",
-    "paths": {}
+    "paths": {
+      "@maverick-js/logger": ["../logger/types/index.d.ts"],
+      "@maverick-js/std": ["../std/types/index.d.ts"],
+      "@maverick-js/ts": ["../ts/types/index.d.ts"]
+    }
   },
   "include": ["src"]
 }

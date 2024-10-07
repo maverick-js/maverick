@@ -1,3 +1,4 @@
+import commonjs from '@rollup/plugin-commonjs';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { defineConfig } from 'rollup';
 import dts from 'rollup-plugin-dts';
@@ -5,7 +6,7 @@ import esbuild from 'rollup-plugin-esbuild';
 
 import { copyPkgFiles } from '../../.build/copy-pkg-files.js';
 
-const EXTERNAL = ['@maverick-js/std', '@maverick-js/logger', 'typescript'];
+const EXTERNAL = [/maverick.js/, /@maverick-js/, 'typescript', 'vite'];
 
 export default defineConfig([define(), defineTypes()]);
 
@@ -14,6 +15,7 @@ function defineTypes() {
   return {
     input: {
       index: 'types/index.d.ts',
+      vite: 'types/vite.d.ts',
     },
     output: {
       dir: 'dist-npm',
@@ -33,6 +35,7 @@ function define() {
   return {
     input: {
       index: 'src/index.ts',
+      vite: 'src/vite.ts',
     },
     external: EXTERNAL,
     treeshake: true,
@@ -46,6 +49,7 @@ function define() {
     },
     plugins: [
       nodeResolve(),
+      commonjs(),
       esbuild({
         define: {
           __TEST__: 'false',

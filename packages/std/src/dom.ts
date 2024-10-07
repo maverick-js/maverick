@@ -10,6 +10,10 @@ export function isDOMFragment(node: any): node is DocumentFragment {
   return isDOMNode(node) && node.nodeType === 11;
 }
 
+export function isHTMLElement(node: any): node is HTMLElement {
+  return node && node instanceof HTMLElement;
+}
+
 export function createFragment(): DocumentFragment {
   return document.createDocumentFragment();
 }
@@ -21,16 +25,14 @@ export function createComment(data: string): Comment {
 
 /**
  * Sets or removes the given attribute `value`. Falsy values except `''` and `0` will remove
- * the attribute. If the given `value` is a function/signal, the attribute will be updated as
- * the value updates.
- *
- * This function is safe to use on the server.
+ * the attribute.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
 export function setAttribute(host: Element | undefined, name: string, value: unknown) {
-  if (!host) return;
-  else if (!value && value !== '' && value !== 0) {
+  if (!host) {
+    // no-op
+  } else if (!value && value !== '' && value !== 0) {
     host.removeAttribute(name);
   } else {
     const attrValue = value === true ? '' : value + '';
@@ -40,28 +42,46 @@ export function setAttribute(host: Element | undefined, name: string, value: unk
   }
 }
 
+export type CSSStyleProperty =
+  | Exclude<
+      keyof CSSStyleDeclaration,
+      | 'item'
+      | 'setProperty'
+      | 'removeProperty'
+      | 'getPropertyValue'
+      | 'getPropertyPriority'
+      | 'length'
+      | 'parentRule'
+    >
+  | `--${string}`
+  | (string & {});
+
 /**
- * Sets or removes the given style `value`. Falsy values will remove the style. If the
- * given `value` is a function/signal, the style will be updated as the value updates.
+ * Sets or removes the given style with the given `value`. Falsy values will remove it.
  *
- * This function is safe to use on the server.
+ * This function supports CSS variables as props and appropriately updates them using
+ * `style.setProperty` and `style.removeProperty`.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */
-export function setStyle(host: HTMLElement | undefined, property: string, value: unknown) {
-  if (!host) return;
-  else if (!value && value !== 0) {
-    host.style.removeProperty(property);
+export function setStyle(host: HTMLElement | undefined, prop: CSSStyleProperty, value: unknown) {
+  if (!host) {
+    return;
+  } else if (!value && value !== 0) {
+    if (prop[0] === '-') {
+      host.style.removeProperty(prop as string);
+    } else {
+      host.style[prop] = '';
+    }
+  } else if (prop[0] === '-') {
+    host.style.setProperty(prop as string, value + '');
   } else {
-    host.style.setProperty(property, value + '');
+    host.style[prop] = value + '';
   }
 }
 
 /**
- * Toggles the given class `name`. Falsy values will remove the class from the list. If the
- * given `value` is a function/signal, the class will be toggled as the value updates.
- *
- * This function is safe to use on the server.
+ * Toggles the given class `name`. Falsy values will remove the class from the list.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Glossary/Falsy}
  */

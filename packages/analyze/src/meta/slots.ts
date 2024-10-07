@@ -5,7 +5,7 @@ import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
 import type { DocTagMeta } from './component';
 import type { SlotMeta } from './custom-element';
 import { splitJsDocTagText } from './doctags';
-import { TS_NODE } from './symbols';
+import { TS_NODE_SYMBOL } from './symbols';
 
 export function buildSlotsMeta(doctags?: DocTagMeta[]): SlotMeta[] | undefined {
   if (!doctags) return undefined;
@@ -19,7 +19,7 @@ export function buildSlotsMeta(doctags?: DocTagMeta[]): SlotMeta[] | undefined {
     onDuplicateFound: (slot) => {
       reportDiagnosticByNode(
         `Found duplicate \`@slot\` tags with the name \`${slot.title}\`.`,
-        slot[TS_NODE],
+        slot[TS_NODE_SYMBOL],
         LogLevel.Warn,
       );
     },
@@ -32,7 +32,7 @@ export function buildSlotsMeta(doctags?: DocTagMeta[]): SlotMeta[] | undefined {
           'Non default `@slot` tag is missing a title.',
           `\n${kleur.bold('EXAMPLE')}\n\n@slot body - Used to pass in the body of this component.`,
         ].join('\n'),
-        slot[TS_NODE],
+        slot[TS_NODE_SYMBOL],
         LogLevel.Warn,
       );
     }
@@ -43,8 +43,8 @@ export function buildSlotsMeta(doctags?: DocTagMeta[]): SlotMeta[] | undefined {
     }
 
     return {
-      [TS_NODE]: slot[TS_NODE],
-      name: isDefaultSlot && defaultSlots === 1 ? undefined : slot.title ?? '',
+      [TS_NODE_SYMBOL]: slot[TS_NODE_SYMBOL],
+      name: isDefaultSlot && defaultSlots === 1 ? undefined : (slot.title ?? ''),
       docs: slot.description.replace(/^-\s/, '') ?? '',
     };
   });

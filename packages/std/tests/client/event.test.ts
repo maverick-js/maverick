@@ -1,10 +1,4 @@
-import {
-  appendTriggerEvent,
-  findTriggerEvent,
-  isMaverickEvent,
-  MaverickEvent,
-  walkTriggerEventChain,
-} from '@maverick-js/std';
+import { isMaverickEvent, MaverickEvent } from '@maverick-js/std';
 
 it('should init maverick event', () => {
   const trigger = new MouseEvent('click');
@@ -58,8 +52,10 @@ it('should walk event chain', () => {
   const eventA = new MaverickEvent<void>('event-a');
   const eventB = new MaverickEvent<void>('event-b', { trigger: eventA });
   const eventC = new MaverickEvent<void>('event-c', { trigger: eventB });
+
   const callback = vi.fn();
-  walkTriggerEventChain(eventC, callback);
+  eventC.triggers.walk(callback);
+
   expect(callback).toBeCalledTimes(2);
   expect(callback).toBeCalledWith(eventB);
   expect(callback).toBeCalledWith(eventA);
@@ -69,16 +65,9 @@ it('should find trigger event', () => {
   const eventA = new MaverickEvent<void>('a');
   const eventB = new MaverickEvent<void>('b', { trigger: eventA });
   const eventC = new MaverickEvent<void>('c', { trigger: eventB });
-  expect(findTriggerEvent(eventC, 'b')).toBeTruthy();
-  expect(findTriggerEvent(eventC, 'invalid')).toBeFalsy();
-});
 
-it('should not throw if appending initial trigger event', () => {
-  const event = new MaverickEvent<void>('event');
-  expect(() => {
-    const trigger = new MaverickEvent<void>('a');
-    appendTriggerEvent(event, trigger);
-  }).not.toThrow();
+  expect(eventC.triggers.findType('b')).toBeTruthy();
+  expect(eventC.triggers.findType('invalid')).toBeFalsy();
 });
 
 it('should append trigger event', () => {
@@ -86,13 +75,14 @@ it('should append trigger event', () => {
   const event = new MaverickEvent<void>('event', { trigger: triggerA });
 
   const triggerB = new MaverickEvent<void>('b');
-  appendTriggerEvent(event, triggerB);
+  event.triggers.add(triggerB);
 
   const triggerC = new MaverickEvent<void>('c');
-  appendTriggerEvent(event, triggerC);
+  event.triggers.add(triggerC);
 
   let result: string[] = [];
-  walkTriggerEventChain(event, (event) => {
+
+  event.triggers.walk((event) => {
     result.push(event.type);
   });
 

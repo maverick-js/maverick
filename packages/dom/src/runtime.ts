@@ -1,7 +1,6 @@
 import {
   cloneEvent,
   isArray,
-  isDOMNode,
   isFunction,
   isHTMLElement,
   isString,
@@ -19,7 +18,6 @@ import {
   type ComponentConstructor,
   computed,
   createComponent,
-  createEventTarget,
   CUSTOM_ELEMENT_SYMBOL,
   type CustomElement,
   effect,

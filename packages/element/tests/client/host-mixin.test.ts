@@ -1,13 +1,19 @@
 import { createCustomElement, defineCustomElement } from '@maverick-js/element';
 import { waitAnimationFrame } from '@maverick-js/std';
-import { Component, createContext, onDispose, provideContext, useContext } from 'maverick.js';
+import {
+  createContext,
+  MaverickComponent,
+  onDispose,
+  provideContext,
+  useContext,
+} from 'maverick.js';
 
 afterEach(() => {
   document.body.innerHTML = '';
 });
 
 it('should handle basic setup and destroy', () => {
-  class TestElement extends createCustomElement(HTMLElement, class extends Component {}) {
+  class TestElement extends createCustomElement(HTMLElement, class extends MaverickComponent {}) {
     static tagName = 'mk-test-1';
   }
 
@@ -30,7 +36,7 @@ it('should observe attributes', () => {
 
   class TestElement extends createCustomElement(
     HTMLElement,
-    class extends Component<Props> {
+    class extends MaverickComponent<Props> {
       static props: Props = {
         foo: 1,
         bar: 2,
@@ -66,7 +72,7 @@ it('should call lifecycle hooks', async () => {
 
   class TestElement extends createCustomElement(
     HTMLElement,
-    class extends Component {
+    class extends MaverickComponent {
       constructor() {
         super();
         provideContext(Context, 1);

@@ -6,11 +6,11 @@ import {
   ServerStyle,
 } from '@maverick-js/ssr';
 import { noop } from '@maverick-js/std';
-import { type AnyComponent, scoped } from 'maverick.js';
+import { type AnyMaverickComponent, scoped, SETUP_SYMBOL } from 'maverick.js';
 
-import { SETUP_SYMBOL } from '../symbols';
-
-export class MaverickServerElement<T extends AnyComponent = AnyComponent> implements ServerElement {
+export class MaverickServerElement<T extends AnyMaverickComponent = AnyMaverickComponent>
+  implements ServerElement
+{
   keepAlive = false;
   forwardKeepAlive = true;
 

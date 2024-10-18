@@ -1,6 +1,6 @@
 import { getContext, setContext } from '@maverick-js/signals';
 import { waitAnimationFrame } from '@maverick-js/std';
-import { Component, createContext, onError, provideContext, useContext } from 'maverick.js';
+import { createContext, MaverickComponent, onError, provideContext, useContext } from 'maverick.js';
 
 import { createCustomElement, defineCustomElement, type MaverickElement } from '../../src';
 import { SETUP_STATE_SYMBOL } from '../../src/symbols';
@@ -15,7 +15,7 @@ it('should wait for parents to connect', async () => {
   const error = new Error(),
     errorHandler = vi.fn();
 
-  class ParentA extends Component {
+  class ParentA extends MaverickComponent {
     constructor() {
       super();
       setContext('foo', 10);
@@ -28,7 +28,7 @@ it('should wait for parents to connect', async () => {
     static tagName = 'mk-parent-a';
   }
 
-  class ParentB extends Component {
+  class ParentB extends MaverickComponent {
     constructor() {
       super();
     }
@@ -44,7 +44,7 @@ it('should wait for parents to connect', async () => {
     static tagName = 'mk-parent-b';
   }
 
-  class Child extends Component {
+  class Child extends MaverickComponent {
     constructor() {
       super();
     }
@@ -61,7 +61,7 @@ it('should wait for parents to connect', async () => {
     static tagName = 'mk-child';
   }
 
-  class GrandChild extends Component {
+  class GrandChild extends MaverickComponent {
     constructor() {
       super();
     }

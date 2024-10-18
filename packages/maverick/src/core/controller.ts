@@ -1,13 +1,18 @@
 import { MaverickEvent, type MaverickEventInit } from '@maverick-js/std';
 
-import { $$_current_instance, Instance } from './instance';
+import { $$_current_instance, MaverickInstance } from './instance';
 import { type Scope, untrack } from './signals';
 import { ON_DISPATCH_SYMBOL } from './symbols';
 import type { ReadSignalRecord, WriteSignalRecord } from './types';
 
-export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> extends EventTarget {
+export class MaverickViewController<
+  Props = {},
+  State = {},
+  Events = {},
+  CSSVars = {},
+> extends EventTarget {
   /** @internal */
-  readonly $$: Instance<Props, State>;
+  readonly $$: MaverickInstance<Props, State>;
 
   /** @internal type holder only */
   readonly $ts__events?: Events;

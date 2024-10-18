@@ -1,5 +1,5 @@
 import { render } from '@maverick-js/dom';
-import { type FunctionComponentProps, signal, tick } from 'maverick.js';
+import { type MaverickFunctionProps, signal, tick } from 'maverick.js';
 
 const target = document.body;
 
@@ -10,7 +10,7 @@ afterEach(() => {
 test('host vars', () => {
   type Color = 'red' | 'orange';
 
-  type Props = FunctionComponentProps<
+  type Props = MaverickFunctionProps<
     HTMLElement,
     {},
     {},

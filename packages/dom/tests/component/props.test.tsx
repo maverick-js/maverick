@@ -1,5 +1,11 @@
 import { render } from '@maverick-js/dom';
-import { Component, type FunctionComponentProps, type ReadSignal, signal, tick } from 'maverick.js';
+import {
+  MaverickComponent,
+  type MaverickFunctionProps,
+  type ReadSignal,
+  signal,
+  tick,
+} from 'maverick.js';
 
 const target = document.body;
 
@@ -13,7 +19,7 @@ test('pass props to function component', () => {
     $b: ReadSignal<number>;
   }
 
-  function Foo({ a, $b }: FunctionComponentProps<never, Props>) {
+  function Foo({ a, $b }: MaverickFunctionProps<never, Props>) {
     return (
       <div>
         {a}
@@ -34,7 +40,7 @@ test('pass props to class component', () => {
     b: number;
   }
 
-  class Foo extends Component<Props> {
+  class Foo extends MaverickComponent<Props> {
     static props: Props = { a: 0, b: 0 };
 
     override render() {

@@ -1,5 +1,5 @@
 import { render } from '@maverick-js/dom';
-import { type FunctionComponentProps } from 'maverick.js';
+import { type MaverickFunctionProps } from 'maverick.js';
 
 const target = document.body;
 
@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 test('ref', () => {
-  function Foo(props: FunctionComponentProps) {
+  function Foo(props: MaverickFunctionProps) {
     return <div></div>;
   }
 

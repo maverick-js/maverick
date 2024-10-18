@@ -4,21 +4,21 @@ test('add element symbol', () => {
   expect(
     dom(
       `
-import { Component } from 'maverick.js';
+import { MaverickComponent } from 'maverick.js';
 
-class Foo extends Component {
+class Foo extends MaverickComponent {
   static element = {
     name: 'foo-element'
   }
 }
 
-class Bar extends Component {
+class Bar extends MaverickComponent {
   static element = {
     name: 'bar-element'
   }
 }
 
-class Hux extends Component {}
+class Hux extends MaverickComponent {}
 
 class Lux {}
     `,
@@ -27,8 +27,8 @@ class Lux {}
   ).toMatchInlineSnapshot(`
     "import { $$_create_custom_element } from "@maverick-js/element";
     import { CUSTOM_ELEMENT_SYMBOL } from "maverick.js";
-    import { Component } from 'maverick.js';
-    class Foo extends Component {
+    import { MaverickComponent } from 'maverick.js';
+    class Foo extends MaverickComponent {
         static [CUSTOM_ELEMENT_SYMBOL]() {
             return $$_create_custom_element(this);
         }
@@ -36,7 +36,7 @@ class Lux {}
             name: 'foo-element'
         };
     }
-    class Bar extends Component {
+    class Bar extends MaverickComponent {
         static [CUSTOM_ELEMENT_SYMBOL]() {
             return $$_create_custom_element(this);
         }
@@ -44,7 +44,7 @@ class Lux {}
             name: 'bar-element'
         };
     }
-    class Hux extends Component {
+    class Hux extends MaverickComponent {
     }
     class Lux {
     }
@@ -56,9 +56,9 @@ test('should import node', () => {
   expect(
     dom(
       `
-import { Component } from 'maverick.js';
+import { MaverickComponent } from 'maverick.js';
 
-class Foo extends Component {
+class Foo extends MaverickComponent {
   static element = {
     name: 'bar-element'
   }
@@ -69,10 +69,10 @@ class Foo extends Component {
 }`,
     ),
   ).toMatchInlineSnapshot(`
-    "import { Component } from 'maverick.js';
+    "import { MaverickComponent } from 'maverick.js';
     import { $$_create_template } from "@maverick-js/dom";
     let $_template_1 = /* @__PURE__ */ $$_create_template("<div><foo-bar></foo-bar></div>", true);
-    class Foo extends Component {
+    class Foo extends MaverickComponent {
         static element = {
             name: 'bar-element'
         };

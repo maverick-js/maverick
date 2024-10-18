@@ -2,13 +2,13 @@ import { render } from '@maverick-js/dom';
 import { camelToKebabCase, isArray, isString, MaverickEvent, runAll } from '@maverick-js/std';
 import {
   type AttributeConverter,
-  type Component,
-  type ComponentConstructor,
   createComponent,
-  type CustomElement,
-  type CustomElementConstructor,
   type HostElementCallback,
   inferAttributeConverter,
+  type MaverickComponent,
+  type MaverickComponentConstructor,
+  type MaverickCustomElement,
+  type MaverickCustomElementConstructor,
   ON_DISPATCH_SYMBOL,
   type Scope,
   scoped,
@@ -28,7 +28,7 @@ const enum SetupState {
 const registry = new Set<string>();
 
 /** @internal */
-export function $$_create_custom_element(Component: ComponentConstructor) {
+export function $$_create_custom_element(Component: MaverickComponentConstructor) {
   const name = Component.element?.name;
 
   if (!name) {
@@ -43,10 +43,10 @@ export function $$_create_custom_element(Component: ComponentConstructor) {
   return document.createElement(name);
 }
 
-export function createCustomElement<T extends Component>(
-  Component: ComponentConstructor<T>,
+export function createCustomElement<T extends MaverickComponent>(
+  Component: MaverickComponentConstructor<T>,
 ): MaverickElementConstructor<T> {
-  class MaverickElement extends HTMLElement implements CustomElement<T> {
+  class MaverickElement extends HTMLElement implements MaverickCustomElement<T> {
     private static [ATTRS_SYMBOL]: Map<
       string,
       { prop: string; converter: AttributeConverter<any> }
@@ -253,7 +253,10 @@ export function createCustomElement<T extends Component>(
   return MaverickElement;
 }
 
-function extendProto(Element: CustomElementConstructor, Component: ComponentConstructor) {
+function extendProto(
+  Element: MaverickCustomElementConstructor,
+  Component: MaverickComponentConstructor,
+) {
   const ElementProto = Element.prototype;
 
   if (Component.props) {
@@ -272,7 +275,7 @@ function extendProto(Element: CustomElementConstructor, Component: ComponentCons
   }
 }
 
-function setup(this: CustomElement) {
+function setup(this: MaverickCustomElement) {
   if (this[SETUP_STATE_SYMBOL] !== SetupState.Idle) return;
   this[SETUP_STATE_SYMBOL] = SetupState.Pending;
 
@@ -288,7 +291,7 @@ function setup(this: CustomElement) {
   attach.call(this, parent);
 }
 
-async function waitForParent(this: CustomElement, parent: CustomElement) {
+async function waitForParent(this: MaverickCustomElement, parent: MaverickCustomElement) {
   await window.customElements.whenDefined(parent.localName);
 
   if (parent[SETUP_STATE_SYMBOL] !== SetupState.Ready) {
@@ -298,7 +301,7 @@ async function waitForParent(this: CustomElement, parent: CustomElement) {
   attach.call(this, parent);
 }
 
-function attach(this: CustomElement, parent: CustomElement | null) {
+function attach(this: MaverickCustomElement, parent: MaverickCustomElement | null) {
   // Skip setting up if we disconnected while waiting for parent to connect.
   if (!this.isConnected) return;
 
@@ -321,7 +324,7 @@ function findParent(host: HTMLElement) {
 
   while (node) {
     if (node.nodeType === 1 && (node as Element).localName.startsWith(prefix)) {
-      return node as CustomElement;
+      return node as MaverickCustomElement;
     }
 
     node = node.parentNode;

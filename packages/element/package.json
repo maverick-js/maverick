@@ -32,6 +32,7 @@
   "dependencies": {
     "@maverick-js/dom": "workspace:*",
     "@maverick-js/std": "workspace:*",
+    "@maverick-js/ssr": "workspace:*",
     "maverick.js": "workspace:*"
   },
   "devDependencies": {

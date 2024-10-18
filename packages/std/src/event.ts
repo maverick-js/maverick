@@ -131,51 +131,6 @@ export function isMaverickEvent(event?: Event | null): event is MaverickEvent<un
   return !!event?.[MAVERICK_EVENT_SYMBOL];
 }
 
-/**
- * Walks up the event chain (following each `trigger`) and returns the origin event that
- * started the chain.
- * @deprecated - Use `event.originEvent`
- */
-export function getOriginEvent(event: MaverickEvent): Event | undefined {
-  return event.originEvent;
-}
-
-/**
- * Walks an event chain on a given `event`, and invokes the given `callback` for each trigger event.
- * @deprecated - Use `event.triggers.walk(callback)`
- */
-export function walkTriggerEventChain<T>(
-  event: Event,
-  callback: (event: Event) => NonNullable<T> | void,
-): [event: Event, value: NonNullable<T>] | undefined {
-  if (!isMaverickEvent(event)) return;
-  return event.triggers.walk(callback);
-}
-
-/**
- * Attempts to find a trigger event with a given `eventType` on the event chain.
- * @deprecated - Use `event.triggers.findType('')`
- */
-export function findTriggerEvent(event: Event, type: string): Event | undefined {
-  return isMaverickEvent(event) ? event.triggers.findType(type) : undefined;
-}
-
-/**
- * Whether a trigger event with the given `eventType` exists can be found in the event chain.
- * @deprecated - Use `event.triggers.hasType('')`
- */
-export function hasTriggerEvent(event: Event, type: string): boolean {
-  return !!findTriggerEvent(event, type);
-}
-
-/**
- * Appends the given `trigger` to the event chain.
- * @deprecated - Use `event.triggers.add(event)`
- */
-export function appendTriggerEvent(event: MaverickEvent, trigger?: Event) {
-  if (trigger) event.triggers.add(trigger);
-}
-
 export type InferEventDetail<T> = T extends { detail: infer Detail }
   ? Detail
   : T extends MaverickEvent<infer Detail>

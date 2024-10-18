@@ -4,8 +4,8 @@ test('add element symbol', () => {
   expect(
     ssr(
       `
-import { Component } from 'maverick.js';
-class Foo extends Component {
+import { MaverickComponent } from 'maverick.js';
+class Foo extends MaverickComponent {
   static element = {
     name: 'foo-element'
   }
@@ -14,8 +14,8 @@ class Foo extends Component {
     ),
   ).toMatchInlineSnapshot(`
     "import { CUSTOM_ELEMENT_SYMBOL } from "maverick.js";
-    import { Component } from 'maverick.js';
-    class Foo extends Component {
+    import { MaverickComponent } from 'maverick.js';
+    class Foo extends MaverickComponent {
         static [CUSTOM_ELEMENT_SYMBOL]() {
             return true;
         }

@@ -1,11 +1,11 @@
 import { MaverickServerElement } from '@maverick-js/element/server';
-import { Component, createComponent } from 'maverick.js';
+import { createComponent, MaverickComponent } from 'maverick.js';
 
 it('should call `onSetup` lifecycle hook', () => {
   const setup = vi.fn(),
     attach = vi.fn();
 
-  class TestComponent extends Component {
+  class TestComponent extends MaverickComponent {
     override onSetup() {
       setup();
     }
@@ -24,7 +24,7 @@ it('should call `onSetup` lifecycle hook', () => {
 });
 
 it('should render attributes', () => {
-  class TestComponent extends Component {
+  class TestComponent extends MaverickComponent {
     override onAttach(el) {
       el.setAttribute('foo', '1');
       el.setAttribute('bar', '2');
@@ -46,7 +46,7 @@ it('should render attributes', () => {
 });
 
 it('should render class list', () => {
-  class TestComponent extends Component {
+  class TestComponent extends MaverickComponent {
     override onAttach(el) {
       el.classList.add('foo');
       el.classList.add('baz', 'bam', 'doh');
@@ -71,7 +71,7 @@ it('should render class list', () => {
 });
 
 it('should render styles', () => {
-  class TestComponent extends Component {
+  class TestComponent extends MaverickComponent {
     override onAttach(el) {
       el.style.setProperty('foo', '1');
       el.style.setProperty('bar', '2');
@@ -94,7 +94,7 @@ it('should render styles', () => {
 });
 
 it('should noop events api', () => {
-  class TestComponent extends Component {
+  class TestComponent extends MaverickComponent {
     override onAttach(el) {
       el.addEventListener('click', () => {});
       el.removeEventListener('click', () => {});

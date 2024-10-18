@@ -1,5 +1,5 @@
 import { render } from '@maverick-js/dom';
-import { type FunctionComponentProps, getSlots, type JSX } from 'maverick.js';
+import { getSlots, type JSX, type MaverickFunctionProps } from 'maverick.js';
 
 const target = document.body;
 
@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 test('none', () => {
-  function Foo(props: FunctionComponentProps) {
+  function Foo(props: MaverickFunctionProps) {
     return null;
   }
 
@@ -18,7 +18,7 @@ test('none', () => {
 });
 
 test('expression', () => {
-  function Foo(props: FunctionComponentProps) {
+  function Foo(props: MaverickFunctionProps) {
     const slots = getSlots();
     return slots.default?.();
   }
@@ -34,7 +34,7 @@ test('component', () => {
     return <span>Bux</span>;
   }
 
-  function Bar(props: FunctionComponentProps) {
+  function Bar(props: MaverickFunctionProps) {
     const slots = getSlots();
     return (
       <>
@@ -44,7 +44,7 @@ test('component', () => {
     );
   }
 
-  function Foo(props: FunctionComponentProps) {
+  function Foo(props: MaverickFunctionProps) {
     const slots = getSlots();
     return <div>{slots.default?.()}</div>;
   }

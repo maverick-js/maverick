@@ -2,7 +2,7 @@
 import type { CSSStyleProperty } from '@maverick-js/std';
 import type { ConditionalPick } from 'type-fest';
 
-import type { AnyComponent, NullableRecord, ReadSignal } from '../core';
+import type { AnyMaverickComponent, NullableRecord, ReadSignal } from '../core';
 
 type DOMNode = Node;
 type DOMElement = Element;
@@ -82,7 +82,7 @@ export namespace JSX {
   }
 
   export type Node =
-    | AnyComponent
+    | AnyMaverickComponent
     | DOMNode
     | DOMElement
     | DocumentFragment
@@ -110,7 +110,7 @@ export namespace JSX {
     children?: Element;
   }
 
-  export interface ElementClass extends AnyComponent {
+  export interface ElementClass extends AnyMaverickComponent {
     render(): Node;
   }
 

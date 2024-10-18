@@ -4,7 +4,7 @@ import {
   type MaverickElement,
 } from '@maverick-js/element';
 import { waitAnimationFrame } from '@maverick-js/std';
-import { Component } from 'maverick.js';
+import { MaverickComponent } from 'maverick.js';
 
 afterEach(() => {
   document.body.innerHTML = '';
@@ -20,7 +20,7 @@ it('should keep elements alive', async () => {
   function createElement(name: string, dispose: () => void) {
     return class extends createElement(
       HTMLElement,
-      class extends Component {
+      class extends MaverickComponent {
         protected override onDestroy() {
           dispose();
         }

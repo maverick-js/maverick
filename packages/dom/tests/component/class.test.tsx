@@ -1,5 +1,5 @@
 import { render } from '@maverick-js/dom';
-import { type FunctionComponentProps, signal, tick } from 'maverick.js';
+import { type MaverickFunctionProps, signal, tick } from 'maverick.js';
 
 const target = document.body;
 
@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 test('host vars', () => {
-  type Props = FunctionComponentProps<HTMLElement>;
+  type Props = MaverickFunctionProps<HTMLElement>;
 
   function Foo(props: Props) {
     return <div class="foo"></div>;

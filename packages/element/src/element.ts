@@ -1,20 +1,20 @@
 import type {
-  AnyComponent,
-  Component,
-  CustomElement,
+  AnyMaverickComponent,
   InferComponentEvents,
   InferComponentMembers,
+  MaverickComponent,
+  MaverickCustomElement,
 } from 'maverick.js';
 
-export interface MaverickElementConstructor<T extends Component = AnyComponent> {
+export interface MaverickElementConstructor<T extends MaverickComponent = AnyMaverickComponent> {
   readonly observedAttributes: string[];
   new (): MaverickElement<T>;
 }
 
-export type MaverickElement<T extends Component = AnyComponent, E = InferComponentEvents<T>> = Omit<
-  CustomElement<T>,
-  'addEventListener' | 'removeEventListener'
-> &
+export type MaverickElement<
+  T extends MaverickComponent = AnyMaverickComponent,
+  E = InferComponentEvents<T>,
+> = Omit<MaverickCustomElement<T>, 'addEventListener' | 'removeEventListener'> &
   InferComponentMembers<T> & {
     addEventListener<K extends keyof E>(
       type: K,

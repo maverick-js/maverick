@@ -1,6 +1,10 @@
 import { isFunction, MaverickEvent } from '@maverick-js/std';
 
-import type { Component, ComponentConstructor, InferComponentProps } from './component';
+import type {
+  InferComponentProps,
+  MaverickComponent,
+  MaverickComponentConstructor,
+} from './component';
 import { provideContext } from './context';
 import {
   ATTACH_SYMBOL,
@@ -18,18 +22,18 @@ import { State as StateFactory } from './state';
 import { ON_DISPATCH_SYMBOL } from './symbols';
 import type { SignalOrValueRecord, WriteSignalRecord } from './types';
 
-export let $$_current_instance: AnyInstance | null = null;
+export let $$_current_instance: AnyMaverickInstance | null = null;
 
-export interface InstanceInit<Props = {}> {
+export interface MaverickInstanceInit<Props = {}> {
   scope?: Scope | null;
   props?: Readonly<Partial<SignalOrValueRecord<Props>>> | null;
 }
 
 const EMPTY_PROPS = {} as any;
 
-export interface AnyInstance extends Instance<any, any> {}
+export interface AnyMaverickInstance extends MaverickInstance<any, any> {}
 
-export class Instance<Props = {}, State = {}> {
+export class MaverickInstance<Props = {}, State = {}> {
   /* @internal */
   [ON_DISPATCH_SYMBOL]?: ((event: Event) => void) | null = null;
 
@@ -39,7 +43,7 @@ export class Instance<Props = {}, State = {}> {
   scope: Scope | null = null;
   attachScope: Scope | null = null;
   connectScope: Scope | null = null;
-  component: Component | null = null;
+  component: MaverickComponent | null = null;
   destroyed = false;
 
   props: WriteSignalRecord<Props> = EMPTY_PROPS;
@@ -52,7 +56,12 @@ export class Instance<Props = {}, State = {}> {
   [CONNECT_SYMBOL]: ConnectCallback[] = [];
   [DESTROY_SYMBOL]: DestroyCallback[] = [];
 
-  constructor(scope: Scope, props: Props, state?: StateFactory<State>, init?: InstanceInit<Props>) {
+  constructor(
+    scope: Scope,
+    props: Props,
+    state?: StateFactory<State>,
+    init?: MaverickInstanceInit<Props>,
+  ) {
     this.scope = scope;
 
     if (init?.scope) init.scope.append(scope);
@@ -208,12 +217,12 @@ function createInstanceProps<Props>(
   return $props;
 }
 
-export function createComponent<T extends Component>(
-  Component: ComponentConstructor<T>,
-  init?: InstanceInit<InferComponentProps<T>>,
+export function createComponent<T extends MaverickComponent>(
+  Component: MaverickComponentConstructor<T>,
+  init?: MaverickInstanceInit<InferComponentProps<T>>,
 ) {
   return root(() => {
-    $$_current_instance = new Instance(getScope()!, Component.props, Component.state, init);
+    $$_current_instance = new MaverickInstance(getScope()!, Component.props, Component.state, init);
 
     const component = new Component();
 

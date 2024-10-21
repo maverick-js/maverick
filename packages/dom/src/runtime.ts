@@ -1,15 +1,4 @@
 import {
-  cloneEvent,
-  isArray,
-  isFunction,
-  isHTMLElement,
-  isString,
-  isUndefined,
-  setAttribute,
-  setStyle,
-  toggleClass,
-} from '@maverick-js/std';
-import {
   $$_current_event_target,
   $$_current_slots,
   $$_set_current_event_target,
@@ -30,9 +19,19 @@ import {
   scoped,
   SETUP_SYMBOL,
   type SlotRecord,
-} from 'maverick.js';
+} from '@maverick-js/core';
+import {
+  cloneEvent,
+  isArray,
+  isFunction,
+  isHTMLElement,
+  isString,
+  isUndefined,
+  setAttribute,
+  setStyle,
+  toggleClass,
+} from '@maverick-js/std';
 
-import { Host } from './components/host';
 import { insert } from './insert';
 import { hydration } from './render';
 import { createMarkerWalker } from './walker';
@@ -73,6 +72,9 @@ export const $$_slot_stack: Array<SlotRecord | null> = [];
 
 /** @internal */
 export const $$_event_target_stack: Array<EventTarget | null> = [];
+
+/** @internal */
+export const $$_host_symbol = /* #__PURE__ */ Symbol.for('maverick.host');
 
 /** @internal */
 export function $$_create_component(
@@ -124,7 +126,8 @@ export function $$_create_component(
         const result = Component(props ?? {});
 
         if (listen) {
-          const target = Component === Host ? (result as EventTarget) : $$_current_event_target;
+          const target =
+            $$_host_symbol in Component ? (result as EventTarget) : $$_current_event_target;
 
           if (!target) {
             throw Error(`[maverick]: no target \`${Component.name}\``);

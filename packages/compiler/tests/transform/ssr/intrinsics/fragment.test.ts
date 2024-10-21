@@ -62,7 +62,7 @@ test('multiple dynamic child expressions', () => {
 test('import', () => {
   expect(
     ssr(`
-import { Fragment } from "maverick.js";
+import { Fragment } from "@maverick-js/core";
 
 <Fragment slot="apples">
   <div></div>

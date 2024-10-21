@@ -1,11 +1,11 @@
-import { render } from '@maverick-js/dom';
-import type { MaverickEvent } from '@maverick-js/std';
 import {
   createEventTarget,
   type JSX,
   MaverickComponent,
   type MaverickFunctionProps,
-} from 'maverick.js';
+} from '@maverick-js/core';
+import { render } from '@maverick-js/dom';
+import type { MaverickEvent } from '@maverick-js/std';
 
 const target = document.body;
 

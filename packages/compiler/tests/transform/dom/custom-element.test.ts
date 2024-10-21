@@ -4,7 +4,7 @@ test('add element symbol', () => {
   expect(
     dom(
       `
-import { MaverickComponent } from 'maverick.js';
+import { MaverickComponent } from '@maverick-js/core';
 
 class Foo extends MaverickComponent {
   static element = {
@@ -26,8 +26,8 @@ class Lux {}
     ),
   ).toMatchInlineSnapshot(`
     "import { $$_create_custom_element } from "@maverick-js/element";
-    import { CUSTOM_ELEMENT_SYMBOL } from "maverick.js";
-    import { MaverickComponent } from 'maverick.js';
+    import { CUSTOM_ELEMENT_SYMBOL } from "@maverick-js/core";
+    import { MaverickComponent } from '@maverick-js/core';
     class Foo extends MaverickComponent {
         static [CUSTOM_ELEMENT_SYMBOL]() {
             return $$_create_custom_element(this);
@@ -56,7 +56,7 @@ test('should import node', () => {
   expect(
     dom(
       `
-import { MaverickComponent } from 'maverick.js';
+import { MaverickComponent } from '@maverick-js/core';
 
 class Foo extends MaverickComponent {
   static element = {
@@ -69,7 +69,7 @@ class Foo extends MaverickComponent {
 }`,
     ),
   ).toMatchInlineSnapshot(`
-    "import { MaverickComponent } from 'maverick.js';
+    "import { MaverickComponent } from '@maverick-js/core';
     import { $$_create_template } from "@maverick-js/dom";
     let $_template_1 = /* @__PURE__ */ $$_create_template("<div><foo-bar></foo-bar></div>", true);
     class Foo extends MaverickComponent {

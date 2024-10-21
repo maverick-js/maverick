@@ -3,7 +3,7 @@ import { ssr } from '../../transform';
 test('import', () => {
   expect(
     ssr(`
-import { For } from 'maverick.js';
+import { For } from '@maverick-js/core';
 
 <For each={[0, 1, 2]}>
   {(item, index) => <div>{item} - {index}</div>}

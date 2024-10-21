@@ -184,7 +184,7 @@ function Foo() {
 test('import', () => {
   expect(
     react(`
-import { Fragment } from "maverick.js";
+import { Fragment } from "@maverick-js/core";
 
 function Foo() {
  return (

@@ -3,8 +3,8 @@
   "compilerOptions": {
     "declarationDir": "types",
     "paths": {
-      "@maverick-js/std": ["../std/types/index.d.ts"],
-      "maverick.js": ["../maverick/types/core/index.d.ts"]
+      "@maverick-js/core": ["../core/types/core/index.d.ts"],
+      "@maverick-js/std": ["../std/types/index.d.ts"]
     }
   },
   "include": ["src"]

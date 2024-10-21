@@ -1,4 +1,3 @@
-import { isFunction, isString } from '@maverick-js/std';
 import {
   computed,
   effect,
@@ -7,7 +6,8 @@ import {
   onDispose,
   type PortalProps,
   type PortalTarget,
-} from 'maverick.js';
+} from '@maverick-js/core';
+import { isFunction, isString } from '@maverick-js/std';
 
 import { insert } from '../insert';
 

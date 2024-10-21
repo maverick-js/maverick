@@ -10,5 +10,5 @@ Build type-safe UI component libraries. Ship anywhere and everywhere.
 
 Copyright (c) 2022-present, Rahim Alwer
 
-[package]: https://www.npmjs.com/package/maverick.js
-[package-badge]: https://img.shields.io/npm/v/maverick.js/latest
+[package]: https://www.npmjs.com/package/@maverick-js/core
+[package-badge]: https://img.shields.io/npm/v/@maverick-js/core/latest

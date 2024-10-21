@@ -1,11 +1,4 @@
 import {
-  defineMaverickElement,
-  type MaverickElement,
-  SETUP_STATE_SYMBOL,
-} from '@maverick-js/element';
-import { getContext, setContext } from '@maverick-js/signals';
-import { waitAnimationFrame, waitTimeout } from '@maverick-js/std';
-import {
   createContext,
   type CustomElementOptions,
   MaverickComponent,
@@ -14,7 +7,14 @@ import {
   onSetup,
   provideContext,
   useContext,
-} from 'maverick.js';
+} from '@maverick-js/core';
+import {
+  defineMaverickElement,
+  type MaverickElement,
+  SETUP_STATE_SYMBOL,
+} from '@maverick-js/element';
+import { getContext, setContext } from '@maverick-js/signals';
+import { waitAnimationFrame, waitTimeout } from '@maverick-js/std';
 
 const target = document.body;
 

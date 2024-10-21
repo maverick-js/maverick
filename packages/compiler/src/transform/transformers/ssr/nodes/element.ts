@@ -17,7 +17,7 @@ export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
   state.html += `<${node.name}`;
 
   if (node.spreads) {
-    const props = runtime.mergeProps([
+    const props = runtime.mergeAttrs([
       ...node.spreads.map((s) => s.initializer),
       createElementSpreadProps(node, { ssr: true }),
     ]);

@@ -1,11 +1,11 @@
-import { render } from '@maverick-js/dom';
 import {
   MaverickComponent,
   type MaverickFunctionProps,
   type ReadSignal,
   signal,
   tick,
-} from 'maverick.js';
+} from '@maverick-js/core';
+import { render } from '@maverick-js/dom';
 
 const target = document.body;
 

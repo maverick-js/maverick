@@ -1,5 +1,3 @@
-import { render } from '@maverick-js/dom';
-import { camelToKebabCase, isArray, isString, MaverickEvent, runAll } from '@maverick-js/std';
 import {
   type AttributeConverter,
   createComponent,
@@ -13,7 +11,9 @@ import {
   type Scope,
   scoped,
   SETUP_SYMBOL,
-} from 'maverick.js';
+} from '@maverick-js/core';
+import { render } from '@maverick-js/dom';
+import { camelToKebabCase, isArray, isString, MaverickEvent, runAll } from '@maverick-js/std';
 
 import type { MaverickElementConstructor } from './element';
 import { ATTRS_SYMBOL, SETUP_CALLBACKS_SYMBOL, SETUP_STATE_SYMBOL } from './symbols';

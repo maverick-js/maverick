@@ -1,3 +1,4 @@
+import { effect, type JSX } from '@maverick-js/core';
 import {
   createComment,
   isArray,
@@ -8,7 +9,6 @@ import {
   isUndefined,
   unwrapDeep,
 } from '@maverick-js/std';
-import { effect, type JSX } from 'maverick.js';
 
 import { reconcile } from './reconcile';
 import { hydration } from './render';

@@ -1,5 +1,11 @@
+import {
+  createContext,
+  hasProvidedContext,
+  provideContext,
+  root,
+  useContext,
+} from '@maverick-js/core';
 import { computed } from '@maverick-js/signals';
-import { createContext, hasProvidedContext, provideContext, root, useContext } from 'maverick.js';
 
 it('should create context', () => {
   const FooContext = createContext(() => 1);

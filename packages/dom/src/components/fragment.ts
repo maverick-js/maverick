@@ -1,4 +1,4 @@
-import { getSlots } from 'maverick.js';
+import { getSlots } from '@maverick-js/core';
 
 export function Fragment() {
   const slots = getSlots();

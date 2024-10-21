@@ -3,7 +3,7 @@ import { dom } from '../../transform';
 test('import', () => {
   expect(
     dom(`
-import { Host } from 'maverick.js';
+import { Host } from '@maverick-js/core';
 
 <Host autofocus $title={title} class:foo var:foo={10} on:click={onClick}>
   <div>...</div>

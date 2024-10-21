@@ -1,11 +1,11 @@
-import { unwrap } from '@maverick-js/std';
 import {
   computedKeyedMap,
   computedMap,
   type ForKeyedProps,
   type ForProps,
   getSlots,
-} from 'maverick.js';
+} from '@maverick-js/core';
+import { unwrap } from '@maverick-js/std';
 
 export function For<Item = unknown>({ each }: ForProps<Item>) {
   const slots = getSlots();

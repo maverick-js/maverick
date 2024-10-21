@@ -1,5 +1,5 @@
+import { getSlots, signal, tick } from '@maverick-js/core';
 import { hydrate } from '@maverick-js/dom';
-import { getSlots, signal, tick } from 'maverick.js';
 
 import { el, mark, text } from './utils';
 

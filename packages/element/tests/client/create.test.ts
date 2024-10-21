@@ -1,10 +1,4 @@
 import {
-  createMaverickElement,
-  defineMaverickElement,
-  type MaverickElement,
-} from '@maverick-js/element';
-import { waitAnimationFrame, waitTimeout } from '@maverick-js/std';
-import {
   createContext,
   type CustomElementOptions,
   MaverickComponent,
@@ -13,7 +7,13 @@ import {
   onDispose,
   provideContext,
   useContext,
-} from 'maverick.js';
+} from '@maverick-js/core';
+import {
+  createMaverickElement,
+  defineMaverickElement,
+  type MaverickElement,
+} from '@maverick-js/element';
+import { waitAnimationFrame, waitTimeout } from '@maverick-js/std';
 
 const target = document.body;
 

@@ -1,8 +1,4 @@
-import { Component, type ComponentConstructor, createContext } from 'maverick.js';
-import * as React from 'react';
-import { createRoot } from 'react-dom/client';
-import { act } from 'react-dom/test-utils';
-
+import { Component, type ComponentConstructor, createContext } from '@maverick-js/core';
 import {
   createReactComponent,
   type CreateReactComponentOptions,
@@ -11,7 +7,10 @@ import {
   type ReactBridgeProps,
   useReactContext,
   useReactScope,
-} from 'maverick.js/react';
+} from '@maverick-js/core/react';
+import * as React from 'react';
+import { createRoot } from 'react-dom/client';
+import { act } from 'react-dom/test-utils';
 
 it('should render', () => {
   interface Props {

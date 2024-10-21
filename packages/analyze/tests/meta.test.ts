@@ -1,13 +1,16 @@
+import type {
+  ComponentNode,
+  CustomElementNode,
+  ReactComponentNode,
+} from '@maverick-js/core/analyze';
+import { TS_NODE } from '@maverick-js/core/analyze/meta/symbols';
+import { createBuildPlugin } from '@maverick-js/core/analyze/plugins/build-plugin';
+import { createDiscoverPlugin } from '@maverick-js/core/analyze/plugins/discover-plugin';
+import { compileOnce } from '@maverick-js/core/cli/compile';
+import { testDiagnostics } from '@maverick-js/core/utils/logger';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-
-import type { ComponentNode, CustomElementNode, ReactComponentNode } from 'maverick.js/analyze';
-import { TS_NODE } from 'maverick.js/analyze/meta/symbols';
-import { createBuildPlugin } from 'maverick.js/analyze/plugins/build-plugin';
-import { createDiscoverPlugin } from 'maverick.js/analyze/plugins/discover-plugin';
-import { compileOnce } from 'maverick.js/cli/compile';
-import { testDiagnostics } from 'maverick.js/utils/logger';
 
 afterEach(() => {
   testDiagnostics.splice(0, testDiagnostics.length);

@@ -3,7 +3,7 @@ import { dom } from '../../transform';
 test('import', () => {
   expect(
     dom(`
-import { Portal } from "maverick.js";
+import { Portal } from "@maverick-js/core";
 
 <Portal to="body">
   <div></div>

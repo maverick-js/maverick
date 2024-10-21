@@ -6,7 +6,7 @@ module.exports = {
   tabWidth: 2,
   overrides: [],
   plugins: ['@trivago/prettier-plugin-sort-imports'],
-  importOrder: ['^maverick.js/(.*)$', '^[../]', '^[./]'],
+  importOrder: ['^@?maverick/(.*)$', '^[../]', '^[./]'],
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
   importOrderCaseInsensitive: true,

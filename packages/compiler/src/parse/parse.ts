@@ -30,7 +30,7 @@ export function parse(code: string, options: ParseOptions) {
   });
 
   const parse = (node: ts.Node) => {
-    if (isValueImportDeclarationFrom(node, 'maverick.js')) {
+    if (isValueImportDeclarationFrom(node, '@maverick-js/core')) {
       const Fragment = findImportSpecifierFromDeclaration(node, 'Fragment'),
         Portal = findImportSpecifierFromDeclaration(node, 'Portal'),
         For = findImportSpecifierFromDeclaration(node, 'For'),

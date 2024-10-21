@@ -41,13 +41,13 @@ export function maverick({
 }: MaverickOptions): Plugin {
   const filter = createFilter(include ?? /\.(jsx|tsx)/, exclude);
   return {
-    name: 'maverick.js',
+    name: '@maverick-js/core',
     enforce: 'pre',
     config() {
       return {
         optimizeDeps: {
           entries: [
-            'maverick.js',
+            '@maverick-js/core',
             '@maverick-js/signals',
             '@maverick-js/std',
             '@maverick-js/element',

@@ -15,7 +15,7 @@ export function setupCustomElements(
   register: (component: ts.ClassDeclaration) => ts.Expression,
   registerImports: ts.Statement[] = [],
 ): ts.SourceFile {
-  const maverickImport = findImportDeclarationFromModule(sourceFile, 'maverick.js'),
+  const maverickImport = findImportDeclarationFromModule(sourceFile, '@maverick-js/core'),
     maverickComponent = findImportSpecifierFromDeclaration(maverickImport, 'MaverickComponent');
 
   if (maverickComponent) {
@@ -50,7 +50,7 @@ export function setupCustomElements(
 const CUSTOM_ELEMENT_SYMBOL_NAME = 'CUSTOM_ELEMENT_SYMBOL';
 
 function createCustomElementSymbolImport() {
-  return createImports([$.id(CUSTOM_ELEMENT_SYMBOL_NAME)], 'maverick.js');
+  return createImports([$.id(CUSTOM_ELEMENT_SYMBOL_NAME)], '@maverick-js/core');
 }
 
 function createStaticElementRegistration(registration: ts.Expression) {

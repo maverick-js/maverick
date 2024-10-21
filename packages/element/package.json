@@ -33,7 +33,7 @@
     "@maverick-js/dom": "workspace:*",
     "@maverick-js/ssr": "workspace:*",
     "@maverick-js/std": "workspace:*",
-    "maverick.js": "workspace:*"
+    "@maverick-js/core": "workspace:*"
   },
   "devDependencies": {
     "@edge-runtime/vm": "^2.1.2",

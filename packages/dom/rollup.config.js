@@ -5,7 +5,7 @@ import esbuild from 'rollup-plugin-esbuild';
 
 import { copyPkgFiles } from '../../.build/copy-pkg-files.js';
 
-const EXTERNAL = [/maverick.js/, /@maverick-js/];
+const EXTERNAL = [/@maverick-js/];
 
 export default defineConfig([define({ type: 'dev' }), define({ type: 'prod' }), defineTypes()]);
 

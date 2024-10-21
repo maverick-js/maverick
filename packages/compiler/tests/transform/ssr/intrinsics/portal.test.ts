@@ -3,7 +3,7 @@ import { ssr } from '../../transform';
 test('import', () => {
   expect(
     ssr(`
-import { Portal } from "maverick.js";
+import { Portal } from "@maverick-js/core";
 
 <Portal to="body">
   <div></div>

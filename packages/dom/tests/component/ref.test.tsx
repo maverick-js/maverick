@@ -1,5 +1,5 @@
+import { type MaverickFunctionProps } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
-import { type MaverickFunctionProps } from 'maverick.js';
 
 const target = document.body;
 

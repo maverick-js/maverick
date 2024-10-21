@@ -4,7 +4,7 @@ import type {
   InferComponentMembers,
   MaverickComponent,
   MaverickCustomElement,
-} from 'maverick.js';
+} from '@maverick-js/core';
 
 export interface MaverickElementConstructor<T extends MaverickComponent = AnyMaverickComponent> {
   readonly tagName: string;

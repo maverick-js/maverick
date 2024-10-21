@@ -9,7 +9,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@maverick.js/compiler': '/src/index.ts',
+      '@@maverick-js/core/compiler': '/src/index.ts',
     },
   },
   // https://vitest.dev/config

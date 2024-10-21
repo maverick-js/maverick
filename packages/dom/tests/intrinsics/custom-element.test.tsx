@@ -1,5 +1,5 @@
+import { type CustomElementOptions, Host, MaverickComponent } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
-import { type CustomElementOptions, Host, MaverickComponent } from 'maverick.js';
 
 const target = document.body;
 

@@ -1,5 +1,5 @@
+import { root as createRoot, type Dispose, type JSX } from '@maverick-js/core';
 import { unwrapDeep } from '@maverick-js/std';
-import { root as createRoot, type Dispose, type JSX } from 'maverick.js';
 
 import { insert } from './insert';
 import { createMarkerWalker, type MarkerWalker } from './walker';

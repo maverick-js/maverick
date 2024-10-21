@@ -1,4 +1,3 @@
-import { render } from '@maverick-js/dom';
 import {
   createSlot,
   Fragment,
@@ -8,7 +7,8 @@ import {
   signal,
   type Slot,
   tick,
-} from 'maverick.js';
+} from '@maverick-js/core';
+import { render } from '@maverick-js/dom';
 
 const target = document.body;
 

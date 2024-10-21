@@ -131,7 +131,7 @@ test('multiple dynamic child expressions', () => {
 test('import', () => {
   expect(
     domH(`
-import { Fragment } from "maverick.js";
+import { Fragment } from "@maverick-js/core";
 
 <Fragment slot="apples">
   <div></div>

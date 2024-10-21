@@ -1,4 +1,4 @@
-import { State } from 'maverick.js';
+import { State } from '@maverick-js/core';
 
 it('should create state', () => {
   const factory = new State({

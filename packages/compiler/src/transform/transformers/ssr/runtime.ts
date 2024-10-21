@@ -38,6 +38,11 @@ export class SsrRuntime extends Runtime {
     return props.length <= 1 ? (props[0] ?? $.emptyObject) : this.call('merge_props', props);
   }
 
+  mergeAttrs(sources: (ts.Expression | null | undefined)[]) {
+    const props = filterFalsy(sources);
+    return props.length <= 1 ? (props[0] ?? $.emptyObject) : this.call('merge_attrs', props);
+  }
+
   appendClass(host: ts.Identifier, classList: ts.Expression) {
     return this.call('append_class', [host, classList]);
   }

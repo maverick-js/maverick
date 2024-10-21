@@ -3,7 +3,7 @@ import type {
   LowercaseRecord,
   NullableSignalOrValueRecord,
   SignalOrValue,
-} from 'maverick.js';
+} from '@maverick-js/core';
 import type { ConditionalPick } from 'type-fest';
 
 export type AttrValue = string | number | boolean | null | undefined;

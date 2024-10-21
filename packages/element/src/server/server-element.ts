@@ -1,3 +1,4 @@
+import { type AnyMaverickComponent, scoped, SETUP_SYMBOL } from '@maverick-js/core';
 import {
   parseClassAttr,
   parseStyleAttr,
@@ -6,7 +7,6 @@ import {
   ServerStyle,
 } from '@maverick-js/ssr';
 import { noop } from '@maverick-js/std';
-import { type AnyMaverickComponent, scoped, SETUP_SYMBOL } from 'maverick.js';
 
 export class MaverickServerElement<T extends AnyMaverickComponent = AnyMaverickComponent>
   implements ServerElement

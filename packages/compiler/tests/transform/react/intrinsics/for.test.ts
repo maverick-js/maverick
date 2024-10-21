@@ -3,7 +3,7 @@ import { react } from '../../transform';
 test('import', () => {
   expect(
     react(`
-import { For } from 'maverick.js';
+import { For } from '@maverick-js/core';
 
 function Foo() {
  return (

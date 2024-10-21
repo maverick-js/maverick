@@ -42,7 +42,7 @@ export function transform(source: string, options: TransformOptions) {
 
   const virtualImports = Object.values(analysis.components);
   if (virtualImports.length > 0) {
-    sourceFile = removeImports(sourceFile, 'maverick.js', virtualImports);
+    sourceFile = removeImports(sourceFile, '@maverick-js/core', virtualImports);
   }
 
   const ctx: TransformContext = {

@@ -1,6 +1,6 @@
+import { type CustomElementOptions, MaverickComponent, onDestroy } from '@maverick-js/core';
 import { defineMaverickElement, type MaverickElement } from '@maverick-js/element';
 import { waitAnimationFrame } from '@maverick-js/std';
-import { type CustomElementOptions, MaverickComponent, onDestroy } from 'maverick.js';
 
 const target = document.body;
 

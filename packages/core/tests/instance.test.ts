@@ -5,7 +5,7 @@ import {
   MaverickInstance,
   State,
   useState,
-} from 'maverick.js';
+} from '@maverick-js/core';
 
 it('should create props', () => {
   class TestComponent extends MaverickComponent<{ foo: number; bar: number }> {

@@ -1,5 +1,5 @@
+import { createComponent, MaverickComponent, onAttach, onSetup } from '@maverick-js/core';
 import { MaverickServerElement, type ServerElement } from '@maverick-js/element/server';
-import { createComponent, MaverickComponent, onAttach, onSetup } from 'maverick.js';
 
 it('should call `onSetup` lifecycle hook', () => {
   const setup = vi.fn(),

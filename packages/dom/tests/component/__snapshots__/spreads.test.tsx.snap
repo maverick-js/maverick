@@ -3,8 +3,6 @@
 exports[`multiple spreads 1`] = `
 <div
   class="zux foo hux"
-  data-bar=""
-  data-foo=""
   style="z-index: 10; --color: red; --bgColor: red;"
 />
 `;
@@ -12,8 +10,6 @@ exports[`multiple spreads 1`] = `
 exports[`multiple spreads 2`] = `
 <div
   class="zux foo hux"
-  data-bar=""
-  data-foo=""
   style="z-index: 10; --color: red; --bgColor: orange;"
 />
 `;
@@ -21,7 +17,6 @@ exports[`multiple spreads 2`] = `
 exports[`one spread 1`] = `
 <div
   class="boo foo"
-  data-foo=""
   style="--color: blue;"
 />
 `;

@@ -39,19 +39,14 @@ export class SsrRuntime extends Runtime {
   }
 
   mergeAttrs(sources: (ts.Expression | null | undefined)[]) {
-    const props = filterFalsy(sources);
-    return props.length <= 1 ? (props[0] ?? $.emptyObject) : this.call('merge_attrs', props);
+    return this.call('merge_attrs', filterFalsy(sources));
   }
 
-  appendClass(host: ts.Identifier, classList: ts.Expression) {
-    return this.call('append_class', [host, classList]);
+  mergeHostAttrs(sources: (ts.Expression | null | undefined)[]) {
+    return this.call('merge_host_attrs', filterFalsy(sources));
   }
 
   escape(value: ts.Expression) {
     return this.call('escape', [value]);
-  }
-
-  scoped(compute: ts.Expression) {
-    return this.call('scoped', [ts.isIdentifier(compute) ? compute : $.arrowFn([], compute)]);
   }
 }

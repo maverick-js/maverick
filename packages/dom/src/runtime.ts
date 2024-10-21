@@ -78,17 +78,17 @@ export const $$_host_symbol = /* #__PURE__ */ Symbol.for('maverick.host');
 
 /** @internal */
 export function $$_create_component(
-  Component: MaverickFunction | MaverickComponentConstructor<AnyMaverickComponent>,
+  Component: MaverickFunction | MaverickComponentConstructor,
   props: Record<string, any> | null = null,
   listen: ((target: EventTarget) => void) | null = null,
   slots: SlotRecord | null = null,
   onAttach: ((host: HTMLElement) => void) | null = null,
 ) {
   return peek(() => {
-    $$_slot_stack.push($$_current_slots);
-    $$_event_target_stack.push($$_current_event_target);
-
     try {
+      $$_slot_stack.push($$_current_slots);
+      $$_event_target_stack.push($$_current_event_target);
+
       $$_set_current_slots(slots ?? {});
 
       if (isMaverickComponentConstructor(Component)) {
@@ -384,11 +384,11 @@ export function $$_remove_class(el: HTMLElement, tokens: string) {
   el.classList.remove(...$$_split_class_tokens(tokens));
 }
 
-const splitClassTokensRE = /* #__PURE__ */ /\s+/g;
+const classTokensRE = /* #__PURE__ */ /\s+/g;
 
 /** @internal */
 export function $$_split_class_tokens(tokens: string) {
-  return tokens.split(splitClassTokensRE);
+  return tokens.split(classTokensRE);
 }
 
 /** @internal */
@@ -417,20 +417,20 @@ export function $$_style_tokens(el: HTMLElement, tokens: string | ReadSignal<str
   }
 }
 
-const splitStylesRE = /* #__PURE__ */ /\s*;\s*/g;
+const styleTokensRE = /* #__PURE__ */ /\s*;\s*/g;
 
 /** @internal */
 export function $$_split_style_tokens(styles: string) {
-  return styles.split(splitStylesRE);
+  return styles.split(styleTokensRE);
 }
 
-const splitStylePropRE = /* #__PURE__ */ /:\s+/;
+const styleRE = /* #__PURE__ */ /:\s+/;
 
 /** @internal */
 export function $$_append_styles(el: HTMLElement, styles: string) {
   const tokens = $$_split_style_tokens(styles);
   for (const token of tokens) {
-    const [prop, value] = token.split(splitStylePropRE);
+    const [prop, value] = token.split(styleRE);
     if (prop && value) el.style.setProperty(prop, value);
   }
 }
@@ -439,22 +439,27 @@ export function $$_append_styles(el: HTMLElement, styles: string) {
 export function $$_remove_styles(el: HTMLElement, styles: string) {
   const tokens = $$_split_style_tokens(styles);
   for (const token of tokens) {
-    const [prop] = token.split(splitStylePropRE);
+    const [prop] = token.split(styleRE);
     el.style.removeProperty(prop);
   }
 }
 
+/** @internal */
 export const $$_signal_name_re = /* #__PURE__ */ /^\$/;
 
 /** @internal */
 export function $$_spread<T extends HTMLElement>(el: T, props: Record<keyof T, any>) {
+  let colonIndex = -1;
+
   for (let name of Object.keys(props)) {
-    let value = props[name];
+    const value = props[name];
 
     name = name.replace($$_signal_name_re, '');
+    colonIndex = name.indexOf(':');
 
-    if (name.indexOf(':') > 0) {
-      const [namespace, prop] = name.split(':');
+    if (colonIndex > 0) {
+      const namespace = name.slice(0, colonIndex),
+        prop = name.slice(colonIndex + 1, name.length);
       if (namespace === 'class') {
         $$_class(el, prop, value);
       } else if (namespace.startsWith('on')) {
@@ -465,8 +470,6 @@ export function $$_spread<T extends HTMLElement>(el: T, props: Record<keyof T, a
         $$_style(el, prop, value);
       } else if (namespace === 'prop') {
         $$_prop(el, prop as keyof T, value);
-      } else if (namespace === 'content') {
-        $$_content(el, prop as 'innerHTML', value);
       }
     } else if (name === 'ref') {
       $$_ref(el, value);
@@ -482,13 +485,17 @@ export function $$_spread<T extends HTMLElement>(el: T, props: Record<keyof T, a
 
 /** @internal */
 export function $$_host_spread<T extends HTMLElement>(el: T, props: Record<keyof T, any>) {
+  let colonIndex = -1;
+
   for (let name of Object.keys(props)) {
     const value = props[name];
 
     name = name.replace($$_signal_name_re, '');
+    colonIndex = name.indexOf(':');
 
-    if (name.indexOf(':') > 0) {
-      const [namespace, prop] = name.split(':');
+    if (colonIndex > 0) {
+      const namespace = name.slice(0, colonIndex),
+        prop = name.slice(colonIndex + 1, name.length);
       if (namespace === 'class') {
         $$_class(el, prop, value);
       } else if (namespace === 'var') {
@@ -496,8 +503,6 @@ export function $$_host_spread<T extends HTMLElement>(el: T, props: Record<keyof
       }
     } else if (name === 'class' && isString(value)) {
       $$_append_class(el, value);
-    } else {
-      $$_attr(el, name, value);
     }
   }
 }

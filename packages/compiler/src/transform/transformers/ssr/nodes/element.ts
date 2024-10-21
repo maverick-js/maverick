@@ -1,4 +1,4 @@
-import { escapeHTML, trimQuotes } from '@maverick-js/std';
+import { camelToKebabCase, escapeHTML, trimQuotes } from '@maverick-js/std';
 import { $ } from '@maverick-js/ts';
 import type ts from 'typescript';
 
@@ -17,12 +17,12 @@ export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
   state.html += `<${node.name}`;
 
   if (node.spreads) {
-    const props = runtime.mergeAttrs([
+    const attrs = runtime.mergeAttrs([
       ...node.spreads.map((s) => s.initializer),
       createElementSpreadProps(node, { ssr: true }),
     ]);
 
-    state.value(runtime.attrs(props));
+    state.value(attrs);
   } else {
     let classAttr: AttributeNode | null = null,
       stylesAttr: AttributeNode | null = null,
@@ -49,7 +49,7 @@ export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
     }
 
     if (node.classes) {
-      const base = classAttr?.initializer ?? $.string(''),
+      const base = classAttr?.initializer ?? $.null,
         $classProps = node.classes?.map((c) =>
           $.createPropertyAssignment($.string(c.name), c.initializer),
         ),
@@ -62,9 +62,9 @@ export function Element(node: ElementNode, { state, walk }: SsrVisitorContext) {
     }
 
     if (node.styles || node.vars) {
-      const base = stylesAttr?.initializer ?? $.string(''),
+      const base = stylesAttr?.initializer ?? $.null,
         $styleProps = node.styles?.map((s) =>
-          $.createPropertyAssignment($.string(s.name), s.initializer),
+          $.createPropertyAssignment($.string(camelToKebabCase(s.name)), s.initializer),
         ),
         $varProps = node.vars?.map((s) =>
           $.createPropertyAssignment($.string(`--${s.name}`), s.initializer),

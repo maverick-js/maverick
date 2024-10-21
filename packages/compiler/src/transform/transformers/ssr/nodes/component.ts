@@ -33,7 +33,7 @@ function createAttrs(
   { runtime }: SsrTransformState,
 ) {
   if (spreads) {
-    return runtime.mergeProps([spreads, createComponentHostProps(node, { ssr: true })]);
+    return runtime.mergeHostAttrs([spreads, createComponentHostProps(node, { ssr: true })]);
   } else {
     const props: ts.PropertyAssignment[] = [];
 

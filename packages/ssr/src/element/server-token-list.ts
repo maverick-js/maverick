@@ -1,4 +1,6 @@
-export class ServerClassList {
+const separatorRE = /\s+/;
+
+export class ServerTokenList {
   #tokens = new Set<string>();
 
   get length() {
@@ -38,6 +40,11 @@ export class ServerClassList {
       this.#tokens.add(token);
       return true;
     }
+  }
+
+  parse(attribute: string) {
+    const list = attribute.trim().split(separatorRE);
+    for (const token of list) this.add(token);
   }
 
   toString() {

@@ -5,7 +5,7 @@ test('static', () => {
     "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            style: $$_style("", {
+            style: $$_style(null, {
                 "color": "blue"
             })
         })]);
@@ -18,9 +18,9 @@ test('multiple static', () => {
     "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            style: $$_style("", {
+            style: $$_style(null, {
                 "color": "blue",
-                "backgroundColor": "red"
+                "background-color": "red"
             })
         })]);
     "
@@ -32,7 +32,7 @@ test('dynamic', () => {
     "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            style: $$_style("", {
+            style: $$_style(null, {
                 "color": getColor()
             })
         })]);
@@ -46,9 +46,9 @@ test('multiple dynamic', () => {
       "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
       let $$_template_1 = ["<!$><svg", "></svg>"];
       $$_ssr($$_template_1, [$$_attrs({
-              style: $$_style("", {
+              style: $$_style(null, {
                   "color": getColor(),
-                  "backgroundColor": getBgColor()
+                  "background-color": getBgColor()
               })
           })]);
       "
@@ -60,7 +60,7 @@ test('signal', () => {
     "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            style: $$_style("", {
+            style: $$_style(null, {
                 "color": color
             })
         })]);
@@ -74,9 +74,9 @@ test('multiple signals', () => {
       "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
       let $$_template_1 = ["<!$><svg", "></svg>"];
       $$_ssr($$_template_1, [$$_attrs({
-              style: $$_style("", {
+              style: $$_style(null, {
                   "color": color,
-                  "backgroundColor": bgColor
+                  "background-color": bgColor
               })
           })]);
       "

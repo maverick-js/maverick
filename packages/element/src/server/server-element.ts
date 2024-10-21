@@ -1,11 +1,5 @@
 import { type AnyMaverickComponent, scoped, SETUP_SYMBOL } from '@maverick-js/core';
-import {
-  parseClassAttr,
-  parseStyleAttr,
-  ServerAttributes,
-  ServerClassList,
-  ServerStyle,
-} from '@maverick-js/ssr';
+import { ServerAttributes, ServerStyleDeclaration, ServerTokenList } from '@maverick-js/ssr';
 import { noop } from '@maverick-js/std';
 
 export class MaverickServerElement<T extends AnyMaverickComponent = AnyMaverickComponent>
@@ -16,8 +10,8 @@ export class MaverickServerElement<T extends AnyMaverickComponent = AnyMaverickC
 
   readonly $: T;
   readonly attributes = new ServerAttributes();
-  readonly style = new ServerStyle();
-  readonly classList = new ServerClassList();
+  readonly style = new ServerStyleDeclaration();
+  readonly classList = new ServerTokenList();
 
   get $props() {
     return this.$.$$.props;
@@ -39,11 +33,11 @@ export class MaverickServerElement<T extends AnyMaverickComponent = AnyMaverickC
     const instance = this.$.$$;
     scoped(() => {
       if (this.hasAttribute('class')) {
-        parseClassAttr(this.classList.tokens, this.getAttribute('class')!);
+        this.classList.parse(this.getAttribute('class')!);
       }
 
       if (this.hasAttribute('style')) {
-        parseStyleAttr(this.style.tokens, this.getAttribute('style')!);
+        this.style.parse(this.getAttribute('style')!);
       }
 
       instance.setup();

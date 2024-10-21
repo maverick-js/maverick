@@ -5,7 +5,7 @@ test('static', () => {
     "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            style: $$_style("", {
+            style: $$_style(null, {
                 "--foo": 1
             })
         })]);
@@ -18,7 +18,7 @@ test('multiple static', () => {
     "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            style: $$_style("", {
+            style: $$_style(null, {
                 "--foo": 1,
                 "--bar": 2
             })
@@ -32,7 +32,7 @@ test('dynamic', () => {
     "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            style: $$_style("", {
+            style: $$_style(null, {
                 "--foo": getFoo()
             })
         })]);
@@ -45,7 +45,7 @@ test('multiple dynamic', () => {
     "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            style: $$_style("", {
+            style: $$_style(null, {
                 "--foo": getFoo(),
                 "--bar": getBar()
             })
@@ -59,7 +59,7 @@ test('signal', () => {
     "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            style: $$_style("", {
+            style: $$_style(null, {
                 "--foo": foo
             })
         })]);
@@ -72,7 +72,7 @@ test('multiple signals', () => {
     "import { $$_style, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            style: $$_style("", {
+            style: $$_style(null, {
                 "--foo": foo,
                 "--bar": bar
             })

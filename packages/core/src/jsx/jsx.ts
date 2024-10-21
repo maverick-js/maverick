@@ -367,8 +367,6 @@ export namespace JSX {
       GlobalCSSVarAttributes {}
 
   export type ComponentAttributes<Props = {}, Events = {}, CSSVars = {}> = Props &
-    DataAttributes &
-    SignalDataAttributes &
     ClassAttributes &
     SignalClassAttributes &
     SignalCSSVarAttributes<CSSVars> &

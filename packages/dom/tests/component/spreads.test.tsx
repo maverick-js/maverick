@@ -11,7 +11,6 @@ test('one spread', () => {
   const onClick = vi.fn();
 
   const spread = {
-    'data-foo': '',
     'class:foo': true,
     'var:color': 'blue',
     'on:click': onClick,
@@ -39,7 +38,6 @@ test('multiple spreads', () => {
     $bgColor = signal('red');
 
   const spreadA = {
-    'data-foo': '',
     'class:foo': true,
     'var:color': 'blue',
     'on:click': onClick,
@@ -48,7 +46,6 @@ test('multiple spreads', () => {
   const spreadB = {
     'class:hux': true,
     'class:lux': false,
-    'data-bar': '',
     'var:color': 'red',
     '$var:bgColor': $bgColor,
     'on:pointerup': onPointerUp,

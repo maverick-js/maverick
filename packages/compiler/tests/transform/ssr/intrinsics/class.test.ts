@@ -5,7 +5,7 @@ test('static', () => {
     "import { $$_class, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            class: $$_class("", {
+            class: $$_class(null, {
                 "foo": true
             })
         })]);
@@ -18,7 +18,7 @@ test('multiple static', () => {
     "import { $$_class, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            class: $$_class("", {
+            class: $$_class(null, {
                 "foo": true,
                 "bar": false
             })
@@ -32,7 +32,7 @@ test('dynamic', () => {
     "import { $$_class, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            class: $$_class("", {
+            class: $$_class(null, {
                 "foo": isFoo()
             })
         })]);
@@ -45,7 +45,7 @@ test('multiple dynamic', () => {
     "import { $$_class, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            class: $$_class("", {
+            class: $$_class(null, {
                 "foo": isFoo(),
                 "bar": isBar()
             })
@@ -59,7 +59,7 @@ test('signal', () => {
     "import { $$_class, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            class: $$_class("", {
+            class: $$_class(null, {
                 "foo": isFoo
             })
         })]);
@@ -72,7 +72,7 @@ test('multiple signals', () => {
     "import { $$_class, $$_attrs, $$_ssr } from "@maverick-js/ssr";
     let $$_template_1 = ["<!$><svg", "></svg>"];
     $$_ssr($$_template_1, [$$_attrs({
-            class: $$_class("", {
+            class: $$_class(null, {
                 "foo": isFoo,
                 "bar": isBar
             })

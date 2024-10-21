@@ -6,7 +6,7 @@ import type { JSX } from '../jsx/jsx';
 export type NoChildren<T> = Omit<T, 'children'>;
 
 export interface MaverickFunction<
-  Host extends Node = never,
+  Host extends Element = never,
   Props = {},
   Events = {},
   CSSVars = {},
@@ -15,7 +15,7 @@ export interface MaverickFunction<
 }
 
 export type MaverickFunctionProps<
-  Host extends Node = never,
+  Host extends Element = never,
   Props = {},
   Events = {},
   CSSVars = {},

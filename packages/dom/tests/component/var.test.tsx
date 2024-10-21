@@ -28,7 +28,7 @@ test('host vars', () => {
   const $color = signal<Color>('red'),
     bgColor = 'red';
 
-  render(() => <Foo $var:color={$color} var:bg-color={bgColor} var:z-index={20} />, { target });
+  render(() => <Foo $var:color={$color} $var:bg-color={bgColor} $var:z-index={20} />, { target });
 
   expect(target).toMatchSnapshot();
 

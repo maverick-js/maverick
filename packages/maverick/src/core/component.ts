@@ -10,13 +10,7 @@ import type { State } from './state';
 import type { CUSTOM_ELEMENT_SYMBOL } from './symbols';
 import type { SignalOrValueRecord } from './types';
 
-const COMPONENT_CTOR_SYMBOL = /* #__PURE__ */ Symbol.for('maverick.component.ctor');
-
-export function isMaverickComponentConstructor(
-  value: unknown,
-): value is MaverickComponentConstructor {
-  return isFunction(value) && COMPONENT_CTOR_SYMBOL in value;
-}
+const MAVERICK_COMPONENT_CTOR_SYMBOL = /* #__PURE__ */ Symbol.for('maverick.component.ctor');
 
 export class MaverickComponent<
   Props = {},
@@ -24,7 +18,7 @@ export class MaverickComponent<
   Events = {},
   CSSVars = {},
 > extends MaverickViewController<Props, State, Events & ComponentLifecycleEvents, CSSVars> {
-  static [COMPONENT_CTOR_SYMBOL] = true;
+  static [MAVERICK_COMPONENT_CTOR_SYMBOL] = true;
 
   /** @internal - DO NOT USE (for jsx types only) */
   jsxProps!: JSX.ComponentAttributes<Partial<SignalOrValueRecord<Props>>, Events, CSSVars>;
@@ -45,6 +39,12 @@ export class MaverickComponent<
   destroy(): void {
     this.$$.destroy();
   }
+}
+
+export function isMaverickComponentConstructor(
+  value: unknown,
+): value is MaverickComponentConstructor {
+  return isFunction(value) && MAVERICK_COMPONENT_CTOR_SYMBOL in value;
 }
 
 export interface AnyMaverickComponent extends MaverickComponent<any, any, any, any> {}

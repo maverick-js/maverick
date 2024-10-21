@@ -151,7 +151,7 @@ export namespace JSX {
    * ```
    */
   export type SignalOrValueAttributes<Props> = {
-    [Prop in keyof Props as `$${Stringify<Prop>}`]?: SignalOrValue<Props[Prop]>;
+    [Prop in keyof Props as `$${Stringify<Prop>}`]: SignalOrValue<Props[Prop]>;
   };
 
   /**
@@ -283,7 +283,7 @@ export namespace JSX {
   };
 
   export type StyleAttributes = {
-    [Prop in keyof CSSProperties as `style:${Stringify<Prop>}`]: CSSProperties[Prop];
+    [Prop in keyof CSSProperties as `style:${Stringify<Prop>}`]?: CSSProperties[Prop];
   };
 
   export interface SignalStyleAttributes extends SignalOrValueAttributes<StyleAttributes> {}
@@ -310,7 +310,7 @@ export namespace JSX {
    * ```
    */
   export type CSSVarAttributes<Variables> = {
-    [Var in keyof Variables as `var:${Stringify<Var>}`]?: Variables[Var] | null;
+    [Var in keyof Variables as `var:${Stringify<Var>}`]: Variables[Var] | null;
   } & AnyCSSVarAttribute;
 
   export type SignalCSSVarAttributes<Variables> = SignalOrValueAttributes<
@@ -371,9 +371,7 @@ export namespace JSX {
     SignalDataAttributes &
     ClassAttributes &
     SignalClassAttributes &
-    CSSVarAttributes<CSSVars> &
     SignalCSSVarAttributes<CSSVars> &
-    GlobalCSSVarAttributes &
     OnAttributes<EventTarget, Events> & {
       class?: string;
       children?: JSX.Element;

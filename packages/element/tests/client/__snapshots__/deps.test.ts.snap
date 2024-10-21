@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should wait for parents to connect 1`] = `
+<body>
+  
+    
+  
+  
+
+
+  <mk-parent-a>
+    <mk-parent-b>
+      <mk-child>
+        <mk-grandchild />
+      </mk-child>
+    </mk-parent-b>
+  </mk-parent-a>
+</body>
+`;

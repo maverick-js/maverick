@@ -15,7 +15,6 @@ import {
   SETUP_SYMBOL,
 } from 'maverick.js';
 
-import { defineCustomElement } from './define';
 import type { MaverickElementConstructor } from './element';
 import { ATTRS_SYMBOL, SETUP_CALLBACKS_SYMBOL, SETUP_STATE_SYMBOL } from './symbols';
 
@@ -32,21 +31,28 @@ export function $$_create_custom_element(Component: MaverickComponentConstructor
   const name = Component.element?.name;
 
   if (!name) {
-    throw Error('[maverick]: missing tag name');
+    throw Error('[maverick]: missing el name');
   }
 
   if (!registry.has(name)) {
-    defineCustomElement(name, createCustomElement(Component));
+    defineMaverickElement(Component);
     registry.add(name);
   }
 
   return document.createElement(name);
 }
 
-export function createCustomElement<T extends MaverickComponent>(
+export function defineMaverickElement(Component: MaverickComponentConstructor) {
+  if (__SERVER__) return;
+  window.customElements.define(Component.element!.name, createMaverickElement(Component));
+}
+
+export function createMaverickElement<T extends MaverickComponent>(
   Component: MaverickComponentConstructor<T>,
 ): MaverickElementConstructor<T> {
   class MaverickElement extends HTMLElement implements MaverickCustomElement<T> {
+    static readonly tagName = Component.element!.name;
+
     private static [ATTRS_SYMBOL]: Map<
       string,
       { prop: string; converter: AttributeConverter<any> }
@@ -168,8 +174,6 @@ export function createCustomElement<T extends MaverickComponent>(
       // @ts-expect-error
       const callback = super.connectedCallback;
       if (callback) scoped(() => callback.call(this), this.connectScope);
-
-      return;
     }
 
     disconnectedCallback() {

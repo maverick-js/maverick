@@ -7,6 +7,7 @@ import type {
 } from 'maverick.js';
 
 export interface MaverickElementConstructor<T extends MaverickComponent = AnyMaverickComponent> {
+  readonly tagName: string;
   readonly observedAttributes: string[];
   new (): MaverickElement<T>;
 }

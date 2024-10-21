@@ -22,6 +22,7 @@ import { State as StateFactory } from './state';
 import { ON_DISPATCH_SYMBOL } from './symbols';
 import type { SignalOrValueRecord, WriteSignalRecord } from './types';
 
+/** @internal */
 export let $$_current_instance: AnyMaverickInstance | null = null;
 
 export interface MaverickInstanceInit<Props = {}> {
@@ -115,15 +116,15 @@ export class MaverickInstance<Props = {}, State = {}> {
       (host as any).$$COMPONENT_NAME = this.component?.constructor.name;
     }
 
-    const callbacks = this[ATTACH_SYMBOL];
-    if (callbacks.length > 0) {
-      scoped(() => {
-        this.attachScope = createScope();
+    scoped(() => {
+      this.attachScope = createScope();
+      const callbacks = this[ATTACH_SYMBOL];
+      if (callbacks.length > 0) {
         scoped(() => {
           for (const callback of callbacks) callback(this.host!);
         }, this.attachScope);
-      }, this.scope);
-    }
+      }
+    }, this.scope);
 
     this.component?.dispatchEvent(new Event('attach'));
 
@@ -146,17 +147,18 @@ export class MaverickInstance<Props = {}, State = {}> {
   }
 
   connect() {
-    const callbacks = this[CONNECT_SYMBOL];
-
-    if (!this.host || !this.attachScope || !callbacks.length) return;
+    if (!this.host || !this.attachScope) return;
 
     $$_current_instance = this;
 
     scoped(() => {
       this.connectScope = createScope();
-      scoped(() => {
-        for (const callback of callbacks) callback(this.host!);
-      }, this.connectScope);
+      const callbacks = this[CONNECT_SYMBOL];
+      if (callbacks.length > 0) {
+        scoped(() => {
+          for (const callback of callbacks) callback(this.host!);
+        }, this.connectScope);
+      }
     }, this.attachScope);
 
     this.component?.dispatch(new MaverickEvent<void>('connect'));

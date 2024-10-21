@@ -1,16 +1,15 @@
-import { MaverickServerElement } from '@maverick-js/element/server';
-import { createComponent, MaverickComponent } from 'maverick.js';
+import { MaverickServerElement, type ServerElement } from '@maverick-js/element/server';
+import { createComponent, MaverickComponent, onAttach, onSetup } from 'maverick.js';
 
 it('should call `onSetup` lifecycle hook', () => {
   const setup = vi.fn(),
     attach = vi.fn();
 
   class TestComponent extends MaverickComponent {
-    override onSetup() {
-      setup();
-    }
-    override onAttach() {
-      attach();
+    constructor() {
+      super();
+      onSetup(setup);
+      onAttach(attach);
     }
   }
 
@@ -25,7 +24,12 @@ it('should call `onSetup` lifecycle hook', () => {
 
 it('should render attributes', () => {
   class TestComponent extends MaverickComponent {
-    override onAttach(el) {
+    constructor() {
+      super();
+      onAttach(this.#onAttach.bind(this));
+    }
+
+    #onAttach(el: ServerElement) {
       el.setAttribute('foo', '1');
       el.setAttribute('bar', '2');
       el.setAttribute('baz', '3');
@@ -47,7 +51,12 @@ it('should render attributes', () => {
 
 it('should render class list', () => {
   class TestComponent extends MaverickComponent {
-    override onAttach(el) {
+    constructor() {
+      super();
+      onAttach(this.#onAttach.bind(this));
+    }
+
+    #onAttach(el: ServerElement) {
       el.classList.add('foo');
       el.classList.add('baz', 'bam', 'doh');
       el.classList.toggle('boo');
@@ -72,7 +81,12 @@ it('should render class list', () => {
 
 it('should render styles', () => {
   class TestComponent extends MaverickComponent {
-    override onAttach(el) {
+    constructor() {
+      super();
+      onAttach(this.#onAttach.bind(this));
+    }
+
+    #onAttach(el: ServerElement) {
       el.style.setProperty('foo', '1');
       el.style.setProperty('bar', '2');
       el.style.setProperty('baz', '3');
@@ -95,7 +109,12 @@ it('should render styles', () => {
 
 it('should noop events api', () => {
   class TestComponent extends MaverickComponent {
-    override onAttach(el) {
+    constructor() {
+      super();
+      onAttach(this.#onAttach.bind(this));
+    }
+
+    #onAttach(el: ServerElement) {
       el.addEventListener('click', () => {});
       el.removeEventListener('click', () => {});
     }

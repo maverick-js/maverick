@@ -16,9 +16,21 @@ export default defineConfig({
     },
   },
   // https://vitest.dev/config
-  test: {
-    include: [`tests/${SERVER ? 'server' : 'client'}/**/*.test.{ts,tsx}`],
-    globals: true,
-    environment: SERVER ? 'edge-runtime' : 'happy-dom',
-  },
+  test: SERVER
+    ? {
+        include: [`tests/server/**/*.test.{ts,tsx}`],
+        globals: true,
+        environment: 'edge-runtime',
+      }
+    : {
+        include: [`tests/client/**/*.test.{ts,tsx}`],
+        globals: true,
+        browser: {
+          enabled: true,
+          headless: true,
+          provider: 'playwright',
+          name: 'chromium',
+          screenshotFailures: false,
+        },
+      },
 });

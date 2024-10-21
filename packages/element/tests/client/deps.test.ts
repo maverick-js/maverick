@@ -1,12 +1,25 @@
+import {
+  defineMaverickElement,
+  type MaverickElement,
+  SETUP_STATE_SYMBOL,
+} from '@maverick-js/element';
 import { getContext, setContext } from '@maverick-js/signals';
-import { waitAnimationFrame } from '@maverick-js/std';
-import { createContext, MaverickComponent, onError, provideContext, useContext } from 'maverick.js';
+import { waitAnimationFrame, waitTimeout } from '@maverick-js/std';
+import {
+  createContext,
+  type CustomElementOptions,
+  MaverickComponent,
+  onConnect,
+  onError,
+  onSetup,
+  provideContext,
+  useContext,
+} from 'maverick.js';
 
-import { createCustomElement, defineCustomElement, type MaverickElement } from '../../src';
-import { SETUP_STATE_SYMBOL } from '../../src/symbols';
+const target = document.body;
 
 afterEach(() => {
-  document.body.innerHTML = '';
+  target.innerHTML = '';
 });
 
 it('should wait for parents to connect', async () => {
@@ -16,6 +29,10 @@ it('should wait for parents to connect', async () => {
     errorHandler = vi.fn();
 
   class ParentA extends MaverickComponent {
+    static element: CustomElementOptions = {
+      name: 'mk-parent-a',
+    };
+
     constructor() {
       super();
       setContext('foo', 10);
@@ -24,32 +41,34 @@ it('should wait for parents to connect', async () => {
     }
   }
 
-  class ParentAElement extends createCustomElement(HTMLElement, ParentA) {
-    static tagName = 'mk-parent-a';
-  }
-
   class ParentB extends MaverickComponent {
+    static element: CustomElementOptions = {
+      name: 'mk-parent-b',
+    };
+
     constructor() {
       super();
+      onSetup(this.#onSetup.bind(this));
     }
 
-    override onSetup(): void {
+    #onSetup() {
       const value = useContext(Context);
       expect(value).toEqual([1]);
       provideContext(Context, [...value, 2]);
     }
   }
 
-  class ParentBElement extends createCustomElement(HTMLElement, ParentB) {
-    static tagName = 'mk-parent-b';
-  }
-
   class Child extends MaverickComponent {
+    static element: CustomElementOptions = {
+      name: 'mk-child',
+    };
+
     constructor() {
       super();
+      onSetup(this.#onSetup.bind(this));
     }
 
-    override onSetup(): void {
+    #onSetup() {
       expect(getContext('foo')).toBe(10);
       const value = useContext(Context);
       expect(value).toEqual([1, 2]);
@@ -57,71 +76,62 @@ it('should wait for parents to connect', async () => {
     }
   }
 
-  class ChildElement extends createCustomElement(HTMLElement, Child) {
-    static tagName = 'mk-child';
-  }
-
   class GrandChild extends MaverickComponent {
+    static element: CustomElementOptions = {
+      name: 'mk-grandchild',
+    };
+
     constructor() {
       super();
+      onSetup(this.#onSetup.bind(this));
+      onConnect(this.#onConnect.bind(this));
     }
 
-    override onSetup(): void {
+    #onSetup() {
       const value = useContext(Context);
       expect(value).toEqual([1, 2, 3]);
     }
 
-    override onConnect() {
+    #onConnect() {
       throw error;
     }
   }
 
-  class GrandChildElement extends createCustomElement(HTMLElement, GrandChild) {
-    static tagName = 'mk-grandchild';
-  }
+  const parentA = document.createElement(ParentA.element.name);
 
-  const parentA = document.createElement(ParentAElement.tagName) as MaverickElement;
-
-  const parentB = document.createElement(ParentBElement.tagName) as MaverickElement;
+  const parentB = document.createElement(ParentB.element.name);
   parentA.append(parentB);
 
-  const child = document.createElement(ChildElement.tagName) as MaverickElement;
+  const child = document.createElement(Child.element.name);
   parentB.append(child);
 
-  const grandchild = document.createElement(GrandChildElement.tagName) as MaverickElement;
+  const grandchild = document.createElement(GrandChild.element.name);
   child.append(grandchild);
 
-  document.body.append(parentA);
+  target.append(parentA);
 
-  expect(document.body).toMatchInlineSnapshot(`
-    <body>
-      <mk-parent-a>
-        <mk-parent-b>
-          <mk-child>
-            <mk-grandchild />
-          </mk-child>
-        </mk-parent-b>
-      </mk-parent-a>
-    </body>
-  `);
+  expect(target).toMatchSnapshot();
 
-  defineCustomElement(GrandChildElement);
-  expect(grandchild[SETUP_STATE_SYMBOL] === 2).toBeFalsy();
+  defineMaverickElement(GrandChild);
+  expect(grandchild[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
 
-  defineCustomElement(ChildElement);
-  expect(child[SETUP_STATE_SYMBOL] === 2).toBeFalsy();
+  defineMaverickElement(Child);
+  expect(child[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
 
-  await waitAnimationFrame();
+  window.customElements.whenDefined(GrandChild.element.name);
+  window.customElements.whenDefined(Child.element.name);
 
-  defineCustomElement(ParentBElement);
-  await waitAnimationFrame();
+  expect(child[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
+  expect(grandchild[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
 
-  // not ready
-  expect(parentB[SETUP_STATE_SYMBOL] === 2).toBeFalsy();
-  expect(child[SETUP_STATE_SYMBOL] === 2).toBeFalsy();
-  expect(grandchild[SETUP_STATE_SYMBOL] === 2).toBeFalsy();
+  defineMaverickElement(ParentB);
+  window.customElements.whenDefined(ParentB.element.name);
 
-  defineCustomElement(ParentAElement);
+  expect(parentB[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
+
+  defineMaverickElement(ParentA);
+  window.customElements.whenDefined(ParentA.element.name);
+
   expect(parentA[SETUP_STATE_SYMBOL] === 2).toBeTruthy();
 
   await waitAnimationFrame();
@@ -131,12 +141,14 @@ it('should wait for parents to connect', async () => {
   expect(grandchild[SETUP_STATE_SYMBOL] === 2).toBeTruthy();
 
   parentA.remove();
+
+  await waitTimeout(0);
   await waitAnimationFrame();
 
-  expect(parentA.$).toBeUndefined();
-  expect(parentB.$).toBeUndefined();
-  expect(child.$).toBeUndefined();
-  expect(grandchild.$).toBeUndefined();
+  expect((parentA as MaverickElement).$).toBeUndefined();
+  expect((parentB as MaverickElement).$).toBeUndefined();
+  expect((child as MaverickElement).$).toBeUndefined();
+  expect((grandchild as MaverickElement).$).toBeUndefined();
 
   expect(errorHandler).toBeCalledTimes(1);
   expect(errorHandler).toHaveBeenCalledWith(error);

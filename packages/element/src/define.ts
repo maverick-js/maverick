@@ -1,6 +1,3 @@
-import type { MaverickCustomElementConstructor } from 'maverick.js';
+import type { MaverickComponentConstructor } from 'maverick.js';
 
-export function defineCustomElement(tagName: string, element: MaverickCustomElementConstructor) {
-  if (__SERVER__) return;
-  window.customElements.define(tagName, element);
-}
+import { createMaverickElement } from './create';

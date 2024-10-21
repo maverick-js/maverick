@@ -1,14 +1,24 @@
-import {
-  createCustomElement,
-  defineCustomElement,
-  type MaverickElement,
-} from '@maverick-js/element';
+import { defineMaverickElement, type MaverickElement } from '@maverick-js/element';
 import { waitAnimationFrame } from '@maverick-js/std';
-import { MaverickComponent } from 'maverick.js';
+import { type CustomElementOptions, MaverickComponent, onDestroy } from 'maverick.js';
+
+const target = document.body;
 
 afterEach(() => {
-  document.body.innerHTML = '';
+  target.innerHTML = '';
 });
+
+function create(name: string, dispose: () => void) {
+  return class extends MaverickComponent {
+    static element: CustomElementOptions = {
+      name,
+    };
+    constructor() {
+      super();
+      onDestroy(dispose);
+    }
+  };
+}
 
 it('should keep elements alive', async () => {
   const parentDispose = vi.fn(),
@@ -17,47 +27,34 @@ it('should keep elements alive', async () => {
     grandchildADispose = vi.fn(),
     grandchildBDispose = vi.fn();
 
-  function createElement(name: string, dispose: () => void) {
-    return class extends createElement(
-      HTMLElement,
-      class extends MaverickComponent {
-        protected override onDestroy() {
-          dispose();
-        }
-      },
-    ) {
-      static tagName = name;
-    };
-  }
+  const Parent = create('mk-parent', parentDispose),
+    ChildA = create('mk-child-a', childADispose),
+    ChildB = create('mk-child-b', childBDispose),
+    GrandchildA = create('mk-grandchild-a', grandchildADispose),
+    GrandchildB = create('mk-grandchild-b', grandchildBDispose);
 
-  const ParentElement = createElement('mk-parent', parentDispose),
-    ChildAElement = createElement('mk-child-a', childADispose),
-    ChildBElement = createElement('mk-child-b', childBDispose),
-    GrandchildAElement = createElement('mk-grandchild-a', grandchildADispose),
-    GrandchildBElement = createElement('mk-grandchild-b', grandchildBDispose);
-
-  const parent = document.createElement(ParentElement.tagName) as MaverickElement;
+  const parent = document.createElement(Parent.element.name) as MaverickElement;
   parent.setAttribute('keep-alive', '');
 
-  const childA = document.createElement(ChildAElement.tagName) as MaverickElement;
+  const childA = document.createElement(ChildA.element.name) as MaverickElement;
   parent.append(childA);
 
-  const grandchildA = document.createElement(GrandchildAElement.tagName) as MaverickElement;
+  const grandchildA = document.createElement(GrandchildA.element.name) as MaverickElement;
   childA.append(grandchildA);
 
-  const childB = document.createElement(ChildBElement.tagName) as MaverickElement;
+  const childB = document.createElement(ChildB.element.name) as MaverickElement;
   parent.append(childB);
 
-  const grandchildB = document.createElement(GrandchildBElement.tagName) as MaverickElement;
+  const grandchildB = document.createElement(GrandchildB.element.name) as MaverickElement;
   childB.append(grandchildB);
 
-  document.body.append(parent);
+  target.append(parent);
 
-  defineCustomElement(ParentElement);
-  defineCustomElement(ChildAElement);
-  defineCustomElement(ChildBElement);
-  defineCustomElement(GrandchildAElement);
-  defineCustomElement(GrandchildBElement);
+  defineMaverickElement(Parent);
+  defineMaverickElement(ChildA);
+  defineMaverickElement(ChildB);
+  defineMaverickElement(GrandchildA);
+  defineMaverickElement(GrandchildB);
 
   await waitAnimationFrame();
 

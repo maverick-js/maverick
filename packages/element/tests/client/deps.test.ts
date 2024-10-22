@@ -1,18 +1,14 @@
 import {
+  Component,
   createContext,
   type CustomElementOptions,
-  MaverickComponent,
   onConnect,
   onError,
   onSetup,
   provideContext,
   useContext,
 } from '@maverick-js/core';
-import {
-  defineMaverickElement,
-  type MaverickElement,
-  SETUP_STATE_SYMBOL,
-} from '@maverick-js/element';
+import { defineElement, type MaverickElement, SETUP_STATE_SYMBOL } from '@maverick-js/element';
 import { getContext, setContext } from '@maverick-js/signals';
 import { waitAnimationFrame, waitTimeout } from '@maverick-js/std';
 
@@ -28,7 +24,7 @@ it('should wait for parents to connect', async () => {
   const error = new Error(),
     errorHandler = vi.fn();
 
-  class ParentA extends MaverickComponent {
+  class ParentA extends Component {
     static element: CustomElementOptions = {
       name: 'mk-parent-a',
     };
@@ -41,7 +37,7 @@ it('should wait for parents to connect', async () => {
     }
   }
 
-  class ParentB extends MaverickComponent {
+  class ParentB extends Component {
     static element: CustomElementOptions = {
       name: 'mk-parent-b',
     };
@@ -58,7 +54,7 @@ it('should wait for parents to connect', async () => {
     }
   }
 
-  class Child extends MaverickComponent {
+  class Child extends Component {
     static element: CustomElementOptions = {
       name: 'mk-child',
     };
@@ -76,7 +72,7 @@ it('should wait for parents to connect', async () => {
     }
   }
 
-  class GrandChild extends MaverickComponent {
+  class GrandChild extends Component {
     static element: CustomElementOptions = {
       name: 'mk-grandchild',
     };
@@ -112,10 +108,10 @@ it('should wait for parents to connect', async () => {
 
   expect(target).toMatchSnapshot();
 
-  defineMaverickElement(GrandChild);
+  defineElement(GrandChild);
   expect(grandchild[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
 
-  defineMaverickElement(Child);
+  defineElement(Child);
   expect(child[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
 
   window.customElements.whenDefined(GrandChild.element.name);
@@ -124,12 +120,12 @@ it('should wait for parents to connect', async () => {
   expect(child[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
   expect(grandchild[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
 
-  defineMaverickElement(ParentB);
+  defineElement(ParentB);
   window.customElements.whenDefined(ParentB.element.name);
 
   expect(parentB[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
 
-  defineMaverickElement(ParentA);
+  defineElement(ParentA);
   window.customElements.whenDefined(ParentA.element.name);
 
   expect(parentA[SETUP_STATE_SYMBOL] === 2).toBeTruthy();

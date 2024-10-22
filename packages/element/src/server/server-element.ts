@@ -1,10 +1,8 @@
-import { type AnyMaverickComponent, scoped, SETUP_SYMBOL } from '@maverick-js/core';
+import { type AnyComponent, scoped, SETUP_SYMBOL } from '@maverick-js/core';
 import { ServerAttributes, ServerStyleDeclaration, ServerTokenList } from '@maverick-js/ssr';
 import { noop } from '@maverick-js/std';
 
-export class MaverickServerElement<T extends AnyMaverickComponent = AnyMaverickComponent>
-  implements ServerElement
-{
+export class ServerElement<T extends AnyComponent = AnyComponent> implements HTMLServerElement {
   keepAlive = false;
   forwardKeepAlive = true;
 
@@ -90,7 +88,7 @@ export class MaverickServerElement<T extends AnyMaverickComponent = AnyMaverickC
   }
 }
 
-export interface ServerElement
+export interface HTMLServerElement
   extends Pick<
     HTMLElement,
     | 'getAttribute'

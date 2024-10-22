@@ -1,5 +1,5 @@
-import { type CustomElementOptions, MaverickComponent, onDestroy } from '@maverick-js/core';
-import { defineMaverickElement, type MaverickElement } from '@maverick-js/element';
+import { Component, type CustomElementOptions, onDestroy } from '@maverick-js/core';
+import { defineElement, type MaverickElement } from '@maverick-js/element';
 import { waitAnimationFrame } from '@maverick-js/std';
 
 const target = document.body;
@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 function create(name: string, dispose: () => void) {
-  return class extends MaverickComponent {
+  return class extends Component {
     static element: CustomElementOptions = {
       name,
     };
@@ -50,11 +50,11 @@ it('should keep elements alive', async () => {
 
   target.append(parent);
 
-  defineMaverickElement(Parent);
-  defineMaverickElement(ChildA);
-  defineMaverickElement(ChildB);
-  defineMaverickElement(GrandchildA);
-  defineMaverickElement(GrandchildB);
+  defineElement(Parent);
+  defineElement(ChildA);
+  defineElement(ChildB);
+  defineElement(GrandchildA);
+  defineElement(GrandchildB);
 
   await waitAnimationFrame();
 

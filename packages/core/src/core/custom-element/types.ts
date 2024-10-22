@@ -1,17 +1,16 @@
 import type { Dispose, Maybe, Scope } from '@maverick-js/signals';
 
 import type {
-  AnyMaverickComponent,
+  AnyComponent,
+  Component,
   InferComponentProps,
   InferComponentState,
-  MaverickComponent,
 } from '../component';
 import type { Store } from '../state';
 import type { ReadSignalRecord } from '../types';
 import type { Attributes } from './attrs';
 
-export interface MaverickCustomElement<T extends MaverickComponent = AnyMaverickComponent>
-  extends HTMLElement {
+export interface MaverickCustomElement<T extends Component = AnyComponent> extends HTMLElement {
   /**
    * Whether this component should be kept-alive on DOM disconnection. If `true`, all child
    * host elements will also be kept alive and the instance will need to be manually destroyed. Do
@@ -80,9 +79,7 @@ export interface MaverickCustomElement<T extends MaverickComponent = AnyMaverick
   destroy(): void;
 }
 
-export interface MaverickCustomElementConstructor<
-  T extends MaverickComponent = AnyMaverickComponent,
-> {
+export interface MaverickCustomElementConstructor<T extends Component = AnyComponent> {
   new (): MaverickCustomElement<T>;
 }
 

@@ -5,16 +5,16 @@ import type { JSX } from '../jsx/jsx';
 
 export type NoChildren<T> = Omit<T, 'children'>;
 
-export interface MaverickFunction<
+export interface FunctionComponent<
   Host extends Element = never,
   Props = {},
   Events = {},
   CSSVars = {},
 > {
-  (props: MaverickFunctionProps<Host, Props, Events, CSSVars>): JSX.Element;
+  (props: FunctionComponentProps<Host, Props, Events, CSSVars>): JSX.Element;
 }
 
-export type MaverickFunctionProps<
+export type FunctionComponentProps<
   Host extends Element = never,
   Props = {},
   Events = {},

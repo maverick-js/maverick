@@ -1,7 +1,7 @@
 import {
   createEventTarget,
+  type FunctionComponentProps,
   Host,
-  type MaverickFunctionProps,
   signal,
   tick,
 } from '@maverick-js/core';
@@ -39,7 +39,7 @@ test('attach to host', () => {
     onClick = vi.fn(),
     ref = vi.fn();
 
-  function Foo(props: MaverickFunctionProps<HTMLElement, {}, { click: MouseEvent }>) {
+  function Foo(props: FunctionComponentProps<HTMLElement, {}, { click: MouseEvent }>) {
     createEventTarget();
     return (
       <Host class="foo" on:click as="div">

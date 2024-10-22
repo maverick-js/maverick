@@ -3,17 +3,17 @@ import {
   $$_current_slots,
   $$_set_current_event_target,
   $$_set_current_slots,
-  type AnyMaverickComponent,
+  type AnyComponent,
+  type ComponentConstructor,
   computed,
   createComponent,
   CUSTOM_ELEMENT_SYMBOL,
   effect,
-  isMaverickComponentConstructor,
+  type FunctionComponent,
+  isComponentConstructor,
   type JSX,
   listenEvent,
-  type MaverickComponentConstructor,
   type MaverickCustomElement,
-  type MaverickFunction,
   peek,
   type ReadSignal,
   scoped,
@@ -78,7 +78,7 @@ export const $$_host_symbol = /* #__PURE__ */ Symbol.for('maverick.host');
 
 /** @internal */
 export function $$_create_component(
-  Component: MaverickFunction | MaverickComponentConstructor,
+  Component: FunctionComponent | ComponentConstructor,
   props: Record<string, any> | null = null,
   listen: ((target: EventTarget) => void) | null = null,
   slots: SlotRecord | null = null,
@@ -91,7 +91,7 @@ export function $$_create_component(
 
       $$_set_current_slots(slots ?? {});
 
-      if (isMaverickComponentConstructor(Component)) {
+      if (isComponentConstructor(Component)) {
         const customElement = createCustomElement(Component),
           component = customElement?.$ ?? createComponent(Component, { props });
 
@@ -154,12 +154,12 @@ export function $$_create_component(
   });
 }
 
-function connectToHost(this: AnyMaverickComponent) {
+function connectToHost(this: AnyComponent) {
   if (this.$$.destroyed) return;
   this.$$.connect();
 }
 
-function createCustomElement(Component: MaverickComponentConstructor) {
+function createCustomElement(Component: ComponentConstructor) {
   if (!isCustomElement(Component)) return null;
 
   const el = hydration

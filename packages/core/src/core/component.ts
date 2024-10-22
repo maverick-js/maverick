@@ -1,24 +1,25 @@
-import { isFunction, type WritableKeys } from '@maverick-js/std';
+import { isFunction } from '@maverick-js/std';
+import type { WritableKeysOf } from 'type-fest';
 
 import type { JSX } from '../jsx/jsx';
-import { MaverickViewController } from './controller';
+import { ViewController } from './controller';
 import type { CustomElementOptions, MaverickCustomElement } from './custom-element/types';
-import { MaverickInstance } from './instance';
+import { Instance } from './instance';
 import type { ComponentLifecycleEvents } from './lifecycle';
 import { type Dispose, effect, type Maybe, scoped } from './signals';
 import type { State } from './state';
 import type { CUSTOM_ELEMENT_SYMBOL } from './symbols';
 import type { SignalOrValueRecord } from './types';
 
-const MAVERICK_COMPONENT_CTOR_SYMBOL = /* #__PURE__ */ Symbol.for('maverick.component.ctor');
+const COMPONENT_CTOR_SYMBOL = /* #__PURE__ */ Symbol.for('maverick.component.ctor');
 
-export class MaverickComponent<
-  Props = {},
-  State = {},
-  Events = {},
-  CSSVars = {},
-> extends MaverickViewController<Props, State, Events & ComponentLifecycleEvents, CSSVars> {
-  static [MAVERICK_COMPONENT_CTOR_SYMBOL] = true;
+export class Component<Props = {}, State = {}, Events = {}, CSSVars = {}> extends ViewController<
+  Props,
+  State,
+  Events & ComponentLifecycleEvents,
+  CSSVars
+> {
+  static [COMPONENT_CTOR_SYMBOL] = true;
 
   /** @internal - DO NOT USE (for jsx types only) */
   jsxProps!: JSX.ComponentAttributes<Partial<SignalOrValueRecord<Props>>, Events, CSSVars>;
@@ -41,15 +42,13 @@ export class MaverickComponent<
   }
 }
 
-export function isMaverickComponentConstructor(
-  value: unknown,
-): value is MaverickComponentConstructor {
-  return isFunction(value) && MAVERICK_COMPONENT_CTOR_SYMBOL in value;
+export function isComponentConstructor(value: unknown): value is ComponentConstructor {
+  return isFunction(value) && COMPONENT_CTOR_SYMBOL in value;
 }
 
-export interface AnyMaverickComponent extends MaverickComponent<any, any, any, any> {}
+export interface AnyComponent extends Component<any, any, any, any> {}
 
-export interface MaverickComponentConstructor<T extends MaverickComponent = AnyMaverickComponent> {
+export interface ComponentConstructor<T extends Component = AnyComponent> {
   readonly element?: CustomElementOptions<InferComponentCSSProps<T>>;
   readonly props?: InferComponentProps<T>;
   readonly state?: State<InferComponentState<T>>;
@@ -57,25 +56,23 @@ export interface MaverickComponentConstructor<T extends MaverickComponent = AnyM
   new (): T;
 }
 
-export type InferComponentProps<T> = T extends MaverickComponent<infer Props> ? Props : {};
+export type InferComponentProps<T> = T extends Component<infer Props> ? Props : {};
 
-export type InferComponentState<T> = T extends MaverickComponent<any, infer State> ? State : {};
+export type InferComponentState<T> = T extends Component<any, infer State> ? State : {};
 
 export type InferComponentEvents<T> =
-  T extends MaverickComponent<any, any, infer Events> ? Events & ComponentLifecycleEvents : {};
+  T extends Component<any, any, infer Events> ? Events & ComponentLifecycleEvents : {};
 
 export type InferComponentCSSProps<T> =
-  T extends MaverickComponent<any, any, any, infer CSSVars> ? CSSVars : {};
+  T extends Component<any, any, any, infer CSSVars> ? CSSVars : {};
 
 export type InferComponentMembers<T> =
-  T extends MaverickComponent<infer Props>
-    ? Omit<Props, keyof T> & Omit<T, keyof MaverickComponent>
-    : {};
+  T extends Component<infer Props> ? Omit<Props, keyof T> & Omit<T, keyof Component> : {};
 
 export type InferComponentCSSVars<
-  Component extends AnyMaverickComponent,
+  Component extends AnyComponent,
   CSSProps = InferComponentCSSProps<Component>,
-> = { [Var in WritableKeys<CSSProps> as `--${Var & string}`]: CSSProps[Var] };
+> = { [Var in WritableKeysOf<CSSProps> as `--${Var & string}`]: CSSProps[Var] };
 
 export type InferComponentInstance<T> =
-  T extends MaverickComponent<infer Props, infer State> ? MaverickInstance<Props, State> : {};
+  T extends Component<infer Props, infer State> ? Instance<Props, State> : {};

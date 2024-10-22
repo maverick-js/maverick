@@ -1,29 +1,29 @@
 import {
+  Component,
   createComponent,
   createScope,
-  MaverickComponent,
-  MaverickInstance,
+  Instance,
   State,
   useState,
 } from '@maverick-js/core';
 
 it('should create props', () => {
-  class TestComponent extends MaverickComponent<{ foo: number; bar: number }> {
+  class TestComponent extends Component<{ foo: number; bar: number }> {
     static props = { foo: 10, bar: 20 };
   }
 
-  const instance = new MaverickInstance(createScope(), TestComponent.props);
+  const instance = new Instance(createScope(), TestComponent.props);
 
   expect(instance.props.foo()).toBe(10);
   expect(instance.props.bar()).toBe(20);
 });
 
 it('should forward props', () => {
-  class TestComponent extends MaverickComponent<{ foo: number; bar: number }> {
+  class TestComponent extends Component<{ foo: number; bar: number }> {
     static props = { foo: 10, bar: 20 };
   }
 
-  const instance = new MaverickInstance(createScope(), TestComponent.props, undefined, {
+  const instance = new Instance(createScope(), TestComponent.props, undefined, {
     props: { foo: 20, bar: 40 },
   });
 
@@ -34,7 +34,7 @@ it('should forward props', () => {
 it('should create state', () => {
   const TestState = new State({ foo: 1 });
 
-  class TestComponent extends MaverickComponent<{}, { foo: number }> {
+  class TestComponent extends Component<{}, { foo: number }> {
     static state = TestState;
 
     constructor() {

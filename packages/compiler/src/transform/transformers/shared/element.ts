@@ -16,7 +16,7 @@ export function setupCustomElements(
   registerImports: ts.Statement[] = [],
 ): ts.SourceFile {
   const maverickImport = findImportDeclarationFromModule(sourceFile, '@maverick-js/core'),
-    maverickComponent = findImportSpecifierFromDeclaration(maverickImport, 'MaverickComponent');
+    maverickComponent = findImportSpecifierFromDeclaration(maverickImport, 'Component');
 
   if (maverickComponent) {
     let statements: ts.Statement[] = [],

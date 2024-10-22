@@ -2,11 +2,11 @@
 import type { CSSStyleProperty } from '@maverick-js/std';
 import type { ConditionalPick } from 'type-fest';
 
-import type { AnyMaverickComponent, NullableRecord, ReadSignal } from '../core';
+import type { AnyComponent, NullableRecord, ReadSignal } from '../core';
 
 type DOMNode = Node;
 type DOMElement = Element;
-type MaverickEvent = Event;
+type DOMEvent = Event;
 
 declare global {
   /**
@@ -82,7 +82,7 @@ export namespace JSX {
   }
 
   export type Node =
-    | AnyMaverickComponent
+    | AnyComponent
     | DOMNode
     | DOMElement
     | DocumentFragment
@@ -110,7 +110,7 @@ export namespace JSX {
     children?: Element;
   }
 
-  export interface ElementClass extends AnyMaverickComponent {
+  export interface ElementClass extends AnyComponent {
     render(): Node;
   }
 
@@ -210,7 +210,7 @@ export namespace JSX {
     readonly currentTarget: Target;
   };
 
-  export type EventHandler<Event = MaverickEvent> = {
+  export type EventHandler<Event = DOMEvent> = {
     (this: never, event: Event): void;
   };
 
@@ -233,10 +233,10 @@ export namespace JSX {
    *
    * @example
    * ```ts
-   * // { 'on:foo': (event: CustomEvent<string>) => void; 'on_capture:foo', ... }
+   * // { 'on:foo': (event: MaverickEvent<string>) => void; 'on_capture:foo', ... }
    * type Events = OnAttributes<{
-   *   'foo': CustomEvent<string>;
-   *   'baz-he': CustomEvent<number>;
+   *   'foo': MaverickEvent<string>;
+   *   'baz-he': MaverickEvent<number>;
    * }>
    * ```
    */

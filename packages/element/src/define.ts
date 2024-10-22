@@ -1,3 +1,3 @@
-import type { MaverickComponentConstructor } from '@maverick-js/core';
+import type { ComponentConstructor } from '@maverick-js/core';
 
-import { createMaverickElement } from './create';
+import { createElementClass } from './create';

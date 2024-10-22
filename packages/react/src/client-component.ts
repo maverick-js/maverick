@@ -1,13 +1,13 @@
-import * as React from 'react';
-
 import {
   Component,
   type ComponentConstructor,
   createComponent,
+  ON_DISPATCH_SYMBOL,
   type Scope,
   tick,
-} from '../../maverick/src/core';
-import { ON_DISPATCH_SYMBOL } from '../../maverick/src/core/symbols';
+} from '@maverick-js/core';
+import * as React from 'react';
+
 import { camelToKebabCase, kebabToPascalCase } from '../../std/src/string';
 import { isFunction, isUndefined } from '../../std/src/unit';
 import { ReactScopeContext, WithScope } from './scope';

@@ -1,13 +1,13 @@
 import {
   $$_current_slots,
   $$_set_current_slots,
+  type ComponentConstructor,
   createComponent,
   CUSTOM_ELEMENT_SYMBOL,
   type CustomElementOptions,
-  isMaverickComponentConstructor,
+  type FunctionComponent,
+  isComponentConstructor,
   type JSX,
-  type MaverickComponentConstructor,
-  type MaverickFunction,
   scoped,
 } from '@maverick-js/core';
 import {
@@ -102,7 +102,7 @@ export const $$_slot_stack: Array<Record<string, any> | null> = [];
 
 /** @internal */
 export function $$_create_component(
-  Component: MaverickFunction | MaverickComponentConstructor,
+  Component: FunctionComponent | ComponentConstructor,
   props: Record<string, any> | null = null,
   slots: Record<string, any> | null = null,
   attrs: {
@@ -115,7 +115,7 @@ export function $$_create_component(
     $$_slot_stack.push($$_current_slots);
     $$_set_current_slots(slots ?? {});
 
-    if (isMaverickComponentConstructor(Component)) {
+    if (isComponentConstructor(Component)) {
       const component = createComponent(Component, { props });
 
       if (CUSTOM_ELEMENT_SYMBOL in Component && Component.element) {

@@ -1,4 +1,4 @@
-import { createEventTarget, type MaverickFunctionProps, signal, tick } from '@maverick-js/core';
+import { createEventTarget, type FunctionComponentProps, signal, tick } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
 
 const target = document.body;
@@ -16,7 +16,7 @@ test('one spread', () => {
     'on:click': onClick,
   };
 
-  function Foo(props: MaverickFunctionProps<HTMLElement>) {
+  function Foo(props: FunctionComponentProps<HTMLElement>) {
     createEventTarget();
     return <div class="boo" on:click />;
   }
@@ -51,7 +51,7 @@ test('multiple spreads', () => {
     'on:pointerup': onPointerUp,
   };
 
-  function Foo(props: MaverickFunctionProps<HTMLElement>) {
+  function Foo(props: FunctionComponentProps<HTMLElement>) {
     createEventTarget();
     return <div class="zux" style="z-index: 10;" on:click on:pointerup />;
   }

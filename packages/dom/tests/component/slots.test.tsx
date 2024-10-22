@@ -1,8 +1,8 @@
 import {
   createSlot,
   Fragment,
+  type FunctionComponentProps,
   getSlots,
-  type MaverickFunctionProps,
   type ReadSignal,
   signal,
   type Slot,
@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 test('text', () => {
-  function Foo(props: MaverickFunctionProps) {
+  function Foo(props: FunctionComponentProps) {
     const slots = getSlots();
     return slots.default?.();
   }
@@ -28,7 +28,7 @@ test('text', () => {
 });
 
 test('single static element in default slot', () => {
-  function Foo(props: MaverickFunctionProps) {
+  function Foo(props: FunctionComponentProps) {
     const slots = getSlots();
     return slots.default?.();
   }
@@ -46,7 +46,7 @@ test('single static element in default slot', () => {
 });
 
 test('single static element in named slot', () => {
-  function Foo(props: MaverickFunctionProps) {
+  function Foo(props: FunctionComponentProps) {
     const slots = getSlots<{ named: Slot }>();
     return slots.named?.();
   }
@@ -64,7 +64,7 @@ test('single static element in named slot', () => {
 });
 
 test('multiple static elements in named slot', () => {
-  function Foo(props: MaverickFunctionProps) {
+  function Foo(props: FunctionComponentProps) {
     const slots = getSlots<{ named: Slot }>();
     return slots.named?.();
   }
@@ -87,7 +87,7 @@ test('multiple static elements in named slot', () => {
 test('dynamic elements', () => {
   const onClick = vi.fn();
 
-  function Foo(props: MaverickFunctionProps) {
+  function Foo(props: FunctionComponentProps) {
     const slots = getSlots();
     return slots.default?.();
   }
@@ -122,7 +122,7 @@ test('namespaced slot', () => {
     named: Slot;
   }
 
-  function Foo(props: MaverickFunctionProps) {
+  function Foo(props: FunctionComponentProps) {
     const slots = getSlots<Slots>();
     return [slots.default(), slots.named()];
   }
@@ -155,7 +155,7 @@ test('render function', () => {
 
   const $c = signal(0);
 
-  function Foo(props: MaverickFunctionProps) {
+  function Foo(props: FunctionComponentProps) {
     const slots = getSlots<Slots>();
     return <div>{slots.default({ a: 10, b: 20, $c })}</div>;
   }

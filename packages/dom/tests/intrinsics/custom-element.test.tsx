@@ -1,4 +1,4 @@
-import { type CustomElementOptions, Host, MaverickComponent } from '@maverick-js/core';
+import { Component, type CustomElementOptions, Host } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
 
 const target = document.body;
@@ -7,7 +7,7 @@ afterEach(() => {
   target.textContent = '';
 });
 
-class Foo extends MaverickComponent {
+class Foo extends Component {
   static element: CustomElementOptions = {
     name: 'mk-foo',
   };
@@ -22,7 +22,7 @@ class Foo extends MaverickComponent {
   }
 }
 
-class Bar extends MaverickComponent {
+class Bar extends Component {
   static element: CustomElementOptions = {
     name: 'mk-bar',
   };

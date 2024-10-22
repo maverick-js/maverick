@@ -1,8 +1,7 @@
+import { Component } from '@maverick-js/core';
+import type { ReactElementProps } from '@maverick-js/react';
+import type { MaverickEvent } from '@maverick-js/std';
 import * as React from 'react';
-
-import { Component } from '../../../../maverick/src/core';
-import type { ReactElementProps } from '../../../../react/src';
-import type { MaverickEvent } from '../../../../std/src';
 
 /* -------------------------------------------------------------------------------------------------
  * Foo

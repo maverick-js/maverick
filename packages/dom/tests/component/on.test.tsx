@@ -1,11 +1,11 @@
 import {
+  Component,
   createEventTarget,
+  type FunctionComponentProps,
   type JSX,
-  MaverickComponent,
-  type MaverickFunctionProps,
 } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
-import type { MaverickEvent } from '@maverick-js/std';
+import type { Event } from '@maverick-js/std';
 
 const target = document.body;
 
@@ -19,10 +19,10 @@ test('function component', () => {
 
   interface Events {
     click: MouseEvent;
-    foo: MaverickEvent<void>;
+    foo: Event<void>;
   }
 
-  function Foo(props: MaverickFunctionProps<HTMLElement, {}, Events>) {
+  function Foo(props: FunctionComponentProps<HTMLElement, {}, Events>) {
     const events = createEventTarget<Events>();
     return (
       <div
@@ -56,7 +56,7 @@ test('class component', () => {
     click: MouseEvent;
   }
 
-  class Foo extends MaverickComponent<{}, {}, Events> {
+  class Foo extends Component<{}, {}, Events> {
     override render(): JSX.Element {
       return <div on:click></div>;
     }

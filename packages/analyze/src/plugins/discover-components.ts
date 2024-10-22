@@ -11,7 +11,7 @@ export function discoverComponents(checker: ts.TypeChecker, sourceFile: ts.Sourc
     if (!ts.isClassDeclaration(node) || !node.name || !node.heritageClauses) return;
 
     const heritage = getHeritage(checker, node),
-      baseComponent = heritage.classes.get('MaverickComponent');
+      baseComponent = heritage.classes.get('Component');
 
     if (!baseComponent) return;
 
@@ -35,14 +35,14 @@ export function discoverComponents(checker: ts.TypeChecker, sourceFile: ts.Sourc
 
     let props: ts.PropertyDeclaration | undefined;
     for (const [name, node] of heritage.classes) {
-      if (name === 'MaverickComponent') break;
+      if (name === 'Component') break;
       props = getStaticProp(node, 'props');
       if (props) break;
     }
 
     let state: ts.PropertyDeclaration | undefined;
     for (const [name, node] of heritage.classes) {
-      if (name === 'MaverickComponent') break;
+      if (name === 'Component') break;
       state = getStaticProp(node, 'state');
       if (state) break;
     }

@@ -1,18 +1,14 @@
 import {
+  Component,
   createContext,
   type CustomElementOptions,
-  MaverickComponent,
   onAttach,
   onConnect,
   onDispose,
   provideContext,
   useContext,
 } from '@maverick-js/core';
-import {
-  createMaverickElement,
-  defineMaverickElement,
-  type MaverickElement,
-} from '@maverick-js/element';
+import { createElementClass, defineElement, type MaverickElement } from '@maverick-js/element';
 import { waitAnimationFrame, waitTimeout } from '@maverick-js/std';
 
 const target = document.body;
@@ -22,13 +18,13 @@ afterEach(() => {
 });
 
 it('should handle basic setup and destroy', () => {
-  class TestComponent extends MaverickComponent {
+  class TestComponent extends Component {
     static element: CustomElementOptions = {
       name: 'mk-test-1',
     };
   }
 
-  defineMaverickElement(TestComponent);
+  defineElement(TestComponent);
   const el = document.createElement(TestComponent.element.name) as MaverickElement<TestComponent>;
 
   target.append(el);
@@ -45,7 +41,7 @@ it('should observe attributes', () => {
     bazBaxHux: number;
   }
 
-  class TestComponent extends MaverickComponent<Props> {
+  class TestComponent extends Component<Props> {
     static element: CustomElementOptions = {
       name: 'mk-test-2',
     };
@@ -58,7 +54,7 @@ it('should observe attributes', () => {
     };
   }
 
-  class TestElement extends createMaverickElement(TestComponent) {}
+  class TestElement extends createElementClass(TestComponent) {}
 
   window.customElements.define(TestElement.tagName, TestElement);
 
@@ -83,7 +79,7 @@ it('should call lifecycle hooks', async () => {
     disconnect = vi.fn(),
     Context = createContext<number>();
 
-  class TestComponent extends MaverickComponent {
+  class TestComponent extends Component {
     static element: CustomElementOptions = {
       name: 'mk-test-3',
     };
@@ -110,7 +106,7 @@ it('should call lifecycle hooks', async () => {
     }
   }
 
-  defineMaverickElement(TestComponent);
+  defineElement(TestComponent);
 
   const el = document.createElement(TestComponent.element.name);
   target.append(el);

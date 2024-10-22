@@ -1,10 +1,10 @@
 import {
   type AttributeConverter,
+  type Component,
+  type ComponentConstructor,
   createComponent,
   type HostElementCallback,
   inferAttributeConverter,
-  type MaverickComponent,
-  type MaverickComponentConstructor,
   type MaverickCustomElement,
   type MaverickCustomElementConstructor,
   ON_DISPATCH_SYMBOL,
@@ -27,7 +27,7 @@ const enum SetupState {
 const registry = new Set<string>();
 
 /** @internal */
-export function $$_create_custom_element(Component: MaverickComponentConstructor) {
+export function $$_create_custom_element(Component: ComponentConstructor) {
   const name = Component.element?.name;
 
   if (!name) {
@@ -35,20 +35,20 @@ export function $$_create_custom_element(Component: MaverickComponentConstructor
   }
 
   if (!registry.has(name)) {
-    defineMaverickElement(Component);
+    defineElement(Component);
     registry.add(name);
   }
 
   return document.createElement(name);
 }
 
-export function defineMaverickElement(Component: MaverickComponentConstructor) {
+export function defineElement(Component: ComponentConstructor) {
   if (__SERVER__) return;
-  window.customElements.define(Component.element!.name, createMaverickElement(Component));
+  window.customElements.define(Component.element!.name, createElementClass(Component));
 }
 
-export function createMaverickElement<T extends MaverickComponent>(
-  Component: MaverickComponentConstructor<T>,
+export function createElementClass<T extends Component>(
+  Component: ComponentConstructor<T>,
 ): MaverickElementConstructor<T> {
   class MaverickElement extends HTMLElement implements MaverickCustomElement<T> {
     static readonly tagName = Component.element!.name;
@@ -235,7 +235,7 @@ export function createMaverickElement<T extends MaverickComponent>(
       return this.$.subscribe(callback);
     }
 
-    #dispatch(event: Event) {
+    #dispatch(event: MaverickEvent) {
       this.dispatchEvent(
         new MaverickEvent<any>(event.type, {
           ...event,
@@ -257,10 +257,7 @@ export function createMaverickElement<T extends MaverickComponent>(
   return MaverickElement;
 }
 
-function extendProto(
-  Element: MaverickCustomElementConstructor,
-  Component: MaverickComponentConstructor,
-) {
+function extendProto(Element: MaverickCustomElementConstructor, Component: ComponentConstructor) {
   const ElementProto = Element.prototype;
 
   if (Component.props) {

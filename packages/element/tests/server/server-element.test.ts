@@ -1,11 +1,11 @@
-import { createComponent, MaverickComponent, onAttach, onSetup } from '@maverick-js/core';
-import { MaverickServerElement, type ServerElement } from '@maverick-js/element/server';
+import { Component, createComponent, onAttach, onSetup } from '@maverick-js/core';
+import { type HTMLServerElement, ServerElement } from '@maverick-js/element/server';
 
 it('should call `onSetup` lifecycle hook', () => {
   const setup = vi.fn(),
     attach = vi.fn();
 
-  class TestComponent extends MaverickComponent {
+  class TestComponent extends Component {
     constructor() {
       super();
       onSetup(setup);
@@ -13,7 +13,7 @@ it('should call `onSetup` lifecycle hook', () => {
     }
   }
 
-  const host = new MaverickServerElement(createComponent(TestComponent));
+  const host = new ServerElement(createComponent(TestComponent));
   host.setup();
 
   expect(setup).toBeCalledTimes(1);
@@ -23,13 +23,13 @@ it('should call `onSetup` lifecycle hook', () => {
 });
 
 it('should render attributes', () => {
-  class TestComponent extends MaverickComponent {
+  class TestComponent extends Component {
     constructor() {
       super();
       onAttach(this.#onAttach.bind(this));
     }
 
-    #onAttach(el: ServerElement) {
+    #onAttach(el: HTMLServerElement) {
       el.setAttribute('foo', '1');
       el.setAttribute('bar', '2');
       el.setAttribute('baz', '3');
@@ -37,7 +37,7 @@ it('should render attributes', () => {
     }
   }
 
-  const host = new MaverickServerElement(createComponent(TestComponent));
+  const host = new ServerElement(createComponent(TestComponent));
   host.setup();
   host.destroy();
 
@@ -50,13 +50,13 @@ it('should render attributes', () => {
 });
 
 it('should render class list', () => {
-  class TestComponent extends MaverickComponent {
+  class TestComponent extends Component {
     constructor() {
       super();
       onAttach(this.#onAttach.bind(this));
     }
 
-    #onAttach(el: ServerElement) {
+    #onAttach(el: HTMLServerElement) {
       el.classList.add('foo');
       el.classList.add('baz', 'bam', 'doh');
       el.classList.toggle('boo');
@@ -68,7 +68,7 @@ it('should render class list', () => {
     }
   }
 
-  const host = new MaverickServerElement(createComponent(TestComponent));
+  const host = new ServerElement(createComponent(TestComponent));
   host.setup();
   host.destroy();
 
@@ -80,13 +80,13 @@ it('should render class list', () => {
 });
 
 it('should render styles', () => {
-  class TestComponent extends MaverickComponent {
+  class TestComponent extends Component {
     constructor() {
       super();
       onAttach(this.#onAttach.bind(this));
     }
 
-    #onAttach(el: ServerElement) {
+    #onAttach(el: HTMLServerElement) {
       el.style.setProperty('foo', '1');
       el.style.setProperty('bar', '2');
       el.style.setProperty('baz', '3');
@@ -96,7 +96,7 @@ it('should render styles', () => {
     }
   }
 
-  const host = new MaverickServerElement(createComponent(TestComponent));
+  const host = new ServerElement(createComponent(TestComponent));
   host.setup();
   host.destroy();
 
@@ -108,20 +108,20 @@ it('should render styles', () => {
 });
 
 it('should noop events api', () => {
-  class TestComponent extends MaverickComponent {
+  class TestComponent extends Component {
     constructor() {
       super();
       onAttach(this.#onAttach.bind(this));
     }
 
-    #onAttach(el: ServerElement) {
+    #onAttach(el: HTMLServerElement) {
       el.addEventListener('click', () => {});
       el.removeEventListener('click', () => {});
     }
   }
 
   expect(() => {
-    const host = new MaverickServerElement(createComponent(TestComponent));
+    const host = new ServerElement(createComponent(TestComponent));
     host.setup();
     host.destroy();
   }).not.toThrow();

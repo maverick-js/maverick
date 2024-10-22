@@ -1,11 +1,7 @@
+import { type Component, type ComponentConstructor, createComponent } from '@maverick-js/core';
+import { MaverickServerElement } from '@maverick-js/element';
 import * as React from 'react';
 
-import {
-  type Component,
-  type ComponentConstructor,
-  createComponent,
-} from '../../maverick/src/core';
-import { MaverickServerElement } from '../../maverick/src/element/server';
 import { kebabToCamelCase } from '../../std/src/string';
 import { isFunction } from '../../std/src/unit';
 import { attrsToProps } from './attrs-map';

@@ -1,13 +1,18 @@
-import { MaverickEvent, type MaverickEventInit } from '@maverick-js/std';
+import { type EventInit, MaverickEvent } from '@maverick-js/std';
 
-import { $$_current_instance, Instance } from './instance';
+import { $$_current_instance, MaverickInstance } from './instance';
 import { type Scope, untrack } from './signals';
 import { ON_DISPATCH_SYMBOL } from './symbols';
 import type { ReadSignalRecord, WriteSignalRecord } from './types';
 
-export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> extends EventTarget {
+export class MaverickViewController<
+  Props = {},
+  State = {},
+  Events = {},
+  CSSVars = {},
+> extends EventTarget {
   /** @internal */
-  readonly $$: Instance<Props, State>;
+  readonly $$: MaverickInstance<Props, State>;
 
   /** @internal type holder only */
   readonly $ts__events?: Events;
@@ -52,17 +57,17 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
   }
 
   /**
-   * Type-safe utility for creating component events.
+   * Type-safe utility for creating component Maverick Events.
    */
   createEvent<Type extends keyof Events = keyof Events>(
     type: Type & string,
     ...init: Events[Type] extends MaverickEvent
       ? Events[Type]['detail'] extends void | undefined | never
-        ? [init?: Partial<MaverickEventInit<Events[Type]>['detail']>]
-        : [init: MaverickEventInit<Events[Type]['detail']>]
+        ? [init?: Partial<EventInit<Events[Type]>['detail']>]
+        : [init: EventInit<Events[Type]['detail']>]
       : never
   ): Events[Type] {
-    return new MaverickEvent(type, init[0] as MaverickEventInit) as Events[Type];
+    return new MaverickEvent(type, init[0] as EventInit) as Events[Type];
   }
 
   /**
@@ -75,16 +80,14 @@ export class ViewController<Props = {}, State = {}, Events = {}, CSSVars = {}> e
       : Type extends keyof Events
         ? Events[Type] extends MaverickEvent
           ? Events[Type]['detail'] extends void | undefined | never
-            ? [init?: Partial<MaverickEventInit<Events[Type]['detail']>>]
-            : [init: MaverickEventInit<Events[Type]['detail']>]
+            ? [init?: Partial<EventInit<Events[Type]['detail']>>]
+            : [init: EventInit<Events[Type]['detail']>]
           : [init?: never]
         : [init?: never]
   ): boolean {
     if (__SERVER__) return false;
     return this.dispatchEvent(
-      type instanceof Event
-        ? type
-        : new MaverickEvent(type as string, init[0] as MaverickEventInit),
+      type instanceof Event ? type : new MaverickEvent(type as string, init[0] as EventInit),
     );
   }
 

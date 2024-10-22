@@ -1,5 +1,5 @@
-import { Component, State, method, prop, } from '../../../../maverick/src/core';
-import type { MaverickEvent } from '../../../../std/src';
+import { Component, State, method, prop, } from '@maverick-js/core';
+import type { MaverickEvent } from '@maverick-js/std';
 
 interface MooProps<T> {
   /** This is the moo docs. */

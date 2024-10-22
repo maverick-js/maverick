@@ -1,8 +1,8 @@
 import { type Dispose, onDispose } from '@maverick-js/signals';
 import { anySignal, MaverickEventTarget, noop } from '@maverick-js/std';
 
-import type { MaverickComponent } from './component';
-import type { MaverickViewController } from './controller';
+import type { Component } from './component';
+import type { ViewController } from './controller';
 import type { TargetedEventHandler } from './types';
 
 /** @internal */
@@ -26,9 +26,9 @@ export function $$_set_current_event_target(target: EventTarget | null) {
 }
 
 export type InferEvents<Target> =
-  Target extends MaverickComponent<any, any, infer Events>
+  Target extends Component<any, any, infer Events>
     ? Events
-    : Target extends MaverickViewController<any, any, infer Events>
+    : Target extends ViewController<any, any, infer Events>
       ? Events
       : Target extends MaverickEventTarget<infer Events>
         ? Events extends {}

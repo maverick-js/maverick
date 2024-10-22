@@ -250,7 +250,7 @@ export function cloneEvent<T extends Event>(event: T, init?: Partial<T>): T {
   const prototype = Object.getPrototypeOf(event),
     clone = new prototype.constructor(event.type, { ...event, ...init });
 
-  clone.origin = event;
+  clone.original = event;
 
   for (const prop of forwardedEventProps) {
     Object.defineProperty(clone, prop, {

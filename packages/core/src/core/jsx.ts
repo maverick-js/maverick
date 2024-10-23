@@ -113,6 +113,7 @@ export interface ForKeyedDefaultSlot<Item> {
 }
 
 export interface ForKeyedProps<Item> {
+  key?: (item: Item) => any;
   each: Maybe<Item[] | ReadSignal<Item[]>>;
   children: ForKeyedDefaultSlot<Item>;
 }

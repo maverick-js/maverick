@@ -1,6 +1,7 @@
 import {
   $$_current_slots,
   $$_set_current_slots,
+  ATTACH_SYMBOL,
   type ComponentConstructor,
   createComponent,
   CUSTOM_ELEMENT_SYMBOL,
@@ -21,6 +22,7 @@ import {
   unwrapDeep,
 } from '@maverick-js/std';
 
+import { Host } from './components/host';
 import { ServerStyleDeclaration } from './element/server-style-declaration';
 import { ServerTokenList } from './element/server-token-list';
 
@@ -120,31 +122,26 @@ export function $$_create_component(
 
       if (CUSTOM_ELEMENT_SYMBOL in Component && Component.element) {
         $$_current_custom_element = Component.element;
-        // TODO: we need to map props to attributes
       }
 
       component.$$.setup();
+
+      if (attrs) {
+        component.$$[ATTACH_SYMBOL].push((host) => {
+          // TODO: map props to attributes
+          // set attrs
+        });
+      }
 
       const result = component.render
         ? scoped(() => component!.render!(), component.$$.scope)
         : null;
 
-      // TODO: how to deal with this??
-      // instance attach
-
-      if (attrs) {
-        // TODO: attach attrs
-      }
-
       return result;
+    } else if (Component === Host) {
+      // ...
     } else {
-      let result = Component(props ?? {});
-
-      if (attrs) {
-        // TODO: attach attrs
-      }
-
-      return result;
+      return Component(props ?? {});
     }
   } finally {
     $$_current_custom_element = null;

@@ -61,11 +61,7 @@ export function createEventListener(node: ComponentNode, state: DomTransformStat
     body: ts.Expression[] = [];
 
   for (const event of node.events) {
-    if (event.forward) {
-      body.push(runtime.forwardEvent(targetId, event.type, event.capture));
-    } else {
-      body.push(runtime.listen(targetId, event.type, event.initializer, event.capture));
-    }
+    body.push(runtime.listen(targetId, event.type, event.initializer, event.capture));
   }
 
   return $.arrowFn([targetId], body);

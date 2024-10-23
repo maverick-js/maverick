@@ -5,26 +5,6 @@ import type { Component } from './component';
 import type { ViewController } from './controller';
 import type { TargetedEventHandler } from './types';
 
-/** @internal */
-export let $$_current_event_target: EventTarget | null = null;
-
-const serverEventTarget: MaverickEventTarget<any> = /* #__PURE__ */ Object.freeze({
-  dispatch: noop,
-  dispatchEvent: noop,
-  addEventListener: noop,
-  removeEventListener: noop,
-});
-
-export function createEventTarget<Events>(): MaverickEventTarget<Events> {
-  if (__SERVER__) return serverEventTarget;
-  return ($$_current_event_target = new MaverickEventTarget<Events>());
-}
-
-/** @internal */
-export function $$_set_current_event_target(target: EventTarget | null) {
-  $$_current_event_target = target;
-}
-
 export type InferEvents<Target> =
   Target extends Component<any, any, infer Events>
     ? Events

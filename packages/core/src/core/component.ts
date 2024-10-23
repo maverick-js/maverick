@@ -9,7 +9,6 @@ import type { ComponentLifecycleEvents } from './lifecycle';
 import { type Dispose, effect, type Maybe, scoped } from './signals';
 import type { State } from './state';
 import type { CUSTOM_ELEMENT_SYMBOL } from './symbols';
-import type { SignalOrValueRecord } from './types';
 
 const COMPONENT_CTOR_SYMBOL = /* #__PURE__ */ Symbol.for('maverick.component.ctor');
 
@@ -22,7 +21,7 @@ export class Component<Props = {}, State = {}, Events = {}, CSSVars = {}> extend
   static [COMPONENT_CTOR_SYMBOL] = true;
 
   /** @internal - DO NOT USE (for jsx types only) */
-  jsxProps!: JSX.ComponentAttributes<Partial<SignalOrValueRecord<Props>>, Events, CSSVars>;
+  jsxProps!: JSX.ClassComponentAttributes<Props, Events, CSSVars>;
 
   render?(): JSX.Element;
 

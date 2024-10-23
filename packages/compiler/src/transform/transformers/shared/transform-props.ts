@@ -22,11 +22,7 @@ const visitors: Visitors<TransformState> = {
     if (component.class?.dynamic) transformAttrs(component, state, [component.class]);
     transformAttrs(component, state, filterDynamic(component.classes));
     transformAttrs(component, state, filterDynamic(component.vars));
-    transformAttrs(
-      component,
-      state,
-      component.events?.filter((e) => !e.forward),
-    );
+    transformAttrs(component, state, component.events);
     if (component.ref?.initializer) transformAttrs(component, state, [component.ref]);
   },
   Fragment(node, { walk }) {

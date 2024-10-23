@@ -1,4 +1,4 @@
-import { type FunctionComponentProps } from '@maverick-js/core';
+import { Component, Host, type JSX } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
 
 const target = document.body;
@@ -8,8 +8,10 @@ afterEach(() => {
 });
 
 test('ref', () => {
-  function Foo(props: FunctionComponentProps) {
-    return <div></div>;
+  class Foo extends Component {
+    override render(): JSX.Element {
+      return <Host as="div" />;
+    }
   }
 
   let el;

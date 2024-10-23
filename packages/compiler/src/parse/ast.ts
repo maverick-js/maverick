@@ -132,7 +132,6 @@ export interface EventNode {
   namespace: JsxEventNamespace | null;
   type: string;
   capture: boolean;
-  forward: boolean;
   delegate: boolean;
 }
 

@@ -36,15 +36,3 @@ test('multiple', () => {
     "
   `);
 });
-
-test('forward', () => {
-  expect(react('<Foo on:click />')).toMatchInlineSnapshot(`
-    "import { $$_IS_CLIENT, $$_component } from "@maverick-js/react";
-    import { $$_listen } from "@maverick-js/dom";
-    let $_component_1 = $$_component(Foo, null, $$_IS_CLIENT && (instance => {
-        $$_listen(instance, "click", true);
-    }));
-    $_component_1
-    "
-  `);
-});

@@ -1,28 +1,17 @@
 import type { InferSignalValue, ReadSignal, WriteSignal } from '@maverick-js/signals';
-import type { ConditionalExcept, ConditionalPick, IsNever, KebabCase } from 'type-fest';
+import type { ConditionalExcept, ConditionalPick, KebabCase } from 'type-fest';
 
 import type { JSX } from '../jsx/jsx';
 
-export type NoChildren<T> = Omit<T, 'children'>;
+export type NoSlots<T> = Omit<T, 'children'>;
 
-export interface FunctionComponent<
-  Host extends Element = never,
-  Props = {},
-  Events = {},
-  CSSVars = {},
-> {
-  (props: FunctionComponentProps<Host, Props, Events, CSSVars>): JSX.Element;
+export interface FunctionComponent<Props = {}> {
+  (props: Props): void;
 }
 
-export type FunctionComponentProps<
-  Host extends Element = never,
-  Props = {},
-  Events = {},
-  CSSVars = {},
-> =
-  IsNever<Host> extends true
-    ? Props & { children?: JSX.Element }
-    : JSX.ComponentAttributes<Props, Events, CSSVars> & JSX.RefAttributes<Host>;
+export interface HasSlots {
+  children: JSX.Element;
+}
 
 export type SignalOrValue<T> = T | ReadSignal<T>;
 

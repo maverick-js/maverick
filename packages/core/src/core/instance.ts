@@ -1,3 +1,4 @@
+import { effect, isReadSignal } from '@maverick-js/signals';
 import { isFunction, MaverickEvent } from '@maverick-js/std';
 
 import type { Component, ComponentConstructor, InferComponentProps } from './component';
@@ -204,7 +205,23 @@ function createInstanceProps<Props>(
 
   for (const name of Object.keys(props as Record<string, any>)) {
     const def = props[name];
-    $props[name] = init && isFunction(init[name]) ? init[name] : signal(def, def);
+
+    $props[name] = signal(def, def);
+
+    if (init) {
+      const $value = init[name];
+      if (isReadSignal($value)) {
+        if (__SERVER__) {
+          $props[name].set($value());
+        } else {
+          effect(() => {
+            $props[name].set($value());
+          });
+        }
+      } else {
+        $props[name].set($value);
+      }
+    }
   }
 
   return $props;

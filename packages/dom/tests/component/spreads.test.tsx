@@ -1,5 +1,6 @@
-import { createEventTarget, type FunctionComponentProps, signal, tick } from '@maverick-js/core';
+import { Component, Host, type JSX, signal, tick } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
+import type { MaverickEvent } from '@maverick-js/std';
 
 const target = document.body;
 
@@ -16,9 +17,10 @@ test('one spread', () => {
     'on:click': onClick,
   };
 
-  function Foo(props: FunctionComponentProps<HTMLElement>) {
-    createEventTarget();
-    return <div class="boo" on:click />;
+  class Foo extends Component<{}, {}, { click: MaverickEvent<void> }> {
+    override render(): JSX.Element {
+      return <Host as="div" class="boo" on:click={() => this.dispatch('click')} />;
+    }
   }
 
   render(() => <Foo {...spread} />, { target });
@@ -51,9 +53,22 @@ test('multiple spreads', () => {
     'on:pointerup': onPointerUp,
   };
 
-  function Foo(props: FunctionComponentProps<HTMLElement>) {
-    createEventTarget();
-    return <div class="zux" style="z-index: 10;" on:click on:pointerup />;
+  class Foo extends Component<
+    {},
+    {},
+    { click: MaverickEvent<void>; pointerup: MaverickEvent<void> }
+  > {
+    override render(): JSX.Element {
+      return (
+        <Host
+          as="div"
+          class="zux"
+          style="z-index: 10;"
+          on:click={() => this.dispatch('click')}
+          on:pointerup={() => this.dispatch('pointerup')}
+        />
+      );
+    }
   }
 
   render(() => <Foo class="hux" {...spreadA} {...spreadB} />, { target });

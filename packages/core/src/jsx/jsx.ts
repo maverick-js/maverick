@@ -2,7 +2,7 @@
 import type { CSSStyleProperty } from '@maverick-js/std';
 import type { ConditionalPick } from 'type-fest';
 
-import type { AnyComponent, NullableRecord, ReadSignal } from '../core';
+import type { AnyComponent, NullableRecord, ReadSignal, SignalOrValueRecord } from '../core';
 
 type DOMNode = Node;
 type DOMElement = Element;
@@ -241,18 +241,20 @@ export namespace JSX {
    * ```
    */
   export type OnAttributes<Target extends EventTarget = EventTarget, Events = EventRecord> = {
-    [EventType in keyof Events as `on:${Stringify<EventType>}`]?:
-      | TargetedEventHandler<Target, Events[EventType]>
-      | true;
+    [EventType in keyof Events as `on:${Stringify<EventType>}`]?: TargetedEventHandler<
+      Target,
+      Events[EventType]
+    >;
   };
 
   export type OnCaptureAttributes<
     Target extends EventTarget = EventTarget,
     Events = EventRecord,
   > = {
-    [EventType in keyof Events as `on_capture:${Stringify<EventType>}`]?:
-      | TargetedEventHandler<Target, Events[EventType]>
-      | true;
+    [EventType in keyof Events as `on_capture:${Stringify<EventType>}`]?: TargetedEventHandler<
+      Target,
+      Events[EventType]
+    >;
   };
 
   /**
@@ -263,10 +265,13 @@ export namespace JSX {
 
   export type ClassValue = any;
 
-  export type ClassAttributes = Record<`class:${string}`, boolean>;
+  export type ClassAttributes = {
+    [attr: `class:${string}`]: boolean;
+  };
 
-  export interface SignalClassAttributes
-    extends Record<`$class:${string}`, boolean | ReadSignal<boolean>> {}
+  export type SignalClassAttributes = {
+    [attr: `$class:${string}`]: boolean | ReadSignal<boolean>;
+  };
 
   /**
    * -------------------------------------------------------------------------------------------
@@ -311,7 +316,7 @@ export namespace JSX {
    */
   export type CSSVarAttributes<Variables> = {
     [Var in keyof Variables as `var:${Stringify<Var>}`]: Variables[Var] | null;
-  } & AnyCSSVarAttribute;
+  };
 
   export type SignalCSSVarAttributes<Variables> = SignalOrValueAttributes<
     CSSVarAttributes<Variables>
@@ -366,7 +371,9 @@ export namespace JSX {
       SignalInnerContentAttributes,
       GlobalCSSVarAttributes {}
 
-  export type ComponentAttributes<Props = {}, Events = {}, CSSVars = {}> = Props &
+  export type ClassComponentAttributes<Props = {}, Events = {}, CSSVars = {}> = Partial<
+    SignalOrValueRecord<Props>
+  > &
     ClassAttributes &
     SignalClassAttributes &
     SignalCSSVarAttributes<CSSVars> &

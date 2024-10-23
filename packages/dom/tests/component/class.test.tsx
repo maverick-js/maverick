@@ -1,4 +1,4 @@
-import { type FunctionComponentProps, signal, tick } from '@maverick-js/core';
+import { Component, Host, type JSX, signal, tick } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
 
 const target = document.body;
@@ -8,10 +8,10 @@ afterEach(() => {
 });
 
 test('host vars', () => {
-  type Props = FunctionComponentProps<HTMLElement>;
-
-  function Foo(props: Props) {
-    return <div class="foo"></div>;
+  class Foo extends Component {
+    override render(): JSX.Element {
+      return <Host as="div" class="foo"></Host>;
+    }
   }
 
   const $bar = signal(true),

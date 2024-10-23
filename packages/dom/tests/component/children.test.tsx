@@ -1,4 +1,4 @@
-import { type FunctionComponentProps, getSlots } from '@maverick-js/core';
+import { getSlots, type HasSlots } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
 
 const target = document.body;
@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 test('none', () => {
-  function Foo(props: FunctionComponentProps) {
+  function Foo() {
     return null;
   }
 
@@ -18,7 +18,7 @@ test('none', () => {
 });
 
 test('expression', () => {
-  function Foo(props: FunctionComponentProps) {
+  function Foo(props: HasSlots) {
     const slots = getSlots();
     return slots.default?.();
   }
@@ -34,7 +34,7 @@ test('component', () => {
     return <span>Bux</span>;
   }
 
-  function Bar(props: FunctionComponentProps) {
+  function Bar(props: HasSlots) {
     const slots = getSlots();
     return (
       <>
@@ -44,7 +44,7 @@ test('component', () => {
     );
   }
 
-  function Foo(props: FunctionComponentProps) {
+  function Foo(props: HasSlots) {
     const slots = getSlots();
     return <div>{slots.default?.()}</div>;
   }

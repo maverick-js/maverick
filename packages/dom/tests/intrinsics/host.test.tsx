@@ -1,11 +1,6 @@
-import {
-  createEventTarget,
-  type FunctionComponentProps,
-  Host,
-  signal,
-  tick,
-} from '@maverick-js/core';
+import { Component, Host, type JSX, signal, tick } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
+import type { MaverickEvent } from '@maverick-js/std';
 
 const target = document.body;
 
@@ -16,14 +11,17 @@ afterEach(() => {
 test('<Host>', () => {
   const onClick = vi.fn();
 
-  render(
-    () => (
-      <Host class="foo" as="div" data-foo class:bar var:foo={10} on:click={onClick}>
-        <span>Contents</span>
-      </Host>
-    ),
-    { target },
-  );
+  class Foo extends Component {
+    override render(): JSX.Element {
+      return (
+        <Host class="foo" as="div" data-foo class:bar var:foo={10} on:click={onClick}>
+          <span>Contents</span>
+        </Host>
+      );
+    }
+  }
+
+  render(() => <Foo />, { target });
 
   expect(target).toMatchSnapshot();
 
@@ -39,13 +37,14 @@ test('attach to host', () => {
     onClick = vi.fn(),
     ref = vi.fn();
 
-  function Foo(props: FunctionComponentProps<HTMLElement, {}, { click: MouseEvent }>) {
-    createEventTarget();
-    return (
-      <Host class="foo" on:click as="div">
-        <span>Contents</span>
-      </Host>
-    );
+  class Foo extends Component<{}, {}, { click: MaverickEvent<void> }, { foo: number }> {
+    override render(): JSX.Element {
+      return (
+        <Host class="foo" on:click={() => this.dispatch('click')} as="div">
+          <span>Contents</span>
+        </Host>
+      );
+    }
   }
 
   render(
@@ -66,8 +65,8 @@ test('attach to host', () => {
   el.dispatchEvent(clickEvent);
 
   const onClickArg = onClick.mock.calls[0][0];
-  expect(onClickArg.target).toBe(clickEvent.target);
-  expect(onClickArg.currentTarget).toBe(clickEvent.currentTarget);
+  expect(onClickArg.target).toBeInstanceOf(Foo);
+  expect(onClickArg.currentTarget).toBeInstanceOf(Foo);
 
   expect(ref.mock.calls[0][0]).toBeInstanceOf(HTMLDivElement);
 });

@@ -4,7 +4,6 @@ import { insert } from '../insert';
 import {
   $$_attr,
   $$_current_host_element,
-  $$_host_symbol,
   $$_rendering_custom_element,
   $$_signal_name_re,
 } from '../runtime';
@@ -24,5 +23,3 @@ export function Host({ as, ...attrs }: HostProps) {
     return host;
   }
 }
-
-Host[$$_host_symbol] = true;

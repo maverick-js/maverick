@@ -1,10 +1,4 @@
-import {
-  Component,
-  type FunctionComponentProps,
-  type ReadSignal,
-  signal,
-  tick,
-} from '@maverick-js/core';
+import { Component, type ReadSignal, signal, tick } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
 
 const target = document.body;
@@ -19,7 +13,7 @@ test('pass props to function component', () => {
     $b: ReadSignal<number>;
   }
 
-  function Foo({ a, $b }: FunctionComponentProps<never, Props>) {
+  function Foo({ a, $b }: Props) {
     return (
       <div>
         {a}

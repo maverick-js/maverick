@@ -62,12 +62,6 @@ export class DomRuntime extends Runtime {
     return this.call('listen_callback', filterFalsy(events));
   }
 
-  forwardEvent(target: ts.Identifier, type: string, capture: boolean) {
-    const args: any[] = [target, $.string(type)];
-    if (capture) args.push($.createTrue());
-    return this.call('forward_event', args);
-  }
-
   delegateEvents(types: ts.ArrayLiteralExpression) {
     return this.call('delegate_events', [types]);
   }

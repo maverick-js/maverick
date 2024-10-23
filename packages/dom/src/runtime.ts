@@ -1,9 +1,8 @@
 import {
-  $$_current_event_target,
   $$_current_slots,
-  $$_set_current_event_target,
   $$_set_current_slots,
   type AnyComponent,
+  ATTACH_SYMBOL,
   type ComponentConstructor,
   computed,
   createComponent,
@@ -21,7 +20,6 @@ import {
   type SlotRecord,
 } from '@maverick-js/core';
 import {
-  cloneEvent,
   isArray,
   isFunction,
   isHTMLElement,
@@ -32,6 +30,7 @@ import {
   toggleClass,
 } from '@maverick-js/std';
 
+import { Host } from './components/host';
 import { insert } from './insert';
 import { hydration } from './render';
 import { createMarkerWalker } from './walker';
@@ -62,19 +61,19 @@ export function $$_create_walker(template: () => Node): [root: Node, walker: Tre
 }
 
 /** @internal */
+export let $$_current_class_component: AnyComponent | null = null;
+
+/** @internal */
 export let $$_current_host_element: HTMLElement | null = null;
 
 /** @internal */
 export let $$_rendering_custom_element = false;
 
 /** @internal */
+export const $$_component_stack: Array<AnyComponent | null> = [];
+
+/** @internal */
 export const $$_slot_stack: Array<SlotRecord | null> = [];
-
-/** @internal */
-export const $$_event_target_stack: Array<EventTarget | null> = [];
-
-/** @internal */
-export const $$_host_symbol = /* #__PURE__ */ Symbol.for('maverick.host');
 
 /** @internal */
 export function $$_create_component(
@@ -87,76 +86,68 @@ export function $$_create_component(
   return peek(() => {
     try {
       $$_slot_stack.push($$_current_slots);
-      $$_event_target_stack.push($$_current_event_target);
-
       $$_set_current_slots(slots ?? {});
 
       if (isComponentConstructor(Component)) {
-        const customElement = createCustomElement(Component),
-          component = customElement?.$ ?? createComponent(Component, { props });
+        try {
+          $$_component_stack.push($$_current_class_component);
 
-        listen?.(component);
+          const customElement = createCustomElement(Component),
+            component = customElement?.$ ?? createComponent(Component, { props });
 
-        $$_current_host_element = customElement;
-        $$_set_current_event_target(component);
+          listen?.(component);
 
-        if (customElement) {
-          $$_rendering_custom_element = true;
-          // Setup and attach is called internally.
-          customElement[SETUP_SYMBOL]();
-          $$_rendering_custom_element = false;
-          onAttach?.(customElement);
-          return customElement;
+          $$_current_class_component = component;
+          $$_current_host_element = customElement;
+
+          if (onAttach) component.$$[ATTACH_SYMBOL].push(onAttach);
+
+          if (customElement) {
+            $$_rendering_custom_element = true;
+            // Setup, attach, and render are called internally.
+            customElement[SETUP_SYMBOL]();
+            $$_rendering_custom_element = false;
+            return customElement;
+          } else {
+            component.$$.setup();
+            return component.render ? scoped(() => component!.render!(), component.$$.scope) : null;
+          }
+        } finally {
+          $$_current_class_component = $$_component_stack.pop()!;
+        }
+      } else if (Component === Host) {
+        if (__DEV__ && !$$_current_class_component) {
+          throw Error(
+            `[maverick]: <Host> can only be called at the top of a class component render function [@\`${Component.name}\`]`,
+          );
+        }
+
+        const host = Component(props ?? {}) as unknown as HTMLElement;
+
+        listen?.(host);
+
+        // Custom element will call attach and connect internally.
+        if ($$_current_host_element) {
+          onAttach?.(host);
         } else {
-          component.$$.setup();
-
-          const result = component.render
-            ? scoped(() => component!.render!(), component.$$.scope)
-            : null;
-
-          if (isHTMLElement(result)) {
-            component.$$.attach(result);
-            onAttach?.(result);
-            requestAnimationFrame(connectToHost.bind(component));
-          }
-
-          return result;
+          onAttach?.(host);
+          $$_current_class_component!.$$.attach(host);
+          connectToHost.bind($$_current_class_component!);
         }
+
+        return host;
       } else {
-        const result = Component(props ?? {});
-
-        if (listen) {
-          const target =
-            $$_host_symbol in Component ? (result as EventTarget) : $$_current_event_target;
-
-          if (!target) {
-            throw Error(`[maverick]: no target \`${Component.name}\``);
-          }
-
-          listen(target);
-        }
-
-        if (onAttach) {
-          if (!isHTMLElement(result)) {
-            throw Error(`[maverick]: no host element \`${Component.name}\``);
-          }
-
-          onAttach(result);
-        }
-
-        return result;
+        return Component(props ?? {});
       }
     } finally {
       $$_current_host_element = null;
       $$_set_current_slots($$_slot_stack.pop()!);
-      $$_set_current_event_target($$_event_target_stack.pop()!);
     }
   });
 }
 
 function connectToHost(this: AnyComponent) {
-  if (this.$$.destroyed) return;
-  this.$$.connect();
+  requestAnimationFrame(() => this.$$.connect());
 }
 
 function createCustomElement(Component: ComponentConstructor) {
@@ -193,18 +184,12 @@ export function $$_insert_at_marker(marker: Comment, value: JSX.Element) {
 }
 
 /** @internal */
-export function $$_listen(
+export const $$_listen = listenEvent as (
   target: EventTarget,
   type: string,
-  handler: true | ((event: any) => any),
-  capture = false,
-) {
-  if (handler === true) {
-    $$_forward_event(target, type, capture);
-  } else {
-    listenEvent(target, type as any, handler, capture);
-  }
-}
+  handler: (event: any) => any,
+  capture?: boolean,
+) => void;
 
 /** @internal */
 export function $$_listen_callback(props: Record<string, any>) {
@@ -223,16 +208,6 @@ export function $$_listen_callback(props: Record<string, any>) {
       $$_listen(target, ...args);
     }
   };
-}
-
-/** @internal */
-export function $$_forward_event(target: EventTarget, type: string, capture: boolean) {
-  if (!$$_current_event_target) return;
-  listenEvent(target, type as any, forwardEvent.bind($$_current_event_target) as any, capture);
-}
-
-function forwardEvent(this: EventTarget, event: Event) {
-  this.dispatchEvent(cloneEvent(event));
 }
 
 const DELEGATED_EVENTS_SYMBOL = /* #__PURE__ */ Symbol.for('maverick.delegated_events');

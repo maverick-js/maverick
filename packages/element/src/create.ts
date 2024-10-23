@@ -30,16 +30,16 @@ const registry = new Set<string>();
 export function $$_create_custom_element(Component: ComponentConstructor) {
   const name = Component.element?.name;
 
-  if (!name) {
+  if (__DEV__ && !name) {
     throw Error('[maverick]: missing el name');
   }
 
-  if (!registry.has(name)) {
+  if (!registry.has(name!)) {
     defineElement(Component);
-    registry.add(name);
+    registry.add(name!);
   }
 
-  return document.createElement(name);
+  return document.createElement(name!);
 }
 
 export function defineElement(Component: ComponentConstructor) {

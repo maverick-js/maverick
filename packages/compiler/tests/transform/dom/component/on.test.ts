@@ -42,17 +42,3 @@ test('multiple', () => {
     "
   `);
 });
-
-test('forward', () => {
-  expect(dom('<Foo on:click />')).toMatchInlineSnapshot(`
-    "import { $$_forward_event, $$_create_component } from "@maverick-js/dom";
-    function $$_render_1({ $1 }) {
-        let $_component_1 = $$_create_component($1, null, $_target_1 => {
-            $$_forward_event($_target_1, "click");
-        });
-        return $_component_1;
-    }
-    $$_render_1({ $1: Foo });
-    "
-  `);
-});

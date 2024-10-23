@@ -1,4 +1,4 @@
-import { type FunctionComponentProps, signal, tick } from '@maverick-js/core';
+import { Component, Host, type JSX, signal, tick } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
 
 const target = document.body;
@@ -10,19 +10,16 @@ afterEach(() => {
 test('host vars', () => {
   type Color = 'red' | 'orange';
 
-  type Props = FunctionComponentProps<
-    HTMLElement,
-    {},
-    {},
-    {
-      color: Color;
-      'bg-color': Color;
-      'z-index': number;
-    }
-  >;
+  interface CSSVars {
+    color: Color;
+    'bg-color': Color;
+    'z-index': number;
+  }
 
-  function Foo(props: Props) {
-    return <div style="background-color: var(--bg-color); z-index: var(--z-index);"></div>;
+  class Foo extends Component<{}, {}, {}, CSSVars> {
+    override render(): JSX.Element {
+      return <Host as="div" style="background-color: var(--bg-color); z-index: var(--z-index);" />;
+    }
   }
 
   const $color = signal<Color>('red'),

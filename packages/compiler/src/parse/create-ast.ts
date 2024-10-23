@@ -215,15 +215,13 @@ function parseAttrs(
     if (INNER_CONTENT_PROP.has(name)) {
       attrs.content = attr;
     } else if (namespace) {
-      if (namespace === 'on' || namespace === 'on_capture') {
-        const isForwardedEvent = isUndefined(expression);
+      if (namespace === 'on' || (namespace === 'on_capture' && !isUndefined(expression))) {
         (attrs.events ??= []).push({
           node: jsxAttr,
           initializer: init,
           namespace,
           type: name,
           capture: namespace === 'on_capture',
-          forward: isForwardedEvent,
           delegate: namespace !== 'on_capture' && DELEGATED_EVENT_TYPE.has(name),
         });
       } else if (namespace === 'class' || namespace === '$class') {

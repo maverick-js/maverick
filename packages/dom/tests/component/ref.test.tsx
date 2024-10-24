@@ -1,4 +1,4 @@
-import { Component, Host, type JSX } from '@maverick-js/core';
+import { Component, type CustomElementOptions, Host, type JSX } from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
 
 const target = document.body;
@@ -9,8 +9,13 @@ afterEach(() => {
 
 test('ref', () => {
   class Foo extends Component {
+    static element: CustomElementOptions = {
+      name: '',
+      default: 'div',
+    };
+
     override render(): JSX.Element {
-      return <Host as="div" />;
+      return <Host />;
     }
   }
 

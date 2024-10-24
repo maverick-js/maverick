@@ -9,10 +9,13 @@ import type { SignalOrValue } from './types';
 // ---------------------------------------------------------------------------------------------
 
 export interface HostProps
-  extends Omit<JSX.IntrinsicElementAttributes<HTMLElement>, 'as' | 'children'>,
+  extends Omit<JSX.IntrinsicElementAttributes<HTMLElement>, 'children'>,
     JSX.OnAttributes<HTMLElement, ComponentLifecycleEvents> {
-  as: keyof HTMLElementTagNameMap;
   children?: JSX.Element;
+}
+
+export interface InternalHostProps extends HostProps {
+  $$host: HTMLElement;
 }
 
 /**

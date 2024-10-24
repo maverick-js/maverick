@@ -84,6 +84,17 @@ export interface MaverickCustomElementConstructor<T extends Component = AnyCompo
 }
 
 export interface CustomElementOptions<Props = {}> {
+  /**
+   * The tag name of the custom element.
+   */
   readonly name: string;
+  /**
+   * The default HTML tag name to be used when custom elements are not being used as a compile
+   * target.
+   */
+  readonly default: keyof HTMLElementTagNameMap;
+  /**
+   * Component property to attribute name and value conversions.
+   */
   readonly attrs?: Attributes<Props>;
 }

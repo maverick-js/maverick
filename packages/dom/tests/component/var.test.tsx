@@ -1,4 +1,11 @@
-import { Component, Host, type JSX, signal, tick } from '@maverick-js/core';
+import {
+  Component,
+  type CustomElementOptions,
+  Host,
+  type JSX,
+  signal,
+  tick,
+} from '@maverick-js/core';
 import { render } from '@maverick-js/dom';
 
 const target = document.body;
@@ -17,8 +24,13 @@ test('host vars', () => {
   }
 
   class Foo extends Component<{}, {}, {}, CSSVars> {
+    static element: CustomElementOptions = {
+      name: '',
+      default: 'div',
+    };
+
     override render(): JSX.Element {
-      return <Host as="div" style="background-color: var(--bg-color); z-index: var(--z-index);" />;
+      return <Host style="background-color: var(--bg-color); z-index: var(--z-index);" />;
     }
   }
 

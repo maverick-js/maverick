@@ -67,9 +67,6 @@ export let $$_current_class_component: AnyComponent | null = null;
 export let $$_current_host_element: HTMLElement | null = null;
 
 /** @internal */
-export let $$_rendering_custom_element = false;
-
-/** @internal */
 export const $$_class_component_stack: Array<AnyComponent | null> = [];
 
 /** @internal */
@@ -92,22 +89,23 @@ export function $$_create_component(
         try {
           $$_class_component_stack.push($$_current_class_component);
 
-          const customElement = createCustomElement(Component),
-            component = customElement?.$ ?? createComponent(Component, { props });
+          const isCustomElement = CUSTOM_ELEMENT_SYMBOL in Component,
+            hostElement = createHostElement(Component, isCustomElement),
+            component = isCustomElement
+              ? (hostElement as MaverickCustomElement)?.$
+              : createComponent(Component, { props });
 
           listen?.(component);
 
           $$_current_class_component = component;
-          $$_current_host_element = customElement;
+          $$_current_host_element = hostElement;
 
           if (onAttach) component.$$[ATTACH_SYMBOL].push(onAttach);
 
-          if (customElement) {
-            $$_rendering_custom_element = true;
+          if (isCustomElement) {
             // Setup, attach, and render are called internally.
-            customElement[SETUP_SYMBOL]();
-            $$_rendering_custom_element = false;
-            return customElement;
+            (hostElement as MaverickCustomElement)[SETUP_SYMBOL]();
+            return hostElement;
           } else {
             component.$$.setup();
             return component.render ? scoped(() => component!.render!(), component.$$.scope) : null;
@@ -123,20 +121,33 @@ export function $$_create_component(
           );
         }
 
-        const host = Component(props ?? {}) as unknown as HTMLElement;
+        if (__DEV__ && !$$_current_host_element) {
+          throw Error(
+            `[maverick]: \`static element: CustomElementOptions\` must be provided on class component when using <Host> [@${Component.name}]`,
+          );
+        }
 
-        listen?.(host);
+        listen?.($$_current_host_element!);
 
-        // Custom element will call attach and connect internally.
-        if ($$_current_host_element) {
-          onAttach?.(host);
+        const isCustomElement = $$_current_host_element!.tagName.includes('-'),
+          children = Component({
+            ...props,
+            $$host: $$_current_host_element,
+          }) as unknown as HTMLElement;
+
+        // Custom element will call attach, render, and connect internally.
+        if (isCustomElement) {
+          onAttach?.($$_current_host_element!);
         } else {
-          onAttach?.(host);
-          $$_current_class_component!.$$.attach(host);
+          if (children) insert($$_current_host_element!, children);
+
+          onAttach?.($$_current_host_element!);
+          $$_current_class_component!.$$.attach($$_current_host_element!);
+
           connectToHost.bind($$_current_class_component!);
         }
 
-        return host;
+        return isCustomElement ? children : $$_current_host_element!;
       } else {
         return Component(props ?? {});
       }
@@ -150,20 +161,22 @@ function connectToHost(this: AnyComponent) {
   requestAnimationFrame(() => this.$$.connect());
 }
 
-function createCustomElement(Component: ComponentConstructor) {
-  if (!isCustomElement(Component)) return null;
+function createHostElement(Component: ComponentConstructor, isCustomElement: boolean) {
+  if (isCustomElement) {
+    const el = hydration
+      ? $$_next_element<MaverickCustomElement>(hydration.w)
+      : Component[CUSTOM_ELEMENT_SYMBOL]!();
 
-  const el = hydration
-    ? $$_next_element<MaverickCustomElement>(hydration.w)
-    : Component[CUSTOM_ELEMENT_SYMBOL]!();
+    el.keepAlive = true;
 
-  el.keepAlive = true;
+    return el;
+  } else if (Component.element) {
+    return hydration
+      ? $$_next_element<HTMLElement>(hydration.w)
+      : (document.createElement(Component.element.default) as HTMLElement);
+  }
 
-  return el;
-}
-
-function isCustomElement(Component: object) {
-  return CUSTOM_ELEMENT_SYMBOL in Component;
+  return null;
 }
 
 /** @internal */

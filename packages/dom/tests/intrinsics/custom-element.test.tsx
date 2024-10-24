@@ -10,11 +10,12 @@ afterEach(() => {
 class Foo extends Component {
   static element: CustomElementOptions = {
     name: 'mk-foo',
+    default: 'div',
   };
 
   override render() {
     return (
-      <Host data-foo as="div">
+      <Host data-foo>
         <div>Foo Content</div>
         <Bar />
       </Host>
@@ -25,11 +26,12 @@ class Foo extends Component {
 class Bar extends Component {
   static element: CustomElementOptions = {
     name: 'mk-bar',
+    default: 'div',
   };
 
   override render() {
     return (
-      <Host data-bar as="div">
+      <Host data-bar>
         <div>Bar Content</div>
       </Host>
     );

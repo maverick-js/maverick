@@ -173,7 +173,7 @@ function createHostElement(Component: ComponentConstructor, isCustomElement: boo
   } else if (Component.element) {
     return hydration
       ? $$_next_element<HTMLElement>(hydration.w)
-      : (document.createElement(Component.element.default) as HTMLElement);
+      : (document.createElement(Component.element.defaultTag) as HTMLElement);
   }
 
   return null;

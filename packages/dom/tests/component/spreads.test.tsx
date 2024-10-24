@@ -27,7 +27,7 @@ test('one spread', () => {
   class Foo extends Component<{}, {}, { click: MaverickEvent<void> }> {
     static element: CustomElementOptions = {
       name: '',
-      default: 'div',
+      defaultTag: 'div',
     };
 
     override render(): JSX.Element {
@@ -72,7 +72,7 @@ test('multiple spreads', () => {
   > {
     static element: CustomElementOptions = {
       name: '',
-      default: 'div',
+      defaultTag: 'div',
     };
 
     override render(): JSX.Element {

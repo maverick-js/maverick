@@ -1,11 +1,10 @@
 import {
   $$_current_slots,
   $$_set_current_slots,
+  type AnyComponent,
   ATTACH_SYMBOL,
   type ComponentConstructor,
   createComponent,
-  CUSTOM_ELEMENT_SYMBOL,
-  type CustomElementOptions,
   type FunctionComponent,
   isComponentConstructor,
   type JSX,
@@ -22,7 +21,8 @@ import {
   unwrapDeep,
 } from '@maverick-js/std';
 
-import { Host } from './components/host';
+import type { HostComponentAttrs } from './components/host';
+import type { ServerElement } from './element/server-element';
 import { ServerStyleDeclaration } from './element/server-style-declaration';
 import { ServerTokenList } from './element/server-token-list';
 
@@ -71,12 +71,16 @@ export function $$_class(base: unknown, props: Record<string, unknown>) {
     classList.parse(base);
   }
 
+  $$_class_props(classList, props);
+
+  return classList.toString();
+}
+
+function $$_class_props(classList: ServerTokenList, props: Record<string, unknown>) {
   for (const name of Object.keys(props)) {
     const value = unwrapDeep(props[name]);
     classList[value ? 'add' : 'remove'](name);
   }
-
-  return classList.toString();
 }
 
 /** @internal */
@@ -87,17 +91,21 @@ export function $$_style(base: unknown, props: Record<string, unknown>) {
     styles.parse(base);
   }
 
+  $$_style_props(styles, props);
+
+  return styles.toString();
+}
+
+function $$_style_props(styles: ServerStyleDeclaration, props: Record<string, unknown>) {
   for (const prop of Object.keys(props)) {
     const value = unwrapDeep(props[prop]);
     if (!value && value !== 0) continue;
     styles.setProperty(prop, value + '');
   }
-
-  return styles.toString();
 }
 
 /** @internal */
-export let $$_current_custom_element: CustomElementOptions | null = null;
+export let $$_current_class_component: AnyComponent | null = null;
 
 /** @internal */
 export const $$_slot_stack: Array<Record<string, any> | null> = [];
@@ -107,11 +115,7 @@ export function $$_create_component(
   Component: FunctionComponent | ComponentConstructor,
   props: Record<string, any> | null = null,
   slots: Record<string, any> | null = null,
-  attrs: {
-    class?: string;
-    $class?: Record<string, JSX.ClassValue>;
-    $var?: Record<string, JSX.CSSValue>;
-  } | null = null,
+  attrs: HostComponentAttrs | null = null,
 ) {
   try {
     $$_slot_stack.push($$_current_slots);
@@ -120,16 +124,25 @@ export function $$_create_component(
     if (isComponentConstructor(Component)) {
       const component = createComponent(Component, { props });
 
-      if (CUSTOM_ELEMENT_SYMBOL in Component && Component.element) {
-        $$_current_custom_element = Component.element;
-      }
+      $$_current_class_component = component;
 
       component.$$.setup();
 
       if (attrs) {
         component.$$[ATTACH_SYMBOL].push((host) => {
-          // TODO: map props to attributes
-          // set attrs
+          const $$host = host as unknown as ServerElement;
+
+          if (attrs.class) {
+            $$host.classList.parse(attrs.class);
+          }
+
+          if (attrs.$class) {
+            $$_class_props($$host.classList, attrs.$class);
+          }
+
+          if (attrs.$var) {
+            $$_style_props($$host.style, attrs.$var);
+          }
         });
       }
 
@@ -138,13 +151,11 @@ export function $$_create_component(
         : null;
 
       return result;
-    } else if (Component === Host) {
-      // ...
     } else {
       return Component(props ?? {});
     }
   } finally {
-    $$_current_custom_element = null;
+    $$_current_class_component = null;
     $$_set_current_slots($$_slot_stack.pop()!);
   }
 }

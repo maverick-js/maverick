@@ -19,7 +19,6 @@ function defineTypes() {
   return {
     input: {
       index: 'types/index.d.ts',
-      server: 'types/server/index.d.ts',
     },
     output: {
       dir: 'dist-npm',
@@ -48,7 +47,6 @@ function define({ type = 'dev' }) {
   return {
     input: {
       index: 'src/index.ts',
-      server: 'src/server/index.ts',
     },
     external: EXTERNAL,
     treeshake: true,

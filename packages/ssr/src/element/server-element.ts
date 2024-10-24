@@ -6,6 +6,12 @@ export class ServerElement<T extends AnyComponent = AnyComponent> implements HTM
   keepAlive = false;
   forwardKeepAlive = true;
 
+  readonly tagName: string;
+
+  get localName() {
+    return this.tagName.toLowerCase();
+  }
+
   readonly $: T;
   readonly attributes = new ServerAttributes();
   readonly style = new ServerStyleDeclaration();
@@ -23,7 +29,8 @@ export class ServerElement<T extends AnyComponent = AnyComponent> implements HTM
     return this.$.state;
   }
 
-  constructor(component: T) {
+  constructor(tagName: string, component: T) {
+    this.tagName = tagName.toUpperCase();
     this.$ = component;
   }
 
@@ -91,6 +98,8 @@ export class ServerElement<T extends AnyComponent = AnyComponent> implements HTM
 export interface HTMLServerElement
   extends Pick<
     HTMLElement,
+    | 'tagName'
+    | 'localName'
     | 'getAttribute'
     | 'setAttribute'
     | 'hasAttribute'

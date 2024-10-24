@@ -11,7 +11,7 @@ test('ref', () => {
   class Foo extends Component {
     static element: CustomElementOptions = {
       name: '',
-      default: 'div',
+      defaultTag: 'div',
     };
 
     override render(): JSX.Element {

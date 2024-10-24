@@ -21,7 +21,7 @@ test('<Host>', () => {
   class Foo extends Component {
     static element: CustomElementOptions = {
       name: 'mk-foo',
-      default: 'div',
+      defaultTag: 'div',
     };
 
     override render(): JSX.Element {
@@ -52,7 +52,7 @@ test('attach to host', () => {
   class Foo extends Component<{}, {}, { click: MaverickEvent<void> }, { foo: number }> {
     static element: CustomElementOptions = {
       name: 'mk-foo',
-      default: 'div',
+      defaultTag: 'div',
     };
 
     override render(): JSX.Element {

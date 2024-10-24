@@ -26,7 +26,7 @@ test('host vars', () => {
   class Foo extends Component<{}, {}, {}, CSSVars> {
     static element: CustomElementOptions = {
       name: '',
-      default: 'div',
+      defaultTag: 'div',
     };
 
     override render(): JSX.Element {

@@ -10,7 +10,7 @@ afterEach(() => {
 class Foo extends Component {
   static element: CustomElementOptions = {
     name: 'mk-foo',
-    default: 'div',
+    defaultTag: 'div',
   };
 
   override render() {
@@ -26,7 +26,7 @@ class Foo extends Component {
 class Bar extends Component {
   static element: CustomElementOptions = {
     name: 'mk-bar',
-    default: 'div',
+    defaultTag: 'div',
   };
 
   override render() {

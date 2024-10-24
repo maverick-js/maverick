@@ -70,7 +70,7 @@ export let $$_current_host_element: HTMLElement | null = null;
 export let $$_rendering_custom_element = false;
 
 /** @internal */
-export const $$_component_stack: Array<AnyComponent | null> = [];
+export const $$_class_component_stack: Array<AnyComponent | null> = [];
 
 /** @internal */
 export const $$_slot_stack: Array<SlotRecord | null> = [];
@@ -90,7 +90,7 @@ export function $$_create_component(
 
       if (isComponentConstructor(Component)) {
         try {
-          $$_component_stack.push($$_current_class_component);
+          $$_class_component_stack.push($$_current_class_component);
 
           const customElement = createCustomElement(Component),
             component = customElement?.$ ?? createComponent(Component, { props });
@@ -113,7 +113,8 @@ export function $$_create_component(
             return component.render ? scoped(() => component!.render!(), component.$$.scope) : null;
           }
         } finally {
-          $$_current_class_component = $$_component_stack.pop()!;
+          $$_current_host_element = null;
+          $$_current_class_component = $$_class_component_stack.pop()!;
         }
       } else if (Component === Host) {
         if (__DEV__ && !$$_current_class_component) {
@@ -140,7 +141,6 @@ export function $$_create_component(
         return Component(props ?? {});
       }
     } finally {
-      $$_current_host_element = null;
       $$_set_current_slots($$_slot_stack.pop()!);
     }
   });

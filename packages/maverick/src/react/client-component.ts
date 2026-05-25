@@ -39,7 +39,8 @@ export function createClientComponent<T extends Component>(
       let state = stateRef.current!,
         scope = parentScopeRef.current;
 
-      window.cancelAnimationFrame(state.destroyId);
+      // Cancel any pending destroy (handles React strict mode remount).
+      clearTimeout(state.destroyId);
       state.destroyId = -1;
 
       if (state.component!.$$.destroyed) {
@@ -70,8 +71,8 @@ export function createClientComponent<T extends Component>(
         return;
       }
 
-      window.cancelAnimationFrame(state.refChangeId);
-      state.refChangeId = window.requestAnimationFrame(() => {
+      clearTimeout(state.refChangeId);
+      state.refChangeId = window.setTimeout(() => {
         const state = stateRef.current!;
         state.refChangeId = -1;
 
@@ -87,21 +88,24 @@ export function createClientComponent<T extends Component>(
     React.useEffect(() => {
       const state = stateRef.current!;
 
-      window.cancelAnimationFrame(state.destroyId);
+      // Cancel any pending destroy from a previous cleanup (React strict mode).
+      clearTimeout(state.destroyId);
       state.destroyId = -1;
 
       return function onDestroy() {
         // Headless components will be destroyed by parent scope.
         if (!isFunction(props.children)) return;
 
-        window.cancelAnimationFrame(state.refChangeId);
+        clearTimeout(state.refChangeId);
         state.refChangeId = -1;
 
-        window.cancelAnimationFrame(state.connectId);
+        clearTimeout(state.connectId);
         state.connectId = -1;
 
-        window.cancelAnimationFrame(state.destroyId);
-        state.destroyId = window.requestAnimationFrame(() => {
+        // Schedule destroy in a `setTimeout` so React strict mode's synchronous remount can
+        // cancel it before it fires. This is the same pattern used by TanStack Query et al.
+        clearTimeout(state.destroyId);
+        state.destroyId = window.setTimeout(() => {
           state.destroyId = -1;
 
           detachFromHost(state);
@@ -237,7 +241,7 @@ function attachToHost<T extends Component>(state: InternalState<T>, el: HTMLElem
 
   state.component.$$.attach(el);
 
-  state.connectId = window.requestAnimationFrame(() => {
+  state.connectId = window.setTimeout(() => {
     state.component.$$.connect();
     state.connectId = -1;
   });
@@ -248,7 +252,7 @@ function attachToHost<T extends Component>(state: InternalState<T>, el: HTMLElem
 function detachFromHost<T extends Component>(state: InternalState<T>) {
   if (!state.attached) return;
 
-  window.cancelAnimationFrame(state.connectId);
+  clearTimeout(state.connectId);
 
   state.connectId = -1;
   state.component.$$.detach();

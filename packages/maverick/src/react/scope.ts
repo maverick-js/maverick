@@ -70,6 +70,11 @@ class ScopeProvider extends React.Component<React.PropsWithChildren> {
     if (Ctor.#context) provideContext(Ctor.#context, Ctor.#provide?.(), this.#scope.current!);
   }
 
+  override componentWillUnmount() {
+    this.#scope.current?.dispose();
+    this.#scope.current = null;
+  }
+
   override render() {
     return WithScope(this.#scope, this.props?.children);
   }

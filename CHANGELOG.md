@@ -1,3 +1,10 @@
+# [0.44.0](https://github.com/maverick-js/maverick/compare/v0.43.2...v0.44.0) (2026-05-25)
+
+
+### Bug Fixes
+
+* **cli:** use tsc instead of tsgo for dts generation ([b4810a5](https://github.com/maverick-js/maverick/commit/b4810a535f0279ca68f882eb913229ec9c2eb20d))
+* **react:** use setTimeout for destroy scheduling and fix scope disposal ([662acea](https://github.com/maverick-js/maverick/commit/662acea10b4ce350d607e5a812c89449ee0927c2))
 ## [0.43.2](https://github.com/maverick-js/maverick/compare/v0.43.1...v0.43.2) (2024-08-07)
 
 ### Bug Fixes

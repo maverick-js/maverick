@@ -4,7 +4,7 @@
       "type": "component",
       "name": "TestComponent",
       "file": {
-        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/component.ts"
+        "path": "/Users/rahimalwer/Desktop/projects.nosync/maverick/packages/cli/tests/analyze/fixtures/component.ts"
       },
       "docs": "This is the `TestComponent` documentation.",
       "props": [
@@ -504,7 +504,7 @@
     {
       "type": "element",
       "file": {
-        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/custom-element.ts"
+        "path": "/Users/rahimalwer/Desktop/projects.nosync/maverick/packages/cli/tests/analyze/fixtures/custom-element.ts"
       },
       "name": "TestElement",
       "docs": "Something about this element.",
@@ -556,7 +556,7 @@
     {
       "type": "react",
       "file": {
-        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/react.tsx"
+        "path": "/Users/rahimalwer/Desktop/projects.nosync/maverick/packages/cli/tests/analyze/fixtures/react.tsx"
       },
       "namespace": "React",
       "name": "Foo",
@@ -653,7 +653,7 @@
     {
       "type": "react",
       "file": {
-        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/react.tsx"
+        "path": "/Users/rahimalwer/Desktop/projects.nosync/maverick/packages/cli/tests/analyze/fixtures/react.tsx"
       },
       "namespace": "React",
       "name": "Bar",
@@ -674,7 +674,7 @@
           "type": {
             "primitive": "mixed",
             "concise": "ReactNode",
-            "full": "string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined"
+            "full": "string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined"
           }
         },
         {

@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["es2020"],
+    "lib": ["es2022"],
     "paths": {
       "maverick.js": ["./src/index"],
       "maverick.js/*": ["./src/*"]

@@ -4,15 +4,14 @@
   "license": "MIT",
   "version": "0.43.2",
   "type": "module",
-  "types": "index.d.ts",
+  "types": "dist/dev/index.d.ts",
   "module": "dist/prod/index.js",
   "sideEffects": false,
   "files": [
-    "dist/",
-    "*.d.ts"
+    "dist/"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=22"
   },
   "contributors": [
     "Rahim Alwer <rahim.alwer@gmail.com>"
@@ -26,53 +25,45 @@
     "url": "https://github.com/maverick-js/maverick/issues"
   },
   "scripts": {
-    "dev": "rollup -c -w",
-    "build": "pnpm clean && pnpm types && rollup -c",
-    "clean": "rimraf dist types *.d.ts",
-    "types": "tsc -p tsconfig.build.json",
+    "dev": "vp pack --watch",
+    "build": "vp pack",
     "test": "pnpm test:client && pnpm test:server",
-    "format": "prettier src --write --loglevel warn",
-    "test:client": "vitest --run",
-    "test:client:watch": "vitest --watch",
-    "test:server": "SERVER=true vitest --run",
-    "test:server:watch": "SERVER=true vitest --watch"
+    "test:client": "vp test --run",
+    "test:client:watch": "vp test --watch",
+    "test:server": "SERVER=true vp test --run",
+    "test:server:watch": "SERVER=true vp test --watch"
   },
   "devDependencies": {
-    "@edge-runtime/vm": "^2.1.0",
+    "@edge-runtime/vm": "^5.0.0",
     "@maverick-js/signals": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-replace": "^5.0.7",
-    "@rollup/plugin-sucrase": "^5.0.2",
-    "@types/node": "^18.0.3",
-    "@types/react": "^18.0.24",
-    "@types/react-dom": "^18.0.8",
-    "globby": "^14.0.0",
-    "jsdom": "^20.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "rimraf": "^5.0.5",
-    "rollup": "^4.7.0",
-    "rollup-plugin-dts": "^6.1.0",
-    "type-fest": "^4.8.3",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.0",
-    "vitest": "^1.0.0"
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@typescript/native-preview": "7.0.0-dev.20260525.1",
+    "globby": "^14.1.0",
+    "jsdom": "^26.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "type-fest": "^4.41.0",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": {
-      "types": "./index.d.ts",
+      "types": "./dist/dev/index.d.ts",
       "node": "./dist/server/index.js",
       "development": "./dist/dev/index.js",
       "default": "./dist/prod/index.js"
     },
     "./element": {
-      "types": "./element.d.ts",
+      "types": "./dist/dev/element.d.ts",
       "node": "./dist/server/element.js",
       "development": "./dist/dev/element.js",
       "default": "./dist/prod/element.js"
     },
     "./react": {
-      "types": "./react.d.ts",
+      "types": "./dist/dev/react.d.ts",
       "node": "./dist/server/react.js",
       "development": "./dist/dev/react.js",
       "default": "./dist/prod/react.js"
@@ -82,12 +73,11 @@
       "default": "./dist/rsc/prod.js"
     },
     "./std": {
-      "types": "./std.d.ts",
+      "types": "./dist/dev/std.d.ts",
       "node": "./dist/server/std.js",
       "development": "./dist/dev/std.js",
       "default": "./dist/prod/std.js"
     },
-    "./dist/types/*": "./dist/types/*",
     "./package.json": "./package.json"
   },
   "publishConfig": {

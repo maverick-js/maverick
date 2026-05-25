@@ -2,6 +2,8 @@ dist/
 types/
 packages/*/plugins/
 packages/*/*.d.ts
+packages/*/src/**/*.d.ts
+!packages/*/src/**/globals.d.ts
 sandbox/
 
 *~

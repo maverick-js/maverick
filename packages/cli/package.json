@@ -6,11 +6,10 @@
   "type": "module",
   "files": [
     "dist/",
-    "cli.js",
-    "analyze.d.ts"
+    "cli.js"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=22"
   },
   "bin": {
     "maverick": "cli.js"
@@ -27,40 +26,33 @@
     "url": "https://github.com/maverick-js/maverick/issues"
   },
   "scripts": {
-    "dev": "pnpm run build --watch",
-    "build": "pnpm clean && pnpm types && rollup -c",
-    "clean": "rimraf dist types *.d.ts",
-    "types": "tsc -p tsconfig.build.json",
-    "format": "prettier src --write --loglevel warn",
-    "test": "vitest --run",
-    "test:watch": "vitest --watch"
+    "dev": "vp pack --watch",
+    "build": "vp pack",
+    "test": "vp test --run",
+    "test:watch": "vp test --watch"
   },
   "dependencies": {
-    "globby": "^14.0.0",
-    "yargs": "^17.7.0"
+    "globby": "^14.1.0",
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@types/node": "^18.0.3",
-    "@types/react": "^18.0.24",
-    "@types/yargs": "^17.0.13",
-    "esbuild": "^0.19.8",
-    "jsdom": "^23.0.1",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.2.0",
+    "@types/yargs": "^17.0.35",
+    "@typescript/native-preview": "7.0.0-dev.20260525.1",
+    "jsdom": "^26.1.0",
     "kleur": "^4.1.5",
-    "lru-cache": "^10.0.0",
-    "pathe": "^1.1.0",
-    "react": "^18.2.0",
-    "rimraf": "^5.0.5",
-    "rollup": "^4.7.0",
-    "rollup-plugin-dts": "^6.1.0",
-    "rollup-plugin-esbuild": "^6.1.0",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.0",
-    "vitest": "^1.0.0"
+    "lru-cache": "^11.5.0",
+    "pathe": "^2.0.0",
+    "react": "^19.1.0",
+    "typescript": "^5.8.3",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     "./analyze": {
-      "types": "./analyze.d.ts",
+      "types": "./dist/analyze.d.ts",
       "default": "./dist/analyze.js"
     },
     "./cli.js": "./cli.js",

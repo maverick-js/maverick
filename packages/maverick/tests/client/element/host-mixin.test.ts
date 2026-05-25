@@ -164,7 +164,7 @@ it('should render `setStyles`', () => {
 
   expect(el).toMatchInlineSnapshot(`
     <mk-test-5
-      style="flex: 1; z-index: 10;"
+      style="flex: 1 1 0%; z-index: 10;"
     />
   `);
 });

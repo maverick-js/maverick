@@ -150,17 +150,16 @@ export class ServerStyle {
   }
 }
 
-export interface ServerElement
-  extends Pick<
-    HTMLElement,
-    | 'getAttribute'
-    | 'setAttribute'
-    | 'hasAttribute'
-    | 'removeAttribute'
-    | 'dispatchEvent'
-    | 'addEventListener'
-    | 'removeEventListener'
-  > {
+export interface ServerElement extends Pick<
+  HTMLElement,
+  | 'getAttribute'
+  | 'setAttribute'
+  | 'hasAttribute'
+  | 'removeAttribute'
+  | 'dispatchEvent'
+  | 'addEventListener'
+  | 'removeEventListener'
+> {
   readonly classList: Pick<
     HTMLElement['classList'],
     'length' | 'add' | 'contains' | 'remove' | 'replace' | 'toggle' | 'toString'

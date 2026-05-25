@@ -1,18 +1,11 @@
 {
   "name": "maverick.js",
-  "description": "Build fast and type-safe UI component libraries.",
-  "license": "MIT",
   "version": "0.43.2",
-  "type": "module",
-  "types": "dist/dev/index.d.ts",
-  "module": "dist/prod/index.js",
-  "sideEffects": false,
-  "files": [
-    "dist/"
-  ],
-  "engines": {
-    "node": ">=22"
+  "description": "Build fast and type-safe UI component libraries.",
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
   },
+  "license": "MIT",
   "contributors": [
     "Rahim Alwer <rahim.alwer@gmail.com>"
   ],
@@ -21,34 +14,13 @@
     "url": "https://github.com/maverick-js/maverick.git",
     "directory": "packages/maverick"
   },
-  "bugs": {
-    "url": "https://github.com/maverick-js/maverick/issues"
-  },
-  "scripts": {
-    "dev": "vp pack --watch",
-    "build": "vp pack",
-    "test": "pnpm test:client && pnpm test:server",
-    "test:client": "vp test --run",
-    "test:client:watch": "vp test --watch",
-    "test:server": "SERVER=true vp test --run",
-    "test:server:watch": "SERVER=true vp test --watch"
-  },
-  "devDependencies": {
-    "@edge-runtime/vm": "^5.0.0",
-    "@maverick-js/signals": "^6.0.0",
-    "@types/node": "^22.15.0",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
-    "@typescript/native-preview": "7.0.0-dev.20260525.1",
-    "globby": "^14.1.0",
-    "jsdom": "^26.1.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "type-fest": "^4.41.0",
-    "vite": "catalog:",
-    "vite-plus": "catalog:",
-    "vitest": "catalog:"
-  },
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "module": "dist/prod/index.js",
+  "types": "dist/dev/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/dev/index.d.ts",
@@ -82,5 +54,33 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "dev": "vp pack --watch",
+    "build": "vp pack",
+    "test": "pnpm test:client && pnpm test:server",
+    "test:client": "vp test --run",
+    "test:client:watch": "vp test --watch",
+    "test:server": "SERVER=true vp test --run",
+    "test:server:watch": "SERVER=true vp test --watch"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
+    "@maverick-js/signals": "^6.0.0",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@typescript/native-preview": "7.0.0-dev.20260525.1",
+    "globby": "^14.1.0",
+    "jsdom": "^26.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "type-fest": "^4.41.0",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

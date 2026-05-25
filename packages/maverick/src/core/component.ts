@@ -40,24 +40,18 @@ export type InferComponentState<T> = T extends Component<any, infer State> ? Sta
 
 export type InferComponentEvents<T> = T extends Component<any, any, infer Events> ? Events : {};
 
-export type InferComponentCSSProps<T> = T extends Component<any, any, any, infer CSSVars>
-  ? CSSVars
-  : {};
+export type InferComponentCSSProps<T> =
+  T extends Component<any, any, any, infer CSSVars> ? CSSVars : {};
 
-export type InferComponentMembers<T> = T extends Component<infer Props>
-  ? Omit<Props, keyof T> & Omit<T, keyof Component>
-  : {};
+export type InferComponentMembers<T> =
+  T extends Component<infer Props> ? Omit<Props, keyof T> & Omit<T, keyof Component> : {};
 
 export type InferComponentCSSVars<
   Component extends AnyComponent,
   CSSProps = InferComponentCSSProps<Component>,
 > = { [Var in WritableKeys<CSSProps> as `--${Var & string}`]: CSSProps[Var] };
 
-export type InferComponentInstance<T> = T extends Component<
-  infer Props,
-  infer State,
-  infer Events,
-  infer CSSVars
->
-  ? Instance<Props, State, Events, CSSVars>
-  : {};
+export type InferComponentInstance<T> =
+  T extends Component<infer Props, infer State, infer Events, infer CSSVars>
+    ? Instance<Props, State, Events, CSSVars>
+    : {};

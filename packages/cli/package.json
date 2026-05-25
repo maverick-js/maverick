@@ -1,19 +1,11 @@
 {
   "name": "@maverick-js/cli",
-  "description": "Maverick CLI.",
-  "license": "MIT",
   "version": "0.43.2",
-  "type": "module",
-  "files": [
-    "dist/",
-    "cli.js"
-  ],
-  "engines": {
-    "node": ">=22"
+  "description": "Maverick CLI.",
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
   },
-  "bin": {
-    "maverick": "cli.js"
-  },
+  "license": "MIT",
   "contributors": [
     "Rahim Alwer <rahim.alwer@gmail.com>"
   ],
@@ -22,8 +14,24 @@
     "url": "https://github.com/maverick-js/maverick.git",
     "directory": "packages/compiler"
   },
-  "bugs": {
-    "url": "https://github.com/maverick-js/maverick/issues"
+  "bin": {
+    "maverick": "cli.js"
+  },
+  "files": [
+    "dist/",
+    "cli.js"
+  ],
+  "type": "module",
+  "exports": {
+    "./analyze": {
+      "types": "./dist/analyze.d.ts",
+      "default": "./dist/analyze.js"
+    },
+    "./cli.js": "./cli.js",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "dev": "vp pack --watch",
@@ -50,15 +58,7 @@
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
-  "exports": {
-    "./analyze": {
-      "types": "./dist/analyze.d.ts",
-      "default": "./dist/analyze.js"
-    },
-    "./cli.js": "./cli.js",
-    "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "access": "public"
+  "engines": {
+    "node": ">=22"
   }
 }

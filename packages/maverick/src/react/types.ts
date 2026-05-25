@@ -64,8 +64,5 @@ export type ReactEventCallbacks<E> = {
 
 export type InferReactElement<T> = T extends ReactElementProps<any, infer E, any> ? E : never;
 
-export type InferReactComponent<T> = T extends ReactProps<infer C, any>
-  ? C
-  : T extends ReactElementProps<infer C, any>
-    ? C
-    : never;
+export type InferReactComponent<T> =
+  T extends ReactProps<infer C, any> ? C : T extends ReactElementProps<infer C, any> ? C : never;

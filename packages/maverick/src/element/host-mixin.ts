@@ -335,9 +335,8 @@ export interface HostElement<T extends Component = AnyComponent> {
   destroy(): void;
 }
 
-export type InferElementComponent<T> = T extends MaverickElement<infer Component>
-  ? Component
-  : never;
+export type InferElementComponent<T> =
+  T extends MaverickElement<infer Component> ? Component : never;
 
 function extendProto(Element: Constructor<HTMLElement>, Component: ComponentConstructor) {
   const ElementProto = Element.prototype,

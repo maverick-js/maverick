@@ -70,17 +70,11 @@ export type Store<T> = {
   readonly [P in keyof PickWritable<T>]: WriteSignal<T[P]>;
 };
 
-export type InferStore<T> = T extends State<infer Record>
-  ? Store<Record>
-  : T extends Store<any>
-    ? T
-    : never;
+export type InferStore<T> =
+  T extends State<infer Record> ? Store<Record> : T extends Store<any> ? T : never;
 
-export type InferStoreRecord<T> = T extends State<infer Record>
-  ? Record
-  : T extends Store<infer Record>
-    ? Record
-    : never;
+export type InferStoreRecord<T> =
+  T extends State<infer Record> ? Record : T extends Store<infer Record> ? Record : never;
 
 export type StateContext<T> = ReadSignalRecord<T extends State<infer Record> ? Record : T>;
 

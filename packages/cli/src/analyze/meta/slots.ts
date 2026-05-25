@@ -44,7 +44,7 @@ export function buildSlotsMeta(doctags?: DocTagMeta[]): SlotMeta[] | undefined {
 
     return {
       [TS_NODE]: slot[TS_NODE],
-      name: isDefaultSlot && defaultSlots === 1 ? undefined : slot.title ?? '',
+      name: isDefaultSlot && defaultSlots === 1 ? undefined : (slot.title ?? ''),
       docs: slot.description.replace(/^-\s/, '') ?? '',
     };
   });

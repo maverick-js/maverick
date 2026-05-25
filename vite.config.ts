@@ -1,4 +1,4 @@
-import { defineConfig } from "vite-plus";
+import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
   lint: {
@@ -10,11 +10,12 @@ export default defineConfig({
   fmt: {
     useTabs: false,
     singleQuote: true,
-    trailingComma: "all",
+    trailingComma: 'all',
     printWidth: 100,
     tabWidth: 2,
+    ignorePatterns: ['packages/cli/tests/analyze/fixtures'],
   },
   staged: {
-    "*.{js,ts,jsx,tsx}": "vp check --fix",
+    '*.{js,ts,jsx,tsx}': 'vp check --fix',
   },
 });

@@ -1,16 +1,12 @@
 {
   "name": "maverick-workspace",
   "version": "0.43.2",
-  "license": "MIT",
-  "type": "module",
   "private": true,
-  "engines": {
-    "node": ">=22",
-    "pnpm": ">=10"
-  },
+  "license": "MIT",
   "workspaces": [
     "packages/*"
   ],
+  "type": "module",
   "scripts": {
     "build": "pnpm -F maverick.js build",
     "build:cli": "pnpm -F cli build",
@@ -22,6 +18,7 @@
     "test:server:watch": "pnpm -F maverick.js test:server:watch",
     "test:runtime": "pnpm test:client && pnpm test:server",
     "test:all": "pnpm test:runtime && pnpm test:cli",
+    "format": "vp fmt",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "release": "pnpm build && pnpm build:cli && node ./.scripts/release.js"
   },
@@ -38,6 +35,10 @@
   },
   "simple-git-hooks": {
     "pre-commit": "vp staged"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
   },
   "packageManager": "pnpm@10.12.1"
 }

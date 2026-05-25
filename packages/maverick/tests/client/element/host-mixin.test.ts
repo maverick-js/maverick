@@ -1,4 +1,12 @@
-import { Component, createContext, method, onDispose, prop, provideContext, useContext } from 'maverick.js';
+import {
+  Component,
+  createContext,
+  method,
+  onDispose,
+  prop,
+  provideContext,
+  useContext,
+} from 'maverick.js';
 
 import { defineCustomElement } from 'maverick.js/element';
 
@@ -76,14 +84,14 @@ it('should call lifecycle hooks', async () => {
         provideContext(Context, 1);
       }
 
-       override onAttach(el) {
+      override onAttach(el) {
         expect(el).toBeDefined();
         expect(useContext(Context)).toBe(1);
         attach();
         onDispose(detach);
       }
 
-       override onConnect(el) {
+      override onConnect(el) {
         expect(el).toBeDefined();
         expect(useContext(Context)).toBe(1);
         connect();
@@ -116,7 +124,7 @@ it('should render `setAttributes`', () => {
   class TestElement extends Host(
     HTMLElement,
     class extends Component {
-       override onAttach() {
+      override onAttach() {
         this.setAttributes({
           foo: () => 10,
           bar: 'none',
@@ -145,7 +153,7 @@ it('should render `setStyles`', () => {
   class TestElement extends Host(
     HTMLElement,
     class extends Component {
-       override onAttach() {
+      override onAttach() {
         this.setStyles({
           flex: '1',
           'flex-basis': null,
@@ -214,7 +222,7 @@ it('should define component proto on element', () => {
   }
 
   class TestElement extends Host(HTMLElement, TestComponent) {
-    static tagName = 'mk-test-6'
+    static tagName = 'mk-test-6';
   }
 
   defineCustomElement(TestElement);

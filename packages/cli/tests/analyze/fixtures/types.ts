@@ -1,4 +1,4 @@
-import { Component, State, method, prop, } from '../../../../maverick/src/core';
+import { Component, State, method, prop } from '../../../../maverick/src/core';
 import type { DOMEvent } from '../../../../maverick/src/std';
 
 interface MooProps<T> {
@@ -131,14 +131,9 @@ const state = new State<FooState>({
   get boom() {
     return this.foo + '';
   },
-})
+});
 
-export class BaseComponent extends Component<
-  FooProps & BaxProps,
-  FooState,
-  FooEvents,
-  FooCSSVars
-> {
+export class BaseComponent extends Component<FooProps & BaxProps, FooState, FooEvents, FooCSSVars> {
   static props = {
     baxHux: 30,
     huxBux: '',

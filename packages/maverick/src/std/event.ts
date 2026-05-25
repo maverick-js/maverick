@@ -190,13 +190,14 @@ export type InferEventDetail<T> = T extends { detail: infer Detail }
       ? Detail
       : unknown;
 
-export type InferEventInit<T> = T extends Constructor<DOMEvent>
-  ? DOMEventInit<InferEventDetail<InstanceType<T>>>
-  : T extends DOMEvent
-    ? DOMEventInit<InferEventDetail<T>>
-    : T extends DOMEventInit
-      ? T
-      : DOMEventInit<unknown>;
+export type InferEventInit<T> =
+  T extends Constructor<DOMEvent>
+    ? DOMEventInit<InferEventDetail<InstanceType<T>>>
+    : T extends DOMEvent
+      ? DOMEventInit<InferEventDetail<T>>
+      : T extends DOMEventInit
+        ? T
+        : DOMEventInit<unknown>;
 
 export type EventCallback<T extends Event> =
   | ((event: T) => void)
@@ -222,21 +223,22 @@ export class EventsTarget<Events> extends EventTarget {
   }
 }
 
-export type InferEvents<Target> = Target extends Component<any, any, infer Events>
-  ? Events
-  : Target extends ViewController<any, any, infer Events>
+export type InferEvents<Target> =
+  Target extends Component<any, any, infer Events>
     ? Events
-    : Target extends MaverickElement<infer Component>
-      ? InferComponentEvents<Component> & HTMLElementEventMap
-      : Target extends EventsTarget<infer Events>
-        ? Events extends {}
-          ? Events
-          : HTMLElementEventMap
-        : Target extends { $ts__events?: infer Events }
+    : Target extends ViewController<any, any, infer Events>
+      ? Events
+      : Target extends MaverickElement<infer Component>
+        ? InferComponentEvents<Component> & HTMLElementEventMap
+        : Target extends EventsTarget<infer Events>
           ? Events extends {}
             ? Events
             : HTMLElementEventMap
-          : HTMLElementEventMap;
+          : Target extends { $ts__events?: infer Events }
+            ? Events extends {}
+              ? Events
+              : HTMLElementEventMap
+            : HTMLElementEventMap;
 
 /**
  * Adds an event listener for the given `type` and returns a function which can be invoked to

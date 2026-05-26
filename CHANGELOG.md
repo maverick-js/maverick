@@ -1,3 +1,9 @@
+## [0.44.1](https://github.com/maverick-js/maverick/compare/v0.44.0...v0.44.1) (2026-05-26)
+
+
+### Bug Fixes
+
+* disable minifyInternalExports to preserve export names in DTS ([fba9ed5](https://github.com/maverick-js/maverick/commit/fba9ed5832dcc1d35d26b243e672a623b605cade))
 # [0.44.0](https://github.com/maverick-js/maverick/compare/v0.43.2...v0.44.0) (2026-05-25)
 
 

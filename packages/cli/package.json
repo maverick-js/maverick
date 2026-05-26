@@ -1,6 +1,6 @@
 {
   "name": "@maverick-js/cli",
-  "version": "0.44.0",
+  "version": "0.44.1",
   "description": "Maverick CLI.",
   "bugs": {
     "url": "https://github.com/maverick-js/maverick/issues"

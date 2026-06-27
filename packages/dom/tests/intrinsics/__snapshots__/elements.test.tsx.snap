@@ -64,12 +64,6 @@ exports[`multiple dynamic child expressions 5`] = `
 
 exports[`no children 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <div />
 </body>
 `;

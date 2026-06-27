@@ -1,64 +1,63 @@
 {
   "name": "@maverick-js/core",
-  "description": "Build type-safe UI component libraries.",
-  "license": "MIT",
   "version": "0.43.2",
-  "type": "module",
-  "types": "src/core/index.ts",
-  "module": "src/core/index.ts",
-  "sideEffects": false,
+  "description": "Build type-safe UI component libraries.",
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
+  },
+  "license": "MIT",
   "contributors": [
     "Rahim Alwer <rahim.alwer@gmail.com>"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/maverick-js/maverick.git",
-    "directory": "packages/maverick"
+    "directory": "packages/core"
   },
-  "bugs": {
-    "url": "https://github.com/maverick-js/maverick/issues"
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "module": "dist/prod/index.js",
+  "types": "dist/dev/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/dev/index.d.ts",
+      "node": "./dist/server/index.js",
+      "development": "./dist/dev/index.js",
+      "default": "./dist/prod/index.js"
+    },
+    "./jsx-runtime": {
+      "types": "./dist/dev/jsx-runtime.d.ts",
+      "node": "./dist/server/jsx-runtime.js",
+      "development": "./dist/dev/jsx-runtime.js",
+      "default": "./dist/prod/jsx-runtime.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
-    "dev": "rollup -c -w",
-    "build": "pnpm clean && pnpm types && rollup -c",
-    "clean": "rimraf dist-npm",
-    "types": "tsc -p tsconfig.build.json",
-    "test": "vitest --run",
-    "test:watch": "vitest --watch",
-    "format": "prettier src --write --loglevel warn"
+    "dev": "vp pack --watch",
+    "build": "vp pack",
+    "test": "vp test --run",
+    "test:watch": "vp test --watch"
   },
   "dependencies": {
     "@maverick-js/std": "workspace:*"
   },
   "devDependencies": {
     "@maverick-js/signals": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^15.3.0",
-    "rimraf": "^5.0.10",
-    "rollup": "^4.24.0",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-esbuild": "^6.1.1",
-    "type-fest": "^4.26.1",
-    "typescript": "^5.6.3",
-    "vite": "^5.4.9",
-    "vitest": "^2.1.3"
+    "@types/node": "^22.15.0",
+    "@typescript/native-preview": "7.0.0-dev.20260525.1",
+    "type-fest": "^4.41.0",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
-  "exports": {
-    ".": "./src/core/index.ts",
-    "./jsx-runtime": "./src/jsx/jsx-runtime.d.ts"
-  },
-  "$types": "index.d.ts",
-  "$exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "node": "./server/index.js",
-      "development": "./dev/index.js",
-      "default": "./prod/index.js"
-    },
-    "./jsx-runtime": "./jsx-runtime.d.ts",
-    "./types/*": "./types/*",
-    "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "access": "public"
+  "engines": {
+    "node": ">=22"
   }
 }

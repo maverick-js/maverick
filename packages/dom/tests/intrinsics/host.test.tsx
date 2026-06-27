@@ -46,8 +46,12 @@ test('<Host>', () => {
 
 test('attach to host', () => {
   const $foo = signal(10),
-    onClick = vi.fn(),
     ref = vi.fn();
+
+  const onClick = vi.fn((event) => {
+    expect(event.target).toBeInstanceOf(Foo);
+    expect(event.currentTarget).toBeInstanceOf(Foo);
+  });
 
   class Foo extends Component<{
     events: {
@@ -88,9 +92,7 @@ test('attach to host', () => {
   const clickEvent = new MouseEvent('click');
   el.dispatchEvent(clickEvent);
 
-  const onClickArg = onClick.mock.calls[0][0];
-  expect(onClickArg.target).toBeInstanceOf(Foo);
-  expect(onClickArg.currentTarget).toBeInstanceOf(Foo);
+  expect(onClick).toHaveBeenCalledTimes(1);
 
   expect(ref.mock.calls[0][0]).toBeInstanceOf(HTMLDivElement);
 });

@@ -1,11 +1,11 @@
-import { isFunction, isObject, splitLineBreaks } from '@maverick-js/std';
+import { isObject, splitLineBreaks } from '@maverick-js/std';
 import kleur from 'kleur';
 import { normalize } from 'pathe';
-import type { Node, SourceFile } from 'typescript';
+import type ts from 'typescript';
 
 import { ms } from './ms';
 
-export const enum LogLevel {
+export enum LogLevel {
   Silent = 0,
   Error = 1,
   Warn = 2,
@@ -67,15 +67,15 @@ export function setGlobalLogLevel(level: LogLevel): void {
   currentLogLevel = level;
 }
 
-export type Logger = (text: unknown | (() => string), level?: LogLevel) => void;
+export type Logger = (text: unknown, level?: LogLevel) => void;
 
 export const log: Logger = (text, level = LogLevel.Info) => {
   if (__TEST__ && level > LogLevel.Warn) return;
 
   if (currentLogLevel < level) return;
 
-  if (isFunction(text)) {
-    text = text();
+  if (typeof text === 'function') {
+    text = (text as () => string)();
   }
 
   if (isObject(text)) {
@@ -88,7 +88,7 @@ export const log: Logger = (text, level = LogLevel.Info) => {
           kleur.bold(kleur.black(` ${mapLogLevelToString(level).toUpperCase()} `)),
         )}`,
       ),
-      `${text}\n`,
+      `${String(text)}\n`,
     );
   }
 };
@@ -168,7 +168,7 @@ function printDiagnosticOutput({
 export interface LineDiagnosticInfo {
   message: string;
   fix?: string;
-  file: SourceFile;
+  file: ts.SourceFile;
   line: number;
 }
 
@@ -204,7 +204,7 @@ export function reportDiagnosticByLine(info: LineDiagnosticInfo, level = LogLeve
 export interface NodeDiagnosticInfo {
   message: string;
   fix?: string;
-  node: Node;
+  node: ts.Node;
 }
 
 export function reportDiagnosticByNode(

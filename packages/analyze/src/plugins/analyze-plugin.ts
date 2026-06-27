@@ -24,14 +24,14 @@ export interface CustomElementNode {
   name: string;
   root: ts.ClassDeclaration;
   tag: {
-    node: ts.PropertyDeclaration;
+    node: ts.PropertyDeclaration | ts.PropertyAssignment;
     name: string;
   };
   component?: {
     node: ts.ClassDeclaration;
     name: string;
   };
-  attrs?: ts.PropertyDeclaration;
+  attrs?: ts.PropertyDeclaration | ts.PropertyAssignment;
 }
 
 export interface ReactComponentNode {

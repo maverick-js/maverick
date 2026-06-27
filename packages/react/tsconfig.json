@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es2022"],
     "types": ["vitest/globals"]
   },
   "include": ["src", "tests"],

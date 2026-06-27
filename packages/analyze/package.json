@@ -1,0 +1,59 @@
+{
+  "name": "@maverick-js/analyze",
+  "version": "0.43.2",
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
+  },
+  "license": "MIT",
+  "contributors": [
+    "Rahim Alwer <rahim.alwer@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maverick-js/maverick.git",
+    "directory": "packages/analyze"
+  },
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "vp pack --watch",
+    "build": "vp pack",
+    "test": "vp test --run",
+    "test:watch": "vp test --watch"
+  },
+  "dependencies": {
+    "@maverick-js/logger": "workspace:*",
+    "@maverick-js/std": "workspace:*",
+    "globby": "^14.1.0",
+    "kleur": "^4.1.5",
+    "pathe": "^2.0.0",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.2.0",
+    "@typescript/native-preview": "7.0.0-dev.20260525.1",
+    "react": "^19.1.0",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

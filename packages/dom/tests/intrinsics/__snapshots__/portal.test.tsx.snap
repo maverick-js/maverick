@@ -2,12 +2,6 @@
 
 exports[`portal 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <div
     data-portal=""
     style="display: contents;"

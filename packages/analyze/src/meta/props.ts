@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import { escapeQuotes } from '../../utils/str';
+import { escapeQuotes } from '../utils/str';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta } from '../utils/types';
 import { getPropertiesAndGetters } from '../utils/walk';

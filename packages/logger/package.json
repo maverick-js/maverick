@@ -1,11 +1,10 @@
 {
   "name": "@maverick-js/logger",
-  "license": "MIT",
   "version": "0.43.2",
-  "type": "module",
-  "types": "src/index.ts",
-  "module": "src/index.ts",
-  "sideEffects": false,
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
+  },
+  "license": "MIT",
   "contributors": [
     "Rahim Alwer <rahim.alwer@gmail.com>"
   ],
@@ -14,45 +13,38 @@
     "url": "https://github.com/maverick-js/maverick.git",
     "directory": "packages/logger"
   },
-  "bugs": {
-    "url": "https://github.com/maverick-js/maverick/issues"
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
-    "dev": "rollup -c -w",
-    "build": "pnpm clean && pnpm types && pnpm bundle",
-    "bundle": "rollup -c",
-    "clean": "rimraf dist-npm",
-    "types": "tsc -p tsconfig.build.json",
-    "test": "pnpm test:client",
-    "test:watch": "vitest --watch",
-    "format": "prettier src --write --loglevel warn"
+    "dev": "vp pack --watch",
+    "build": "vp pack"
   },
   "dependencies": {
     "@maverick-js/std": "workspace:*"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@typescript/native-preview": "7.0.0-dev.20260525.1",
     "kleur": "^4.1.5",
-    "pathe": "^1.1.2",
-    "rimraf": "^5.0.10",
-    "rollup": "^4.24.0",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-esbuild": "^6.1.1",
-    "typescript": "^5.6.3"
+    "pathe": "^2.0.0",
+    "typescript": "^5.8.3",
+    "vite-plus": "catalog:"
   },
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "$types": "index.d.ts",
-  "$exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
-    },
-    "./types/*": "./types/*",
-    "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "access": "public"
+  "engines": {
+    "node": ">=22"
   }
 }

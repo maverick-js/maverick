@@ -59,14 +59,14 @@ class ScopeProvider extends React.Component<React.PropsWithChildren> {
 
   #scope: ReactScopeRef;
 
-  constructor(props, context?: Scope) {
+  constructor(props, context?: ReactScopeRef) {
     super(props);
 
     this.#scope = {
       current: createScope(),
     };
 
-    if (context) context.append(this.#scope.current!);
+    context?.current?.append(this.#scope.current!);
 
     const Ctor = this.constructor as typeof ScopeProvider;
     if (Ctor.context) provideContext(Ctor.context, Ctor.provide?.(), this.#scope.current!);

@@ -1,10 +1,10 @@
 {
   "name": "@maverick-js/react",
-  "license": "MIT",
   "version": "0.43.2",
-  "type": "module",
-  "module": "src/index.ts",
-  "sideEffects": false,
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
+  },
+  "license": "MIT",
   "contributors": [
     "Rahim Alwer <rahim.alwer@gmail.com>"
   ],
@@ -13,64 +13,58 @@
     "url": "https://github.com/maverick-js/maverick.git",
     "directory": "packages/react"
   },
-  "bugs": {
-    "url": "https://github.com/maverick-js/maverick/issues"
-  },
-  "scripts": {
-    "dev": "rollup -c -w",
-    "build": "pnpm clean && pnpm types && rollup -c",
-    "clean": "rimraf dist-npm",
-    "types": "tsc -p tsconfig.build.json",
-    "test": "pnpm test:client && pnpm test:server",
-    "format": "prettier src --write --loglevel warn",
-    "test:pre": "node .scripts/test-pre.js",
-    "test:base": "pnpm test:pre && vitest -c vite.config.js --run",
-    "test:base:watch": "pnpm test:pre && vitest -c vite.config.js --watch",
-    "test:client": "pnpm run test:base",
-    "test:watch": "pnpm run test:base:watch",
-    "test:server": "SERVER=true pnpm run test:base",
-    "test:server:watch": "SERVER=true pnpm run test:base:watch"
-  },
-  "dependencies": {
-    "@maverick-js/dom": "workspace:^",
-    "@maverick-js/ssr": "workspace:^",
-    "@maverick-js/std": "workspace:*"
-  },
-  "devDependencies": {
-    "@edge-runtime/vm": "^2.1.2",
-    "@maverick-js/compiler": "workspace:*",
-    "@maverick-js/core": "workspace:*",
-    "@rollup/plugin-node-resolve": "^15.3.0",
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.1",
-    "@vitest/browser": "^2.1.3",
-    "esbuild": "^0.19.12",
-    "playwright": "^1.48.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "rimraf": "^5.0.10",
-    "rollup": "^4.24.0",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-esbuild": "^6.1.1",
-    "type-fest": "^4.26.1",
-    "typescript": "^5.6.3",
-    "vite": "^5.4.9",
-    "vitest": "^2.1.3"
-  },
-  "peerDependencies": {
-    "@maverick-js/core": "workspace:*"
-  },
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "module": "dist/prod/index.js",
+  "types": "dist/dev/index.d.ts",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "node": "./server/index.js",
-      "development": "./dev/index.js",
-      "default": "./prod/index.js"
+      "types": "./dist/dev/index.d.ts",
+      "node": "./dist/server/index.js",
+      "development": "./dist/dev/index.js",
+      "default": "./dist/prod/index.js"
     },
-    "./types/*": "./types/*",
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "dev": "vp pack --watch",
+    "build": "vp pack",
+    "test": "pnpm test:client && pnpm test:server",
+    "test:client": "vp test --run",
+    "test:client:watch": "vp test --watch",
+    "test:server": "SERVER=true vp test --run",
+    "test:server:watch": "SERVER=true vp test --watch"
+  },
+  "dependencies": {
+    "@maverick-js/dom": "workspace:*",
+    "@maverick-js/ssr": "workspace:*",
+    "@maverick-js/std": "workspace:*"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
+    "@maverick-js/compiler": "workspace:*",
+    "@maverick-js/core": "workspace:*",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@typescript/native-preview": "7.0.0-dev.20260525.1",
+    "jsdom": "^26.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "type-fest": "^4.41.0",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@maverick-js/core": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

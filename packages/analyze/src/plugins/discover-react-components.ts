@@ -1,7 +1,7 @@
 import { basename, dirname, extname, resolve } from 'pathe';
 import ts from 'typescript';
 
-import { kebabToPascalCase } from '../../utils/str';
+import { kebabToPascalCase } from '../utils/str';
 import { getDeclaration } from '../utils/declaration';
 import { serializeType } from '../utils/types';
 import { getReturnExpression, walkTypeHeritage } from '../utils/walk';
@@ -42,7 +42,7 @@ export function discoverReactComponents(checker: ts.TypeChecker, sourceFile: ts.
       const file = node.getSourceFile().fileName,
         root = kebabToPascalCase(basename(file, extname(file)));
       for (const specifier of node.exportClause.elements) {
-        const name = specifier.name.escapedText,
+        const name = specifier.name.text,
           component = discovered.find((node) => node.name === name);
         if (component) {
           component.namespace = root;
@@ -78,8 +78,8 @@ export function discoverReactComponents(checker: ts.TypeChecker, sourceFile: ts.
         }
 
         for (const el of node.exportClause.elements) {
-          const name = el.name.escapedText as string,
-            propName = (el.propertyName?.escapedText as string) ?? name;
+          const name = el.name.text,
+            propName = el.propertyName?.text ?? name;
           currentExport.alias![propName] = name;
         }
       }
@@ -272,7 +272,7 @@ function findElementTypeArgs(checker: ts.TypeChecker, props: ts.Declaration) {
           if (elTypeArg && ts.isTypeReferenceNode(elTypeArg)) {
             const id = elTypeArg.typeName;
             if (ts.isIdentifier(id)) {
-              attributes = `HTMLAttributes<${id.escapedText}>`;
+              attributes = `HTMLAttributes<${id.text}>`;
             }
           } else {
             attributes = `HTMLAttributes`;

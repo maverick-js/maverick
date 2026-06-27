@@ -1,11 +1,10 @@
 {
   "name": "@maverick-js/compiler",
-  "license": "MIT",
   "version": "0.43.2",
-  "type": "module",
-  "types": "src/index.ts",
-  "module": "src/index.ts",
-  "sideEffects": false,
+  "bugs": {
+    "url": "https://github.com/maverick-js/maverick/issues"
+  },
+  "license": "MIT",
   "contributors": [
     "Rahim Alwer <rahim.alwer@gmail.com>"
   ],
@@ -14,54 +13,49 @@
     "url": "https://github.com/maverick-js/maverick.git",
     "directory": "packages/compiler"
   },
-  "bugs": {
-    "url": "https://github.com/maverick-js/maverick/issues"
-  },
-  "scripts": {
-    "dev": "rollup -c -w",
-    "build": "pnpm clean && pnpm types && rollup -c",
-    "clean": "rimraf dist-npm",
-    "types": "tsc -p tsconfig.build.json",
-    "test": "vitest --run",
-    "test:watch": "vitest --watch",
-    "format": "prettier src --write --loglevel warn"
-  },
-  "dependencies": {
-    "@maverick-js/logger": "workspace:*",
-    "@maverick-js/std": "workspace:*",
-    "@maverick-js/ts": "workspace:*"
-  },
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.1",
-    "@rollup/plugin-node-resolve": "^15.3.0",
-    "html-entities": "^2.5.2",
-    "pathe": "^1.1.2",
-    "rimraf": "^5.0.10",
-    "rollup": "^4.24.0",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-esbuild": "^6.1.1",
-    "typescript": "^5.6.3",
-    "vite": "^5.4.9",
-    "vitest": "^2.1.3"
-  },
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./vite": "./src/vite.ts"
-  },
-  "$types": "index.d.ts",
-  "$exports": {
     ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./vite": {
-      "types": "./vite.d.ts",
-      "default": "./vite.js"
+      "types": "./dist/vite.d.ts",
+      "default": "./dist/vite.js"
     },
-    "./types/*": "./types/*",
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "dev": "vp pack --watch",
+    "build": "vp pack",
+    "test": "vp test --run",
+    "test:watch": "vp test --watch"
+  },
+  "dependencies": {
+    "@maverick-js/logger": "workspace:*",
+    "@maverick-js/std": "workspace:*",
+    "@maverick-js/ts": "workspace:*",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@typescript/native-preview": "7.0.0-dev.20260525.1",
+    "html-entities": "^2.5.2",
+    "pathe": "^2.0.0",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

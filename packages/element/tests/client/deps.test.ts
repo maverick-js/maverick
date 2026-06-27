@@ -118,19 +118,19 @@ it('should wait for parents to connect', async () => {
   defineElement(Child);
   expect(child[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
 
-  window.customElements.whenDefined(GrandChild.element.name);
-  window.customElements.whenDefined(Child.element.name);
+  void window.customElements.whenDefined(GrandChild.element.name);
+  void window.customElements.whenDefined(Child.element.name);
 
   expect(child[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
   expect(grandchild[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
 
   defineElement(ParentB);
-  window.customElements.whenDefined(ParentB.element.name);
+  void window.customElements.whenDefined(ParentB.element.name);
 
   expect(parentB[SETUP_STATE_SYMBOL] === 1).toBeTruthy();
 
   defineElement(ParentA);
-  window.customElements.whenDefined(ParentA.element.name);
+  void window.customElements.whenDefined(ParentA.element.name);
 
   expect(parentA[SETUP_STATE_SYMBOL] === 2).toBeTruthy();
 
@@ -142,6 +142,7 @@ it('should wait for parents to connect', async () => {
 
   parentA.remove();
 
+  await Promise.resolve();
   await waitTimeout(0);
   await waitAnimationFrame();
 

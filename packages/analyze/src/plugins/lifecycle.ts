@@ -2,8 +2,8 @@ import kleur from 'kleur';
 import { createHash } from 'node:crypto';
 import type ts from 'typescript';
 
-import { formatPluginName, log, LogLevel, logTime } from '../../utils/logger';
-import { isUndefined } from '../../utils/unit';
+import { formatPluginName, log, LogLevel, logTime } from '../utils/logger';
+import { isUndefined } from '../utils/unit';
 import type { ComponentMeta } from '../meta/component';
 import type { CustomElementMeta } from '../meta/custom-element';
 import type { ReactComponentMeta } from '../meta/react';

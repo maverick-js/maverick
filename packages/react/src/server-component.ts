@@ -1,11 +1,11 @@
 import { type Component, type ComponentConstructor, createComponent } from '@maverick-js/core';
+import { ServerElement } from '@maverick-js/ssr';
+import { isFunction, kebabToCamelCase } from '@maverick-js/std';
 import * as React from 'react';
 
-import { kebabToCamelCase } from '../../../std/src/string';
-import { isFunction } from '../../../std/src/unit';
-import { attrsToProps } from '../attrs-map';
-import { ReactScopeContext, WithScope } from '../scope';
-import type { ReactBridgeProps } from '../types';
+import { attrsToProps } from './attrs-map';
+import { ReactScopeContext, WithScope } from './scope';
+import type { ReactBridgeProps } from './types';
 
 export interface CreateReactServerComponentOptions {
   props: Set<string>;
@@ -21,9 +21,10 @@ export function createServerComponent<T extends Component>(
         props,
         scope: scope.current,
       }),
-      host = new ServerElement(component),
+      tagName = Component.element?.fallbackTag ?? Component.name,
+      host = new ServerElement(tagName, component),
       attrs: Record<string, any> = {},
-      { style = {}, children, forwardRef, ...renderProps } = props;
+      { style = {}, children, forwardRef: _forwardRef, ...renderProps } = props;
 
     if (options.props.size) {
       for (const prop of Object.keys(renderProps)) {

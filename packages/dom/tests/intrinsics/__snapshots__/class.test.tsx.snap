@@ -26,12 +26,6 @@ exports[`signal 2`] = `
 
 exports[`static 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <div
     class="... foo"
   />

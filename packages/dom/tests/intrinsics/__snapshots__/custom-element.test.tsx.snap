@@ -2,12 +2,6 @@
 
 exports[`render 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <mk-foo
     data-foo=""
     data-maverick=""
@@ -26,7 +20,12 @@ exports[`render 1`] = `
     <mk-hux
       data-hux=""
       data-maverick=""
-    />
+    >
+      #shadow-root
+        <div>
+          Hux Content
+        </div>
+    </mk-hux>
   </mk-foo>
 </body>
 `;

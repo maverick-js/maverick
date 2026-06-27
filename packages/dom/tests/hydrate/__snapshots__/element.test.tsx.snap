@@ -2,12 +2,6 @@
 
 exports[`hydrate 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <!--$-->
   <div>
     Count is
@@ -30,12 +24,6 @@ exports[`hydrate 1`] = `
 
 exports[`hydrate 2`] = `
 <body>
-  
-    
-  
-  
-
-
   <!--$-->
   <div>
     Count is
@@ -57,12 +45,6 @@ exports[`hydrate 2`] = `
 
 exports[`hydrate 3`] = `
 <body>
-  
-    
-  
-  
-
-
   <!--$-->
   <div>
     Count is

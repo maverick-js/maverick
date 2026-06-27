@@ -1,8 +1,9 @@
 dist/
-dist-*/
 types/
 packages/*/plugins/
 packages/*/*.d.ts
+packages/*/src/**/*.d.ts
+!packages/*/src/**/globals.d.ts
 sandbox/
 
 *~
@@ -11,6 +12,7 @@ sandbox/
 *.lock*
 *.tmp
 *.tmp.*
+*.tsbuildinfo
 *.sln
 *.suo
 *.ntvs*
@@ -28,9 +30,6 @@ pnpm-debug.log*
 /libpeerconnection.log
 chrome-profiler-events*.json
 speed-measure-plugin*.json
-tsconfig.build.tsbuild*
-vite.config.js
-vite.config.js.*
 
 /.link
 /tmp

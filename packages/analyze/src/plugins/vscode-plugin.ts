@@ -1,7 +1,7 @@
 import { dirname } from 'pathe';
 
-import { camelToKebabCase, escapeQuotes } from '../../utils/str';
-import { isUndefined } from '../../utils/unit';
+import { camelToKebabCase, escapeQuotes } from '../utils/str';
+import { isUndefined } from '../utils/unit';
 import type { ComponentMeta, PropMeta } from '../meta/component';
 import type { CustomElementMeta } from '../meta/custom-element';
 import { resolveConfigPaths } from '../utils/resolve';

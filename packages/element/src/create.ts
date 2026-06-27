@@ -53,13 +53,16 @@ export function $$_define_custom_element(Component: ComponentConstructor) {
 
 export function defineElement(Component: ComponentConstructor) {
   if (__SERVER__) return;
-  window.customElements.define(Component.element!.name, createElementClass(Component));
+  window.customElements.define(
+    Component.element!.name,
+    createElementClass(Component) as unknown as CustomElementConstructor,
+  );
 }
 
 export function createElementClass<T extends Component>(
   Component: ComponentConstructor<T>,
 ): MaverickElementConstructor<T> {
-  class MaverickElement extends HTMLElement implements MaverickCustomElement<T> {
+  class MaverickElement extends HTMLElement {
     static readonly tagName = Component.element!.name;
 
     private static [ATTRS_SYMBOL]: Map<
@@ -203,7 +206,7 @@ export function createElementClass<T extends Component>(
 
       if (!this.keepAlive && !this.hasAttribute('keep-alive')) {
         setTimeout(() => {
-          requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
             if (!this.isConnected) instance.destroy();
           });
         }, 0);
@@ -235,12 +238,8 @@ export function createElementClass<T extends Component>(
       instance.setup();
 
       if (this.$.render) {
-        let target: Node = this,
-          shadowRoot = Component.element?.shadowRoot;
-
-        if (shadowRoot) {
-          target = attachShadow(this, shadowRoot);
-        }
+        const shadowRoot = Component.element?.shadowRoot,
+          target = shadowRoot ? attachShadow(this, shadowRoot) : this;
 
         scoped(() => {
           const renderer = this.$[RENDER_SYMBOL];
@@ -342,7 +341,7 @@ function setup(this: MaverickCustomElement) {
     isParentSetup = parent && parent[SETUP_STATE_SYMBOL] === SetupState.Ready;
 
   if (parent && (!isParentRegistered || !isParentSetup)) {
-    waitForParent.call(this, parent);
+    void waitForParent.call(this, parent);
     return;
   }
 

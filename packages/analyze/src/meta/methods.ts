@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import { isUndefined } from '../../utils/unit';
+import { isUndefined } from '../utils/unit';
 import { getDocs } from '../utils/docs';
 import { buildTypeMeta, serializeType } from '../utils/types';
 import type { MethodMeta, ParameterMeta } from './component';
@@ -15,7 +15,7 @@ export function buildMethodMeta(
   checker: ts.TypeChecker,
   name: string,
   declaration: ts.MethodSignature | ts.MethodDeclaration | ts.FunctionDeclaration,
-  info: MethodMetaInfo,
+  _info: MethodMetaInfo,
 ): MethodMeta {
   const docs = getDocs(checker, declaration.name as ts.Identifier),
     doctags = getDocTags(declaration),

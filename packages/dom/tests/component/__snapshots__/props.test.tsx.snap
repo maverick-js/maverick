@@ -20,12 +20,6 @@ exports[`pass props to class component 2`] = `
 
 exports[`pass props to function component 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <div>
     10
     20

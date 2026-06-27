@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
     "alwaysStrict": true,
     "checkJs": true,
@@ -11,7 +10,7 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
-    "lib": ["es2020"],
+    "lib": ["es2022"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": false,
@@ -23,8 +22,8 @@
     "skipLibCheck": true,
     "sourceMap": false,
     "strict": true,
-    "target": "esnext",
-    "useDefineForClassFields": true,
+    "target": "es2022",
+    "useDefineForClassFields": false,
     "verbatimModuleSyntax": true
   },
   "exclude": ["node_modules", "packages/*/dist", "packages/*/*.d.ts"]

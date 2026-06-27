@@ -1,7 +1,7 @@
-import { Component } from '@maverick-js/core';
-import type { ReactElementProps } from '@maverick-js/react';
-import type { MaverickEvent } from '@maverick-js/std';
-import * as React from 'react';
+import { Component } from "@maverick-js/core";
+import type { ReactElementProps } from "@maverick-js/react";
+import type { MaverickEvent } from "@maverick-js/std";
+import * as React from "react";
 
 /* -------------------------------------------------------------------------------------------------
  * Foo
@@ -25,11 +25,11 @@ interface FooProps extends React.SVGAttributes<SVGElement> {
  *
  * @internal
  */
-function Foo(props: FooProps) {
+function Foo(_props: FooProps) {
   return <div>0</div>;
 }
 
-Foo.displayName = 'FooComponent';
+Foo.displayName = "FooComponent";
 
 /* -------------------------------------------------------------------------------------------------
  * Bar
@@ -52,7 +52,10 @@ interface BarComponentEvents {
   bar: MaverickEvent<void>;
 }
 
-class BarComponent extends Component<BarComponentProps, {}, BarComponentEvents> {}
+class BarComponent extends Component<{
+  props: BarComponentProps;
+  events: BarComponentEvents;
+}> {}
 
 interface BarProps extends ReactElementProps<BarComponent, HTMLButtonElement> {
   asChild?: boolean;
@@ -60,10 +63,10 @@ interface BarProps extends ReactElementProps<BarComponent, HTMLButtonElement> {
   ref?: React.Ref<HTMLButtonElement>;
 }
 
-const Bar = React.forwardRef<HTMLButtonElement, BarProps>((props) => {
+const Bar = React.forwardRef<HTMLButtonElement, BarProps>((_props) => {
   return null;
 });
 
-Bar.displayName = 'BarComponent';
+Bar.displayName = "BarComponent";
 
 export { Foo, Bar };

@@ -2,12 +2,6 @@
 
 exports[`children 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <div>
     <span
       data-test="foo"

@@ -27,12 +27,6 @@ exports[`signal 2`] = `
 
 exports[`static 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <div
     data-bar="1080"
     data-foo="1920"

@@ -59,7 +59,7 @@ function insertExpression(
     } else if (currentNodes.length) {
       reconcile(parent, currentNodes, newNodes);
     } else {
-      oldValue && updateDOM(parent, oldValue, marker);
+      if (oldValue) updateDOM(parent, oldValue, marker);
       appendArray(parent, newNodes, marker);
     }
 
@@ -121,7 +121,8 @@ function resolveArray(
     isReactive = false;
 
   for (let i = 0; i < newNodes.length; i++) {
-    (value = newNodes[i]), (old = oldNodes[i]);
+    value = newNodes[i];
+    old = oldNodes[i];
     if (isDOMNode(value)) {
       currentNodes.push(value);
     } else if (isArray(value)) {
@@ -144,7 +145,11 @@ function resolveArray(
         isReactive = true;
       }
     } else if (value || value === 0) {
-      const text = value + '';
+      const text = isString(value)
+        ? value
+        : isNumber(value)
+          ? value.toString()
+          : (JSON.stringify(value) ?? '');
       if (old && old.nodeType === 3 && old.data === text) {
         currentNodes.push(old);
       } else {
@@ -194,9 +199,12 @@ function updateDOM(parent: Node, value: JSX.Element, marker?: Node | null, repla
       el = value[i] as Node;
       if (el !== location) {
         isParent = el.parentNode === parent;
-        if (!inserted && !i)
-          isParent ? parent.replaceChild(location, el) : parent.insertBefore(location, marker);
-        else isParent && parent.removeChild(el);
+        if (!inserted && !i) {
+          if (isParent) parent.replaceChild(location, el);
+          else parent.insertBefore(location, marker);
+        } else if (isParent) {
+          parent.removeChild(el);
+        }
       } else inserted = true;
     }
   } else if (isDOMNode(value)) {

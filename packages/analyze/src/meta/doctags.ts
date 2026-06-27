@@ -2,9 +2,9 @@ import kleur from 'kleur';
 import { dirname, normalize, resolve } from 'pathe';
 import type ts from 'typescript';
 
-import { filterArrayUnique } from '../../utils/array';
-import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
-import { escapeQuotes } from '../../utils/str';
+import { filterArrayUnique } from '../utils/array';
+import { LogLevel, reportDiagnosticByNode } from '../utils/logger';
+import { escapeQuotes } from '../utils/str';
 import type { DocTagMeta } from './component';
 import { TS_NODE_SYMBOL } from './symbols';
 

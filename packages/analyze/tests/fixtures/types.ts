@@ -1,5 +1,8 @@
-import { Component, State, method, prop, } from '@maverick-js/core';
-import type { MaverickEvent } from '@maverick-js/std';
+import { Component, createStore, type ComponentMeta } from "@maverick-js/core";
+import type { MaverickEvent } from "@maverick-js/std";
+
+export function prop(..._args: any[]) {}
+export function method(..._args: any[]) {}
 
 interface MooProps<T> {
   /** This is the moo docs. */
@@ -13,7 +16,7 @@ interface MooProps<T> {
   mooHux: boolean;
 }
 
-type FooProps = Pick<MooProps<string>, 'moo' | 'mooBoo'> & {
+type FooProps = Pick<MooProps<string>, "moo" | "mooBoo"> & {
   /**
    * This is the foo prop docs.
    */
@@ -78,11 +81,11 @@ type BarEvents = {
   hux: MaverickEvent<number | null>;
 } & BazEvents;
 
-type FooBoo = 'a' | 'b' | 'c';
+type FooBoo = "a" | "b" | "c";
 
 type BazEvents = {
-  'bax-hux': MaverickEvent<0 | 1 | 2 | 3>;
-  'baz-boo': MaverickEvent<FooBoo>;
+  "bax-hux": MaverickEvent<0 | 1 | 2 | 3>;
+  "baz-boo": MaverickEvent<FooBoo>;
 };
 
 interface FooCSSVars {
@@ -108,7 +111,7 @@ interface LuxProps {
   loo: number;
 }
 
-interface BaxProps extends Pick<LuxProps, 'loo'> {
+interface BaxProps extends Pick<LuxProps, "loo"> {
   jax: number;
 }
 
@@ -123,25 +126,27 @@ interface FooState {
   boom: string;
 }
 
-const state = new State<FooState>({
+const state = createStore<FooState>({
   get foo() {
     return this.baz + 10;
   },
   baz: 20,
   get boom() {
-    return this.foo + '';
+    return this.foo + "";
   },
-})
+});
 
-export class BaseComponent extends Component<
+type BaseComponentMeta = ComponentMeta<
   FooProps & BaxProps,
   FooState,
   FooEvents,
   FooCSSVars
-> {
+>;
+
+export class BaseComponent extends Component<BaseComponentMeta> {
   static props = {
     baxHux: 30,
-    huxBux: '',
+    huxBux: "",
   };
 
   static state = state;

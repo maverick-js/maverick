@@ -1,5 +1,6 @@
-import { Host } from '../../../../maverick/src/element';
-import { TestComponent } from './component';
+import { createElementClass } from "@maverick-js/element";
+
+import { TestComponent } from "./component";
 
 /**
  * Something about this element.
@@ -10,12 +11,4 @@ import { TestComponent } from './component';
  * @csspart foo - This is the foo CSS Part.
  * @csspart bar - This is the bar CSS Part.
  */
-export class TestElement extends Host(HTMLElement, TestComponent) {
-  static tagName = 'mk-test';
-
-  static attrs = {
-    bar: { attr: 'boo' },
-    lux: { attr: false },
-    huxBox: 'zoo',
-  };
-}
+export class TestElement extends createElementClass(TestComponent) {}

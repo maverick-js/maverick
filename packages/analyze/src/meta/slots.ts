@@ -1,7 +1,7 @@
 import kleur from 'kleur';
 
-import { filterArrayUnique } from '../../utils/array';
-import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
+import { filterArrayUnique } from '../utils/array';
+import { LogLevel, reportDiagnosticByNode } from '../utils/logger';
 import type { DocTagMeta } from './component';
 import type { SlotMeta } from './custom-element';
 import { splitJsDocTagText } from './doctags';

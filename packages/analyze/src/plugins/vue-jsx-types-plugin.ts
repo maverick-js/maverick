@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs';
 
-import { uniqueOnly } from '../../utils/array';
-import { kebabToPascalCase } from '../../utils/str';
+import { uniqueOnly } from '../utils/array';
+import { kebabToPascalCase } from '../utils/str';
 import type { AnalyzePlugin } from './analyze-plugin';
 
 export interface VueJSXPluginConfig {

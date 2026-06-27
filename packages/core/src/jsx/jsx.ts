@@ -185,8 +185,7 @@ export namespace JSX {
     textContent?: string;
   }
 
-  export interface SignalInnerContentAttributes
-    extends SignalOrValueAttributes<InnerContentAttributes> {}
+  export interface SignalInnerContentAttributes extends SignalOrValueAttributes<InnerContentAttributes> {}
 
   /**
    * -------------------------------------------------------------------------------------------
@@ -332,7 +331,8 @@ export namespace JSX {
   >;
 
   export interface GlobalCSSVarAttributes
-    extends CSSVarAttributes<MaverickCSSVarAttributes>,
+    extends
+      CSSVarAttributes<MaverickCSSVarAttributes>,
       SignalCSSVarAttributes<MaverickCSSVarAttributes> {}
 
   /**
@@ -367,7 +367,8 @@ export namespace JSX {
   };
 
   export interface HTMLElementAttributes
-    extends HTMLAttributes,
+    extends
+      HTMLAttributes,
       ClassAttributes,
       SignalClassAttributes,
       StyleAttributes,
@@ -411,8 +412,7 @@ export namespace JSX {
     width?: number | string;
   }
 
-  export interface HTMLMarqueeElementAttributes
-    extends HTMLPropAttributes<HTMLMarqueeElementProperties> {}
+  export interface HTMLMarqueeElementAttributes extends HTMLPropAttributes<HTMLMarqueeElementProperties> {}
 
   export interface HTMLInputElementAttributes extends IntrinsicElementAttributes<HTMLInputElement> {
     defaultValue?: string;
@@ -608,8 +608,7 @@ export namespace JSX {
   export interface SVGAttributes extends Pick<SVGProperties, CamelCaseSVGProperties> {}
 
   export interface SVGElementAttributes<Element extends DOMElement = SVGElement>
-    extends IntrinsicElementAttributes<Element>,
-      SVGAttributes {}
+    extends IntrinsicElementAttributes<Element>, SVGAttributes {}
 
   export interface PathAttributes {
     d: string;
@@ -1011,7 +1010,8 @@ export namespace JSX {
   export interface IntrinsicClassAttributes<T> extends RefAttributes<T> {}
 
   export interface IntrinsicElementAttributes<Element extends DOMElement>
-    extends HTMLElementAttributes,
+    extends
+      HTMLElementAttributes,
       RefAttributes<Element>,
       OnAttributes<Element, MaverickOnAttributes>,
       OnCaptureAttributes<Element, MaverickOnAttributes> {}

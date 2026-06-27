@@ -1,5 +1,6 @@
-import { BaseComponent } from './types';
-import { prop, method } from '../../../../maverick/src/core/decorators';
+import type { CustomElementOptions } from '@maverick-js/core';
+
+import { BaseComponent, method, prop } from './types';
 
 const props = {
   foo: 0,
@@ -21,6 +22,16 @@ const props = {
  * @part bar - This is the bar CSS Part.
  */
 export class TestComponent extends BaseComponent {
+  static element: CustomElementOptions<TestComponent> = {
+    name: 'mk-test',
+    fallbackTag: 'div',
+    attributes: {
+      bar: { attr: 'boo' },
+      lux: { attr: false },
+      huxBox: 'zoo',
+    },
+  };
+
   static props = {
     ...props,
     ...super.props,
@@ -84,4 +95,3 @@ export class TestComponent extends BaseComponent {
     super.destroy();
   }
 }
-

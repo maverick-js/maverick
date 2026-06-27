@@ -1,27 +1,28 @@
-import type {
-  ComponentNode,
-  CustomElementNode,
-  ReactComponentNode,
-} from '@maverick-js/core/analyze';
-import { TS_NODE } from '@maverick-js/core/analyze/meta/symbols';
-import { createBuildPlugin } from '@maverick-js/core/analyze/plugins/build-plugin';
-import { createDiscoverPlugin } from '@maverick-js/core/analyze/plugins/discover-plugin';
-import { compileOnce } from '@maverick-js/core/cli/compile';
-import { testDiagnostics } from '@maverick-js/core/utils/logger';
+import {
+  TS_NODE,
+  createBuildPlugin,
+  createDiscoverPlugin,
+  type ComponentNode,
+  type CustomElementNode,
+  type ReactComponentNode,
+} from '@maverick-js/analyze';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import ts from 'typescript';
 
-afterEach(() => {
-  testDiagnostics.splice(0, testDiagnostics.length);
-});
-
-const replacer = (key, value) => (key !== TS_NODE ? value : undefined);
+const replacer = (key, value) => {
+  if (key === TS_NODE) return undefined;
+  if (key === 'path' && typeof value === 'string') {
+    return path.relative(__dirname, value).split(path.sep).join('/');
+  }
+  return value;
+};
 
 it('should build component meta', async () => {
   const meta = await buildMeta(),
     output = path.resolve(__dirname, './meta.json'),
-    current = JSON.stringify(meta, replacer, 2),
+    current = `${JSON.stringify(meta, replacer, 2)}\n`,
     prev = existsSync(output) ? await readFile(output, 'utf-8') : null;
 
   if (!prev) {
@@ -85,4 +86,27 @@ async function buildMeta() {
   }
 
   return { components, elements, react };
+}
+
+function compileOnce(rootNames: string[]) {
+  const packagesDir = path.resolve(__dirname, '../..');
+
+  return ts.createProgram(rootNames, {
+    baseUrl: packagesDir,
+    experimentalDecorators: true,
+    jsx: ts.JsxEmit.Preserve,
+    jsxImportSource: '@maverick-js/core',
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+    noEmit: true,
+    paths: {
+      '@maverick-js/core': ['core/src/core/index.ts'],
+      '@maverick-js/core/jsx-runtime': ['core/src/jsx/jsx-runtime.ts'],
+      '@maverick-js/element': ['element/src/index.ts'],
+      '@maverick-js/react': ['react/src/types.ts'],
+      '@maverick-js/std': ['std/src/index.ts'],
+    },
+    strictNullChecks: true,
+    target: ts.ScriptTarget.ESNext,
+  });
 }

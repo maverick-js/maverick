@@ -1,14 +1,14 @@
 import ts from 'typescript';
 
-import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
-import { escapeQuotes } from '../../utils/str';
+import { LogLevel, reportDiagnosticByNode } from '../utils/logger';
+import { escapeQuotes } from '../utils/str';
 import { getProperties } from '../utils/walk';
 import type { AttrsMeta } from './custom-element';
 import { TS_NODE_SYMBOL } from './symbols';
 
 export function buildAttrsMeta(
   checker: ts.TypeChecker,
-  staticProp: ts.PropertyDeclaration | undefined,
+  staticProp: ts.PropertyDeclaration | ts.PropertyAssignment | undefined,
 ): AttrsMeta | undefined {
   if (!staticProp) return undefined;
 

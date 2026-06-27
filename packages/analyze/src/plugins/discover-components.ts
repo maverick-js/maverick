@@ -13,11 +13,22 @@ export function discoverComponents(checker: ts.TypeChecker, sourceFile: ts.Sourc
     const heritage = getHeritage(checker, node),
       baseComponent = heritage.classes.get('Component');
 
+    if (heritage.mixins.has('createElementClass') || heritage.mixins.has('Host')) return;
     if (!baseComponent) return;
 
     const types = {
       root: checker.getTypeAtLocation(node)!,
     } as ComponentNode['types'];
+
+    const metaSymbol = checker.getPropertyOfType(types.root, '$$ts__meta');
+
+    if (metaSymbol) {
+      const metaType = checker.getNonNullableType(checker.getTypeOfSymbol(metaSymbol));
+      types.props = getMetaType(checker, metaType, 'props');
+      types.state = getMetaType(checker, metaType, 'state');
+      types.events = getMetaType(checker, metaType, 'events');
+      types.cssvars = getMetaType(checker, metaType, 'cssProps');
+    }
 
     const instanceSymbol = checker.getPropertyOfType(types.root, '$$')!,
       instanceType = instanceSymbol && (checker.getTypeOfSymbol(instanceSymbol) as any);
@@ -25,7 +36,7 @@ export function discoverComponents(checker: ts.TypeChecker, sourceFile: ts.Sourc
     if (instanceType && (instanceType.resolvedTypeArguments as ts.Type[])) {
       let i = 0;
       for (const arg of ['props', 'state', 'events', 'cssvars']) {
-        types[arg] =
+        types[arg] ??=
           node.typeParameters && node.typeParameters[i]?.default
             ? checker.getTypeAtLocation(node.typeParameters[i].default!)
             : instanceType.resolvedTypeArguments[i];
@@ -57,4 +68,9 @@ export function discoverComponents(checker: ts.TypeChecker, sourceFile: ts.Sourc
   });
 
   return discovered;
+}
+
+function getMetaType(checker: ts.TypeChecker, metaType: ts.Type, prop: string) {
+  const symbol = checker.getPropertyOfType(metaType, prop);
+  return symbol ? checker.getNonNullableType(checker.getTypeOfSymbol(symbol)) : undefined;
 }

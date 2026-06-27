@@ -5,7 +5,7 @@
     "jsxImportSource": "@maverick-js/core",
     "paths": {
       "@maverick-js/core": ["../src/core/index.ts"],
-      "@maverick-js/core/jsx-runtime": ["../src/jsx/jsx-runtime.d.ts"]
+      "@maverick-js/core/jsx-runtime": ["../src/jsx/jsx-runtime.ts"]
     }
   }
 }

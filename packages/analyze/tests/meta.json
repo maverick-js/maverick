@@ -4,7 +4,7 @@
       "type": "component",
       "name": "TestComponent",
       "file": {
-        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/component.ts"
+        "path": "fixtures/component.ts"
       },
       "docs": "This is the `TestComponent` documentation.",
       "props": [
@@ -162,8 +162,8 @@
           "name": "bar",
           "type": {
             "primitive": "object",
-            "concise": "DOMEvent<void>",
-            "full": "DOMEvent<void>"
+            "concise": "MaverickEvent<void>",
+            "full": "MaverickEvent<void>"
           },
           "detail": {
             "primitive": "unknown",
@@ -176,7 +176,7 @@
           "type": {
             "primitive": "object",
             "concise": "BazEvent",
-            "full": "DOMEvent<0 | 1>"
+            "full": "MaverickEvent<0 | 1>"
           },
           "detail": {
             "primitive": "number",
@@ -190,8 +190,8 @@
           "name": "boo",
           "type": {
             "primitive": "object",
-            "concise": "DOMEvent<string | null>",
-            "full": "DOMEvent<string | null>"
+            "concise": "MaverickEvent<string | null>",
+            "full": "MaverickEvent<string | null>"
           },
           "detail": {
             "primitive": "string",
@@ -203,8 +203,8 @@
           "name": "lux",
           "type": {
             "primitive": "object",
-            "concise": "DOMEvent<string | null>",
-            "full": "DOMEvent<string | null>"
+            "concise": "MaverickEvent<string | null>",
+            "full": "MaverickEvent<string | null>"
           },
           "detail": {
             "primitive": "string",
@@ -219,8 +219,8 @@
           "name": "hux",
           "type": {
             "primitive": "object",
-            "concise": "DOMEvent<number | null>",
-            "full": "DOMEvent<number | null>"
+            "concise": "MaverickEvent<number | null>",
+            "full": "MaverickEvent<number | null>"
           },
           "detail": {
             "primitive": "number",
@@ -232,8 +232,8 @@
           "name": "bax-hux",
           "type": {
             "primitive": "object",
-            "concise": "DOMEvent<0 | 1 | 2 | 3>",
-            "full": "DOMEvent<0 | 1 | 2 | 3>"
+            "concise": "MaverickEvent<0 | 1 | 2 | 3>",
+            "full": "MaverickEvent<0 | 1 | 2 | 3>"
           },
           "detail": {
             "primitive": "number",
@@ -245,8 +245,8 @@
           "name": "baz-boo",
           "type": {
             "primitive": "object",
-            "concise": "DOMEvent<FooBoo>",
-            "full": "DOMEvent<FooBoo>"
+            "concise": "MaverickEvent<FooBoo>",
+            "full": "MaverickEvent<FooBoo>"
           },
           "detail": {
             "primitive": "string",
@@ -328,8 +328,7 @@
               "name": "tag",
               "text": "test"
             }
-          ],
-          "default": "20"
+          ]
         },
         {
           "name": "boom",
@@ -337,8 +336,7 @@
             "primitive": "string",
             "concise": "string",
             "full": "string"
-          },
-          "readonly": true
+          }
         }
       ],
       "members": {
@@ -504,7 +502,7 @@
     {
       "type": "element",
       "file": {
-        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/custom-element.ts"
+        "path": "fixtures/custom-element.ts"
       },
       "name": "TestElement",
       "docs": "Something about this element.",
@@ -556,7 +554,7 @@
     {
       "type": "react",
       "file": {
-        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/react.tsx"
+        "path": "fixtures/react.tsx"
       },
       "namespace": "React",
       "name": "Foo",
@@ -567,7 +565,6 @@
           "name": "internal"
         }
       ],
-      "attributes": "SVGAttributes<SVGElement>",
       "props": [
         {
           "name": "a",
@@ -653,7 +650,7 @@
     {
       "type": "react",
       "file": {
-        "path": "/Users/v.rahim.alwer/Desktop/Projects/maverick/packages/cli/tests/analyze/fixtures/react.tsx"
+        "path": "fixtures/react.tsx"
       },
       "namespace": "React",
       "name": "Bar",
@@ -672,9 +669,9 @@
         {
           "name": "children",
           "type": {
-            "primitive": "mixed",
-            "concise": "ReactNode",
-            "full": "string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined"
+            "primitive": "any",
+            "concise": "any",
+            "full": "any"
           }
         },
         {

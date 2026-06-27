@@ -9,7 +9,8 @@ import type { SignalOrValue } from './types';
 // ---------------------------------------------------------------------------------------------
 
 export interface HostProps
-  extends Omit<JSX.IntrinsicElementAttributes<HTMLElement>, 'children'>,
+  extends
+    Omit<JSX.IntrinsicElementAttributes<HTMLElement>, 'children'>,
     JSX.OnAttributes<HTMLElement, ComponentLifecycleEvents> {
   children?: JSX.Element;
 }
@@ -18,7 +19,7 @@ export interface HostProps
  * This component can be used at the root of the render function to set attributes and event
  * listeners on the host element (the root element that content will be rendered inside).
  */
-export function Host(props: HostProps) {
+export function Host(_props: HostProps) {
   return null; // virtual component, replaced by compiler.
 }
 
@@ -43,7 +44,7 @@ export interface FragmentProps {
  * </Fragment>
  * ```
  */
-export function Fragment(props: FragmentProps): JSX.Element {
+export function Fragment(_props: FragmentProps): JSX.Element {
   return null; // virtual component, replaced by compiler.
 }
 
@@ -68,7 +69,7 @@ export interface PortalProps {
  * </Portal>
  * ```
  */
-export function Portal(props: PortalProps): JSX.Element {
+export function Portal(_props: PortalProps): JSX.Element {
   return null; // virtual component, replaced by compiler.
 }
 
@@ -103,7 +104,7 @@ export interface ForSlots<Item = unknown> {
  * </For>
  * ```
  */
-export function For<Item>(props: ForProps<Item>): JSX.Element {
+export function For<Item>(_props: ForProps<Item>): JSX.Element {
   return null; // virtual component, replaced by compiler.
 }
 
@@ -138,6 +139,6 @@ export interface ForKeyedSlots<Item = unknown> {
  * </ForKeyed>
  * ```
  */
-export function ForKeyed<Item>(props: ForKeyedProps<Item>): JSX.Element {
+export function ForKeyed<Item>(_props: ForKeyedProps<Item>): JSX.Element {
   return null; // virtual component, replaced by compiler.
 }

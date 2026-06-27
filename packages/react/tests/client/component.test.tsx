@@ -1,4 +1,10 @@
-import { Component, type ComponentConstructor, createContext } from '@maverick-js/core';
+import {
+  Component,
+  type ComponentConstructor,
+  createContext,
+  effect,
+  onAttach,
+} from '@maverick-js/core';
 import {
   createReactComponent,
   type CreateReactComponentOptions,
@@ -7,23 +13,33 @@ import {
   type ReactBridgeProps,
   useReactContext,
   useReactScope,
-} from '@maverick-js/core/react';
+} from '@maverick-js/react';
+import type { MaverickEvent } from '@maverick-js/std';
+import { act } from 'react';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-import { act } from 'react-dom/test-utils';
 
 it('should render', () => {
   interface Props {
     id: string;
   }
 
-  class TestComponent extends Component<Props> {
+  interface Meta {
+    props: Props;
+  }
+
+  class TestComponent extends Component<Meta> {
     static props: Props = { id: '' };
-    override onAttach(el: HTMLElement) {
-      expect(el.localName).toBe('button');
-      expect(el).toBeInstanceOf(HTMLButtonElement);
-      this.setAttributes({
-        id: this.$props.id,
+
+    constructor() {
+      super();
+
+      onAttach((el) => {
+        expect(el.localName).toBe('button');
+        expect(el).toBeInstanceOf(HTMLButtonElement);
+        effect(() => {
+          el.id = this.$props.id();
+        });
       });
     }
   }
@@ -32,7 +48,10 @@ it('should render', () => {
     return React.createElement('button', { ...props, 'data-test': '' });
   }
 
-  const { container, update, unmount } = setup(TestComponent, { children });
+  const { container, update, unmount } = setup(TestComponent, {
+    id: '',
+    children,
+  });
 
   expect(container).toMatchInlineSnapshot(`
     <root>
@@ -57,16 +76,22 @@ it('should render', () => {
   expect(container).toMatchInlineSnapshot('<root />');
 });
 
-it.only('should invoke event callback', () => {
+it('should invoke event callback', () => {
   interface Events {
-    foo: MouseEvent;
+    foo: MaverickEvent<number>;
   }
 
-  const event = new MouseEvent('foo', { detail: 1 });
+  interface Meta {
+    events: Events;
+  }
 
-  class TestComponent extends Component<{}, {}, Events> {
-    override onAttach() {
-      this.dispatch(event);
+  class TestComponent extends Component<Meta> {
+    constructor() {
+      super();
+
+      onAttach(() => {
+        this.dispatch('foo', { detail: 1 });
+      });
     }
   }
 
@@ -78,7 +103,7 @@ it.only('should invoke event callback', () => {
     { unmount } = setup(TestComponent, { onFoo, children }, { events: ['onFoo'] });
 
   expect(onFoo).toHaveBeenCalledTimes(1);
-  expect(onFoo).toHaveBeenCalledWith(1, event);
+  expect(onFoo).toHaveBeenCalledWith(1, expect.objectContaining({ type: 'foo' }));
 
   unmount();
 });
@@ -92,6 +117,7 @@ it('should provide scope', () => {
     root.render(
       React.createElement(
         Provider,
+        null,
         React.createElement(() => {
           const scope = useReactScope();
           expect(scope).toBeDefined();
@@ -154,18 +180,21 @@ function setup<T extends Component>(
     root.render(React.createElement(node, props));
   });
 
-  return {
-    root,
-    container,
-    update(props: ReactBridgeProps<T>) {
+  const update = (props: ReactBridgeProps<T>) => {
       act(() => {
         root.render(React.createElement(node, props));
       });
     },
-    unmount() {
+    unmount = () => {
       act(() => {
         root.unmount();
       });
-    },
+    };
+
+  return {
+    root,
+    container,
+    update,
+    unmount,
   };
 }

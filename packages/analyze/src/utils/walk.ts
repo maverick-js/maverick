@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import { escapeQuotes } from '../../utils/str';
+import { escapeQuotes } from './str';
 import { getDeclaration, getShorthandAssignmentDeclaration } from './declaration';
 
 export function getProperties(checker: ts.TypeChecker, node: ts.Node) {

@@ -1,9 +1,9 @@
 import ts from 'typescript';
 
-import { LogLevel, reportDiagnosticByNode } from '../../utils/logger';
+import { LogLevel, reportDiagnosticByNode } from '../utils/logger';
 import { getDeclaration } from '../utils/declaration';
 import { getStaticProp } from '../utils/props';
-import { getHeritage } from '../utils/walk';
+import { findPropertyAssignment, getHeritage } from '../utils/walk';
 import type { CustomElementNode } from './analyze-plugin';
 
 export function discoverCustomElements(checker: ts.TypeChecker, sourceFile: ts.SourceFile) {
@@ -14,41 +14,62 @@ export function discoverCustomElements(checker: ts.TypeChecker, sourceFile: ts.S
 
     const heritage = getHeritage(checker, node),
       hostMixin = heritage.mixins.get('Host'),
-      hostMixinDeclaration =
-        hostMixin &&
-        ts.isIdentifier(hostMixin.expression) &&
-        getDeclaration(checker, hostMixin.expression);
+      createElementClassMixin = heritage.mixins.get('createElementClass'),
+      maverickMixin = hostMixin || createElementClassMixin,
+      maverickMixinDeclaration =
+        maverickMixin &&
+        ts.isIdentifier(maverickMixin.expression) &&
+        getDeclaration(checker, maverickMixin.expression);
 
     if (
       !heritage.classes.has('HTMLElement') &&
-      (!hostMixinDeclaration || !hostMixinDeclaration.getSourceFile().fileName.includes('maverick'))
+      (!maverickMixinDeclaration ||
+        !maverickMixinDeclaration.getSourceFile().fileName.includes('maverick'))
     ) {
       return;
     }
 
     // Host(HTMLElement, Component)
     if (hostMixin && !ts.isIdentifier(hostMixin.arguments[1])) return;
+    // createElementClass(Component)
+    if (createElementClassMixin && !ts.isIdentifier(createElementClassMixin.arguments[0])) return;
 
-    const component = hostMixin && getDeclaration(checker, hostMixin.arguments[1] as ts.Identifier);
+    const componentArg = hostMixin
+        ? hostMixin.arguments[1]
+        : createElementClassMixin
+          ? createElementClassMixin.arguments[0]
+          : null,
+      component = componentArg && getDeclaration(checker, componentArg as ts.Identifier);
     if (component && !ts.isClassDeclaration(component)) {
-      reportDiagnosticByNode('expected component', hostMixin.arguments[1], LogLevel.Warn);
+      reportDiagnosticByNode('expected component', componentArg!, LogLevel.Warn);
       return;
     }
 
-    const tagNameProp = getStaticProp(node, 'tagName');
+    const elementProp = component ? getStaticElementProp(component, 'name') : undefined,
+      tagNameProp = getStaticProp(node, 'tagName') || elementProp;
     if (!tagNameProp) {
-      reportDiagnosticByNode('missing static `tagName`', node, LogLevel.Warn);
+      reportDiagnosticByNode('missing static `tagName` or `element.name`', node, LogLevel.Warn);
       return;
     }
 
     if (!tagNameProp.initializer || !ts.isStringLiteral(tagNameProp.initializer)) {
-      reportDiagnosticByNode('`tagName` must be a string literal', tagNameProp, LogLevel.Warn);
+      reportDiagnosticByNode(
+        '`tagName` or `element.name` must be a string literal',
+        tagNameProp,
+        LogLevel.Warn,
+      );
       return;
     }
 
-    let attrs = getStaticProp(node, 'attrs');
+    let attrs =
+      getStaticProp(node, 'attrs') ||
+      (component ? getStaticElementProp(component, 'attributes') : undefined);
     if (attrs && (!attrs.initializer || !ts.isObjectLiteralExpression(attrs.initializer))) {
-      reportDiagnosticByNode('`attrs` must be a object literal', attrs, LogLevel.Warn);
+      reportDiagnosticByNode(
+        '`attrs` or `element.attributes` must be a object literal',
+        attrs,
+        LogLevel.Warn,
+      );
       attrs = undefined;
     }
 
@@ -62,4 +83,12 @@ export function discoverCustomElements(checker: ts.TypeChecker, sourceFile: ts.S
   });
 
   return discovered;
+}
+
+function getStaticElementProp(node: ts.ClassDeclaration, name: string) {
+  const element = getStaticProp(node, 'element');
+  if (!element?.initializer || !ts.isObjectLiteralExpression(element.initializer)) return;
+
+  const prop = findPropertyAssignment(element.initializer, name);
+  return prop && ts.isPropertyAssignment(prop) ? prop : undefined;
 }

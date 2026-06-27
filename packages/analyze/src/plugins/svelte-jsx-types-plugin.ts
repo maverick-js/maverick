@@ -1,6 +1,6 @@
 import { writeFileSync } from 'node:fs';
 
-import { uniqueOnly } from '../../utils/array';
+import { uniqueOnly } from '../utils/array';
 import type { AnalyzePlugin } from './analyze-plugin';
 
 export interface SvelteJSXPluginConfig {

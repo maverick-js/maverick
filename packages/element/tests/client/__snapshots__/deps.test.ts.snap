@@ -2,12 +2,6 @@
 
 exports[`should wait for parents to connect 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <mk-parent-a>
     <mk-parent-b>
       <mk-child>

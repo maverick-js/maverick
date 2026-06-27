@@ -278,7 +278,8 @@ export type CSSProperties = AnyCSSProperty & {
 export interface CSSStyles extends KebabCaseRecord<CSSProperties> {}
 
 export interface ElementAttributesRecord
-  extends NullableSignalOrValueRecord<HTMLAttrs>,
+  extends
+    NullableSignalOrValueRecord<HTMLAttrs>,
     NullableSignalOrValueRecord<ARIAAttributes>,
     NullableSignalOrValueRecord<AttrsRecord> {}
 

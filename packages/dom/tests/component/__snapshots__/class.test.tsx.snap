@@ -16,12 +16,6 @@ exports[`children 1`] = `
 
 exports[`host vars 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <div
     class="foo bar"
   />
@@ -30,12 +24,6 @@ exports[`host vars 1`] = `
 
 exports[`host vars 2`] = `
 <body>
-  
-    
-  
-  
-
-
   <div
     class="foo"
   />

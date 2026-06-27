@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@maverick-js/analyze": ["./src/index.ts"],
+      "@maverick-js/logger": ["../logger/src/index.ts"]
+    },
+    "types": ["@types/node", "vitest/globals"]
+  },
+  "include": ["src", "tests/*.test.ts"],
+  "exclude": ["dist", "node_modules", "*.d.ts", "tests/fixtures"]
+}

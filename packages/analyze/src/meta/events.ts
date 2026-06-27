@@ -1,9 +1,9 @@
 import ts from 'typescript';
 
-import { escapeQuotes } from '../../utils/str';
+import { escapeQuotes } from '../utils/str';
 import { getDeclaration } from '../utils/declaration';
 import { getDocs } from '../utils/docs';
-import { buildTypeMeta, serializeType } from '../utils/types';
+import { buildTypeMeta } from '../utils/types';
 import type { EventMeta } from './component';
 import { getDocTags, hasDocTag } from './doctags';
 import { TS_NODE_SYMBOL } from './symbols';

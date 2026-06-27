@@ -1,6 +1,9 @@
 import { type AnyComponent, scoped } from '@maverick-js/core';
-import { ServerAttributes, ServerStyleDeclaration, ServerTokenList } from '@maverick-js/ssr';
 import { noop } from '@maverick-js/std';
+
+import { ServerAttributes } from './server-attributes';
+import { ServerStyleDeclaration } from './server-style-declaration';
+import { ServerTokenList } from './server-token-list';
 
 export class ServerElement<T extends AnyComponent = AnyComponent> implements HTMLServerElement {
   keepAlive = false;
@@ -94,19 +97,18 @@ export class ServerElement<T extends AnyComponent = AnyComponent> implements HTM
   }
 }
 
-export interface HTMLServerElement
-  extends Pick<
-    HTMLElement,
-    | 'tagName'
-    | 'localName'
-    | 'getAttribute'
-    | 'setAttribute'
-    | 'hasAttribute'
-    | 'removeAttribute'
-    | 'dispatchEvent'
-    | 'addEventListener'
-    | 'removeEventListener'
-  > {
+export interface HTMLServerElement extends Pick<
+  HTMLElement,
+  | 'tagName'
+  | 'localName'
+  | 'getAttribute'
+  | 'setAttribute'
+  | 'hasAttribute'
+  | 'removeAttribute'
+  | 'dispatchEvent'
+  | 'addEventListener'
+  | 'removeEventListener'
+> {
   readonly classList: Pick<
     HTMLElement['classList'],
     'length' | 'add' | 'contains' | 'remove' | 'replace' | 'toggle' | 'toString'

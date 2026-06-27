@@ -1,4 +1,4 @@
-import { isString, isUndefined } from '../../utils/unit';
+import { isString, isUndefined } from './unit';
 import { resolvePath } from './path';
 
 export async function resolveConfigPaths<T extends Record<string, unknown>>(

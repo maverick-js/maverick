@@ -1,12 +1,15 @@
 import kleur from 'kleur';
 import type ts from 'typescript';
 
-import type { AnalyzeFramework, AnalyzePlugin } from '../../analyze/plugins/analyze-plugin';
-import { createBuildPlugin } from '../../analyze/plugins/build-plugin';
-import { createDiscoverPlugin } from '../../analyze/plugins/discover-plugin';
-import { runPlugins } from '../../analyze/plugins/lifecycle';
-import { parseGlobs } from '../../analyze/utils/globs';
-import { resolveConfigPaths } from '../../analyze/utils/resolve';
+import {
+  type AnalyzeFramework,
+  type AnalyzePlugin,
+  createBuildPlugin,
+  createDiscoverPlugin,
+  parseGlobs,
+  resolveConfigPaths,
+  runPlugins,
+} from '@maverick-js/analyze';
 import { clearTerminal, log, LogLevel, logTime } from '../../utils/logger';
 import { isArray, isUndefined } from '../../utils/unit';
 import { compileAndWatch, compileOnce, transpileModuleOnce } from '../compile';
@@ -81,7 +84,7 @@ async function run(
   program: ts.Program,
   plugins: AnalyzePlugin[],
   filePaths: string[],
-  framework: AnalyzeFramework | undefined = undefined,
+  framework?: AnalyzeFramework,
   watching = false,
 ) {
   const startAnalyzeTime = process.hrtime();

@@ -1,7 +1,7 @@
 import ts from 'typescript';
 
-import { reportDiagnosticByNode } from '../../utils/logger';
-import { escapeQuotes } from '../../utils/str';
+import { reportDiagnosticByNode } from '../utils/logger';
+import { escapeQuotes } from '../utils/str';
 import { buildTypeMeta } from '../utils/types';
 import type { MembersMeta, MethodMeta, PropMeta } from './component';
 import { buildMethodMeta } from './methods';
@@ -80,12 +80,16 @@ const validDecoratorName = /^prop|method$/,
   ignoredName = new Set([
     '$',
     '$$',
+    '$$ts__meta',
     'scope',
+    'host',
+    '$host',
     'attachScope',
     'connectScope',
     'el',
     '$el',
     '$props',
+    'jsxProps',
     'state',
     '$state',
     'subscribe',
@@ -102,6 +106,7 @@ const validDecoratorName = /^prop|method$/,
     'dispatchEvent',
     'addEventListener',
     'removeEventListener',
+    '[RENDER_SYMBOL]',
   ]),
   decoratorWarnings = new Set<ts.Node>();
 

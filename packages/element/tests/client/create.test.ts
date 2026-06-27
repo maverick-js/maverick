@@ -60,7 +60,7 @@ it('should observe attributes', () => {
 
   window.customElements.define(TestElement.tagName, TestElement);
 
-  const el = document.createElement(TestElement.tagName) as TestElement;
+  const el = document.createElement(TestElement.tagName) as MaverickElement<TestComponent>;
   target.append(el);
 
   expect(TestElement.observedAttributes).toEqual(['foo', 'bar', 'baz-bax', 'baz-bax-hux']);
@@ -121,6 +121,7 @@ it('should call lifecycle hooks', async () => {
 
   el.remove();
 
+  await Promise.resolve();
   await waitTimeout(0);
   await waitAnimationFrame();
 

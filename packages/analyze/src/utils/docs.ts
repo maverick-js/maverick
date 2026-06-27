@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import { normalizeLineBreaks } from '../../utils/str';
+import { normalizeLineBreaks } from './str';
 
 export function getDocs(checker: ts.TypeChecker, id: ts.Identifier): string | undefined {
   const comment = checker.getSymbolAtLocation(id)?.getDocumentationComment(checker);

@@ -56,7 +56,7 @@ export function Host(props: HostProps) {
 
   $$_current_host_component!.$$.attach(host);
 
-  requestAnimationFrame(connect.bind($$_current_host_component!));
+  window.requestAnimationFrame(connect.bind($$_current_host_component!));
 
   return host;
 }

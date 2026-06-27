@@ -4,7 +4,7 @@ import type { DocTagMeta, FileMeta } from './component';
 import type { TS_NODE_SYMBOL } from './symbols';
 
 export interface TagMeta {
-  [TS_NODE_SYMBOL]?: ts.PropertyDeclaration;
+  [TS_NODE_SYMBOL]?: ts.Node;
   name: string;
 }
 

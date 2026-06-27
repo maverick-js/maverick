@@ -2,12 +2,6 @@
 
 exports[`<Host> 1`] = `
 <body>
-  
-    
-  
-  
-
-
   <div
     class="foo bar"
     data-foo=""
